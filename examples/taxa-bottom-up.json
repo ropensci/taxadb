@@ -1,0 +1,36 @@
+   {
+      "@id": "GBIF:5219173",
+      "name": "Canis lupus",
+      "rank": "species",
+      "parent": {
+        "@id": "GBIF:5219142",
+        "name": "Canis",
+        "rank": "genus",
+        "parent": {
+          "@id": "GBIF:9701",
+          "name": "Canidae",
+          "rank": "family",
+          "parent": {
+            "@id": "GBIF:732",
+            "name": "Carnivora",
+            "rank": "order",
+            "parent": {
+              "@id": "GBIF:359",
+              "name": "Mammalia",
+              "rank": "class",
+              "parent": {
+                "@id": "GBIF:44",
+                "name": "Chordata",
+                "rank": "phylum",
+                "parent": {
+                  "@id": "GBIF:1",
+                  "name": "Animalia",
+                  "rank": "kingdom"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+ 

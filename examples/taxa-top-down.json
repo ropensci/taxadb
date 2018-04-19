@@ -1,0 +1,45 @@
+{
+  "@context": {
+    "@vocab": "http://example.com/",
+    "child": {
+      "@reverse": "parent"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "GBIF:1",
+      "child": {
+        "@id": "GBIF:44",
+        "child": {
+          "@id": "GBIF:359",
+          "child": {
+            "@id": "GBIF:732",
+            "child": {
+              "@id": "GBIF:9701",
+              "child": {
+                "@id": "GBIF:5219142",
+                "child": {
+                  "@id": "GBIF:5219173",
+                  "name": "Canis lupus",
+                  "rank": "species"
+                },
+                "name": "Canis",
+                "rank": "genus"
+              },
+              "name": "Canidae",
+              "rank": "family"
+            },
+            "name": "Carnivora",
+            "rank": "order"
+          },
+          "name": "Mammalia",
+          "rank": "class"
+        },
+        "name": "Chordata",
+        "rank": "phylum"
+      },
+      "name": "Animalia",
+      "rank": "kingdom"
+    }
+    ]
+}

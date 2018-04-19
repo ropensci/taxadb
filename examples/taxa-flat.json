@@ -1,0 +1,23 @@
+{ "@graph": [
+    {
+      "species": "Canis lupus",
+      "genus": "Canis",
+      "family": "Canidae",
+      "order": "Carnivora",
+      "class": "Mammalia",
+      "phylum": "Chordata",
+      "kingdom": "Animalia"
+    },
+    
+    {
+      "species": {"name":  "Canis lupus", "@id": "GBIF:5219173", "sameAs": ""},
+      "genus":   {"name":  "Canis", "@id": "GBIF:5219142"},
+      "family":  {"name":  "Canidae",  "@id": "GBIF:9701"},
+      "order":   {"name":  "Carnivora", "@id": "GBIF:359"},
+      "class":   {"name": "Mammalia","@id": "GBIF:732"},
+      "phylum":  {"name": "Chordata",  "@id": "GBIF:44"},
+      "kingdom": {"name": "Animalia",  "@id": "GBIF:1"}
+    }
+    
+]}
+  
