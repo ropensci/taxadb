@@ -1,19 +1,41 @@
 # FROM: Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph (Version 0.3.1) [Data set]. 
 # Zenodo. http://doi.org/10.5281/zenodo.1213465
 
-
 library(tidyverse)
 
 #' @importFrom readr read_tsv
-prefixes <- read_tsv("https://zenodo.org/record/1213465/files/prefixes.tsv")
-taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz")
-taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz")
+prefixes <- read_tsv("https://zenodo.org/record/1213465/files/prefixes.tsv", quote = "")
+taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", quote = "")
+taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", quote = "")
+
+
+#download.file("https://zenodo.org/record/1213465/files/prefixes.tsv", "data/prefixes.tsv")
+#download.file("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", "data/taxonCache.tsv.gz")
+#download.file("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", "data/taxonMap.tsv.gz")
+
+prefixes <- read_tsv("data/prefixes.tsv", quote = "")
+#taxonCache <- read_tsv("data/taxonCache.tsv.gz", quote = "")
+taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
+
+taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
+
+## fix alignment error on taxonCache when `id` is missing:
+noid <- taxonCache %>% filter(grepl(":", path))
+hasid <- taxonCache %>% filter(!grepl(":", path))
+names(noid) <- names(noid)[-1]
+noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
+
+taxonCache <- bind_rows(hasid, noid)
+
 
 
 
 #n_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
 #taxonCache$n_pipes <- n_pipes
 
+## ugh, really slow, really should be done with tidyr::separate,
+##  but would require at least grouping by pipe-length
+## (this is also potentially fragile.)
 
 #' @importFrom purrr transpose map_dfr
 #' @importFrom dplyr as_tibble left_join select
@@ -21,12 +43,12 @@ taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz")
 split_taxa <- 
   function(df, pattern = "\\s*\\|\\s*"){
     out <- map_dfr(transpose(df), function(row){ 
+      bind_cols(row,
       as_tibble(setNames(as.list(
-        c(row$id, str_split(row$value, pattern)[[1]])),
-        c("id", guess(str_to_lower(str_split(row$type, pattern)[[1]])))
-      ), validate=FALSE) # allow duplicate column names
+        str_split(row$value, pattern)[[1]]),
+        guess(str_to_lower(str_split(row$type, pattern)[[1]]))
+      )))# allow duplicate column names
     })
-    left_join(select(df, -value, -type), out, by="id")
   }
 
 guess <- function(x){
@@ -38,16 +60,13 @@ guess <- function(x){
 ## Small example works despite differing numbers of pipes!
 taxonCache %>%
   rename(value = path, type=pathNames) %>% 
-  distinct(id, .keep_all = TRUE) %>% 
-  filter(str_detect(name, "Gadus morhua")) %>% 
+  filter(str_detect(name, "Gadus morhua"))  %>% 
   split_taxa()
 
 
 ## Small example works despite differing numbers of pipes!
-taxonCache %>%
+taxa <- taxonCache %>%
   rename(value = path, type=pathNames) %>% 
-  distinct(id, .keep_all = TRUE) %>% 
-#  filter(str_detect(name, "Gadus")) %>%
   split_taxa()
 
 ## dbplyr partial match  
