@@ -17,14 +17,16 @@ taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", 
 #taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
-taxonCache %>% filter(!grepl("(:|-|_)", id)) 
+taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
+
+
 
 ## fix alignment error on taxonCache when `id` is missing:
-noid <- taxonCache %>% filter(!grepl("(:|-|_)", id))
-hasid <- taxonCache %>% filter(grepl("(:|-|_)", id))
-names(noid) <- names(noid)[-1]
-noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
-taxonCache <- bind_rows(hasid, noid)
+#noid <- taxonCache %>% filter(!grepl("(:|-|_)", id))
+#hasid <- taxonCache %>% filter(grepl("(:|-|_)", id))
+#names(noid) <- names(noid)[-1]
+#noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
+#taxonCache <- bind_rows(hasid, noid)
 
 
 
