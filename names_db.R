@@ -28,6 +28,15 @@ taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
 #noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
 #taxonCache <- bind_rows(hasid, noid)
 
+## Expect same number of pipes in each entry:
+path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
+pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
+#pathIds_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
+na_path <- is.na(taxonCache$path)
+na_pathNames <- is.na(taxonCache$pathNames)
+
+good <-  which(!(!(path_pipes == pathName_pipes) & !na_path & !na_pathNames))
+trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
 
 
 
@@ -44,11 +53,12 @@ taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
 split_taxa <- 
   function(df, pattern = "\\s*\\|\\s*"){
     out <- map_dfr(transpose(df), function(row){ 
-      bind_cols(row,
-      as_tibble(setNames(as.list(
+      ranks <- setNames(as.list(
         str_split(row$value, pattern)[[1]]),
-        guess(str_to_lower(str_split(row$type, pattern)[[1]]))
-      )))# allow duplicate column names
+        str_to_lower(str_split(row$type, pattern)[[1]])
+      )
+      names(ranks) <- guess(names(ranks))
+      bind_cols(row, as_tibble(ranks))
     })
   }
 
@@ -58,6 +68,7 @@ guess <- function(x){
   make.unique(x)
 }
 
+
 ## Small example works despite differing numbers of pipes!
 taxonCache %>%
   rename(value = path, type=pathNames) %>% 
@@ -65,11 +76,14 @@ taxonCache %>%
   split_taxa()
 
 # 3052673 rows.  3,052,673
-taxa <- taxonCache %>%
+taxa <- taxonCache[good,] %>%
   rename(value = path, type=pathNames) %>% 
-#  slice(18090:18100) %>%
+  #slice(2.43359e5:2.43356e5) %>%
   split_taxa()
 
+taxa[4,] %>% split_taxa()
+
+row <- taxa[4,]
 ## dbplyr partial match  
 #filter(name  %like% "%Mammalia%")
 
