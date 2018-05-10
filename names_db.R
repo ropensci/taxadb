@@ -5,26 +5,25 @@ library(tidyverse)
 
 #' @importFrom readr read_tsv
 prefixes <- read_tsv("https://zenodo.org/record/1213465/files/prefixes.tsv", quote = "")
-taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", quote = "")
+#taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", quote = "")
 taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", quote = "")
 
 
 #download.file("https://zenodo.org/record/1213465/files/prefixes.tsv", "data/prefixes.tsv")
 #download.file("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", "data/taxonCache.tsv.gz")
 #download.file("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", "data/taxonMap.tsv.gz")
-
-prefixes <- read_tsv("data/prefixes.tsv", quote = "")
+#prefixes <- read_tsv("data/prefixes.tsv", quote = "")
 #taxonCache <- read_tsv("data/taxonCache.tsv.gz", quote = "")
-taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
+#taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
+taxonCache %>% filter(!grepl("(:|-|_)", id)) 
 
 ## fix alignment error on taxonCache when `id` is missing:
-noid <- taxonCache %>% filter(grepl(":", path))
-hasid <- taxonCache %>% filter(!grepl(":", path))
+noid <- taxonCache %>% filter(!grepl("(:|-|_)", id))
+hasid <- taxonCache %>% filter(grepl("(:|-|_)", id))
 names(noid) <- names(noid)[-1]
 noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
-
 taxonCache <- bind_rows(hasid, noid)
 
 
@@ -63,10 +62,10 @@ taxonCache %>%
   filter(str_detect(name, "Gadus morhua"))  %>% 
   split_taxa()
 
-
-## Small example works despite differing numbers of pipes!
+# 3052673 rows.  3,052,673
 taxa <- taxonCache %>%
   rename(value = path, type=pathNames) %>% 
+#  slice(18090:18100) %>%
   split_taxa()
 
 ## dbplyr partial match  
