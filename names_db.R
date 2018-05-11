@@ -17,8 +17,14 @@ taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", 
 #taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
+
+taxonCache %>% filter(grepl(":", path))
+taxonCache %>% filter(grepl(":", pathNames))
+
+
 taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
 
+taxonCache %>% filter(grepl("\\s", id)) -> error
 
 
 ## fix alignment error on taxonCache when `id` is missing:
@@ -29,14 +35,14 @@ taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
 #taxonCache <- bind_rows(hasid, noid)
 
 ## Expect same number of pipes in each entry:
-path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
-pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
+#path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
+#pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
 #pathIds_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
-na_path <- is.na(taxonCache$path)
-na_pathNames <- is.na(taxonCache$pathNames)
+#na_path <- is.na(taxonCache$path)
+#na_pathNames <- is.na(taxonCache$pathNames)
 
-good <-  which(!(!(path_pipes == pathName_pipes) & !na_path & !na_pathNames))
-trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
+#good <-  which(!(!(path_pipes == pathName_pipes) & !na_path & !na_pathNames))
+#trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
 
 
 
@@ -76,14 +82,12 @@ taxonCache %>%
   split_taxa()
 
 # 3052673 rows.  3,052,673
-taxa <- taxonCache[good,] %>%
+taxa <- taxonCache %>%
   rename(value = path, type=pathNames) %>% 
-  #slice(2.43359e5:2.43356e5) %>%
   split_taxa()
 
-taxa[4,] %>% split_taxa()
+# write_tsv(taxa, "data/taxonRankCache.tsv.gz") ## default compression
+## serious compression ~ about the same.  
+write_tsv(taxa, gzfile("data/taxonRankCache.tsv.gz", compression = 9))
 
-row <- taxa[4,]
-## dbplyr partial match  
-#filter(name  %like% "%Mammalia%")
-
+write_tsv(taxonCache, bzfile("data/taxonCache.tsv.bz2", compression=9))
