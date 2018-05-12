@@ -72,8 +72,6 @@ guess <- function(x){
   make.unique(x)
 }
 
-taxonCache %>% filter(id == "NCBI:328276") %>% slice(1) -> row
-
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 
   row_as_df <- 
     data_frame(path = str_split(row$path, pattern)[[1]],
@@ -82,11 +80,11 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
 }
 
 ## Small example works despite differing numbers of pipes!
-taxonCache %>%
+tmp <- taxonCache %>%
   filter(str_detect(name, "Gadus morhua"))  %>% 
   transpose() %>% 
   map_dfr(longform) %>% 
-  distinct() -> tmp
+  distinct()
 View(tmp)
 
 ## Note we have disagreement:
@@ -96,10 +94,11 @@ tmp %>% filter(pathNames == "class")
 
 # 3052673 rows.  3,052,673
 taxa <- taxonCache %>%
-  rename(value = path, type=pathNames) %>% 
-  split_taxa()
+  filter(str_detect(name, "Gadus morhua"))  %>% 
+  transpose() %>% 
+  map_dfr(longform) %>% 
+  distinct() 
 
-taxonCache %>% filter(id == "NCBI:328276") %>% slice(1) -> row
 
 
 
