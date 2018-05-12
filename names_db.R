@@ -97,7 +97,6 @@ tmp %>% filter(pathNames == "class")
 # 3052673 rows.  3,052,673
 system.time({
 taxa <- taxonCache %>%
-  slice(1:1e4)  %>% # test a large subset
   transpose() %>% 
   map_dfr(longform) %>% 
   distinct() 
@@ -110,4 +109,4 @@ taxa <- taxonCache %>%
 ## serious compression ~ about the same.  
 #write_tsv(taxa, bzfile("data/taxonRankCache.tsv.bz2", compression = 9))
 
-write_tsv(taxonCache, bzfile("data/taxonCache.tsv.bz2", compression=9))
+write_tsv(taxa, bzfile("data/taxa.tsv.bz2", compression=9))
