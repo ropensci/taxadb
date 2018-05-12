@@ -74,7 +74,10 @@ guess <- function(x){
 
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 
   row_as_df <- 
-    data_frame(path = str_split(row$path, pattern)[[1]],
+    data_frame(id = row$id,
+               name = row$name,
+               rank = row$rank,
+               path = str_split(row$path, pattern)[[1]],
                pathNames = str_split(row$pathNames, pattern)[[1]],
                pathIds = str_split(row$pathIds, pattern)[[1]])
 }
@@ -85,7 +88,6 @@ tmp <- taxonCache %>%
   transpose() %>% 
   map_dfr(longform) %>% 
   distinct()
-View(tmp)
 
 ## Note we have disagreement:
 tmp %>% filter(pathNames == "kingdom")
@@ -93,11 +95,13 @@ tmp %>% filter(path == "Actinopterygii")
 tmp %>% filter(pathNames == "class")
 
 # 3052673 rows.  3,052,673
+system.time({
 taxa <- taxonCache %>%
-  filter(str_detect(name, "Gadus morhua"))  %>% 
+  slice(1:1e4)  %>% # test a large subset
   transpose() %>% 
   map_dfr(longform) %>% 
   distinct() 
+})
 
 
 
