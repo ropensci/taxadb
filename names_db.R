@@ -19,12 +19,10 @@ taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
 
 taxonCache %>% filter(grepl(":", path))
-taxonCache %>% filter(grepl(":", pathNames))
-
-
-taxonCache %>% filter(!grepl("(:|-|_)", id)) -> error
-
-taxonCache %>% filter(grepl("\\s", id)) -> error
+taxonCache %>% filter(is.na(externalUrl))
+taxonCache %>% filter(!grepl(":", id)) 
+taxonCache %>% filter(grepl("_", id)) 
+taxonCache %>% filter(grepl("\\s", id)) 
 
 
 ## fix alignment error on taxonCache when `id` is missing:
@@ -56,17 +54,17 @@ taxonCache %>% filter(grepl("\\s", id)) -> error
 #' @importFrom purrr transpose map_dfr
 #' @importFrom dplyr as_tibble left_join select
 #' @importFrom stringr str_to_lower str_split
-split_taxa <- 
-  function(df, pattern = "\\s*\\|\\s*"){
-    out <- map_dfr(transpose(df), function(row){ 
+ 
+
+#out <- map_dfr(transpose(df), split_taxa)
+split_taxa <- function(row, pattern = "\\s*\\|\\s*"){ 
       ranks <- setNames(as.list(
-        str_split(row$value, pattern)[[1]]),
-        str_to_lower(str_split(row$type, pattern)[[1]])
+        str_split(row$path, pattern)[[1]]),
+        str_to_lower(str_split(row$pathNames, pattern)[[1]])
       )
       names(ranks) <- guess(names(ranks))
       bind_cols(row, as_tibble(ranks))
-    })
-  }
+}
 
 guess <- function(x){
   x <- str_replace_na(x, "unknown") # Fixme should be unique name?
@@ -74,20 +72,39 @@ guess <- function(x){
   make.unique(x)
 }
 
+taxonCache %>% filter(id == "NCBI:328276") %>% slice(1) -> row
+
+longform <- function(row, pattern = "\\s*\\|\\s*"){ 
+  row_as_df <- 
+    data_frame(path = str_split(row$path, pattern)[[1]],
+               pathNames = str_split(row$pathNames, pattern)[[1]],
+               pathIds = str_split(row$pathIds, pattern)[[1]])
+}
 
 ## Small example works despite differing numbers of pipes!
 taxonCache %>%
-  rename(value = path, type=pathNames) %>% 
   filter(str_detect(name, "Gadus morhua"))  %>% 
-  split_taxa()
+  transpose() %>% 
+  map_dfr(longform) %>% 
+  distinct() -> tmp
+View(tmp)
+
+## Note we have disagreement:
+tmp %>% filter(pathNames == "kingdom")
+tmp %>% filter(path == "Actinopterygii")
+tmp %>% filter(pathNames == "class")
 
 # 3052673 rows.  3,052,673
 taxa <- taxonCache %>%
   rename(value = path, type=pathNames) %>% 
   split_taxa()
 
-# write_tsv(taxa, "data/taxonRankCache.tsv.gz") ## default compression
+taxonCache %>% filter(id == "NCBI:328276") %>% slice(1) -> row
+
+
+
+# write_tsv(taxa, "data/taxonRankCache.tsv.bz2") ## default compression
 ## serious compression ~ about the same.  
-write_tsv(taxa, gzfile("data/taxonRankCache.tsv.gz", compression = 9))
+#write_tsv(taxa, bzfile("data/taxonRankCache.tsv.bz2", compression = 9))
 
 write_tsv(taxonCache, bzfile("data/taxonCache.tsv.bz2", compression=9))
