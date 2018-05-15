@@ -2,17 +2,24 @@
 ## Or this totally nut-so approach will go straight into the database
 ## library(sparklyr)
 ## sparklyr::spark_install()
-sc <- sparklyr::spark_connect("local")
-spark_df <- sparklyr::spark_read_csv(sc, "taxa", "data/taxa.tsv.bz2", delimiter = "\\t")
+#sc <- sparklyr::spark_connect("local")
+#spark_df <- sparklyr::spark_read_csv(sc, "taxa", "data/taxa.tsv.bz2", delimiter = "\\t")
 
-library(dplyr)
-spark_df %>% right_join(data_frame(name = "Gadus morhua"), copy=TRUE)
+#library(dplyr)
+#spark_df %>% right_join(data_frame(name = "Gadus morhua"), copy=TRUE)
 
 
 library(DBI)
 library(RSQLite)
 library(dplyr)
+library(R.utils)
 
+con <- dbConnect(RSQLite::SQLite(), ":memory:")
+cars <- tibble::rownames_to_column(mtcars)
+write_tsv(cars, "cars.tsv.bz2")
+R.utils::bunzip2("cars.tsv.bz2")
+
+dbWriteTable(con, "cars", "cars.tsv", sep="\t")
 
 
 ## left_join(data.frame(name = "Gadus morhua"))
