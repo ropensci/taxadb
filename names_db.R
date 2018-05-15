@@ -3,6 +3,9 @@
 
 library(tidyverse)
 
+expect_none <- function(df){ testthat::expect_equal(dim(df)[[1]], 0) }
+
+
 #' @importFrom readr read_tsv
 prefixes <- read_tsv("https://zenodo.org/record/1213465/files/prefixes.tsv", quote = "")
 #taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", quote = "")
@@ -18,59 +21,32 @@ taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", 
 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
 
-taxonCache %>% filter(grepl(":", path))
-taxonCache %>% filter(is.na(externalUrl))
-taxonCache %>% filter(!grepl(":", id)) 
-taxonCache %>% filter(grepl("_", id)) 
-taxonCache %>% filter(grepl("\\s", id)) 
 
+# Some ids lack ":"
+#taxonCache %>% filter(!grepl(":", id)) %>% expect_none()
 
-## fix alignment error on taxonCache when `id` is missing:
-#noid <- taxonCache %>% filter(!grepl("(:|-|_)", id))
-#hasid <- taxonCache %>% filter(grepl("(:|-|_)", id))
-#names(noid) <- names(noid)[-1]
-#noid <- bind_cols(id=rep(NA, dim(noid)[1]), noid) %>% select(-V1)
-#taxonCache <- bind_rows(hasid, noid)
+## Some tests
+taxonCache %>% filter(grepl(":", path)) %>% expect_none()
+taxonCache %>% filter(grepl("\\s", id))  %>% expect_none()
+
 
 ## Expect same number of pipes in each entry:
-#path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
-#pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
-#pathIds_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
-#na_path <- is.na(taxonCache$path)
-#na_pathNames <- is.na(taxonCache$pathNames)
+pattern = "\\s*\\|\\s*"
+path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
+pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
+pathIds_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathIds, pattern)[[1]]))
+na_path <- is.na(taxonCache$path)
+na_pathNames <- is.na(taxonCache$pathNames)
+na_pathIds  <- is.na(taxonCache$pathIds)
 
-#good <-  which(!(!(path_pipes == pathName_pipes) & !na_path & !na_pathNames))
-#trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
+trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
+expect_none(taxonCache[trouble,])
 
+## This one is faling
+trouble <- which( !(pathIds_pipes == path_pipes) & !na_path & !na_pathIds)
+##expect_none(taxonCache[trouble,])
+## taxonCache[trouble,]
 
-
-#n_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
-#taxonCache$n_pipes <- n_pipes
-
-## ugh, really slow, really should be done with tidyr::separate,
-##  but would require at least grouping by pipe-length
-## (this is also potentially fragile.)
-
-#' @importFrom purrr transpose map_dfr
-#' @importFrom dplyr as_tibble left_join select
-#' @importFrom stringr str_to_lower str_split
- 
-
-#out <- map_dfr(transpose(df), split_taxa)
-split_taxa <- function(row, pattern = "\\s*\\|\\s*"){ 
-      ranks <- setNames(as.list(
-        str_split(row$path, pattern)[[1]]),
-        str_to_lower(str_split(row$pathNames, pattern)[[1]])
-      )
-      names(ranks) <- guess(names(ranks))
-      bind_cols(row, as_tibble(ranks))
-}
-
-guess <- function(x){
-  x <- str_replace_na(x, "unknown") # Fixme should be unique name?
-  x[x==""] <- "unknown"
-  make.unique(x)
-}
 
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 
   row_as_df <- 
@@ -95,18 +71,53 @@ tmp %>% filter(path == "Actinopterygii")
 tmp %>% filter(pathNames == "class")
 
 # 3052673 rows.  3,052,673
+
 system.time({
-taxa <- taxonCache %>%
+taxa <- taxonCache[-trouble, ] %>% ## Skip troublesome rows
   transpose() %>% 
   map_dfr(longform) %>% 
   distinct() 
 })
 
 
+# ITIS:10824
 
-
-# write_tsv(taxa, "data/taxonRankCache.tsv.bz2") ## default compression
+# write_tsv(taxa, "data/taxa.tsv.bz2") ## default compression
 ## serious compression ~ about the same.  
-#write_tsv(taxa, bzfile("data/taxonRankCache.tsv.bz2", compression = 9))
-
+dir.create("data")
 write_tsv(taxa, bzfile("data/taxa.tsv.bz2", compression=9))
+
+
+
+
+
+## MISC
+
+
+
+
+
+## ugh, really slow, really should be done with tidyr::separate,
+##  but would require at least grouping by pipe-length
+## (this is also potentially fragile.)
+
+#' @importFrom purrr transpose map_dfr
+#' @importFrom dplyr as_tibble left_join select
+#' @importFrom stringr str_to_lower str_split
+
+
+#out <- map_dfr(transpose(df), split_taxa)
+split_taxa <- function(row, pattern = "\\s*\\|\\s*"){ 
+  ranks <- setNames(as.list(
+    str_split(row$path, pattern)[[1]]),
+    str_to_lower(str_split(row$pathNames, pattern)[[1]])
+  )
+  names(ranks) <- guess(names(ranks))
+  bind_cols(row, as_tibble(ranks))
+}
+
+guess <- function(x){
+  x <- str_replace_na(x, "unknown") # Fixme should be unique name?
+  x[x==""] <- "unknown"
+  make.unique(x)
+}
