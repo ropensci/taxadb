@@ -1,0 +1,58 @@
+## apt-get -y install mariadb-client postgresql-client
+library(DBI)
+library(dplyr)
+library(dbplyr)
+remotes::install_github("ropensci/taxizedb")
+library(taxizedb) 
+
+gbif <- db_download_gbif()
+itis <- db_download_itis()
+tpl <- db_download_tpl()
+col <- db_download_col()
+ncbi <- db_download_ncbi()
+
+## Working:
+db_load_col(col, host="mariadb", user="root", pwd="password")
+db_load_tpl(tpl, user = "postgres", pwd = "password", host = "postgres")
+## Need to fix locale issue
+db_load_itis(itis, user = "postgres", pwd = "password", host = "postgres")
+## not needed:
+db_load_ncbi()
+db_load_gbif()
+
+col_db <- src_col(host="mariadb", user="root", password="password")
+tpl_db <- src_tpl(user = "postgres", password = "password", host = "postgres")
+itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
+gbif_db <- src_gbif(gbif)
+ncbi_db <- src_ncbi(ncbi)
+
+ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
+  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
+  collect()
+tpl_taxa <- tbl(tpl_db, "plantlist")  %>%
+  collect()  ## Only table
+gbif_taxa <- tbl(gbif_db, "gbif")  %>%
+  collect() ## Only table
+col_taxa <- tbl(col_db, "_species_details")  %>%
+  collect()  ## Main table with taxon_id and full rank
+
+
+
+itis_taxa <-
+  inner_join(
+    inner_join(tbl(itis_db, "longnames"),  ## tsn, name.  need to walk up parent_tsn from heirarchy table...
+               tbl(itis_db, "taxonomic_units")),
+    tbl(itis_db, "taxon_unit_types")) %>%
+  select(tsn, parent_tsn, completename, rank_name) %>%
+  collect()
+
+
+write_tsv(ncbi_taxa, "data/ncbi.tsv.bz2")
+write_tsv(tpl_taxa, "data/tpl.tsv.bz2")
+write_tsv(gbif_taxa, "data/gbif.tsv.bz2")
+write_tsv(col_taxa, "data/col.tsv.bz2")
+write_tsv(itis_taxa, "data/itis.tsv.bz2")
+
+
+
+

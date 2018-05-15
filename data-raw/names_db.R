@@ -59,7 +59,7 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
                pathIds = str_split(row$pathIds, pattern)[[1]],
                commonNames = row$commonNames,
                externalUrl = row$externalUrl,
-               thumbnailUrl = thumbnailUrl)
+               thumbnailUrl = row$thumbnailUrl)
                
 }
 
