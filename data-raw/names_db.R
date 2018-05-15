@@ -45,7 +45,8 @@ expect_none(taxonCache[trouble,])
 ## This one is faling
 trouble <- which( !(pathIds_pipes == path_pipes) & !na_path & !na_pathIds)
 ##expect_none(taxonCache[trouble,])
-## taxonCache[trouble,]
+
+taxonCache <- taxonCache[-trouble,]
 
 
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 
@@ -55,7 +56,11 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
                rank = row$rank,
                path = str_split(row$path, pattern)[[1]],
                pathNames = str_split(row$pathNames, pattern)[[1]],
-               pathIds = str_split(row$pathIds, pattern)[[1]])
+               pathIds = str_split(row$pathIds, pattern)[[1]],
+               commonNames = row$commonNames,
+               externalUrl = row$externalUrl,
+               thumbnailUrl = thumbnailUrl)
+               
 }
 
 ## Small example works despite differing numbers of pipes!
@@ -73,14 +78,16 @@ tmp %>% filter(pathNames == "class")
 # 3052673 rows.  3,052,673
 
 system.time({
-taxa <- taxonCache[-trouble, ] %>% ## Skip troublesome rows
+taxa <- taxonCache %>% 
   transpose() %>% 
   map_dfr(longform) %>% 
   distinct() 
 })
 
+## FIXME 
+## - [ ] standardize case
+## - [ ] standardize rank names
 
-# ITIS:10824
 
 # write_tsv(taxa, "data/taxa.tsv.bz2") ## default compression
 ## serious compression ~ about the same.  
@@ -88,12 +95,22 @@ dir.create("data")
 write_tsv(taxa, bzfile("data/taxa.tsv.bz2", compression=9))
 
 
+## Write database file
+library(DBI)
+library(RSQLite)
+library(dplyr)
 
-
+db_path <- "data/taxa.sql"
+con <- dbConnect(RSQLite::SQLite(), dbname=db_path)
+dbListTables(con)
+dbWriteTable(con, "taxa", taxa)
+zip("data/taxa.sql.zip", db_path)
 
 ## MISC
-
-
+#library(pryr)
+#pryr::object_size(taxa)
+#pryr::object_size(taxonCache)
+#pryr::object_size(taxonMap)
 
 
 
