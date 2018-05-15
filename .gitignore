@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+*.gz
+*.bz2
+*.tz
+*.fst
+.DS_Store
+*.tsv
