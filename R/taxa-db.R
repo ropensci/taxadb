@@ -19,6 +19,7 @@ cars <- tibble::rownames_to_column(mtcars)
 write_tsv(cars, "cars.tsv.bz2")
 R.utils::bunzip2("cars.tsv.bz2")
 
+## SQLite is fragile about quotes, so need to provide a cleaner, quote-free taxa db
 dbWriteTable(con, "cars", "cars.tsv", sep="\t")
 
 

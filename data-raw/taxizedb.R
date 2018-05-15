@@ -2,8 +2,10 @@
 library(DBI)
 library(dplyr)
 library(dbplyr)
-remotes::install_github("ropensci/taxizedb")
+#remotes::install_github("ropensci/taxizedb")
 library(taxizedb) 
+library(readr)
+
 
 gbif <- db_download_gbif()
 itis <- db_download_itis()
@@ -11,7 +13,7 @@ tpl <- db_download_tpl()
 col <- db_download_col()
 ncbi <- db_download_ncbi()
 
-## Working:
+## Working.  but why does db_load_col take forever every time!! Does this need to be re-run or not?
 db_load_col(col, host="mariadb", user="root", pwd="password")
 db_load_tpl(tpl, user = "postgres", pwd = "password", host = "postgres")
 ## Need to fix locale issue
@@ -29,14 +31,23 @@ ncbi_db <- src_ncbi(ncbi)
 ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
   select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
   collect()
+write_tsv(ncbi_taxa, "data/ncbi.tsv.bz2")
+rm(ncbi_taxa)
+
 tpl_taxa <- tbl(tpl_db, "plantlist")  %>%
   collect()  ## Only table
+write_tsv(tpl_taxa, "data/tpl.tsv.bz2")
+rm(tpl_taxa)
+
 gbif_taxa <- tbl(gbif_db, "gbif")  %>%
   collect() ## Only table
+write_tsv(gbif_taxa, "data/gbif.tsv.bz2")
+rm(gbif_taxa)
+
 col_taxa <- tbl(col_db, "_species_details")  %>%
   collect()  ## Main table with taxon_id and full rank
-
-
+write_tsv(col_taxa, "data/col.tsv.bz2")
+rm(col_taxa)
 
 itis_taxa <-
   inner_join(
@@ -46,13 +57,8 @@ itis_taxa <-
   select(tsn, parent_tsn, completename, rank_name) %>%
   collect()
 
-
-write_tsv(ncbi_taxa, "data/ncbi.tsv.bz2")
-write_tsv(tpl_taxa, "data/tpl.tsv.bz2")
-write_tsv(gbif_taxa, "data/gbif.tsv.bz2")
-write_tsv(col_taxa, "data/col.tsv.bz2")
 write_tsv(itis_taxa, "data/itis.tsv.bz2")
-
+rm(itis_taxa)
 
 
 
