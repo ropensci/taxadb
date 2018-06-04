@@ -33,8 +33,10 @@ dbWriteTable(con, "cars", "cars.tsv", sep="\t")
 
 ## left_join(data.frame(name = "Gadus morhua"))
 
-#' df <- data_frame(name = gsub("_", " ", primates$phy$tip.label))
-#' ex <- taxa_join(df)
+library(geiger)
+data(primates)
+ df <- data_frame(name = gsub("_", " ", primates$phy$tip.label))
+ ex <- taxa_join(df)
 #' 
 #' ## How many distinct matches did we get? 
 #' ex %>% select(name) %>% distinct()
