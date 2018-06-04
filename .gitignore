@@ -8,3 +8,5 @@
 *.fst
 .DS_Store
 *.tsv
+.manifest.json
+*.zip
