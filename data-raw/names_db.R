@@ -7,17 +7,15 @@ expect_none <- function(df){ testthat::expect_equal(dim(df)[[1]], 0) }
 
 
 #' @importFrom readr read_tsv
-prefixes <- read_tsv("https://zenodo.org/record/1213465/files/prefixes.tsv", quote = "")
-#taxonCache <- read_tsv("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", quote = "")
-taxonMap <- read_tsv("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", quote = "")
 
 
-#download.file("https://zenodo.org/record/1213465/files/prefixes.tsv", "data/prefixes.tsv")
-#download.file("https://zenodo.org/record/1213465/files/taxonCache.tsv.gz", "data/taxonCache.tsv.gz")
-#download.file("https://zenodo.org/record/1213465/files/taxonMap.tsv.gz", "data/taxonMap.tsv.gz")
-#prefixes <- read_tsv("data/prefixes.tsv", quote = "")
-#taxonCache <- read_tsv("data/taxonCache.tsv.gz", quote = "")
-#taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
+#download.file("https://zenodo.org/record/1250572/files/prefixes.tsv", "data/prefixes.tsv")
+#download.file("https://zenodo.org/record/1250572/files/taxonCache.tsv.gz", "data/taxonCache.tsv.gz")
+#download.file("https://zenodo.org/record/1250572/files/taxonMap.tsv.gz", "data/taxonMap.tsv.gz")
+
+prefixes <- read_tsv("data/prefixes.tsv", quote = "")
+taxonCache <- read_tsv("data/taxonCache.tsv.gz", quote = "")
+taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
 
 taxonCache <- read_tsv("https://depot.globalbioticinteractions.org/tmp/taxon-0.3.2/taxonCache.tsv.gz", quote="")
 
