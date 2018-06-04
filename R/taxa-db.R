@@ -71,7 +71,8 @@ taxa_id <- function(name = NULL, id = NULL, rank = NULL, partial_match){
 
 system.time({
   tbl(con, "taxa") %>% select(id, name, rank) %>% distinct()  %>% filter(name %like% "%Gadus%")
-})
+
+  })
 
 
 system.time({

@@ -1,0 +1,4 @@
+data/*
+*.zip
+*.tsv
+*.tsv.bz2

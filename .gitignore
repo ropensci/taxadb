@@ -8,3 +8,8 @@
 *.fst
 .DS_Store
 *.tsv
+.manifest.json
+data/*
+.Renviron
+*.zip
+*.tsv.bz2
