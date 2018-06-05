@@ -38,11 +38,11 @@ na_pathIds  <- is.na(taxonCache$pathIds)
 trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
 expect_none(taxonCache[trouble,])
 
-## This one is faling
-trouble <- which( !(pathIds_pipes == path_pipes) & !na_path & !na_pathIds)
+## This one is failing
+## trouble <- which( !(pathIds_pipes == path_pipes) & !na_path & !na_pathIds)
 ##expect_none(taxonCache[trouble,])
 
-taxonCache <- taxonCache[-trouble,]
+## taxonCache <- taxonCache[-trouble,]
 
 
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 

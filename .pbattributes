@@ -1,4 +1,6 @@
-data/*
+data/*.*
 *.zip
 *.tsv
 *.tsv.bz2
+*.tsv.gz
+
