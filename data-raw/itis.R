@@ -30,8 +30,11 @@ itis_taxa <-
            select(tbl(itis_db, "taxonomic_units"), 
                   tsn, update_date, name_usage)
 ) %>%
-  rename(id = tsn, parent_id = parent_tsn, 
-         common_name = vernacular_name)  %>% 
+  rename(id = tsn, 
+         parent_id = parent_tsn, 
+         common_name = vernacular_name,
+         name = complete_name,
+         rank = rank_name)  %>% 
   mutate(id = paste0("ITIS:", id),
          rank_id = paste0("ITIS:", rank_id),
          parent_id = paste0("ITIS:", parent_id))
@@ -47,14 +50,18 @@ itis <- itis %>%
 itis$hierarchy_string <- gsub("(\\d+)", "ITIS:\\1",
                                    gsub("-", " | ", 
                                         itis$hierarchy_string))
-
+itis <- itis %>% rename(hierarchy = hierarchy_string)
 
 
 ## Go into long form as well
 
-write_tsv(itis, "data/itis.tsv.bz2")
 
+## write at compression 9 for best compression
+write_tsv(itis_taxa, "data/itis.tsv.bz2")
 
+system.time({
+  write_tsv(itis_taxa, "data/itis.tsv.gz")
+})
 
 
 

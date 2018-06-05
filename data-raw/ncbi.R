@@ -1,54 +1,37 @@
 ## apt-get -y install mariadb-client postgresql-client
-library(DBI)
-library(dplyr)
-library(dbplyr)
-#remotes::install_github("ropensci/taxizedb")
 library(taxizedb) 
-library(readr)
+library(tidyverse)
 
+ncbi_store <- db_download_ncbi()
 
-gbif <- db_download_gbif()
-itis <- db_download_itis()
-tpl <- db_download_tpl()
-col <- db_download_col()
-ncbi <- db_download_ncbi()
-
-## not needed:
-db_load_ncbi()
-
-ncbi_db <- src_ncbi(ncbi)
+db_load_ncbi() ## not needed for ncbi
+ncbi_db <- src_ncbi(ncbi_store)
 
 ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
   select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
   collect()
-write_tsv(ncbi_taxa, "data/ncbi.tsv.bz2")
-rm(ncbi_taxa)
-
-#
-#itis_units %>% select(tsn, rank_id, complete_name, taxon_author_id, credibility_rtng, completeness_rtng, update_date)
-
-
 
 ##########
-ncbi <- read_tsv("data/ncbi.tsv.bz2")
+#ncbi <- read_tsv("data/ncbi.tsv.bz2")
 
-ncbi_ids <- ncbi %>% select(tsn = id, parent_tsn = parent_tax_id) %>%  distinct() 
+ncbi_ids <- ncbi_taxa %>% 
+  select(tsn = tax_id, parent_tsn = parent_tax_id) %>%
+  distinct() %>% 
+  mutate(tsn = paste0("NCBI:", tsn),
+         parent_tsn = paste0("NCBI:", parent_tsn))
 
-recurse <- function(ids){
-  id <- ids[length(ids)]
-  parent <- filter(ncbi_ids, tsn == id) %>% pull(parent_tsn)
-  if(length(parent) < 1 | id == parent)
-    return(id)
-  c(ids, recurse(parent))
-}
+##  iterate through all ids individually, possibly slow
+#recurse <- function(ids){
+#  id <- ids[length(ids)]
+#  parent <- filter(ncbi_ids, tsn == id) %>% pull(parent_tsn)
+#  if(length(parent) < 1 | id == parent)
+#    return(id)
+#  c(ids, recurse(parent))
+#}
+#tidy_ncbi <- ncbi_ids %>%  distinct() %>% slice(1:10) %>% pull(tsn) %>%  map(recurse)
 
-tidy_ncbi <- ncbi_ids %>% 
-  distinct() %>%
-  slice(1:10) %>%
-  pull(tsn) %>% 
-  map(recurse)
-
-## fixme do properly with recursive function and dplyr programming calls
+## Possibly faster:  Recursively JOIN on id = parent 
+## FIXME do properly with recursive function and dplyr programming calls
 recursive_ncbi_ids <- ncbi_ids %>% 
   left_join(rename(ncbi_ids, p2 = parent_tsn), by = c("parent_tsn" = "tsn")) %>%
   left_join(rename(ncbi_ids, p3 = parent_tsn), by = c("p2" = "tsn")) %>%
@@ -87,5 +70,47 @@ recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p36 = parent_tsn), by = c("p35" = "tsn")) %>%
   left_join(rename(ncbi_ids, p37 = parent_tsn), by = c("p36" = "tsn")) %>%
   left_join(rename(ncbi_ids, p38 = parent_tsn), by = c("p37" = "tsn"))
-sum(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] > 1)
-sum(recursive_ncbi_ids[[38]] > 1)
+
+## expect_true: confirm we have resolved all ids
+all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
+
+## Too slow! write out and read back in is faster...
+## recursive_ncbi_ids %>% naniar::replace_with_na_all(condition = ~.x == 1)
+
+## nope, tidyr::unite won't drop NAs
+#write_tsv(recursive_ncbi_ids, "heriarchy.tsv")
+#heriarchy <- read_tsv("heriarchy.tsv", na = "1")
+
+hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
+  rename(id = tsn) 
+
+
+
+## NCBI doesn't have rank ids
+ncbi <- ncbi_taxa %>% 
+  select(id = tax_id, 
+         name = name_txt, 
+         rank, 
+         parent_id = parent_tax_id, 
+         ncbi_name_class = name_class) %>%
+  mutate(id = paste0("NCBI:", id),
+         parent_id = paste0("NCBI:", parent_id)) %>%
+left_join(hierarchy)
+
+# 402 secs compress, 55 sec decompress. 34.6 MB compressed
+system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
+system.time(ex <- read_tsv( "data/ncbi.tsv.bz2"))
+
+
+# 43 secs compress, 43 sec decompress, 47 MB compressed
+system.time(write_tsv(ncbi, "data/ncbi.tsv.gz"))
+system.time(ex <- read_tsv( "data/ncbi.tsv.gz"))
+
+## benchmark alternate methods
+## 1 sec i/o at 50%, ~ 5 sec i/o 100%.  file size @ 100% ~ 51.5 MB
+system.time(fst::write_fst(ncbi, "data/ncbi.fst", compress = 100))
+system.time(ex <- fst::read_fst("data/ncbi.fst"))
+
+## w/o compression: 25 sec
+system.time(write_tsv(ncbi, "data/ncbi.tsv"))
+
