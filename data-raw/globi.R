@@ -82,33 +82,37 @@ taxa <- taxonCache %>%
 
 ## FIXME 
 ## - [ ] standardize case
-## - [ ] standardize rank names
+## - [x] standardize rank names
 
 
-# write_tsv(taxa, "data/taxa.tsv.bz2") ## default compression
+taxon_rank_list <- read_tsv("https://raw.githubusercontent.com/globalbioticinteractions/nomer/master/nomer/src/main/resources/org/globalbioticinteractions/nomer/match/taxon_rank_links.tsv")
+
+rank_mapper <- taxon_rank_list %>% 
+  select(pathNames = providedName, 
+         rank_level_id = resolvedId, 
+         rank_level = resolvedName)
+
+globi <- inner_join(taxa, 
+                    rank_mapper, 
+                    copy = TRUE) %>% 
+  select(id, 
+         name = path, 
+         hierarchy = pathIds, 
+         rank = rank_level, 
+         rank_id = rank_level_id, 
+         common_names = commonNames, 
+         external_url = externalUrl, 
+         thumbnail_url = thumbnailUrl)
+
+
 ## serious compression ~ about the same.  
-dir.create("data")
-write_tsv(taxa, bzfile("data/taxa.tsv.bz2", compression=9))
+write_tsv(globi, bzfile("data/globi.tsv.bz2", compression=9))
 
 
-## Write database file
-library(DBI)
-library(RSQLite)
-library(dplyr)
-
-db_path <- "data/taxa.sql"
-con <- dbConnect(RSQLite::SQLite(), dbname=db_path)
-dbListTables(con)
-dbWriteTable(con, "taxa", taxa)
-zip("data/taxa.sql.zip", db_path)
 
 ## MISC
 #library(pryr)
 #pryr::object_size(taxa)
-#pryr::object_size(taxonCache)
-#pryr::object_size(taxonMap)
-
-
 
 ## ugh, really slow, really should be done with tidyr::separate,
 ##  but would require at least grouping by pipe-length
