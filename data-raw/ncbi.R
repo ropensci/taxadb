@@ -97,19 +97,62 @@ ncbi <- ncbi_taxa %>%
          parent_id = paste0("NCBI:", parent_id)) %>%
 left_join(hierarchy)
 
-# 402 secs compress, 55 sec decompress. 34.6 MB compressed
+
+
+
+## Go into long form:
+longform <- function(row, pattern = "\\s*\\|\\s*"){ 
+  row_as_df <- 
+    data_frame(id = row$id,
+               name = row$name,
+               rank = row$rank,
+               path_id = unique(str_split(row$hierarchy, pattern)[[1]])
+               )
+}
+
+
+hier_expand <- ncbi %>% 
+  select(id, path = name, path_rank = rank, ncbi_name_class) 
+
+#path_id <-  ncbi %>% filter(name == "Gadus morhua") %>% pull(hierarchy)
+#path_id <- str_split(path_id, pattern)[[1]] %>% unique()
+#hier_expand %>% filter(id %in% path_id)
+
+ncbi_long <- ncbi %>% 
+#  filter(name == "Gadus morhua") %>%
+  select(-ncbi_name_class) %>%
+  purrr::transpose() %>% 
+  map_dfr(longform) %>% 
+  left_join(hier_expand, by = c("path_id" = "id")) %>% 
+  distinct() %>%
+  select(id, name, rank, path, 
+         path_rank, path_id, 
+         ncbi_name_class) %>% 
+  arrange(id, ncbi_name_class)
+
+## Note: usually will want to filter this as
+## filter(ncbi_name_class == "scientific_name")
+
+## Consider: pulling ncbi_name_class==commonname into another column
+
 system.time({
-  write_tsv(ncbi, bzfile("data/ncbi.tsv.bz2", compression=9))
+  write_tsv(ncbi_long, bzfile("data/ncbi.tsv.bz2", compression=9))
 })
-system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
-system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
+
+
+
+
+## benchmark alternate methods
+# 402 secs compress, 55 sec decompress. 34.6 MB compressed
+# system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
+# system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
 
 
 # 43 secs compress, 43 sec decompress, 47 MB compressed
 #system.time(write_tsv(ncbi, "data/ncbi.tsv.gz"))
 #system.time(ex <- read_tsv( "data/ncbi.tsv.gz"))
 
-## benchmark alternate methods
+
 ## 1 sec i/o at 50%, ~ 5 sec i/o 100%.  file size @ 100% ~ 51.5 MB
 #system.time(fst::write_fst(ncbi, "data/ncbi.fst", compress = 100))
 #system.time(ex <- fst::read_fst("data/ncbi.fst"))
