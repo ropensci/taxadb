@@ -14,10 +14,10 @@ library(RSQLite)
 library(dplyr)
 library(R.utils)
 
-con <- dbConnect(RSQLite::SQLite(), ":memory:")
-cars <- tibble::rownames_to_column(mtcars)
-write_tsv(cars, "cars.tsv.bz2")
-R.utils::bunzip2("cars.tsv.bz2")
+## con <- dbConnect(RSQLite::SQLite(), ":memory:")
+## cars <- tibble::rownames_to_column(mtcars)
+## write_tsv(cars, "cars.tsv.bz2")
+## R.utils::bunzip2("cars.tsv.bz2")
 
 ## Manual chunking can(?) handle bzip2 streaming?
 ## https://github.com/vimc/montagu-r/blob/4fe82fd29992635b30e637d5412312b0c5e3e38f/R/util.R#L48-L60
@@ -26,7 +26,7 @@ R.utils::bunzip2("cars.tsv.bz2")
 # read_tsv_chunked("cars.tsv", ...)
 
 ## SQLite is fragile about quotes, so need to provide a cleaner, quote-free taxa db
-dbWriteTable(con, "cars", "cars.tsv", sep="\t")
+## dbWriteTable(con, "cars", "cars.tsv", sep="\t")
 
 ## Alternately, consider: `readr::read_tsv_chunked()`
 

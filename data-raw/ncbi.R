@@ -98,19 +98,22 @@ ncbi <- ncbi_taxa %>%
 left_join(hierarchy)
 
 # 402 secs compress, 55 sec decompress. 34.6 MB compressed
+system.time({
+  write_tsv(ncbi, bzfile("data/ncbi.tsv.bz2", compression=9))
+})
 system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
-system.time(ex <- read_tsv( "data/ncbi.tsv.bz2"))
+system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
 
 
 # 43 secs compress, 43 sec decompress, 47 MB compressed
-system.time(write_tsv(ncbi, "data/ncbi.tsv.gz"))
-system.time(ex <- read_tsv( "data/ncbi.tsv.gz"))
+#system.time(write_tsv(ncbi, "data/ncbi.tsv.gz"))
+#system.time(ex <- read_tsv( "data/ncbi.tsv.gz"))
 
 ## benchmark alternate methods
 ## 1 sec i/o at 50%, ~ 5 sec i/o 100%.  file size @ 100% ~ 51.5 MB
-system.time(fst::write_fst(ncbi, "data/ncbi.fst", compress = 100))
-system.time(ex <- fst::read_fst("data/ncbi.fst"))
+#system.time(fst::write_fst(ncbi, "data/ncbi.fst", compress = 100))
+#system.time(ex <- fst::read_fst("data/ncbi.fst"))
 
 ## w/o compression: 25 sec
-system.time(write_tsv(ncbi, "data/ncbi.tsv"))
+#system.time(write_tsv(ncbi, "data/ncbi.tsv"))
 

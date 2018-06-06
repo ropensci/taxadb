@@ -1,11 +1,6 @@
 ## apt-get -y install mariadb-client postgresql-client
-library(DBI)
-library(dplyr)
-library(dbplyr)
-#remotes::install_github("ropensci/taxizedb")
 library(taxizedb) 
-library(readr)
-
+library(tidyverse)
 
 itis_store <- db_download_itis()
 ## Need to fix locale issue
@@ -39,11 +34,13 @@ itis_taxa <-
          rank_id = paste0("ITIS:", rank_id),
          parent_id = paste0("ITIS:", parent_id))
 
+## Read in from database -- a little slow
 itis <- collect(itis_taxa)
 
+## transforms we do in R
 itis <- itis %>%
-  mutate(rank_name = stringr::str_remove_all(
-                       stringr::str_to_lower(rank_name),
+  mutate(rank = stringr::str_remove_all(
+                       stringr::str_to_lower(rank),
                        "\\s"))
 
 
@@ -57,11 +54,12 @@ itis <- itis %>% rename(hierarchy = hierarchy_string)
 
 
 ## write at compression 9 for best compression
-write_tsv(itis_taxa, "data/itis.tsv.bz2")
-
 system.time({
-  write_tsv(itis_taxa, "data/itis.tsv.gz")
+  write_tsv(itis, bzfile("data/itis.tsv.bz2", compression=9))
 })
+
+# For comparison
+system.time(write_tsv(itis, "data/itis.tsv.gz"))
 
 
 

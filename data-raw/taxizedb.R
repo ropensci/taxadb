@@ -49,16 +49,32 @@ col_taxa <- tbl(col_db, "_species_details")  %>%
 write_tsv(col_taxa, "data/col.tsv.bz2")
 rm(col_taxa)
 
-itis_taxa <-
+
+itis_taxa <- 
+left_join(
   inner_join(
-    inner_join(tbl(itis_db, "longnames"),  ## tsn, name.  need to walk up parent_tsn from heirarchy table...
-               tbl(itis_db, "taxonomic_units")),
-    tbl(itis_db, "taxon_unit_types")) %>%
-  select(tsn, parent_tsn, completename, rank_name) %>%
+    tbl(itis_db, "taxonomic_units") %>% select(tsn, parent_tsn, rank_id, complete_name) %>% distinct(),
+    tbl(itis_db, "taxon_unit_types") %>% select(rank_id, rank_name)  %>% distinct()
+  ), 
+  tbl(itis_db, "hierarchy") %>% select(tsn, parent_tsn, hierarchy_string)
+) %>% 
+  arrange(tsn) %>% 
+  select(tsn, complete_name, rank_name, rank_id, parent_tsn, hierarchy_string) %>%
   collect()
 
+## write at compression 9 for best compression
 write_tsv(itis_taxa, "data/itis.tsv.bz2")
+
+## gunzip, compression 6. A default that offers widespread implementation
+## quite fast compression / decompression, achieves nearly as small files as bz2,
+## better than .zip or fst
+system.time({
+write_tsv(itis_taxa, "data/itis.tsv.gz")
+})
+
 rm(itis_taxa)
 
 
 
+#
+#itis_units %>% select(tsn, rank_id, complete_name, taxon_author_id, credibility_rtng, completeness_rtng, update_date)
