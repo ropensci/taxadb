@@ -19,7 +19,7 @@ col_taxa <- tbl(col_db, "_species_details")
 col_taxa <- col_taxa %>% 
   select(taxon_id, kingdom_name, phylum_name, class_name, order_name,  superfamily_name, family_name, genus_name, subgenus_name, species_name, infraspecies_name,
        kingdom_id, phylum_id, class_id, order_id,  superfamily_id, family_id, genus_id, subgenus_id,  species_id,  infraspecies_id,
-       is_extinct, status) %>% collect()
+       is_extinct) %>% collect()
 
 
 ## Transform to long form
@@ -31,9 +31,12 @@ col_ids <- col_taxa %>% select(taxon_id, kingdom = kingdom_id, phylum = phylum_i
                                subgenus = subgenus_id,  species = species_id,  infraspecies = infraspecies_id)
 other <- col_taxa %>%  select(taxon_id, is_extinct)
 
+other %>% mutate(is_extinct <- as.logical(is_extinct))
+
 sci_names <- col_names %>% select(taxon_id, genus, species) %>% tidyr::unite(name, genus, species, sep = " ")
 long_names <- col_names %>% gather(rank, path, -taxon_id) %>% left_join(sci_names) %>% select(taxon_id, name, path, rank)
 long_ids <- col_ids %>% gather(rank, path_id, -taxon_id)
+
 
 col_long <- long_names %>% 
   left_join(long_ids) %>% 
