@@ -7,13 +7,23 @@ itis_store <- db_download_itis()
 #db_load_itis(itis_store, user = "postgres", pwd = "password", host = "postgres")
 itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
 
+## not that rank_id isn't a unique id by itself!
+rank_tbl <- tbl(itis_db, "taxon_unit_types") %>% 
+  select(kingdom_id, rank_id, rank_name) %>% 
+  collect() %>% 
+  unite(rank_id, -rank_name, sep = "-") %>% 
+  mutate(rank_name = 
+           stringr::str_remove_all(
+            stringr::str_to_lower(rank_name),"\\s"))
+
+hierarch <- 
+  tbl(itis_db, "taxonomic_units") %>% 
+  mutate(rank_id = paste(kingdom_id, rank_id, sep="-")) %>% 
+  select(tsn, parent_tsn, rank_id, complete_name) %>% distinct()
 
 itis_taxa <- 
   left_join(
-    inner_join(
-      tbl(itis_db, "taxonomic_units") %>% select(tsn, parent_tsn, rank_id, complete_name) %>% distinct(),
-      tbl(itis_db, "taxon_unit_types") %>% select(rank_id, rank_name)  %>% distinct()
-    ), 
+    inner_join(hierarch, rank_tbl, copy = TRUE), 
     tbl(itis_db, "hierarchy") %>% select(tsn, parent_tsn, hierarchy_string)
   ) %>% 
   arrange(tsn) %>% 
@@ -24,7 +34,7 @@ itis_taxa <-
  left_join(
            select(tbl(itis_db, "taxonomic_units"), 
                   tsn, update_date, name_usage)
-) %>%
+  ) %>%
   rename(id = tsn, 
          parent_id = parent_tsn, 
          common_name = vernacular_name,
@@ -38,12 +48,6 @@ itis_taxa <-
 itis <- collect(itis_taxa)
 
 ## transforms we do in R
-itis <- itis %>%
-  mutate(rank = stringr::str_remove_all(
-                       stringr::str_to_lower(rank),
-                       "\\s"))
-
-
 itis$hierarchy_string <- gsub("(\\d+)", "ITIS:\\1",
                                    gsub("-", " | ", 
                                         itis$hierarchy_string))
@@ -53,13 +57,45 @@ itis <- itis %>% rename(hierarchy = hierarchy_string)
 ## Go into long form as well
 
 
+
+## Go into long form:
+longform <- function(row, pattern = "\\s*\\|\\s*"){ 
+  row_as_df <- 
+    data_frame(id = row$id,
+               name = row$name,
+               rank = row$rank,
+               path_id = str_split(row$hierarchy, pattern)[[1]],
+               common_name = row$common_name,
+               language = row$language,
+               update_date = row$update_date,
+               name_usage = row$name_usage)
+  
+}
+
+hier_expand <- itis %>% 
+  select(id, path = name, path_rank = rank, path_rank_id = rank_id)
+
+as_date <- function(x){
+  class(x) <- "Date"
+  x
+}
+
+itis_long <- itis %>%
+  purrr::transpose() %>% 
+  map_dfr(longform) %>% 
+  left_join(hier_expand, by = c("path_id" = "id")) %>% 
+  distinct() %>%
+  select(id, name, rank, common_name, language, path, 
+         path_rank, path_id, path_rank_id, name_usage, update_date) %>%
+  mutate(update_date = as_date(update_date))
+
+
+
+
 ## write at compression 9 for best compression
 system.time({
-  write_tsv(itis, bzfile("data/itis.tsv.bz2", compression=9))
+  write_tsv(itis_long, bzfile("data/itis_long.tsv.bz2", compression=9))
 })
-
-# For comparison
-system.time(write_tsv(itis, "data/itis.tsv.gz"))
 
 
 

@@ -31,8 +31,8 @@ rm(gbif_wide)
 gbif_long <- 
   gbif_taxa %>% 
   select(taxon_id, name = scientificName, rank = rank, genericName, taxonomicStatus)
-
 write_tsv(gbif_long, "data/gbif_long.tsv.bz2")
+
 
 write_tsv(gbif_taxa, "data/gbif.tsv.bz2")
 rm(gbif_taxa)
