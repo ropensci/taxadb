@@ -1,11 +1,6 @@
 ## apt-get -y install mariadb-client postgresql-client
-library(DBI)
-library(dplyr)
-library(dbplyr)
-#remotes::install_github("ropensci/taxizedb")
 library(taxizedb) 
-library(readr)
-
+library(tidyverse)
 
 tpl <- db_download_tpl()
 
