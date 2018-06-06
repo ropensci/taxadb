@@ -46,7 +46,7 @@ col_long <- long_names %>%
 col_wide <- col_taxa %>% 
   mutate_if(is.integer, function(x) paste0("COL:", x))
 
-write_tsv(col_long, "data/col_wide.tsv.bz2")
+write_tsv(col_long, "data/col_long.tsv.bz2")
 write_tsv(col_wide, "data/col_wide.tsv.bz2")
 
 
