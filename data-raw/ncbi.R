@@ -8,8 +8,7 @@ db_load_ncbi() ## not needed for ncbi
 ncbi_db <- src_ncbi(ncbi_store)
 
 ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
-  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
-  collect()
+  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) 
 
 ##########
 #ncbi <- read_tsv("data/ncbi.tsv.bz2")
@@ -18,7 +17,8 @@ ncbi_ids <- ncbi_taxa %>%
   select(tsn = tax_id, parent_tsn = parent_tax_id) %>%
   distinct() %>% 
   mutate(tsn = paste0("NCBI:", tsn),
-         parent_tsn = paste0("NCBI:", parent_tsn))
+         parent_tsn = paste0("NCBI:", parent_tsn)) %>% 
+  collect()
 
 ##  iterate through all ids individually, possibly slow
 #recurse <- function(ids){
@@ -32,6 +32,8 @@ ncbi_ids <- ncbi_taxa %>%
 
 ## Possibly faster:  Recursively JOIN on id = parent 
 ## FIXME do properly with recursive function and dplyr programming calls
+
+## can't do this before collect, creates stack overflow
 recursive_ncbi_ids <- ncbi_ids %>% 
   left_join(rename(ncbi_ids, p2 = parent_tsn), by = c("parent_tsn" = "tsn")) %>%
   left_join(rename(ncbi_ids, p3 = parent_tsn), by = c("p2" = "tsn")) %>%
@@ -74,17 +76,12 @@ recursive_ncbi_ids <- ncbi_ids %>%
 ## expect_true: confirm we have resolved all ids
 all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
-## Too slow! write out and read back in is faster...
-## recursive_ncbi_ids %>% naniar::replace_with_na_all(condition = ~.x == 1)
 
-## nope, tidyr::unite won't drop NAs
-#write_tsv(recursive_ncbi_ids, "heriarchy.tsv")
-#heriarchy <- read_tsv("heriarchy.tsv", na = "1")
-
-hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
+hierarchy <- 
+  tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
   rename(id = tsn) 
 
-
+#write_tsv(hierarchy, "hierarchy.tsv")
 
 ## NCBI doesn't have rank ids
 ncbi <- ncbi_taxa %>% 
@@ -95,10 +92,15 @@ ncbi <- ncbi_taxa %>%
          ncbi_name_class = name_class) %>%
   mutate(id = paste0("NCBI:", id),
          parent_id = paste0("NCBI:", parent_id)) %>%
-left_join(hierarchy)
+left_join(hierarchy, copy = TRUE) # heirarchy is in mem, ncbi_taxa in DB. 
+
+rm(list = c("hierarchy", "ncbi_ids", "recursive_ncbi_ids"))
+
+ncbi <- collect(ncbi)
+write_tsv(ncbi, "ncbi.tsv")
 
 
-
+DBI::dbDisconnect(ncbi_db[[1]])
 
 ## Go into long form:
 longform <- function(row, pattern = "\\s*\\|\\s*"){ 
@@ -114,6 +116,9 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
 hier_expand <- ncbi %>% 
   select(id, path = name, path_rank = rank, ncbi_name_class) 
 
+write_tsv(hier_expand, "hier_expand.tsv")
+
+
 #path_id <-  ncbi %>% filter(name == "Gadus morhua") %>% pull(hierarchy)
 #path_id <- str_split(path_id, pattern)[[1]] %>% unique()
 #hier_expand %>% filter(id %in% path_id)
@@ -125,6 +130,12 @@ tmp <- ncbi %>%
   select(-ncbi_name_class) %>%
   purrr::transpose() %>% 
   map_dfr(longform) 
+
+tmp <- write_tsv(tmp, "tmp.tsv")
+
+#hier_expand <- read_tsv("hier_expand.tsv")
+#tmp <- read_tsv("tmp.tsv")
+
 
 ncbi_long <- tmp %>%
   left_join(hier_expand, by = c("path_id" = "id")) %>% 
