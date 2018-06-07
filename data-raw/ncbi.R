@@ -118,11 +118,15 @@ hier_expand <- ncbi %>%
 #path_id <- str_split(path_id, pattern)[[1]] %>% unique()
 #hier_expand %>% filter(id %in% path_id)
 
-ncbi_long <- ncbi %>% 
+
+
+tmp <- ncbi %>% 
 #  filter(name == "Gadus morhua") %>%
   select(-ncbi_name_class) %>%
   purrr::transpose() %>% 
-  map_dfr(longform) %>% 
+  map_dfr(longform) 
+
+ncbi_long <- tmp %>%
   left_join(hier_expand, by = c("path_id" = "id")) %>% 
   distinct() %>%
   select(id, name, rank, path, 
@@ -136,7 +140,7 @@ ncbi_long <- ncbi %>%
 ## Consider: pulling ncbi_name_class==commonname into another column
 
 system.time({
-  write_tsv(ncbi_long, bzfile("data/ncbi.tsv.bz2", compression=9))
+  write_tsv(ncbi_long, bzfile("data/ncbi_long.tsv.bz2", compression=9))
 })
 
 
