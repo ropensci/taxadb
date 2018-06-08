@@ -1,17 +1,9 @@
-library(readr)
-library(dplyr)
-library(DBI)
-library(R.utils)
+# remotes::install_github("cboettig/arkdb")
 
-itis <- read_tsv("data/itis.tsv.bz2")
-ncbi <- read_tsv("data/ncbi.tsv.bz2")
+library(arkdb)
 
-taxa <- bind_rows(itis, ncbi)
+files <- fs::dir_ls("data/", glob="*.tsv.bz2")
+db <- unark(files, dbname = "data/taxa.sqlite", lines = 1e6)
 
-db_path <- "data/taxa.sql"
-con <- dbConnect(RSQLite::SQLite(), dbname=db_path)
-dbListTables(con)
-dbWriteTable(con, "taxa", taxa)
-dbDisconnect(con)
-R.utils::bzip2(db_path)
+R.utils::bzip2("data/taxa.sqlite")
 
