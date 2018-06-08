@@ -94,6 +94,28 @@ system.time({
 })
 
 
+## Example query: how many species of fishes do we know?
+#fishes <- ncbi_long %>% 
+#  filter(path == "fishes", rank == "species") %>% 
+#  select(id, name, rank) %>% distinct()
+# 33,082 known species
+
+## Wide-format classification table (scientific names only)
+ncbi_wide <- 
+  ncbi_long %>% 
+  filter(path_type == "scientific name", rank == "species") %>% 
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  filter(path_rank != "no rank") %>% ## Wide format includes named ranks only
+  filter(path_rank != "superfamily") %>%  
+  # ncbii has a few duplicate "superfamily" with both as "scientific name"
+  # This is probably a bug in there data as one of these shoudl be "synonym"(?)
+  spread(path_rank, path)
+
+
+system.time({
+  write_tsv(ncbi_wide, bzfile("data/ncbi_wide.tsv.bz2", compression=9))
+})
 
 
 
@@ -110,7 +132,7 @@ ncbi %>% left_join(wide_hierarchy)
 
 
 
-## benchmark alternate methods
+## benchmark alternate methods (just on ncbi table, not ncbi_long!)
 # 402 secs compress, 55 sec decompress. 34.6 MB compressed
 # system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
 # system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
