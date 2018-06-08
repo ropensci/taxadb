@@ -20,17 +20,9 @@ ncbi_ids <- ncbi_taxa %>%
   mutate(tsn = paste0("NCBI:", tsn),
          parent_tsn = paste0("NCBI:", parent_tsn))
 
-##  iterate through all ids individually, possibly slow
-#recurse <- function(ids){
-#  id <- ids[length(ids)]
-#  parent <- filter(ncbi_ids, tsn == id) %>% pull(parent_tsn)
-#  if(length(parent) < 1 | id == parent)
-#    return(id)
-#  c(ids, recurse(parent))
-#}
-#tidy_ncbi <- ncbi_ids %>%  distinct() %>% slice(1:10) %>% pull(tsn) %>%  map(recurse)
 
-## Possibly faster:  Recursively JOIN on id = parent 
+
+## Recursively JOIN on id = parent 
 ## FIXME do properly with recursive function and dplyr programming calls
 recursive_ncbi_ids <- ncbi_ids %>% 
   left_join(rename(ncbi_ids, p2 = parent_tsn), by = c("parent_tsn" = "tsn")) %>%
@@ -42,7 +34,7 @@ recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p8 = parent_tsn), by = c("p7" = "tsn")) %>%
   left_join(rename(ncbi_ids, p9 = parent_tsn), by = c("p8" = "tsn")) %>%
   left_join(rename(ncbi_ids, p10 = parent_tsn), by = c("p9" = "tsn")) %>%
-  left_join(rename(ncbi_ids, p11 = parent_tsn), by = c("p10" = "tsn"))  %>%
+  left_join(rename(ncbi_ids, p11 = parent_tsn), by = c("p10" = "tsn")) %>%
   left_join(rename(ncbi_ids, p12 = parent_tsn), by = c("p11" = "tsn")) %>%
   left_join(rename(ncbi_ids, p13 = parent_tsn), by = c("p12" = "tsn")) %>%
   left_join(rename(ncbi_ids, p14 = parent_tsn), by = c("p13" = "tsn")) %>%
@@ -74,65 +66,34 @@ recursive_ncbi_ids <- ncbi_ids %>%
 ## expect_true: confirm we have resolved all ids
 all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
-## Too slow! write out and read back in is faster...
-## recursive_ncbi_ids %>% naniar::replace_with_na_all(condition = ~.x == 1)
-
-## nope, tidyr::unite won't drop NAs
-#write_tsv(recursive_ncbi_ids, "heriarchy.tsv")
-#heriarchy <- read_tsv("heriarchy.tsv", na = "1")
-
-hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
-  rename(id = tsn) 
-
-
-
-## NCBI doesn't have rank ids
-ncbi <- ncbi_taxa %>% 
-  select(id = tax_id, 
-         name = name_txt, 
-         rank, 
-         parent_id = parent_tax_id, 
-         ncbi_name_class = name_class) %>%
-  mutate(id = paste0("NCBI:", id),
-         parent_id = paste0("NCBI:", parent_id)) %>%
-left_join(hierarchy)
-
-
-
-
-## Go into long form:
-longform <- function(row, pattern = "\\s*\\|\\s*"){ 
-  row_as_df <- 
-    data_frame(id = row$id,
-               name = row$name,
-               rank = row$rank,
-               path_id = unique(str_split(row$hierarchy, pattern)[[1]])
-               )
-}
-
-
-hier_expand <- ncbi %>% 
-  select(id, path = name, path_rank = rank, ncbi_name_class) 
-
-#path_id <-  ncbi %>% filter(name == "Gadus morhua") %>% pull(hierarchy)
-#path_id <- str_split(path_id, pattern)[[1]] %>% unique()
-#hier_expand %>% filter(id %in% path_id)
-
-
-
-tmp <- ncbi %>% 
-#  filter(name == "Gadus morhua") %>%
-  select(-ncbi_name_class) %>%
-  purrr::transpose() %>% 
-  map_dfr(longform) 
-
-ncbi_long <- tmp %>%
-  left_join(hier_expand, by = c("path_id" = "id")) %>% 
+long_hierarchy <- 
+  recursive_ncbi_ids %>% 
+  tidyr::gather(dummy, path_id, -tsn) %>% 
+  select(id = tsn, path_id) %>% 
   distinct() %>%
-  select(id, name, rank, path, 
-         path_rank, path_id, 
-         ncbi_name_class) %>% 
-  arrange(id, ncbi_name_class)
+  arrange(id) 
+
+## note: NCBI doesn't have rank ids
+ncbi <- ncbi_taxa %>% 
+  select(id = tax_id, name = name_txt, rank, name_type = name_class) %>%
+  mutate(id = paste0("NCBI:", id)) 
+
+expand <- ncbi %>% 
+  select(path_id = id, path = name, path_rank = rank, path_type = name_type) 
+
+ncbi_long <- ncbi %>%  
+  inner_join(long_hierarchy) %>%
+  inner_join(expand)
+
+dim(long_hierarchy)
+
+
+
+## Combine heirarchy into a single column of pipe-separated values.
+wide_hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
+  rename(id = tsn) 
+ncbi %>% left_join(wide_hierarchy)
+
 
 ## Note: usually will want to filter this as
 ## filter(ncbi_name_class == "scientific_name")
