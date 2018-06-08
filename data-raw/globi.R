@@ -1,5 +1,5 @@
-# FROM: Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph (Version 0.3.1) [Data set]. 
-# Zenodo. http://doi.org/10.5281/zenodo.1213465
+# FROM: Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph (Version 0.3.2) [Data set]. 
+# Zenodo. http://doi.org/10.5281/zenodo.1250572
 
 library(tidyverse)
 
@@ -92,7 +92,7 @@ rank_mapper <- taxon_rank_list %>%
          rank_level_id = resolvedId, 
          rank_level = resolvedName)
 
-globi <- inner_join(taxa, 
+globi_long <- inner_join(taxa, 
                     rank_mapper, 
                     copy = TRUE) %>% 
   select(id, 
@@ -106,9 +106,14 @@ globi <- inner_join(taxa,
 
 
 ## serious compression ~ about the same.  
-write_tsv(globi, bzfile("data/globi.tsv.bz2", compression=9))
+write_tsv(globi_long, bzfile("data/globi_long.tsv.bz2", compression=9))
 
-
+globi_wide <- 
+  globi_long %>% 
+  filter(rank == "species") %>%
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  spread(path_rank, path) 
 
 ## MISC
 #library(pryr)
