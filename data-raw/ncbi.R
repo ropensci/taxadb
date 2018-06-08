@@ -8,32 +8,25 @@ db_load_ncbi() ## not needed for ncbi
 ncbi_db <- src_ncbi(ncbi_store)
 
 ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
-  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) 
+  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
+  collect()
 
-##########
-#ncbi <- read_tsv("data/ncbi.tsv.bz2")
 
 ncbi_ids <- ncbi_taxa %>% 
   select(tsn = tax_id, parent_tsn = parent_tax_id) %>%
   distinct() %>% 
   mutate(tsn = paste0("NCBI:", tsn),
-         parent_tsn = paste0("NCBI:", parent_tsn)) %>% 
-  collect()
+         parent_tsn = paste0("NCBI:", parent_tsn))
 
-##  iterate through all ids individually, possibly slow
-#recurse <- function(ids){
-#  id <- ids[length(ids)]
-#  parent <- filter(ncbi_ids, tsn == id) %>% pull(parent_tsn)
-#  if(length(parent) < 1 | id == parent)
-#    return(id)
-#  c(ids, recurse(parent))
-#}
-#tidy_ncbi <- ncbi_ids %>%  distinct() %>% slice(1:10) %>% pull(tsn) %>%  map(recurse)
+## note: NCBI doesn't have rank ids
+ncbi <- ncbi_taxa %>% 
+  select(id = tax_id, name = name_txt, rank, name_type = name_class) %>%
+  mutate(id = paste0("NCBI:", id)) 
 
-## Possibly faster:  Recursively JOIN on id = parent 
+rm(ncbi_taxa)
+
+## Recursively JOIN on id = parent 
 ## FIXME do properly with recursive function and dplyr programming calls
-
-## can't do this before collect, creates stack overflow
 recursive_ncbi_ids <- ncbi_ids %>% 
   left_join(rename(ncbi_ids, p2 = parent_tsn), by = c("parent_tsn" = "tsn")) %>%
   left_join(rename(ncbi_ids, p3 = parent_tsn), by = c("p2" = "tsn")) %>%
@@ -44,7 +37,7 @@ recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p8 = parent_tsn), by = c("p7" = "tsn")) %>%
   left_join(rename(ncbi_ids, p9 = parent_tsn), by = c("p8" = "tsn")) %>%
   left_join(rename(ncbi_ids, p10 = parent_tsn), by = c("p9" = "tsn")) %>%
-  left_join(rename(ncbi_ids, p11 = parent_tsn), by = c("p10" = "tsn"))  %>%
+  left_join(rename(ncbi_ids, p11 = parent_tsn), by = c("p10" = "tsn")) %>%
   left_join(rename(ncbi_ids, p12 = parent_tsn), by = c("p11" = "tsn")) %>%
   left_join(rename(ncbi_ids, p13 = parent_tsn), by = c("p12" = "tsn")) %>%
   left_join(rename(ncbi_ids, p14 = parent_tsn), by = c("p13" = "tsn")) %>%
@@ -73,91 +66,73 @@ recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p37 = parent_tsn), by = c("p36" = "tsn")) %>%
   left_join(rename(ncbi_ids, p38 = parent_tsn), by = c("p37" = "tsn"))
 
+rm(ncbi_ids)
 ## expect_true: confirm we have resolved all ids
 all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
-
-hierarchy <- 
-  tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
-  rename(id = tsn) 
-
-#write_tsv(hierarchy, "hierarchy.tsv")
-
-## NCBI doesn't have rank ids
-ncbi <- ncbi_taxa %>% 
-  select(id = tax_id, 
-         name = name_txt, 
-         rank, 
-         parent_id = parent_tax_id, 
-         ncbi_name_class = name_class) %>%
-  mutate(id = paste0("NCBI:", id),
-         parent_id = paste0("NCBI:", parent_id)) %>%
-left_join(hierarchy, copy = TRUE) # heirarchy is in mem, ncbi_taxa in DB. 
-
-rm(list = c("hierarchy", "ncbi_ids", "recursive_ncbi_ids"))
-
-ncbi <- collect(ncbi)
-write_tsv(ncbi, "ncbi.tsv")
-
-
-DBI::dbDisconnect(ncbi_db[[1]])
-
-## Go into long form:
-longform <- function(row, pattern = "\\s*\\|\\s*"){ 
-  row_as_df <- 
-    data_frame(id = row$id,
-               name = row$name,
-               rank = row$rank,
-               path_id = unique(str_split(row$hierarchy, pattern)[[1]])
-               )
-}
-
-
-hier_expand <- ncbi %>% 
-  select(id, path = name, path_rank = rank, ncbi_name_class) 
-
-write_tsv(hier_expand, "hier_expand.tsv")
-
-
-#path_id <-  ncbi %>% filter(name == "Gadus morhua") %>% pull(hierarchy)
-#path_id <- str_split(path_id, pattern)[[1]] %>% unique()
-#hier_expand %>% filter(id %in% path_id)
-
-
-
-tmp <- ncbi %>% 
-#  filter(name == "Gadus morhua") %>%
-  select(-ncbi_name_class) %>%
-  purrr::transpose() %>% 
-  map_dfr(longform) 
-
-tmp <- write_tsv(tmp, "tmp.tsv")
-
-#hier_expand <- read_tsv("hier_expand.tsv")
-#tmp <- read_tsv("tmp.tsv")
-
-
-ncbi_long <- tmp %>%
-  left_join(hier_expand, by = c("path_id" = "id")) %>% 
+long_hierarchy <- 
+  recursive_ncbi_ids %>% 
+  tidyr::gather(dummy, path_id, -tsn) %>% 
+  select(id = tsn, path_id) %>% 
   distinct() %>%
-  select(id, name, rank, path, 
-         path_rank, path_id, 
-         ncbi_name_class) %>% 
-  arrange(id, ncbi_name_class)
+  arrange(id) 
 
-## Note: usually will want to filter this as
-## filter(ncbi_name_class == "scientific_name")
+rm(recursive_ncbi_ids)
 
-## Consider: pulling ncbi_name_class==commonname into another column
+expand <- ncbi %>% 
+  select(path_id = id, path = name, path_rank = rank, path_type = name_type) 
+
+ncbi_long <- ncbi %>% 
+  filter(name_type == "scientific name") %>% 
+  select(-name_type) %>%  
+  inner_join(long_hierarchy) %>%
+  inner_join(expand)
+
 
 system.time({
   write_tsv(ncbi_long, bzfile("data/ncbi_long.tsv.bz2", compression=9))
 })
 
 
+## Example query: how many species of fishes do we know?
+#fishes <- ncbi_long %>% 
+#  filter(path == "fishes", rank == "species") %>% 
+#  select(id, name, rank) %>% distinct()
+# 33,082 known species
+
+## Wide-format classification table (scientific names only)
+ncbi_wide <- 
+  ncbi_long %>% 
+  filter(path_type == "scientific name", rank == "species") %>% 
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  filter(path_rank != "no rank") %>% ## Wide format includes named ranks only
+  filter(path_rank != "superfamily") %>%  
+  # ncbii has a few duplicate "superfamily" with both as "scientific name"
+  # This is probably a bug in there data as one of these shoudl be "synonym"(?)
+  spread(path_rank, path)
 
 
-## benchmark alternate methods
+system.time({
+  write_tsv(ncbi_wide, bzfile("data/ncbi_wide.tsv.bz2", compression=9))
+})
+
+
+
+## Combine heirarchy into a single column of pipe-separated values.
+wide_hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
+  rename(id = tsn) 
+ncbi %>% left_join(wide_hierarchy)
+
+
+## Note: usually will want to filter this as
+## filter(ncbi_name_class == "scientific_name")
+
+## Consider: pulling ncbi_name_class==commonname into another column
+
+
+
+## benchmark alternate methods (just on ncbi table, not ncbi_long!)
 # 402 secs compress, 55 sec decompress. 34.6 MB compressed
 # system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
 # system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
