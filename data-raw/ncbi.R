@@ -11,8 +11,6 @@ ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
   select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
   collect()
 
-##########
-#ncbi <- read_tsv("data/ncbi.tsv.bz2")
 
 ncbi_ids <- ncbi_taxa %>% 
   select(tsn = tax_id, parent_tsn = parent_tax_id) %>%
@@ -20,7 +18,12 @@ ncbi_ids <- ncbi_taxa %>%
   mutate(tsn = paste0("NCBI:", tsn),
          parent_tsn = paste0("NCBI:", parent_tsn))
 
+## note: NCBI doesn't have rank ids
+ncbi <- ncbi_taxa %>% 
+  select(id = tax_id, name = name_txt, rank, name_type = name_class) %>%
+  mutate(id = paste0("NCBI:", id)) 
 
+rm(ncbi_taxa)
 
 ## Recursively JOIN on id = parent 
 ## FIXME do properly with recursive function and dplyr programming calls
@@ -63,6 +66,7 @@ recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p37 = parent_tsn), by = c("p36" = "tsn")) %>%
   left_join(rename(ncbi_ids, p38 = parent_tsn), by = c("p37" = "tsn"))
 
+rm(ncbi_ids)
 ## expect_true: confirm we have resolved all ids
 all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
@@ -73,19 +77,23 @@ long_hierarchy <-
   distinct() %>%
   arrange(id) 
 
-## note: NCBI doesn't have rank ids
-ncbi <- ncbi_taxa %>% 
-  select(id = tax_id, name = name_txt, rank, name_type = name_class) %>%
-  mutate(id = paste0("NCBI:", id)) 
+rm(recursive_ncbi_ids)
 
 expand <- ncbi %>% 
   select(path_id = id, path = name, path_rank = rank, path_type = name_type) 
 
-ncbi_long <- ncbi %>%  
+ncbi_long <- ncbi %>% 
+  filter(name_type == "scientific name") %>% 
+  select(-name_type) %>%  
   inner_join(long_hierarchy) %>%
   inner_join(expand)
 
-dim(long_hierarchy)
+
+system.time({
+  write_tsv(ncbi_long, bzfile("data/ncbi_long.tsv.bz2", compression=9))
+})
+
+
 
 
 
@@ -99,11 +107,6 @@ ncbi %>% left_join(wide_hierarchy)
 ## filter(ncbi_name_class == "scientific_name")
 
 ## Consider: pulling ncbi_name_class==commonname into another column
-
-system.time({
-  write_tsv(ncbi_long, bzfile("data/ncbi_long.tsv.bz2", compression=9))
-})
-
 
 
 
