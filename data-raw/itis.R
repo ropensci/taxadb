@@ -98,5 +98,23 @@ system.time({
 })
 
 
+#itis_long <- read_tsv("data/itis_long.tsv.bz2")
+## Wide-format classification table (scientific names only)
+itis_wide <- 
+  itis_long %>% 
+  filter(rank == "species", name_usage == "valid") %>%
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  spread(path_rank, path) 
+
+# multiple common names for same id, not clear how to add. get first common name? 
+# pipe string common names
+#itis_long %>% select(id, common_name) %>% distinct()
+
+
+## write at compression 9 for best compression
+system.time({
+  write_tsv(itis_wide, bzfile("data/itis_wide.tsv.bz2", compression=9))
+})
 
 
