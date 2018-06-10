@@ -47,7 +47,11 @@ col_long <- long_names %>%
 
 ## Prefix identifiers
 col_wide <- col_taxa %>% 
-  mutate_if(is.integer, function(x) paste0("COL:", x))
+  mutate_if(is.integer, function(x) paste0("COL:", x)) %>% 
+  rename(kingdom = kingdom_name, phylum = phylum_name, class = class_name, 
+         order = order_name,  superfamily = superfamily_name, 
+         family = family_name, genus = genus_name, subgenus = subgenus_name,
+         species = species_name, infraspecies = infraspecies_name)
 
 write_tsv(col_long, "data/col_long.tsv.bz2")
 write_tsv(col_wide, "data/col_wide.tsv.bz2")
