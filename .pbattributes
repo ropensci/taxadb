@@ -4,3 +4,4 @@ data/*.*
 *.tsv.bz2
 *.tsv.gz
 
+*.sqlite.bz2
