@@ -13,4 +13,6 @@ data/*
 .Renviron
 *.zip
 *.tsv.bz2
-
+*.sqlite
+*.sql
+*.sqlite.bz2
