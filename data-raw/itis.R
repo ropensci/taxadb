@@ -118,3 +118,35 @@ system.time({
 })
 
 
+## Database prep for ITIS
+library(tidyverse)
+itis_long <- read_tsv("data/itis_long.tsv.bz2")
+itis_wide <- read_tsv("data/itis_wide.tsv.bz2")
+
+## accepted == valid
+### https://www.itis.gov/submit_guidlines.html#usage
+
+taxonid <- itis_long %>% select(id, name, rank, name_usage, update_date) %>%
+  distinct()  %>% arrange(id)
+
+##  NEED map of synonym to accepted name!
+synonym <- taxonid %>% filter(name_usage %in% c("not accepted", "invalid")) %>% select(-name_usage)
+itis_taxonid <- taxonid %>% filter(name_usage %in% c("accepted", "valid")) %>% select(-name_usage)
+
+## assert ids are unique
+itis_taxonid %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
+
+
+itis_paths  <- itis_long %>% select(id, path_id, path, path_rank, path_rank_id) %>%
+  distinct() %>% arrange(id)
+
+
+itis_names <- itis_long %>% select(id, name = common_name, language) %>% distinct() 
+
+
+
+
+
+
+
+
