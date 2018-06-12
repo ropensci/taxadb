@@ -7,8 +7,7 @@ expect_none <- function(df){ testthat::expect_equal(dim(df)[[1]], 0) }
 
 
 #' @importFrom readr read_tsv
-
-
+dir.create("data", FALSE)
 download.file("https://zenodo.org/record/1250572/files/prefixes.tsv", "data/prefixes.tsv")
 download.file("https://zenodo.org/record/1250572/files/taxonCache.tsv.gz", "data/taxonCache.tsv.gz")
 download.file("https://zenodo.org/record/1250572/files/taxonMap.tsv.gz", "data/taxonMap.tsv.gz")
@@ -109,8 +108,6 @@ globi_long <- inner_join(taxa,
          external_url = externalUrl, 
          thumbnail_url = thumbnailUrl)
 
-globi_long %>% filter(id == 'EOL:206692')
-
 ## serious compression ~ about the same.  
 write_tsv(globi_long, bzfile("data/globi_long.tsv.bz2", compression=9))
 
@@ -120,11 +117,17 @@ pre_spread <-
   select(id, species = name, path, path_rank) %>% 
   distinct() 
 
+## see debug: OTT, WORMS, NCBI, NBN & INAT contain non-unique rank names
+pre_spread <- pre_spread %>% mutate(row = 1:n())
+tmp <- pre_spread %>% select(id, row) %>% group_by(id) %>% top_n(1)
+uniques <- left_join(tmp, pre_spread, by = c("row", "id"))
 
-pre_spread %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
 
 
-globi_wide <- pre_spread %>% spread(path_rank, path) 
+uniques %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
+
+
+globi_wide <- uniques %>% spread(path_rank, path) 
 write_tsv(globi_wide, bzfile("data/globi_wide.tsv.bz2", compression=9))
 
 
@@ -143,3 +146,13 @@ dups <- pre_spread %>%
   semi_join(select(has_duplicate_rank, id, path_rank))
 
 dups
+
+dups %>% select(id) %>% separate(id, c("source", "id")) %>% group_by(source) %>% tally()
+# A tibble: 5 x 2
+# source       n
+# <chr>    <int>
+#  1 INAT       88
+# 2 NBN         28
+# 3 NCBI       206
+# 4 OTT    1406561
+# 5 WORMS     6780
