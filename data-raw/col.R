@@ -37,7 +37,7 @@ col_ids <- col_taxa %>%
          species = species_id,  infraspecies = infraspecies_id)
 
 other <- col_taxa %>%  select(taxon_id, is_extinct) %>%
-  mutate(is_extinct <- as.logical(is_extinct))
+  mutate(is_extinct = as.logical(is_extinct))
 
 sci_names <- col_names %>% select(taxon_id, genus, species) %>% 
   tidyr::unite(name, genus, species, sep = " ")
