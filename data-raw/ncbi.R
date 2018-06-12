@@ -124,29 +124,26 @@ wide_hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ")
   rename(id = tsn) 
 ncbi %>% left_join(wide_hierarchy)
 
+### 
+library(tidyverse)
+ncbi_long <- read_tsv("data/ncbi_long.tsv.bz2")
 
-## Note: usually will want to filter this as
-## filter(ncbi_name_class == "scientific_name")
+ncbi_taxonid <- ncbi_long %>% 
+  select(id, name, rank, date, type) %>% 
+  filter(name_type == "scientific name") %>%
+  distinct()
+  
+ncbi_hierarchy_long <- ncbi_long %>% 
+  select(id, path_id, path_name, path_rank) %>% 
+  filter(name_type == "scientific name") %>%
+  distinct() 
 
-## Consider: pulling ncbi_name_class==commonname into another column
-
-
-
-## benchmark alternate methods (just on ncbi table, not ncbi_long!)
-# 402 secs compress, 55 sec decompress. 34.6 MB compressed
-# system.time(write_tsv(ncbi, "data/ncbi.tsv.bz2"))
-# system.time(ncbi <- read_tsv( "data/ncbi.tsv.bz2"))
-
-
-# 43 secs compress, 43 sec decompress, 47 MB compressed
-#system.time(write_tsv(ncbi, "data/ncbi.tsv.gz"))
-#system.time(ex <- read_tsv( "data/ncbi.tsv.gz"))
+ncbi_taxonid <- ncbi_long %>% 
+  select(id, name, rank, date, type) %>% 
+  filter(name_type == "scientific name") %>%
+  distinct()
 
 
-## 1 sec i/o at 50%, ~ 5 sec i/o 100%.  file size @ 100% ~ 51.5 MB
-#system.time(fst::write_fst(ncbi, "data/ncbi.fst", compress = 100))
-#system.time(ex <- fst::read_fst("data/ncbi.fst"))
 
-## w/o compression: 25 sec
-#system.time(write_tsv(ncbi, "data/ncbi.tsv"))
+ncbi_wide <- read_tsv("data/ncbi_wide.tsv.bz2")
 

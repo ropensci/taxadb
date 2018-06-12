@@ -18,26 +18,36 @@ taxonCache <- read_tsv("data/taxonCache.tsv.gz", quote = "")
 taxonMap <- read_tsv("data/taxonMap.tsv.gz", quote = "")
 
 
-# Some ids lack ":"
-#taxonCache %>% filter(!grepl(":", id)) %>% expect_none()
+## DROP all duplicated keys in taxonCache
+#first_of_dups <- function(df, id){}
+taxonCache <- taxonCache %>% mutate(row = 1:n())
+tmp <- taxonCache %>% select(id, row) %>% group_by(id) %>% top_n(1)
+tmp2 <- left_join(tmp, taxonCache, by = c("row", "id"))
+taxonCache <- tmp2
 
-## Some tests
-#taxonCache %>% filter(grepl(":", path)) %>% expect_none()  ## some paths are ids
-taxonCache %>% filter(grepl("\\s", id))  %>% expect_none()
 
-
-## Expect same number of pipes in each entry:
-pattern = "\\s*\\|\\s*"
-path_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$path, pattern)[[1]]))
-pathName_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
-pathIds_pipes <- taxonCache %>% purrr::transpose() %>% map_int( ~length(str_split(.x$pathIds, pattern)[[1]]))
-na_path <- is.na(taxonCache$path)
-na_pathNames <- is.na(taxonCache$pathNames)
-na_pathIds  <- is.na(taxonCache$pathIds)
-
-trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
-expect_none(taxonCache[trouble,])
-
+test <- TRUE
+if(test){
+  taxonCache %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
+  # Some ids lack ":"
+  #taxonCache %>% filter(!grepl(":", id)) %>% expect_none()
+  ## Some tests
+  #taxonCache %>% filter(grepl(":", path)) %>% expect_none()  ## some paths are ids
+  taxonCache %>% filter(grepl("\\s", id))  %>% expect_none()  
+    
+  pattern = "\\s*\\|\\s*"
+  path_pipes <- taxonCache %>% purrr::transpose() %>%
+    map_int( ~length(str_split(.x$path, pattern)[[1]]))
+  pathName_pipes <- taxonCache %>% purrr::transpose() %>%
+    map_int( ~length(str_split(.x$pathNames, pattern)[[1]]))
+  pathIds_pipes <- taxonCache %>% purrr::transpose() %>%
+    map_int( ~length(str_split(.x$pathIds, pattern)[[1]]))
+  na_path <- is.na(taxonCache$path)
+  na_pathNames <- is.na(taxonCache$pathNames)
+  na_pathIds  <- is.na(taxonCache$pathIds)
+  trouble <- which( !(path_pipes == pathName_pipes) & !na_path & !na_pathNames)
+  expect_none(taxonCache[trouble,])
+}
 ## This one is failing
 ## trouble <- which( !(pathIds_pipes == path_pipes) & !na_path & !na_pathIds)
 ##expect_none(taxonCache[trouble,])
@@ -59,17 +69,6 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
                
 }
 
-## Small example works despite differing numbers of pipes!
-tmp <- taxonCache %>%
-  filter(str_detect(name, "Gadus morhua"))  %>% 
-  transpose() %>% 
-  map_dfr(longform) %>% 
-  distinct()
-
-## Note we have disagreement:
-tmp %>% filter(pathNames == "kingdom")
-tmp %>% filter(path == "Actinopterygii")
-tmp %>% filter(pathNames == "class")
 
 # 3052673 rows.  3,052,673
 
@@ -85,7 +84,9 @@ taxa <- taxonCache %>%
 ## - [x] standardize rank names
 
 
-taxon_rank_list <- read_tsv("https://raw.githubusercontent.com/globalbioticinteractions/nomer/master/nomer/src/main/resources/org/globalbioticinteractions/nomer/match/taxon_rank_links.tsv")
+taxon_rank_list <- read_tsv(paste0("https://raw.githubusercontent.com/",
+  "globalbioticinteractions/nomer/master/nomer/src/main/resources/org/",
+  "globalbioticinteractions/nomer/match/taxon_rank_links.tsv"))
 
 rank_mapper <- taxon_rank_list %>% 
   select(pathNames = providedName, 
@@ -95,51 +96,50 @@ rank_mapper <- taxon_rank_list %>%
 globi_long <- inner_join(taxa, 
                     rank_mapper, 
                     copy = TRUE) %>% 
+  arrange(id) %>%
+  select(-pathNames) %>% # drop the uncorrected names
   select(id, 
-         name = path, 
-         hierarchy = pathIds, 
-         rank = rank_level, 
-         rank_id = rank_level_id, 
+         name,
+         rank,
+         path, 
+         path_id = pathIds, 
+         path_rank = rank_level, 
+         path_rank_id = rank_level_id, 
          common_names = commonNames, 
          external_url = externalUrl, 
          thumbnail_url = thumbnailUrl)
 
+globi_long %>% filter(id == 'EOL:206692')
 
 ## serious compression ~ about the same.  
 write_tsv(globi_long, bzfile("data/globi_long.tsv.bz2", compression=9))
 
-globi_wide <- 
+pre_spread <- 
   globi_long %>% 
   filter(rank == "species") %>%
   select(id, species = name, path, path_rank) %>% 
-  distinct() %>%
-  spread(path_rank, path) 
-
-## MISC
-#library(pryr)
-#pryr::object_size(taxa)
-
-## ugh, really slow, really should be done with tidyr::separate,
-##  but would require at least grouping by pipe-length
-## (this is also potentially fragile.)
-
-#' @importFrom purrr transpose map_dfr
-#' @importFrom dplyr as_tibble left_join select
-#' @importFrom stringr str_to_lower str_split
+  distinct() 
 
 
-#out <- map_dfr(transpose(df), split_taxa)
-split_taxa <- function(row, pattern = "\\s*\\|\\s*"){ 
-  ranks <- setNames(as.list(
-    str_split(row$path, pattern)[[1]]),
-    str_to_lower(str_split(row$pathNames, pattern)[[1]])
-  )
-  names(ranks) <- guess(names(ranks))
-  bind_cols(row, as_tibble(ranks))
-}
+pre_spread %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
 
-guess <- function(x){
-  x <- str_replace_na(x, "unknown") # Fixme should be unique name?
-  x[x==""] <- "unknown"
-  make.unique(x)
-}
+
+globi_wide <- pre_spread %>% spread(path_rank, path) 
+write_tsv(globi_wide, bzfile("data/globi_wide.tsv.bz2", compression=9))
+
+
+
+
+#### DEBUG ##################
+
+
+## Find all cases with duplicate identifiers!
+has_duplicate_rank <- pre_spread %>% 
+  group_by(id, path_rank) %>% 
+  summarise(l = length(path)) %>% 
+  filter(l>1)
+
+dups <- pre_spread %>% 
+  semi_join(select(has_duplicate_rank, id, path_rank))
+
+dups
