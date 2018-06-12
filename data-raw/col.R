@@ -39,31 +39,50 @@ col_ids <- col_taxa %>%
 other <- col_taxa %>%  select(taxon_id, is_extinct) %>%
   mutate(is_extinct = as.logical(is_extinct))
 
-sci_names <- col_names %>% select(taxon_id, genus, species) %>% 
-  tidyr::unite(name, genus, species, sep = " ")
-
-long_names <- col_names %>% gather(rank, path, -taxon_id) %>%
-  left_join(sci_names) %>% select(taxon_id, name, path, rank)
-
-long_ids <- col_ids %>% gather(rank, path_id, -taxon_id)
-
-
-col_long <- long_names %>% 
-  left_join(long_ids) %>% 
+col_long <- 
+  left_join(
+    col_ids %>% gather(path_rank, path_id, -taxon_id),
+    col_names %>% gather(path_rank, path, -taxon_id)
+  ) %>% 
   left_join(other) %>% 
-  arrange(taxon_id) %>% 
-  mutate_if(is.integer, function(x) paste0("COL:", x))
+  rename(id = taxon_id)
 
 
-## Prefix identifiers
-col_wide <- col_taxa %>% 
-  mutate_if(is.integer, function(x) paste0("COL:", x)) %>% 
-  rename(kingdom = kingdom_name, phylum = phylum_name, class = class_name, 
-         order = order_name,  superfamily = superfamily_name, 
-         family = family_name, genus = genus_name, subgenus = subgenus_name,
-         species = species_name, infraspecies = infraspecies_name)
+sci_names <- col_names %>% 
+  select(id = taxon_id, genus, species) %>% 
+  tidyr::unite(name, genus, species, sep = " ") %>% 
+  mutate(rank = "species")
+
+col_long <- 
+  col_long %>% 
+  left_join(sci_names) %>% 
+  mutate_if(is.integer, function(x) paste0("COL:", x)) %>%
+ select(id, name, rank, path, path_rank, path_id, is_extinct)
+
+col_wide <- 
+  col_long %>% 
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  spread(path_rank, path) 
 
 write_tsv(col_long, "data/col_long.tsv.bz2")
 write_tsv(col_wide, "data/col_wide.tsv.bz2")
 
+
+col_taxonid <- col_long %>% 
+  select(id, name, rank) %>%
+  distinct()
+
+col_hierarchy_long <- col_long %>% 
+  select(id, path_id, path, path_rank) %>% 
+  distinct() 
+
+col_synonyms <- col_long %>% 
+  select(id, name, rank) %>% 
+  distinct()
+
+write_tsv(col_taxonid, bzfile("data/col_taxonid.tsv.bz2", compression=9))
+write_tsv(col_synonyms, bzfile("data/col_synonyms.tsv.bz2", compression=9))
+write_tsv(col_wide, bzfile("data/col_hierarchy.tsv.bz2", compression=9))
+write_tsv(col_hierarchy_long, bzfile("data/col_hierarchy_long.tsv.bz2", compression=9))
 
