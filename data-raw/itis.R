@@ -117,11 +117,14 @@ system.time({
   write_tsv(itis_wide, bzfile("data/itis_wide.tsv.bz2", compression=9))
 })
 
+#########################################################
 
 ## Database prep for ITIS
 library(tidyverse)
 itis_long <- read_tsv("data/itis_long.tsv.bz2")
 itis_wide <- read_tsv("data/itis_wide.tsv.bz2")
+
+fs::file_move("data/itis_wide.tsv.bz2", "data/itis_hierarchy.tsv.bz2")
 
 ## accepted == valid
 ### https://www.itis.gov/submit_guidlines.html#usage
@@ -135,6 +138,8 @@ itis_taxonid <- taxonid %>% filter(name_usage %in% c("accepted", "valid")) %>% s
 
 ## assert ids are unique
 itis_taxonid %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
+
+write_tsv(itis_taxonid, "data/itis_taxonid.tsv.bz2")
 
 
 itis_paths  <- itis_long %>% select(id, path_id, path, path_rank, path_rank_id) %>%

@@ -29,7 +29,8 @@ write_tsv(tpl_wide, "data/tpl_wide.tsv.bz2")
 
 tpl_long <- tpl_wide %>% 
   gather(path_rank, path, -id, -kewid, -ipni_id, -confidence_level) %>%
-  left_join(select(tpl_wide, id, name=species)) %>% mutate(rank = "species") %>%
+  left_join(select(tpl_wide, id, name=species)) %>% 
+  mutate(rank = "species") %>%
   select(id, name, rank, path, path_rank, confidence_level, kew_id=kewid, ipni_id)
 
 write_tsv(tpl_long, "data/tpl_long.tsv.bz2")

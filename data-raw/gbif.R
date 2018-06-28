@@ -25,16 +25,15 @@ gbif_wide <- gbif_taxa %>%
          kingdom, phylum, class, order, family, genus, species,
          specific_epithet = specificEpithet, infraspecific_epithet = infraspecificEpithet,
          genericName, taxonomicStatus)
-write_tsv(gbif_wide, "data/gbif_wide.tsv.bz2")
+write_tsv(gbif_wide, "data/gbif_hierarchy.tsv.bz2")
 rm(gbif_wide)
 
 gbif_long <- 
   gbif_taxa %>% 
-  select(taxon_id, name = scientificName, rank = rank, genericName, taxonomicStatus)
+  select(id = taxon_id, name = scientificName, rank = rank, genericName, taxonomicStatus)
 write_tsv(gbif_long, "data/gbif_long.tsv.bz2")
 
-
-write_tsv(gbif_taxa, "data/gbif.tsv.bz2")
-rm(gbif_taxa)
+gbif_long %>% select(id, name, rank) %>% distinct() %>%
+write_tsv("data/gbif_taxonid.tsv.bz2")
 
 
