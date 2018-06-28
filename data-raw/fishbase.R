@@ -1,4 +1,4 @@
-library(rfishbase)
+library(rfishbase) # 3.0
 library(tidyverse)
 
 fb <- as_tibble(rfishbase::load_taxa())
@@ -6,21 +6,46 @@ fb_wide <- fb %>%
   select( id = SpecCode, 
           genus = Genus, 
           species = Species, 
-          subfamily = SubFamily, 
+          subfamily = Subfamily, 
           family = Family,
           order = Order, 
           class = Class,
-          common_name = FBname) %>%
+          superclass = SuperClass) %>%
   mutate(phylum = "Chorodata", 
          kingdom = "Animalia",
-         id = paste0("FB:", id)) %>%
-  select(id, species, genus, subfamily, 
-          family, order, class, phylum,
-          kingdom, common_name)
+         id = paste0("FB:", id))
 
-write_tsv(fb_wide, "data/fb_wide.tsv.bz2")
+write_tsv(fb_wide, "data/fb_hierarchy.tsv.bz2")
 
+species <- rfishbase:::fb_species()
+synonyms <- rfishbase::synonyms(NULL) %>%
+  left_join(species) %>% 
+  rename(id = SpecCode)  %>% 
+  select(id,
+         species = Species,
+         synonym,
+         type = Status,
+         syn_id = SynCode,
+         rank = TaxonLevel, 
+         tsn = TSN, 
+         col = CoL_ID, 
+         worms = WoRMS_ID, 
+         zoobank = ZooBank_ID)
 
+## Consider preserving stock code?
+common <- rfishbase:::fb_tbl("comnames")  %>%
+  left_join(species) %>% 
+  rename(id = SpecCode)  %>% 
+  select(id, 
+         species = Species,
+         synonym = ComName,
+         language = Language) %>% 
+  mutate(type = "common") 
+
+fb_synonyms <- 
+common %>% 
+  bind_rows(synonyms)
+         
 
 slb <- as_tibble(rfishbase::load_taxa(server = "https://fishbase.ropensci.org/sealifebase"))
 slb_wide <- slb %>% 
@@ -36,7 +61,7 @@ slb_wide <- slb %>%
   select(id, species, genus, subfamily, 
          family, order, class, common_name)
 
-write_tsv(slb_wide, "data/slb_wide.tsv.bz2")
+write_tsv(slb_wide, "data/slb_hierarchy.tsv.bz2")
 
 
 
