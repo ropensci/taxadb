@@ -8,12 +8,24 @@ dbdir <- Sys.getenv("TAXALD_HOME", fs::path(fs::path_home(), ".taxald"))
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 
-
 library(geiger)
 data(primates)
 df <- data_frame(name = gsub("_", " ", primates$phy$tip.label))
 
-out <- right_join(tbl(con, "col_taxonid"), df, copy = TRUE) %>% collect()
+
+df <- data_frame(species = gsub("_", " ", primates$phy$tip.label))
+
+
+library(tictoc)
+tic()
+out <- right_join(tbl(con, "col_wide"), df, copy = TRUE) %>% collect()
+toc()
+
+#sqlite <- src_sqlite("taxa.sqlite")
+#tic()
+#out <- right_join(tbl(sqlite, "col_wide"), df, copy = TRUE) %>% collect()
+#toc()
+
 
 out <- right_join(tbl(con, "ncbi_taxonid"), df, copy = TRUE) %>% collect() %>% arrange(name)
 
@@ -46,31 +58,19 @@ system.time({
   })
 
 
-system.time({
-  tbl(con, "taxa") %>% filter(name %like% "%Gadus%") %>% select(id, name, rank) %>% distinct() %>% explain()
-})
 
 
 tbl(con, "taxa") %>% filter(lower(name) %like% "gadus")
-
 tbl(con, "taxa") %>% filter(name == "Gadus" & rank == "Genus")
 tbl(con, "taxa") %>% filter(name %like% "%Gadus%" & rank == "Species")
-
 tbl(con, "taxa") %>% filter(name == "Gadus morhua" & rank == "Species") %>% collect() -> cod
 
 tbl(con, "taxa") %>% filter(name == "Pinus ponderosa")%>% collect() -> pine
-
 tbl(con, "taxa") %>% filter(path == "Gymnospermia")
 tbl(con, "taxa") %>% filter(path %like% "%Spermatophyta%")
-
 tbl(con, "taxa") %>% filter(path %like% "%Angiospermae%")
 tbl(con, "taxa") %>% filter(path %like% "%Coniferae%")
-
 tbl(con, "taxa") %>% filter(name == "Coniferae")
-
-
 tbl(con, "taxa") %>% filter(name == "Pinopsida") %>% summarise(n())
-
 tbl(con, "taxa") %>% filter(pathIds == "NCBI:122248")
-
 tbl(con, "taxa") %>% filter(name == "Allocebus trichotis")
