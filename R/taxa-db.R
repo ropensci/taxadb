@@ -10,9 +10,12 @@
 
 
 library(DBI)
-library(RSQLite)
+#library(RSQLite)
 library(dplyr)
-library(R.utils)
+#library(R.utils)
+library(MonetDBLite)
+dbdir <- fs::dir_create("taxadb")
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 ## con <- dbConnect(RSQLite::SQLite(), ":memory:")
 ## cars <- tibble::rownames_to_column(mtcars)
