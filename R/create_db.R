@@ -20,12 +20,26 @@ create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
                                           "gbif", "fb", "slb", "wiki")){
   ## FIXME offer more fine-grained support over which authorities to install
   ## FIXME include some messaging about the large downloads etc?
-  piggyback::pb_download(repo="cboettig/taxald")
+  
+  
+  ## FIXME generate list of data files to download based on requested
+  ## authorities
+  
+  ## FIXME eventually will pull from Zenodo, not piggyback
+  tmp <- tempdir()
+  piggyback::pb_download(dest = tmp, repo="cboettig/taxald")
+  
+  
   files <- fs::dir_ls("data/", glob="*.tsv.bz2")
+  
+  
   dbdir <- fs::dir_create(path)
   con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
   db <- dbplyr::src_dbi(con)
   arkdb::unark(files, db, lines = 1e6)
+  
+  ## Clean up imported files
+  fs::dir_delete(fs::path(tmp, "data"))
   
   ## Set id as primary key in each table?
   # tbls <- DBI::dbListTables(db$con)

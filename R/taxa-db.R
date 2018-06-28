@@ -3,7 +3,10 @@ library(DBI)
 library(dplyr)
 library(MonetDBLite)
 #dbdir <- fs::dir_create("taxadb")
+
+dbdir <- Sys.getenv("TAXALD_HOME", fs::path(fs::path_home(), ".taxald"))
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+
 
 
 library(geiger)
@@ -13,6 +16,9 @@ df <- data_frame(name = gsub("_", " ", primates$phy$tip.label))
 out <- right_join(tbl(con, "col_taxonid"), df, copy = TRUE) %>% collect()
 
 out <- right_join(tbl(con, "ncbi_taxonid"), df, copy = TRUE) %>% collect() %>% arrange(name)
+
+# out <- right_join(tbl(con, "itis_taxonid"), df, copy = TRUE) %>% collect() %>% arrange(name)
+
 
 out <- right_join(tbl(con, "ncbi_long"), df, copy = TRUE) %>% collect() %>% arrange(name)
 
