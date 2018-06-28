@@ -1,7 +1,7 @@
 ## apt-get -y install mariadb-client postgresql-client
 library(taxizedb) 
 library(tidyverse)
-
+library(stringr)
 
 col <- db_download_col()
 
@@ -68,6 +68,17 @@ col_wide <-
 write_tsv(col_long, "data/col_long.tsv.bz2")
 write_tsv(col_wide, "data/col_wide.tsv.bz2")
 
+library(tidyverse)
+col_wide <- read_tsv("data/col_hierarchy.tsv.bz2")
+
+col_hierarchy <- col_wide %>% 
+  select(id, kingdom, phylum, class, 
+                    order, superfamily, family,
+                    genus, subgenus,  
+                    species,  infraspecies) %>% 
+  mutate(species = str_trim(paste(genus, species, str_replace_na(infraspecies, ""))))
+write_tsv(col_hierarchy, "data/col_hierarchy.tsv.bz2")
+
 
 col_taxonid <- col_long %>% 
   select(id, name, rank) %>%
@@ -76,13 +87,16 @@ col_taxonid <- col_long %>%
 col_hierarchy_long <- col_long %>% 
   select(id, path_id, path, path_rank) %>% 
   distinct() 
+write_tsv(col_hierarchy_long, bzfile("data/col_hierarchy_long.tsv.bz2", compression=9))
 
-col_synonyms <- col_long %>% 
-  select(id, name, rank) %>% 
-  distinct()
+## Drop col_long, it is just right_join(col_taxonid, col_hierarchy_long)
+
+## No synonyms available
+#col_synonyms <- col_long %>% 
+#  select(id, name, rank) %>% 
+#  distinct()
 
 write_tsv(col_taxonid, bzfile("data/col_taxonid.tsv.bz2", compression=9))
-write_tsv(col_synonyms, bzfile("data/col_synonyms.tsv.bz2", compression=9))
-write_tsv(col_wide, bzfile("data/col_hierarchy.tsv.bz2", compression=9))
-write_tsv(col_hierarchy_long, bzfile("data/col_hierarchy_long.tsv.bz2", compression=9))
+#write_tsv(col_synonyms, bzfile("data/col_synonyms.tsv.bz2", compression=9))
+
 

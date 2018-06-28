@@ -114,7 +114,7 @@ ncbi_wide <-
 
 
 system.time({
-  write_tsv(ncbi_wide, bzfile("data/ncbi_wide.tsv.bz2", compression=9))
+  write_tsv(ncbi_wide, bzfile("data/ncbi_hierarchy.tsv.bz2", compression=9))
 })
 
 
