@@ -1,0 +1,21 @@
+Package: taxald
+Version: 0.0.0.9000
+Title: Taxonomic Linked Data 
+Description: Creates a local database of many commonly used taxonomic authorities
+             and provides functions that can quickly query this data.  
+Authors@R: person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"))
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+ByteCompile: true
+Imports: 
+    dplyr,
+    dbplyr,
+    DBI,
+    MonetDBLite,
+    arkdb,
+    piggyback,
+    fs
+Remotes: cboettig/arkdb, cboettig/piggyback
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.0.1.9000

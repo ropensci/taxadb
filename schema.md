@@ -3,12 +3,19 @@
 For each authority:
 
 - `hierarchy` table, in which any valid rank is a column, and a taxon `id` is a unique key.
+(wide)
 
 - `taxonid` table, in which a taxonomic `id` is a unique key to a scientific name, and every taxonomic identifier defined by the authority is present in exactly one row.  Additional columns include the `name` and `rank` associated with that information.  
 
+  long %>% select(id, name, rank, date, type) %>% distinct() %>% filter(goodnames)
+
 - Optionally, a `hierarchy_long` table, with columns `id`, `path`, `path_id`, and `path_rank`, defining hierarchy connected to any given taxonomic `id`.  Unlike the "wide" format, this approach can associate un-ranked and duplicate rank names (such as multiple `superfamily` names found in NCBI).    
 
+long %>% select(id, path_id, path_name, path_rank) %>% distinct
+
 - Optionally, a `other_names` table, in which a column `other_names` includes any possible name except those names already given in the `taxonid` table (e.g. common names, synonyms, misspellings).   A column `name_type` indicates if name is a common name, A column `id` associates a name with a taxonomic identifer as a foreign key. An optional column `language` specifies the language of any common/vernacular name.
+
+
 
 ## Long format
 
