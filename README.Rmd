@@ -51,14 +51,35 @@ Currently tables are pulled from the development cache on GitHub. Many of these 
 
 ## Package API
 
+```{r}
+library(tictoc) # let's display timing of queries for reference
+```
+
 Once the database is installed, we can start to make some queries. 
 
 First, let's get a nice big species list, say, all the birds (known to the Catalogue of Life):
 
 ```{r}
+tic()
 df <- descendents(name = "Aves", rank = "class", authority="col")
+toc()
 ```
 
+How many species did we get?
+
+```{r}
+length(df$names)
+```
+
+In general, this species list could have come from anywhere (i.e. some particular research project) and not from a single authority.  
+
+We can get the full hierachical classification for this list of species:  
+
+```{r}
+tic()
+hierarchy(df$names)
+toc()
+```
 
 Design sketch/spec for package API:
 

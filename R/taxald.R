@@ -122,6 +122,9 @@ descendents <- function(name = NULL,
                         collect = TRUE){
   authority <- match.arg(authority)
   df <- tibble(rank = rank, name = name)
+  
+  ## schema=long probably isn't the most efficient table to use
+  ## we could use the heirarchy table, though it will need NSE escapes
   out <- dplyr::right_join(
       taxa_tbl(authority = authority, schema = "long"), 
       df, 
@@ -139,7 +142,7 @@ descendents <- function(name = NULL,
   }
 }
 
-
+## Tell CHECK to ignore the NSE use of these bare names:
 utils::globalVariables(c("id", "name", "rank"))
 
 #' Connect to the taxald database
