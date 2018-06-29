@@ -121,7 +121,7 @@ descendents <- function(name = NULL,
                                       "gbif", "fb", "slb", "wd"),
                         collect = TRUE){
   authority <- match.arg(authority)
-  df <- tibble(rank = rank, name = name)
+  df <- tibble(path_rank = rank, path_name = name)
   
   ## schema=long probably isn't the most efficient table to use
   ## we could use the heirarchy table, though it will need NSE escapes
