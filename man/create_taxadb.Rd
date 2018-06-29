@@ -5,7 +5,7 @@
 \title{create a local taxonomic database}
 \usage{
 create_taxadb(path = fs::path(fs::path_home(), ".taxald"),
-  authorities = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wiki"))
+  authorities = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"))
 }
 \arguments{
 \item{path}{a location on your computer where the database should be installed.
