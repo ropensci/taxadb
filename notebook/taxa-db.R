@@ -1,14 +1,38 @@
-
-library(geiger)
-data(primates)
-species <- gsub("_", " ", primates$phy$tip.label)
-
-
 library(tictoc)
+library(dplyr)
+
+db <- connect_db()
+
+## a species list of all Primates in COL
+species <- tbl(db, "col_hierarchy") %>% 
+  #filter(order == "Primates") %>% 
+  filter(class == "Mammalia") %>%
+  select(species) %>% collect() %>% pull(species)
+
+length(species)
+
 tic()
-out <- right_join(tbl(con, "col_hierarchy"), df, copy = TRUE) %>% collect()
+out <- right_join(tbl(db, "itis_taxonid"), 
+                  tibble(name = species), copy = TRUE) %>% collect()
 toc()
-  
+
+tic()
+out <- right_join(tbl(db, "itis_long"), 
+                  tibble(name = species), copy = TRUE) %>% 
+        select(id, name, rank) %>% distinct() %>%
+  collect()
+toc()
+
+
+
+# hmm, why can't we union these?
+stack <- dplyr::union_all(tbl(db, "itis_long"), 
+                          tbl(db, "col_long"))
+
+stack # Error: Cannot pass NA to dbQuoteIdentifier()
+
+
+
 #sqlite <- src_sqlite("taxa.sqlite")
 #tic()
 #out <- right_join(tbl(sqlite, "col_wide"), df, copy = TRUE) %>% collect()

@@ -65,9 +65,23 @@ descendents <- function(name = NULL,
 }
 
 
+#' Connect to the taxald database
+#' 
+#' @param dbdir Path to the database. Defaults to `TAXALD_HOME` 
+#' environmental variable, which defaults to `~/.taxald`.
+#' @return Returns a `src_dbi` connection to the database
+#' @details Primarily useful when a lower-level interface to the
+#' database is required.  Most `taxald`` functions will connect
+#' automatically without the user needing to call this function.
 #' @importFrom DBI dbConnect
 #' @importFrom MonetDBLite MonetDBLite
 #' @importFrom dbplyr src_dbi
+#' @export
+#' @examples \dontrun{
+#' 
+#' db <- connect_db()
+#' 
+#' }
 connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME", 
                                           fs::path(fs::path_home(),
                                                    ".taxald"))){
@@ -75,12 +89,14 @@ connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME",
   db <- dbplyr::src_dbi(con)
 }
 
+
+
 #' @importFrom dplyr tbl
 taxa_tbl <- function(
   db = connect_db(),
   authority = c("itis", "ncbi", "col", "tpl",
                 "gbif", "fb", "slb", "wd"), 
-  schema = c("hierarchy", "taxonid", "synonyms")){
+  schema = c("hierarchy", "taxonid", "synonyms", "common", "long")){
   
   authority <- match.arg(authority)
   schema <- match.arg(schema)
