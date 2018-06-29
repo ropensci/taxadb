@@ -128,7 +128,7 @@ uniques %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
 
 
 globi_wide <- uniques %>% spread(path_rank, path) 
-write_tsv(globi_wide, bzfile("data/globi_wide.tsv.bz2", compression=9))
+write_tsv(globi_wide, bzfile("data/globi_hierarchy.tsv.bz2", compression=9))
 
 
 

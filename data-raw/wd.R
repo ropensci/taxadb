@@ -61,7 +61,9 @@ wd_long <- wd_long %>%
   mutate(id = paste0("WD:", id),
          rank_id = paste0("WD:", rank_id),
          path_id = paste0("WD:", path_id),
-         path_rank_id = paste0("WD", path_rank_id))
+         path_rank_id = paste0("WD:", path_rank_id))
+
+
 
 ## add rank names
 wd_long <- wd_long %>% 
@@ -69,7 +71,41 @@ wd_long <- wd_long %>%
   left_join(rename(wd_ranks, 
                    path_rank_id = rank_id,
                    path_rank = rank))
+
 write_tsv(wd_long, "data/wd_long.tsv.bz2")
+
+library(tidyverse)
+wd_long <- read_tsv("data/wd_long.tsv.bz2")
+
+pre_spread <- 
+  wd_long %>% 
+  filter(rank == "species") %>% 
+  select(id, species = name, path, path_rank) %>% 
+  distinct() %>%
+  filter(!is.na(path_rank)) 
+
+## Some species names / ids have multiple ranks at the same level (i.e. is part of two suborders)
+## In order to spread, we use this trick to just take the first of these in that case.
+pre_spread <- pre_spread %>% mutate(row = 1:n())
+tmp <- pre_spread %>% select(id, row) %>% group_by(id) %>% top_n(1)
+uniques <- left_join(tmp, pre_spread, by = c("row", "id"))
+
+
+wd_wide <- uniques %>% spread(path_rank, path) 
+write_tsv(wd_wide, bzfile("data/wd_hierarchy.tsv.bz2", compression=9))
+
+
+## Debug info: use this to up the duplicated ranks.  
+has_duplicate_rank <- pre_spread %>% 
+  group_by(id, path_rank) %>% 
+  summarise(l = length(path)) %>% 
+  filter(l>1)
+dups <- pre_spread %>% 
+  semi_join(select(has_duplicate_rank, id, path_rank))
+
+dups
+
+#write_tsv(wd_wide, "data/wd_hierarchy.tsv.bz2")
 
 
 id_map <- wd_taxon %>% 
