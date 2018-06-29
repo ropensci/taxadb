@@ -32,6 +32,8 @@ synonyms <- rfishbase::synonyms(NULL) %>%
          worms = WoRMS_ID, 
          zoobank = ZooBank_ID)
 
+
+
 ## Consider preserving stock code?
 common <- rfishbase:::fb_tbl("comnames")  %>%
   left_join(species) %>% 
@@ -41,6 +43,12 @@ common <- rfishbase:::fb_tbl("comnames")  %>%
          synonym = ComName,
          language = Language) %>% 
   mutate(type = "common") 
+
+
+unescape_html <- function(str){
+  xml2::xml_text(xml2::read_html(paste0("<x>", str, "</x>")))
+}
+
 
 fb_synonyms <- 
 common %>% 
