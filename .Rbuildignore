@@ -7,3 +7,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^notebook$
+^\.travis\.yml$
+^codecov\.yml$

@@ -2,6 +2,12 @@
 output: github_document
 ---
 
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Travis build status](https://travis-ci.org/cboettig/taxald.svg?branch=master)](https://travis-ci.org/cboettig/taxald)
+[![Coverage status](https://codecov.io/gh/cboettig/taxald/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxald?branch=master)
+[![CRAN status](https://www.r-pkg.org/badges/version/taxald)](https://cran.r-project.org/package=taxald)
+
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r setup, include = FALSE}
@@ -11,6 +17,29 @@ knitr::opts_chunk$set(
 )
 ```
 # taxald
+
+**This package is purley exploratory at this stage!**
+
+
+
+Central to `taxald` design is to create a *local* database of all avialable taxonomic authority data that we can query quickly, even when working with tens of thousands of species. The second key feature of `taxald` design is to return queries from each authority using a *consistent* and convenient table structure, facilitating queries that compare, combine, or work across names from multiple authorities.  
+
+## Install and initial setup
+
+`taxald` should now be installable.  To get started, try:
+
+```{r eval=FALSE}
+devtools::install_github("cboettig/taxald")
+```
+
+Before we can use most `taxald` functions, we need to do a one-time installation of the database `taxald` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local harddisk and will persist between R sessions.  Download and install the database 
+
+```{r}
+library(taxald)
+
+
+```
+
 
 ## Package API
 
@@ -30,8 +59,6 @@ Design sketch/spec for package API:
 - Map between identifiers
 
 - Normalize rank names
-
---- 
 
 - Resolve a list of names across multiple authorities to attain higher coverage, 
 - provide merged tables

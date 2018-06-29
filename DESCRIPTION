@@ -19,3 +19,6 @@ Imports:
 Remotes: cboettig/arkdb, cboettig/piggyback
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1.9000
+Suggests: 
+    testthat,
+    covr
