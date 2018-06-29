@@ -17,7 +17,7 @@
 #' }
 create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
                           authorities = c("itis", "ncbi", "col", "tpl",
-                                          "gbif", "fb", "slb", "wiki")){
+                                          "gbif", "fb", "slb", "wd")){
   ## FIXME offer more fine-grained support over which authorities to install
   ## FIXME include some messaging about the large downloads etc?
   
