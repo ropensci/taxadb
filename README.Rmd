@@ -36,7 +36,9 @@ Before we can use most `taxald` functions, we need to do a one-time installation
 
 ```{r}
 library(taxald)
+```
 
+```{r eval=FALSE}
 create_taxadb()
 ```
 
@@ -68,7 +70,7 @@ toc()
 How many species did we get?
 
 ```{r}
-length(df$names)
+length(df$name)
 ```
 
 In general, this species list could have come from anywhere (i.e. some particular research project) and not from a single authority.  
@@ -77,7 +79,7 @@ We can get the full hierachical classification for this list of species:
 
 ```{r}
 tic()
-hierarchy(df$names)
+hierarchy(df$name)
 toc()
 ```
 

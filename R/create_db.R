@@ -11,8 +11,8 @@
 #'
 #' @examples
 #' \dontrun{
-#'   tmp <- tempdir()
-#'   create_taxadb(tmp, authorities = "itis")
+#'   # tmp <- tempdir()
+#'   # create_taxadb(tmp, authorities = "itis")
 #'
 #' }
 create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),

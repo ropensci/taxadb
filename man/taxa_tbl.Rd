@@ -12,6 +12,8 @@ taxa_tbl(authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
 \item{authority}{from which authority should the hierachy be returned?
 Default is 'itis'.}
 
+\item{schema}{the table schema on which we want to run the query}
+
 \item{db}{a connection to the taxald database. Default will
 attempt to connect automatically.}
 }

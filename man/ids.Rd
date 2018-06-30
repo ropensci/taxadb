@@ -5,7 +5,7 @@
 \title{Return taxonomic identifiers from a given namespace}
 \usage{
 ids(name = NULL, authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd"), schema = "taxonid", collect = TRUE)
+  "slb", "wd"), collect = TRUE)
 }
 \arguments{
 \item{name}{a character vector of species names.

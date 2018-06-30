@@ -23,8 +23,8 @@ create a local taxonomic database
 }
 \examples{
 \dontrun{
-  tmp <- tempdir()
-  create_taxadb(tmp, authorities = "itis")
+  # tmp <- tempdir()
+  # create_taxadb(tmp, authorities = "itis")
 
 }
 }

@@ -2,6 +2,7 @@
 ^\.pbattributes$
 ^\.manifest\.json$
 ^schema\.md$
+^taxizedb$
 ^README\.Rmd$
 ^LICENSE\.md$
 ^.*\.Rproj$
@@ -9,3 +10,5 @@
 ^notebook$
 ^\.travis\.yml$
 ^codecov\.yml$
+^codemeta\.json$
+^data$

@@ -86,7 +86,6 @@ hierarchy <- function(species = NULL,
 ids <- function(name = NULL,
                 authority = c("itis", "ncbi", "col", "tpl",
                               "gbif", "fb", "slb", "wd"),
-                schema = "taxonid",
                 collect = TRUE){
 
   
@@ -174,6 +173,7 @@ connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME",
 #' 
 #' @param db a connection to the taxald database. Default will
 #' attempt to connect automatically.
+#' @param schema the table schema on which we want to run the query
 #' @importFrom dplyr tbl
 #' @inheritParams hierarchy
 #' @export 
@@ -189,3 +189,8 @@ taxa_tbl <- function(
   
   dplyr::tbl(db, tbl_name)
 }
+
+# FIXME: Provide a way to close a connection that is opened automatically
+# may it is it sufficient to do:
+#     db <- connect_db()
+#     DBI::dbDisconnect(db$con)
