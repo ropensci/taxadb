@@ -1,3 +1,7 @@
+# FIXME consider a lightweight create_db that imports a single table,
+# from a single schema, possibly directly into memory?
+
+
  
 #' create a local taxonomic database
 #'
