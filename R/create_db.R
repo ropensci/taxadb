@@ -31,10 +31,11 @@ create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
   
   ## FIXME eventually will pull from Zenodo, not piggyback
   tmp <- tempdir()
+  
   piggyback::pb_download(dest = tmp, repo="cboettig/taxald")
   
   
-  files <- fs::dir_ls("data/", glob="*.tsv.bz2")
+  files <- fs::dir_ls(fs::path(tmp, "data/"), glob="*.tsv.bz2")
   
   
   dbdir <- fs::dir_create(path)
@@ -45,7 +46,7 @@ create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
   ## Clean up imported files
   fs::dir_delete(fs::path(tmp, "data"))
   
-  ## Set id as primary key in each table?
+  ## Set id as primary key in each table? automatic in MonetDB
   # tbls <- DBI::dbListTables(db$con)
   # lapply(tbls, function(table)
   # glue::glue("ALTER TABLE {table} ADD PRIMARY KEY ({key});", 
