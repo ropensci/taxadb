@@ -22,6 +22,8 @@
 create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
                           authorities = c("itis", "ncbi", "col", "tpl",
                                           "gbif", "fb", "slb", "wd")){
+  ## FIXME Overwrite / delete any existing database, after giving a warning if interactive
+  
   ## FIXME offer more fine-grained support over which authorities to install
   ## FIXME include some messaging about the large downloads etc?
   

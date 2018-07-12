@@ -10,7 +10,7 @@ ids(name = NULL, authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
 \arguments{
 \item{name}{a character vector of species names.
 (Most authorities can also return ids for higher-level
-taxanomic names).}
+taxonomic names).}
 
 \item{authority}{from which authority should the hierachy be returned?
 Default is 'itis'.}

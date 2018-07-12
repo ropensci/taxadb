@@ -77,7 +77,7 @@ hierarchy <- function(species = NULL,
 #' 
 #' @param name a character vector of species names. 
 #' (Most authorities can also return ids for higher-level
-#'  taxanomic names).
+#'  taxonomic names).
 #' @inheritParams hierarchy
 #' @return a data.frame with columns of `id`, scientific 
 #' `name`, and `rank` and a row for each species name queried.
@@ -104,7 +104,7 @@ ids <- function(name = NULL,
 }
 
 
-#' Get all members (descendents) of a given rank level
+#' Get all members (descendants) of a given rank level
 #' @inheritParams hierarchy
 #' @param rank taxonomic rank name.
 #' @param name taxonomic name (e.g. "Aves")
@@ -113,7 +113,7 @@ ids <- function(name = NULL,
 #' 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr right_join select filter distinct
-descendents <- function(name = NULL, 
+descendants <- function(name = NULL, 
                         rank = NULL, 
                         id = NULL,
                         authority = c("itis", "ncbi", "col", "tpl",

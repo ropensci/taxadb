@@ -2,7 +2,7 @@
 
 export(connect_db)
 export(create_taxadb)
-export(descendents)
+export(descendants)
 export(hierarchy)
 export(ids)
 export(taxa_tbl)
