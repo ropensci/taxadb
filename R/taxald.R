@@ -73,6 +73,7 @@ classification <- function(species = NULL,
 }
 
 
+## FIXME Does not support lookup of non-species-level ids. Using taxonid schema would fix this.
 #' Return taxonomic identifiers from a given namespace
 #' 
 #' @param name a character vector of species names. 
@@ -89,12 +90,14 @@ ids <- function(name = NULL,
                 collect = TRUE,
                 taxald_db = connect_db()){
   
-  out <- dplyr::right_join(
-    taxa_tbl(authority = authority, 
-             schema = "hierarchy", 
-             db = taxald_db), 
-    dplyr::tibble(species = name),
-    copy = TRUE) %>% select(id, species)
+  out <- 
+    dplyr::right_join(
+      taxa_tbl(authority = authority, 
+               schema = "hierarchy", 
+               db = taxald_db), 
+      dplyr::tibble(species = name),
+      copy = TRUE) %>% 
+    dplyr::select("id", "species")
   
   
   if(collect){ ## Return an in-memory object
@@ -129,14 +132,14 @@ descendants <- function(name = NULL,
   ## technically could guess rank from name most but not all time
   ## could still do this as join rather than a filter with appropriate table construction
   if(schema == "hierarchy"){
-    df <-  data.frame(setNames(list(name),  rank))
+    df <- data.frame(setNames(list(name),  rank))
     df$id <- id
     out <- dplyr::right_join(
       taxa_tbl(authority = authority,
                schema = "hierarchy", 
                db = taxald_db),
       df,
-      copy=TRUE, by = rank)
+      copy = TRUE, by = rank)
     
     #quo_rank <- quo(rank)
     #out <- 
