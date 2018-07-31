@@ -42,27 +42,29 @@ create_taxadb <- function(path = Sys.getenv("TAXALD_HOME",
   
   ## FIXME offer more fine-grained support over which authorities to install
   recognized_authorities = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd")
-  stopifnot(!all(authorities %in% recognized_authorities))
+  stopifnot(all(authorities %in% recognized_authorities))
   ## FIXME include some messaging about the large downloads etc?
   
   
   ## FIXME generate list of data files to download based on requested
-  ## authorities
+  files <- paste0(authorities, "_", schema, ".tsv.bz2") 
+  
   
   ## FIXME eventually will pull from Zenodo, not piggyback
   tmp <- tempdir()
+  piggyback::pb_download(paste0("data/", files), 
+                         dest = tmp, 
+                         repo = "cboettig/taxald")
   
-  piggyback::pb_download(dest = tmp, repo="cboettig/taxald")
-  
-  globs <- paste(authorities, "_", schema, ".tsv.bz2")
-  files <- unname(unlist(lapply(globs, function(glob)
-                    fs::dir_ls(fs::path(tmp, "data/"), glob = glob))))
+  #globs <- paste(authorities, "_", schema, ".tsv.bz2")
+  #files <- unname(unlist(lapply(globs, function(glob)
+  #                  fs::dir_ls(fs::path(tmp, "data/"), glob = glob))))
   
   
   dbdir <- fs::dir_create(path)
   con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
   db <- dbplyr::src_dbi(con)
-  arkdb::unark(files, db, lines = 1e6)
+  arkdb::unark(fs::path(tmp, "data", files), db, lines = 1e6)
   
   ## Clean up imported files
   fs::dir_delete(fs::path(tmp, "data"))
