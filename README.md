@@ -49,7 +49,7 @@ First, let's get a nice big species list, say, all the birds (known to ITIS):
 tic()
 df <- descendants(name = "Aves", rank = "class")
 toc()
-#> 2.888 sec elapsed
+#> 0.674 sec elapsed
 ```
 
 How many species did we get?
@@ -65,27 +65,22 @@ Generally, we have a species list could have come from some particular research 
 tic()
 ids(df$species)
 #> Joining, by = "species"
-#> # A tibble: 10,401 x 26
-#>    id    class family genus infraclass infrakingdom infraorder infraphylum
-#>    <chr> <chr> <chr>  <chr> <chr>      <chr>        <chr>      <chr>      
-#>  1 ITIS… Aves  Strut… Stru… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  2 ITIS… Aves  Rheid… Rhea  <NA>       Deuterostom… <NA>       Gnathostom…
-#>  3 ITIS… Aves  Droma… Drom… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  4 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  5 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  6 ITIS… Aves  Apter… Apte… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  7 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  8 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  9 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> 10 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> # ... with 10,391 more rows, and 18 more variables: kingdom <chr>,
-#> #   order <chr>, phylum <chr>, section <chr>, species <chr>,
-#> #   subclass <chr>, subfamily <chr>, subgenus <chr>, subkingdom <chr>,
-#> #   suborder <chr>, subphylum <chr>, subsection <chr>, subtribe <chr>,
-#> #   superclass <chr>, superfamily <chr>, superorder <chr>,
-#> #   superphylum <chr>, tribe <chr>
+#> # A tibble: 10,401 x 2
+#>    id          species                   
+#>    <chr>       <chr>                     
+#>  1 ITIS:174375 Struthio camelus          
+#>  2 ITIS:174379 Rhea americana            
+#>  3 ITIS:174385 Dromaius novaehollandiae  
+#>  4 ITIS:174388 Casuarius bennetti        
+#>  5 ITIS:174390 Casuarius unappendiculatus
+#>  6 ITIS:174394 Apteryx australis         
+#>  7 ITIS:174400 Tinamus guttatus          
+#>  8 ITIS:174401 Tinamus major             
+#>  9 ITIS:174402 Tinamus osgoodi           
+#> 10 ITIS:174403 Tinamus solitarius        
+#> # ... with 10,391 more rows
 toc()
-#> 0.903 sec elapsed
+#> 0.456 sec elapsed
 ```
 
 We can get the full hierachical classification for this list of species:
@@ -114,7 +109,7 @@ classification(df$species)
 #> #   superclass <chr>, superfamily <chr>, superorder <chr>,
 #> #   superphylum <chr>, tribe <chr>
 toc()
-#> 0.486 sec elapsed
+#> 0.284 sec elapsed
 ```
 
 Design sketch/spec for package API:

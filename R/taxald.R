@@ -44,7 +44,7 @@
 #' explicitly to all subsequent `taxald` functions.  This will allow them
 #' to re-use the existing connection, which can also be used in conjunction
 #' with the returned results for further on-disk queries. In general, this will
-#' only be desirable when tables are extremely large or availablity memory is 
+#' only be desirable when tables are extremely large or availability memory is 
 #' extremely limited. Under most use cases, the defaults for `collect` and 
 #' `taxald_db` should be appropriate.  
 #' @export
@@ -153,19 +153,19 @@ descendants <- function(name = NULL,
   ## schema=long probably isn't the most efficient table to use
   ## we could use the heirarchy table, though it will need NSE escapes
   
-  else if(schema == "long"){
-    df <- tibble(path_rank = rank, path_name = name)
-    out <- dplyr::right_join(
-        taxa_tbl(authority = authority, 
-                 schema = "long", 
-                 db = taxald_db), 
-        df, 
-        copy = TRUE) %>%
-      dplyr::select("id", "name", "rank") %>% 
-      dplyr::filter(rank == "species") %>%
-      dplyr::select("id", "name") %>% 
-      dplyr::distinct()
-  }
+  # else if(schema == "long"){
+  #   df <- tibble(path_rank = rank, path_name = name)
+  #   out <- dplyr::right_join(
+  #       taxa_tbl(authority = authority, 
+  #                schema = "long", 
+  #                db = taxald_db), 
+  #       df, 
+  #       copy = TRUE) %>%
+  #     dplyr::select("id", "name", "rank") %>% 
+  #     dplyr::filter(rank == "species") %>%
+  #     dplyr::select("id", "name") %>% 
+  #     dplyr::distinct()
+  # }
   
   
   if(collect){ ## Return an in-memory object

@@ -25,5 +25,6 @@ RoxygenNote: 6.1.0
 Suggests:
     spelling, 
     testthat,
-    covr
+    covr,
+    tictoc
 Language: en-US

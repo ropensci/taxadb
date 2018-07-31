@@ -49,7 +49,7 @@ in a separate call and passing the resulting connection object, \code{taxald_db}
 explicitly to all subsequent \code{taxald} functions.  This will allow them
 to re-use the existing connection, which can also be used in conjunction
 with the returned results for further on-disk queries. In general, this will
-only be desirable when tables are extremely large or availablity memory is
+only be desirable when tables are extremely large or availability memory is
 extremely limited. Under most use cases, the defaults for \code{collect} and
 \code{taxald_db} should be appropriate.
 }
