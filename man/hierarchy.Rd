@@ -4,8 +4,8 @@
 \alias{hierarchy}
 \title{Return the full classification hierarchy for requested species or ids}
 \usage{
-hierarchy(species = NULL, id = NULL, authority = c("itis", "ncbi", "col",
-  "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE)
+hierarchy(species = NULL, id = NULL, authority = c("itis", "ncbi",
+  "col", "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE)
 }
 \arguments{
 \item{species}{a character vector of species names, typically

@@ -4,8 +4,9 @@
 \alias{descendants}
 \title{Get all members (descendants) of a given rank level}
 \usage{
-descendants(name = NULL, rank = NULL, id = NULL, authority = c("itis",
-  "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE)
+descendants(name = NULL, rank = NULL, id = NULL,
+  authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"),
+  collect = TRUE)
 }
 \arguments{
 \item{name}{taxonomic name (e.g. "Aves")}

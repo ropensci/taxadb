@@ -4,22 +4,41 @@
 \alias{create_taxadb}
 \title{create a local taxonomic database}
 \usage{
-create_taxadb(path = fs::path(fs::path_home(), ".taxald"),
-  authorities = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"))
+create_taxadb(path = Sys.getenv("TAXALD_HOME", fs::path(fs::path_home(),
+  ".taxald")), authorities = "itis", schema = "hierarchy",
+  lines = 1e+06)
 }
 \arguments{
 \item{path}{a location on your computer where the database should be installed.
 By default, will install to \code{.taxald} in your home directory.}
 
 \item{authorities}{a list (character vector) of authorities to be included in the
-database. By default, will install all authorities.  Choose a subset for a faster
-install.}
+database. By default, will install \code{itis}.  See details for a list of recognized
+authorities.}
+
+\item{schema}{format of the database to import.}
+
+\item{lines}{number of lines that can be safely read in to memory at once. Leave
+at default or increase for faster importing if you have plenty of spare RAM.}
 }
 \value{
 path where database has been installed (invisibly)
 }
 \description{
 create a local taxonomic database
+}
+\details{
+Authorities recognized by taxald are:
+\itemize{
+\item \code{itis}
+\item \code{ncbi}
+\item \code{col}
+\item \code{tpl}
+\item \code{gbif}
+\item \code{fb} FishBase, \url{http://fishbase.org}
+\item \code{slb}, SeaLifeBase, \url{http://sealifebase.org}
+\item \code{wd}, wikidata
+}
 }
 \examples{
 \dontrun{

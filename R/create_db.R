@@ -8,8 +8,21 @@
 #' @param path a location on your computer where the database should be installed.
 #'  By default, will install to `.taxald` in your home directory.
 #' @param authorities a list (character vector) of authorities to be included in the
-#'  database. By default, will install all authorities.  Choose a subset for a faster
-#'  install.  
+#'  database. By default, will install `itis`.  See details for a list of recognized
+#'  authorities.
+#' @param schema format of the database to import.
+#' @param lines number of lines that can be safely read in to memory at once. Leave
+#' at default or increase for faster importing if you have plenty of spare RAM. 
+#' @details 
+#'  Authorities recognized by taxald are:
+#'  - `itis` 
+#'  - `ncbi`
+#'  - `col`
+#'  - `tpl`
+#'  - `gbif`
+#'  - `fb` FishBase, <http://fishbase.org>
+#'  - `slb`, SeaLifeBase, <http://sealifebase.org>
+#'  - `wd`, wikidata
 #' @return path where database has been installed (invisibly)
 #' @export
 #'
@@ -19,12 +32,17 @@
 #'   # create_taxadb(tmp, authorities = "itis")
 #'
 #' }
-create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
-                          authorities = c("itis", "ncbi", "col", "tpl",
-                                          "gbif", "fb", "slb", "wd")){
+create_taxadb <- function(path = Sys.getenv("TAXALD_HOME", 
+                                            fs::path(fs::path_home(),
+                                                     ".taxald")),
+                          authorities = "itis", 
+                          schema = "hierarchy",
+                          lines = 1e6){
   ## FIXME Overwrite / delete any existing database, after giving a warning if interactive
   
   ## FIXME offer more fine-grained support over which authorities to install
+  recognized_authorities = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd")
+  stopifnot(!all(authorities %in% recognized_authorities))
   ## FIXME include some messaging about the large downloads etc?
   
   
@@ -36,8 +54,9 @@ create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
   
   piggyback::pb_download(dest = tmp, repo="cboettig/taxald")
   
-  
-  files <- fs::dir_ls(fs::path(tmp, "data/"), glob="*.tsv.bz2")
+  globs <- paste(authorities, "_", schema, ".tsv.bz2")
+  files <- unname(unlist(lapply(globs, function(glob)
+                    fs::dir_ls(fs::path(tmp, "data/"), glob = glob))))
   
   
   dbdir <- fs::dir_create(path)
@@ -49,8 +68,7 @@ create_taxadb <- function(path = fs::path(fs::path_home(), ".taxald"),
   fs::dir_delete(fs::path(tmp, "data"))
   
   ## Set id as primary key in each table? automatic in MonetDB
-  # tbls <- DBI::dbListTables(db$con)
-  # lapply(tbls, function(table)
+  # lapply(DBI::dbListTables(db$con), function(table)
   # glue::glue("ALTER TABLE {table} ADD PRIMARY KEY ({key});", 
   #            table = table, key = "id"))
   
