@@ -94,7 +94,7 @@ ids <- function(name = NULL,
              schema = "hierarchy", 
              db = taxald_db), 
     dplyr::tibble(species = name),
-    copy = TRUE) 
+    copy = TRUE) %>% select(id, species)
   
   
   if(collect){ ## Return an in-memory object
@@ -158,9 +158,9 @@ descendants <- function(name = NULL,
                  db = taxald_db), 
         df, 
         copy = TRUE) %>%
-      dplyr::select(id, name, rank) %>% 
+      dplyr::select("id", "name", "rank") %>% 
       dplyr::filter(rank == "species") %>%
-      dplyr::select(id, name) %>% 
+      dplyr::select("id", "name") %>% 
       dplyr::distinct()
   }
   
@@ -174,5 +174,3 @@ descendants <- function(name = NULL,
   
 }
 
-## Tell CHECK to ignore the NSE use of these bare names:
-utils::globalVariables(c("id", "name", "rank"))
