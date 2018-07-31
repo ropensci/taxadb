@@ -10,6 +10,6 @@ system.time({
   
 df <- taxa_tbl(authority = "itis", schema = "hierarchy")
 library(dplyr)
-df %>% filter(family == "Chamaeleonidae") %>% collect()
+chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()
 
 })

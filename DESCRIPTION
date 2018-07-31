@@ -16,7 +16,9 @@ Imports:
     arkdb,
     piggyback,
     fs,
-    magrittr
+    magrittr,
+    tibble,
+    rlang
 Remotes: cboettig/arkdb, cboettig/piggyback
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0

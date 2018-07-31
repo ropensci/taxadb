@@ -8,9 +8,8 @@
 ## Look up ids for higher ranks (when available)
 ## Look up synonyms
 ## Crosswalk / compare taxonomy across authorities in common format
-
-
 ## Consider memoizing
+
 
 
 #' Return the full classification hierarchy for requested species or ids
@@ -26,6 +25,7 @@
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
 #' first perform subsequent filtering operations.) 
+#' @param taxald_db a connection to the taxald database. See details.
 #' @return a data.frame with one row for each requested species, 
 #'  giving the species id, and column for each of the unique-rank
 #'  levels of the species.  Note that the different authorities recognize
@@ -38,47 +38,47 @@
 #' (i.e. a scientific name is associated with a clade, but the clade is 
 #' not associated with any traditionally recognized rank). In these cases, 
 #' see the "long" schema for more complete classification.  
+#' 
+#' If setting `collect = FALSE`, consider calling `taxald_db = connect_db()`
+#' in a separate call and passing the resulting connection object, `taxald_db`
+#' explicitly to all subsequent `taxald` functions.  This will allow them
+#' to re-use the existing connection, which can also be used in conjunction
+#' with the returned results for further on-disk queries. In general, this will
+#' only be desirable when tables are extremely large or availablity memory is 
+#' extremely limited. Under most use cases, the defaults for `collect` and 
+#' `taxald_db` should be appropriate.  
 #' @export
 #' @importFrom dplyr right_join tibble collect
 #' 
-hierarchy <- function(species = NULL, 
-                      id = NULL, 
-                      authority = c("itis", "ncbi", "col", "tpl",
-                                    "gbif", "fb", "slb", "wd"),
-                      collect = TRUE){
+classification <- function(species = NULL, 
+                           id = NULL, 
+                           authority = c("itis", "ncbi", "col", "tpl",
+                                         "gbif", "fb", "slb", "wd"),
+                           collect = TRUE,
+                           taxald_db = connect_db()){
   
-  ## Simply put input into a table so we can do joins
-  if(is.null(id) & !is.null(species)){
-    df <- dplyr::tibble(species)
-  } else if(!is.null(id) & is.null(species)){
-    df <- dplyr::tibble(id)
-  } else  if(!is.null(id) & !is.null(species)){
-    df <- dplyr::tibble(id, species)
-  } else {
-    stop("id or species list must be provided")
-  }
-  
-  ## A `join` is theoretically the fastest way to query for a large number
-  ## of matches (instead of `filter( %in% )` / or  `WHERE %IN%`)
   out <- dplyr::right_join(taxa_tbl(authority = authority,
-                                    schema = "hierarchy"), 
-                           df, copy = TRUE)
+                                    schema = "hierarchy", 
+                                    db = taxald_db), 
+                           null_tibble(id, species), 
+                           copy = TRUE)
   
-  ## Return an in-memory object
-  if(collect){
-    dplyr::collect(out)
-  } else{ 
-    out
+  if(collect){ ## Return an in-memory object
+    out <- dplyr::collect(out)
+    DBI::dbDisconnect(taxald_db$con)
   }
+  
+  out
   
 }
+
 
 #' Return taxonomic identifiers from a given namespace
 #' 
 #' @param name a character vector of species names. 
 #' (Most authorities can also return ids for higher-level
 #'  taxonomic names).
-#' @inheritParams hierarchy
+#' @inheritParams classification
 #' @return a data.frame with columns of `id`, scientific 
 #' `name`, and `rank` and a row for each species name queried.
 #' 
@@ -86,31 +86,35 @@ hierarchy <- function(species = NULL,
 ids <- function(name = NULL,
                 authority = c("itis", "ncbi", "col", "tpl",
                               "gbif", "fb", "slb", "wd"),
-                collect = TRUE){
-
+                collect = TRUE,
+                taxald_db = connect_db()){
   
   out <- dplyr::right_join(
     taxa_tbl(authority = authority, 
-             schema = "taxonid"), 
-             dplyr::tibble(name),
-             copy = TRUE) 
+             schema = "hierarchy", 
+             db = taxald_db), 
+    dplyr::tibble(species = name),
+    copy = TRUE) 
   
-  ## Return an in-memory object
-  if(collect){
-    dplyr::collect(out)
-  } else{ 
-    out
+  
+  if(collect){ ## Return an in-memory object
+    out <- dplyr::collect(out)
+    DBI::dbDisconnect(taxald_db$con)
   }
+  
+  out
 }
 
 
 #' Get all members (descendants) of a given rank level
-#' @inheritParams hierarchy
+#' @inheritParams classification
 #' @param rank taxonomic rank name.
 #' @param name taxonomic name (e.g. "Aves")
+#' @param schema table schema to use (WIP)
 #' @return a data.frame with id and name of all matching species
 #' @export
-#' 
+#' @importFrom stats setNames
+# @importFrom rlang !! := UQ quo enquo
 #' @importFrom magrittr %>%
 #' @importFrom dplyr right_join select filter distinct
 descendants <- function(name = NULL, 
@@ -118,82 +122,57 @@ descendants <- function(name = NULL,
                         id = NULL,
                         authority = c("itis", "ncbi", "col", "tpl",
                                       "gbif", "fb", "slb", "wd"),
-                        collect = TRUE){
-  authority <- match.arg(authority)
-  
+                        collect = TRUE,
+                        taxald_db = connect_db(),
+                        schema = "hierarchy"){
+
+  ## technically could guess rank from name most but not all time
+  ## could still do this as join rather than a filter with appropriate table construction
+  if(schema == "hierarchy"){
+    df <-  data.frame(setNames(list(name),  rank))
+    df$id <- id
+    out <- dplyr::right_join(
+      taxa_tbl(authority = authority,
+               schema = "hierarchy", 
+               db = taxald_db),
+      df,
+      copy=TRUE, by = rank)
+    
+    #quo_rank <- quo(rank)
+    #out <- 
+    #  taxa_tbl(authority = authority,
+    #         schema = "hierarchy", 
+    #         db = taxald_db) %>%
+    #  dplyr::filter(!!quo_rank == name)
+  }
   
   
   ## schema=long probably isn't the most efficient table to use
   ## we could use the heirarchy table, though it will need NSE escapes
-  df <- tibble(path_rank = rank, path_name = name)
   
+  else if(schema == "long"){
+    df <- tibble(path_rank = rank, path_name = name)
     out <- dplyr::right_join(
-      taxa_tbl(authority = authority, schema = "long"), 
-      df, 
-      copy = TRUE) %>%
-    dplyr::select(id, name, rank) %>% 
-    dplyr::filter(rank == "species") %>%
-    dplyr::select(id, name) %>% 
-    dplyr::distinct()
-  
-  ## Return an in-memory object
-  if(collect){
-    dplyr::collect(out)
-  } else{ 
-    out
+        taxa_tbl(authority = authority, 
+                 schema = "long", 
+                 db = taxald_db), 
+        df, 
+        copy = TRUE) %>%
+      dplyr::select(id, name, rank) %>% 
+      dplyr::filter(rank == "species") %>%
+      dplyr::select(id, name) %>% 
+      dplyr::distinct()
   }
+  
+  
+  if(collect){ ## Return an in-memory object
+    out <- dplyr::collect(out)
+    DBI::dbDisconnect(taxald_db$con)
+  }
+  
+  out
+  
 }
 
 ## Tell CHECK to ignore the NSE use of these bare names:
 utils::globalVariables(c("id", "name", "rank"))
-
-#' Connect to the taxald database
-#' 
-#' @param dbdir Path to the database. Defaults to `TAXALD_HOME` 
-#' environmental variable, which defaults to `~/.taxald`.
-#' @return Returns a `src_dbi` connection to the database
-#' @details Primarily useful when a lower-level interface to the
-#' database is required.  Most `taxald`` functions will connect
-#' automatically without the user needing to call this function.
-#' @importFrom DBI dbConnect
-#' @importFrom MonetDBLite MonetDBLite
-#' @importFrom dbplyr src_dbi
-#' @export
-#' @examples \dontrun{
-#' 
-#' db <- connect_db()
-#' 
-#' }
-connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME", 
-                                          fs::path(fs::path_home(),
-                                                   ".taxald"))){
-  con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
-  db <- dbplyr::src_dbi(con)
-}
-
-
-#' Return a reference to a given table in the taxald database
-#' 
-#' @param db a connection to the taxald database. Default will
-#' attempt to connect automatically.
-#' @param schema the table schema on which we want to run the query
-#' @importFrom dplyr tbl
-#' @inheritParams hierarchy
-#' @export 
-taxa_tbl <- function(
-  authority = c("itis", "ncbi", "col", "tpl",
-                "gbif", "fb", "slb", "wd"), 
-  schema = c("hierarchy", "taxonid", "synonyms", "common", "long"),
-  db = connect_db()){
-  
-  authority <- match.arg(authority)
-  schema <- match.arg(schema)
-  tbl_name <- paste(authority, schema, sep = "_")
-  
-  dplyr::tbl(db, tbl_name)
-}
-
-# FIXME: Provide a way to close a connection that is opened automatically
-# may it is it sufficient to do:
-#     db <- connect_db()
-#     DBI::dbDisconnect(db$con)

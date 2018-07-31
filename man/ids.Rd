@@ -5,7 +5,7 @@
 \title{Return taxonomic identifiers from a given namespace}
 \usage{
 ids(name = NULL, authority = c("itis", "ncbi", "col", "tpl", "gbif",
-  "fb", "slb", "wd"), collect = TRUE)
+  "fb", "slb", "wd"), collect = TRUE, taxald_db = connect_db())
 }
 \arguments{
 \item{name}{a character vector of species names.
@@ -19,6 +19,8 @@ Default is 'itis'.}
 data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
+
+\item{taxald_db}{a connection to the taxald database. See details.}
 }
 \value{
 a data.frame with columns of \code{id}, scientific

@@ -20,8 +20,6 @@ knitr::opts_chunk$set(
 
 **This package is purley exploratory at this stage!**
 
-
-
 Central to `taxald` design is to create a *local* database of all avialable taxonomic authority data that we can query quickly, even when working with tens of thousands of species. The second key feature of `taxald` design is to return queries from each authority using a *consistent* and convenient table structure, facilitating queries that compare, combine, or work across names from multiple authorities.  
 
 ## Install and initial setup
@@ -42,8 +40,7 @@ library(taxald)
 create_taxadb()
 ```
 
-
-By default, this will install the database into a hidden `.taxald` folder in your home directory (`~/.taxald`).  You can control this by passing the path to `create_taxadb()` or setting the environmental variable `TAXALD_HOME` to a different location.  
+The default behavior installs only the ITIS database using the hierachy schema.  While this should be sufficient for getting started on basic tasks like looking up classification or translating between IDs and scientific names, users will want to install additional authorities and schemas for advanced use. See the `authorities` vignette for details.  By default, `taxald` will install the database into a hidden `.taxald` folder in your home directory (`~/.taxald`).  You can control this by passing the path to `create_taxadb()` or setting the environmental variable `TAXALD_HOME` to a different location.  
 
 This function downloads each of the individual tables and loads them into a [MonetDBLite](https://www.monetdb.org) database.  (MonetDBLite is much like SQLite, requiring no external server setup.  However, for our purposes, MonetDB's columnar design provides significantly faster performance than SQLite, Postgres, or even some in-memory operations in `dplyr`.)  
 
@@ -59,27 +56,34 @@ library(tictoc) # let's display timing of queries for reference
 
 Once the database is installed, we can start to make some queries. 
 
-First, let's get a nice big species list, say, all the birds (known to the Catalogue of Life):
+First, let's get a nice big species list, say, all the birds (known to ITIS):
 
 ```{r}
 tic()
-df <- descendents(name = "Aves", rank = "class", authority="col")
+df <- descendants(name = "Aves", rank = "class")
 toc()
 ```
 
 How many species did we get?
 
 ```{r}
-length(df$name)
+length(df$species)
 ```
 
-In general, this species list could have come from anywhere (i.e. some particular research project) and not from a single authority.  
+Generally, we have a species list could have come from some particular research project, and the names may not match those of any one particular authority.
+
+```{r}
+tic()
+ids(df$species)
+toc()
+```
+
 
 We can get the full hierachical classification for this list of species:  
 
 ```{r}
 tic()
-hierarchy(df$name)
+classification(df$species)
 toc()
 ```
 

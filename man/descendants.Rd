@@ -6,7 +6,7 @@
 \usage{
 descendants(name = NULL, rank = NULL, id = NULL,
   authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"),
-  collect = TRUE)
+  collect = TRUE, taxald_db = connect_db(), schema = "hierarchy")
 }
 \arguments{
 \item{name}{taxonomic name (e.g. "Aves")}
@@ -24,6 +24,10 @@ Default is 'itis'.}
 data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
+
+\item{taxald_db}{a connection to the taxald database. See details.}
+
+\item{schema}{table schema to use (WIP)}
 }
 \value{
 a data.frame with id and name of all matching species
