@@ -18,14 +18,18 @@ Install and initial setup
 devtools::install_github("cboettig/taxald")
 ```
 
+``` r
+library(taxald)
+library(tictoc) # let's display timing of queries for reference
+```
+
 Before we can use most `taxald` functions, we need to do a one-time installation of the database `taxald` uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local harddisk and will persist between R sessions. Download and install the database like so:
 
 ``` r
-library(taxald)
-```
-
-``` r
+tic()
 create_taxadb()
+toc()
+#> 40.394 sec elapsed
 ```
 
 The default behavior installs only the ITIS database using the hierachy schema. While this should be sufficient for getting started on basic tasks like looking up classification or translating between IDs and scientific names, users will want to install additional authorities and schemas for advanced use. See the `authorities` vignette for details. By default, `taxald` will install the database into a hidden `.taxald` folder in your home directory (`~/.taxald`). You can control this by passing the path to `create_taxadb()` or setting the environmental variable `TAXALD_HOME` to a different location.
@@ -37,10 +41,6 @@ Currently tables are pulled from the development cache on GitHub. Many of these 
 Package API
 -----------
 
-``` r
-library(tictoc) # let's display timing of queries for reference
-```
-
 Once the database is installed, we can start to make some queries.
 
 First, let's get a nice big species list, say, all the birds (known to ITIS):
@@ -49,14 +49,14 @@ First, let's get a nice big species list, say, all the birds (known to ITIS):
 tic()
 df <- descendants(name = "Aves", rank = "class")
 toc()
-#> 0.674 sec elapsed
+#> 0.928 sec elapsed
 ```
 
 How many species did we get?
 
 ``` r
 length(df$species)
-#> [1] 10401
+#> [1] 20802
 ```
 
 Generally, we have a species list could have come from some particular research project, and the names may not match those of any one particular authority.
@@ -65,22 +65,22 @@ Generally, we have a species list could have come from some particular research 
 tic()
 ids(df$species)
 #> Joining, by = "species"
-#> # A tibble: 10,401 x 2
+#> # A tibble: 41,604 x 2
 #>    id          species                   
 #>    <chr>       <chr>                     
 #>  1 ITIS:174375 Struthio camelus          
-#>  2 ITIS:174379 Rhea americana            
-#>  3 ITIS:174385 Dromaius novaehollandiae  
-#>  4 ITIS:174388 Casuarius bennetti        
-#>  5 ITIS:174390 Casuarius unappendiculatus
-#>  6 ITIS:174394 Apteryx australis         
-#>  7 ITIS:174400 Tinamus guttatus          
-#>  8 ITIS:174401 Tinamus major             
-#>  9 ITIS:174402 Tinamus osgoodi           
-#> 10 ITIS:174403 Tinamus solitarius        
-#> # ... with 10,391 more rows
+#>  2 ITIS:174375 Struthio camelus          
+#>  3 ITIS:174379 Rhea americana            
+#>  4 ITIS:174379 Rhea americana            
+#>  5 ITIS:174385 Dromaius novaehollandiae  
+#>  6 ITIS:174385 Dromaius novaehollandiae  
+#>  7 ITIS:174388 Casuarius bennetti        
+#>  8 ITIS:174388 Casuarius bennetti        
+#>  9 ITIS:174390 Casuarius unappendiculatus
+#> 10 ITIS:174390 Casuarius unappendiculatus
+#> # ... with 41,594 more rows
 toc()
-#> 0.456 sec elapsed
+#> 0.515 sec elapsed
 ```
 
 We can get the full hierachical classification for this list of species:
@@ -89,27 +89,27 @@ We can get the full hierachical classification for this list of species:
 tic()
 classification(df$species)
 #> Joining, by = "species"
-#> # A tibble: 10,401 x 26
+#> # A tibble: 41,604 x 26
 #>    id    class family genus infraclass infrakingdom infraorder infraphylum
 #>    <chr> <chr> <chr>  <chr> <chr>      <chr>        <chr>      <chr>      
 #>  1 ITIS… Aves  Strut… Stru… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  2 ITIS… Aves  Rheid… Rhea  <NA>       Deuterostom… <NA>       Gnathostom…
-#>  3 ITIS… Aves  Droma… Drom… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  4 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  5 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  6 ITIS… Aves  Apter… Apte… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  7 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  8 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  9 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> 10 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> # ... with 10,391 more rows, and 18 more variables: kingdom <chr>,
+#>  2 ITIS… Aves  Strut… Stru… <NA>       Deuterostom… <NA>       Gnathostom…
+#>  3 ITIS… Aves  Rheid… Rhea  <NA>       Deuterostom… <NA>       Gnathostom…
+#>  4 ITIS… Aves  Rheid… Rhea  <NA>       Deuterostom… <NA>       Gnathostom…
+#>  5 ITIS… Aves  Droma… Drom… <NA>       Deuterostom… <NA>       Gnathostom…
+#>  6 ITIS… Aves  Droma… Drom… <NA>       Deuterostom… <NA>       Gnathostom…
+#>  7 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
+#>  8 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
+#>  9 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
+#> 10 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
+#> # ... with 41,594 more rows, and 18 more variables: kingdom <chr>,
 #> #   order <chr>, phylum <chr>, section <chr>, species <chr>,
 #> #   subclass <chr>, subfamily <chr>, subgenus <chr>, subkingdom <chr>,
 #> #   suborder <chr>, subphylum <chr>, subsection <chr>, subtribe <chr>,
 #> #   superclass <chr>, superfamily <chr>, superorder <chr>,
 #> #   superphylum <chr>, tribe <chr>
 toc()
-#> 0.284 sec elapsed
+#> 0.367 sec elapsed
 ```
 
 Design sketch/spec for package API:
