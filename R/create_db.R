@@ -25,19 +25,19 @@
 #'  - `wd`, wikidata
 #' @return path where database has been installed (invisibly)
 #' @export
-#'
+#' @aliases create_db create_taxadb
 #' @examples
 #' \dontrun{
 #'   # tmp <- tempdir()
-#'   # create_taxadb(tmp, authorities = "itis")
+#'   # create_db(tmp, authorities = "itis")
 #'
 #' }
-create_taxadb <- function(path = Sys.getenv("TAXALD_HOME", 
-                                            fs::path(fs::path_home(),
-                                                     ".taxald")),
-                          authorities = "itis", 
-                          schema = "hierarchy",
-                          lines = 1e6){
+create_db <- function(authorities = "itis", 
+                      schema = "hierarchy",
+                      lines = 1e6,
+                      path = Sys.getenv("TAXALD_HOME", 
+                                        fs::path(fs::path_home(),
+                                                 ".taxald"))){
   ## FIXME Overwrite / delete any existing database, after giving a warning if interactive
   
   ## FIXME offer more fine-grained support over which authorities to install
@@ -78,7 +78,9 @@ create_taxadb <- function(path = Sys.getenv("TAXALD_HOME",
   
   invisible(dbdir)
 }
-## Consider shipping the original database pre-compressed?
+
+#' @export
+create_taxadb <- create_db
 
 #R.utils::bzip2("taxa.sqlite", remove = FALSE)
 ## Set up database connection from compressed file

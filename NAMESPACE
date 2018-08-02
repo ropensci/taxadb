@@ -2,6 +2,7 @@
 
 export(classification)
 export(connect_db)
+export(create_db)
 export(create_taxadb)
 export(descendants)
 export(ids)

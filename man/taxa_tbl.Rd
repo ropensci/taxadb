@@ -5,8 +5,8 @@
 \title{Return a reference to a given table in the taxald database}
 \usage{
 taxa_tbl(authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd"), schema = c("hierarchy", "taxonid", "synonyms", "common",
-  "long"), db = connect_db())
+  "wd"), schema = c("hierarchy", "taxonid", "synonyms", "common", "long"),
+  db = connect_db())
 }
 \arguments{
 \item{authority}{from which authority should the hierachy be returned?

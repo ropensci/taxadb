@@ -40,7 +40,7 @@ Before we can use most `taxald` functions, we need to do a one-time installation
 
 ```{r eval = TRUE, message=FALSE}
 tic()
-create_taxadb()
+create_db()
 toc()
 ```
 
