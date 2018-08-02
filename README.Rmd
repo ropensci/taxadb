@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 **This package is purley exploratory at this stage!**
 
-Central to `taxald` design is to create a *local* database of all avialable taxonomic authority data that we can query quickly, even when working with tens of thousands of species. The second key feature of `taxald` design is to return queries from each authority using a *consistent* and convenient table structure, facilitating queries that compare, combine, or work across names from multiple authorities.  
+Central to `taxald` design is to create a *local* database of all available taxonomic authority data that we can query quickly, even when working with tens of thousands of species. The second key feature of `taxald` design is to return queries from each authority using a *consistent* and convenient table structure, facilitating queries that compare, combine, or work across names from multiple authorities.  
 
 ## Install and initial setup
 
