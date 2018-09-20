@@ -63,7 +63,8 @@ classification <- function(species = NULL,
                            null_tibble(id, species), 
                            copy = TRUE)
   
-  if(collect){ ## Return an in-memory object
+  if(collect && inherits(taxald_db, "DBIConnection")){ 
+    ## Return an in-memory object
     out <- dplyr::collect(out)
     DBI::dbDisconnect(taxald_db)
   }
@@ -100,7 +101,8 @@ ids <- function(name = NULL,
   out <- dplyr::select(out, "id", "species")
   
   
-  if(collect){ ## Return an in-memory object
+  if(collect && inherits(taxald_db, "DBIConnection")){
+    ## Return an in-memory object
     out <- dplyr::collect(out)
     DBI::dbDisconnect(taxald_db)
   }
@@ -133,7 +135,7 @@ descendants <- function(name = NULL,
   ## could still do this as join rather than a filter with appropriate table construction
   
   if(schema == "hierarchy"){
-    df <- data.frame(setNames(list(name),  rank))
+    df <- data.frame(setNames(list(name),  rank), stringsAsFactors = FALSE)
     df$id <- id
     out <- dplyr::semi_join(
       taxa_tbl(authority = authority,
@@ -141,35 +143,10 @@ descendants <- function(name = NULL,
                db = taxald_db),
       df,
       copy = TRUE, by = rank)
-    
-    #quo_rank <- quo(rank)
-    #out <- 
-    #  taxa_tbl(authority = authority,
-    #         schema = "hierarchy", 
-    #         db = taxald_db) %>%
-    #  dplyr::filter(!!quo_rank == name)
   }
   
-  
-  ## schema=long probably isn't the most efficient table to use
-  ## we could use the heirarchy table, though it will need NSE escapes
-  
-  # else if(schema == "long"){
-  #   df <- tibble(path_rank = rank, path_name = name)
-  #   out <- dplyr::semi_join(
-  #       taxa_tbl(authority = authority, 
-  #                schema = "long", 
-  #                db = taxald_db), 
-  #       df, 
-  #       copy = TRUE) %>%
-  #     dplyr::select("id", "name", "rank") %>% 
-  #     dplyr::filter(rank == "species") %>%
-  #     dplyr::select("id", "name") %>% 
-  #     dplyr::distinct()
-  # }
-  
-  
-  if(collect){ ## Return an in-memory object
+  if(collect && inherits(taxald_db, "DBIConnection")){
+    ## Return an in-memory object
     out <- dplyr::collect(out)
     DBI::dbDisconnect(taxald_db)
   }

@@ -16,11 +16,28 @@ taxa_tbl <- function(
   authority <- match.arg(authority)
   schema <- match.arg(schema)
   tbl_name <- paste(authority, schema, sep = "_")
+  if (is.null(db)) return(fastdb(tbl_name))
+  
   
   dplyr::tbl(db, tbl_name)
 }
 
-
+fastdb <- memoise::memoise(
+  function(tbl_name){
+    tmp <- tempfile(fileext = ".tsv.bz2")
+    download.file(
+      paste0("https://github.com/cboettig/taxald/",
+             "releases/download/v1.0.0/data.2f/",
+             tbl_name, ".tsv.bz2"),
+             tmp)
+    ## Wow, utils is hella slow!  ~ 60 s
+    # utils::read.table(bzfile(tmp), header = TRUE, sep = "\t", 
+    #                   quote = "", stringsAsFactors = F)
+    ## much better ~ 8 sec
+    suppressWarnings(suppressMessages(
+      readr::read_tsv(tmp, col_types = "c")
+    ))
+  })
 
 #' Connect to the taxald database
 #' 
@@ -41,7 +58,7 @@ taxa_tbl <- function(
 connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME", 
                                           file.path(path.expand("~"),
                                                     ".taxald"))){
-  
+
   DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 }
@@ -55,4 +72,3 @@ null_tibble <- function(...){
   call <- Filter(Negate(is.null), tibble::lst(...))
   do.call(tibble::tibble, call)
 }
-
