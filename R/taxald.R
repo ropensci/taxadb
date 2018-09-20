@@ -48,7 +48,7 @@
 #' extremely limited. Under most use cases, the defaults for `collect` and 
 #' `taxald_db` should be appropriate.  
 #' @export
-#' @importFrom dplyr right_join tibble collect
+#' @importFrom dplyr semi_join tibble collect
 #' 
 classification <- function(species = NULL, 
                            id = NULL, 
@@ -57,7 +57,7 @@ classification <- function(species = NULL,
                            collect = TRUE,
                            taxald_db = connect_db()){
   
-  out <- dplyr::right_join(taxa_tbl(authority = authority,
+  out <- dplyr::semi_join(taxa_tbl(authority = authority,
                                     schema = "hierarchy", 
                                     db = taxald_db), 
                            null_tibble(id, species), 
@@ -65,7 +65,7 @@ classification <- function(species = NULL,
   
   if(collect){ ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(taxald_db$con)
+    DBI::dbDisconnect(taxald_db)
   }
   
   out
@@ -91,18 +91,18 @@ ids <- function(name = NULL,
                 taxald_db = connect_db()){
   
   out <- 
-    dplyr::right_join(
+    dplyr::semi_join(
       taxa_tbl(authority = authority, 
                schema = "hierarchy", 
                db = taxald_db), 
       dplyr::tibble(species = name),
-      copy = TRUE) %>% 
-    dplyr::select("id", "species")
+      copy = TRUE) 
+  out <- dplyr::select(out, "id", "species")
   
   
   if(collect){ ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(taxald_db$con)
+    DBI::dbDisconnect(taxald_db)
   }
   
   out
@@ -118,8 +118,8 @@ ids <- function(name = NULL,
 #' @export
 #' @importFrom stats setNames
 # @importFrom rlang !! := UQ quo enquo
-#' @importFrom magrittr %>%
-#' @importFrom dplyr right_join select filter distinct
+# @importFrom magrittr %>%
+#' @importFrom dplyr semi_join select filter distinct
 descendants <- function(name = NULL, 
                         rank = NULL, 
                         id = NULL,
@@ -131,10 +131,11 @@ descendants <- function(name = NULL,
 
   ## technically could guess rank from name most but not all time
   ## could still do this as join rather than a filter with appropriate table construction
+  
   if(schema == "hierarchy"){
     df <- data.frame(setNames(list(name),  rank))
     df$id <- id
-    out <- dplyr::right_join(
+    out <- dplyr::semi_join(
       taxa_tbl(authority = authority,
                schema = "hierarchy", 
                db = taxald_db),
@@ -155,7 +156,7 @@ descendants <- function(name = NULL,
   
   # else if(schema == "long"){
   #   df <- tibble(path_rank = rank, path_name = name)
-  #   out <- dplyr::right_join(
+  #   out <- dplyr::semi_join(
   #       taxa_tbl(authority = authority, 
   #                schema = "long", 
   #                db = taxald_db), 
@@ -170,7 +171,7 @@ descendants <- function(name = NULL,
   
   if(collect){ ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(taxald_db$con)
+    DBI::dbDisconnect(taxald_db)
   }
   
   out

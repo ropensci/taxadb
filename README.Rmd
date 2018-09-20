@@ -35,7 +35,6 @@ library(taxald)
 library(tictoc) # let's display timing of queries for reference
 ```
 
-
 Before we can use most `taxald` functions, we need to do a one-time installation of the database `taxald` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local harddisk and will persist between R sessions.  Download and install the database like so:
 
 ```{r eval = TRUE, message=FALSE}

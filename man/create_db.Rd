@@ -5,15 +5,20 @@
 \alias{create_taxadb}
 \title{create a local taxonomic database}
 \usage{
-create_db(authorities = "itis", schema = "hierarchy", lines = 1e+06,
-  path = Sys.getenv("TAXALD_HOME", fs::path(fs::path_home(), ".taxald")))
+create_db(authorities = "itis", schema = "hierarchy",
+  overwrite = FALSE, lines = 1e+06, path = Sys.getenv("TAXALD_HOME",
+  file.path(path.expand("~"), ".taxald")))
 }
 \arguments{
 \item{authorities}{a list (character vector) of authorities to be included in the
 database. By default, will install \code{itis}.  See details for a list of recognized
-authorities.}
+authorities. Use \code{authorities="all"} to install all available authorities automatically.}
 
 \item{schema}{format of the database to import.}
+
+\item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.  Change
+to "ask" for interactive interface, or \code{TRUE} to force overwrite (i.e. updating
+a local database upon new release.)}
 
 \item{lines}{number of lines that can be safely read in to memory at once. Leave
 at default or increase for faster importing if you have plenty of spare RAM.}

@@ -10,15 +10,10 @@ LazyData: true
 ByteCompile: true
 Imports: 
     dplyr,
-    dbplyr,
     DBI,
     MonetDBLite,
     arkdb,
-    piggyback,
-    fs,
-    magrittr,
-    tibble,
-    rlang
+    tibble
 Remotes: cboettig/arkdb, cboettig/piggyback
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0

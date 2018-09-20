@@ -32,7 +32,6 @@ taxa_tbl <- function(
 #' automatically without the user needing to call this function.
 #' @importFrom DBI dbConnect
 #' @importFrom MonetDBLite MonetDBLite
-#' @importFrom dbplyr src_dbi
 #' @export
 #' @examples \dontrun{
 #' 
@@ -40,10 +39,11 @@ taxa_tbl <- function(
 #' 
 #' }
 connect_db <- function(dbdir = Sys.getenv("TAXALD_HOME", 
-                                          fs::path(fs::path_home(),
-                                                   ".taxald"))){
-  con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
-  db <- dbplyr::src_dbi(con)
+                                          file.path(path.expand("~"),
+                                                    ".taxald"))){
+  
+  DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+
 }
 
 

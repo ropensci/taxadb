@@ -4,7 +4,7 @@
 \alias{connect_db}
 \title{Connect to the taxald database}
 \usage{
-connect_db(dbdir = Sys.getenv("TAXALD_HOME", fs::path(fs::path_home(),
+connect_db(dbdir = Sys.getenv("TAXALD_HOME", file.path(path.expand("~"),
   ".taxald")))
 }
 \arguments{

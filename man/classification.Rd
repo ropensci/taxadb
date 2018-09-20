@@ -4,8 +4,8 @@
 \alias{classification}
 \title{Return the full classification hierarchy for requested species or ids}
 \usage{
-classification(species = NULL, id = NULL, authority = c("itis", "ncbi",
-  "col", "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE,
+classification(species = NULL, id = NULL, authority = c("itis",
+  "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE,
   taxald_db = connect_db())
 }
 \arguments{
