@@ -14,7 +14,9 @@ Imports:
     DBI,
     MonetDBLite,
     arkdb,
-    tibble
+    tibble,
+    memoise,
+    readr
 Remotes: cboettig/arkdb, cboettig/piggyback
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0

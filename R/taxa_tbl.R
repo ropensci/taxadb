@@ -22,6 +22,8 @@ taxa_tbl <- function(
   dplyr::tbl(db, tbl_name)
 }
 
+#' @importFrom memoise memoise
+#' @importFrom readr read_tsv
 fastdb <- memoise::memoise(
   function(tbl_name){
     tmp <- tempfile(fileext = ".tsv.bz2")
