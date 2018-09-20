@@ -27,7 +27,7 @@ fastdb <- memoise::memoise(
     tmp <- tempfile(fileext = ".tsv.bz2")
     download.file(
       paste0("https://github.com/cboettig/taxald/",
-             "releases/download/v1.0.0/data.2f/",
+             "releases/download/v1.0.0/data.2f",
              tbl_name, ".tsv.bz2"),
              tmp)
     ## Wow, utils is hella slow!  ~ 60 s
