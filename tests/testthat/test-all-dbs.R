@@ -11,10 +11,8 @@ test_that("we can set up a db and call basic functions", {
   skip_on_travis()
   skip_on_cran()
   
-  tmp <- tempdir()
-  Sys.setenv(TAXALD_HOME=tmp)
   
-  create_taxadb()
+  create_taxadb("all")
 
   df <- taxa_tbl(authority = "col", schema = "hierarchy")
   chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()

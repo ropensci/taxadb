@@ -37,7 +37,8 @@ fastdb <- memoise::memoise(
     #                   quote = "", stringsAsFactors = F)
     ## much better ~ 8 sec
     suppressWarnings(suppressMessages(
-      readr::read_tsv(tmp, col_types = "c")
+      readr::read_tsv(tmp, 
+      col_types = readr::cols(.default = readr::col_character()))
     ))
   })
 
