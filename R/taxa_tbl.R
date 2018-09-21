@@ -41,8 +41,7 @@ quick_db <- memoise::memoise(
       readr::read_tsv(tmp, 
       col_types = readr::cols(.default = readr::col_character()))
     ))
-  }, 
-  cache = memoise::cache_filesystem(Sys.getenv("TAXALD_HOME"))
+  } #, cache = memoise::cache_filesystem(Sys.getenv("TAXALD_HOME"))
 )
 
 

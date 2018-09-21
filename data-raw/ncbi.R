@@ -109,7 +109,7 @@ ncbi_wide <-
   filter(path_rank != "no rank") %>% ## Wide format includes named ranks only
   filter(path_rank != "superfamily") %>%  
   # ncbii has a few duplicate "superfamily" with both as "scientific name"
-  # This is probably a bug in there data as one of these shoudl be "synonym"(?)
+  # This is probably a bug in there data as one of these should be "synonym"(?)
   spread(path_rank, path)
 
 
