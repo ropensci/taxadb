@@ -12,8 +12,21 @@ test_that("we can set up a db and call basic functions", {
   skip_on_cran()
   
   
-  create_taxadb("all")
 
+  td_create(authorities = "itis")
+  td_create(authorities = "ncbi")
+  td_create(authorities = "col")
+  td_create(authorities = "tbl")
+  td_create(authorities = "gbif")
+  td_create(authorities = "fb")
+  td_create(authorities = "slb")
+  #td_create(authorities = "wd")
+  
+  
+  td_create(authorities = "all")
+
+  
+  
   df <- taxa_tbl(authority = "col", schema = "hierarchy")
   chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()
   

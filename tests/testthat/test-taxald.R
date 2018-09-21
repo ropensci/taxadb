@@ -8,9 +8,7 @@ library(dplyr)
 test_that("we can set up a db and call basic functions", {
   
   tmp <- tempdir()
-  Sys.setenv(TAXALD_HOME=tmp)
-  
-  create_taxadb()
+  td_create(tmp)
 
   df <- taxa_tbl(authority = "itis", schema = "hierarchy")
   chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()

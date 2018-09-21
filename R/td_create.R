@@ -1,12 +1,8 @@
-# FIXME consider a lightweight create_db that imports a single table,
-# from a single schema, possibly directly into memory?
 
-
- 
 #' create a local taxonomic database
 #'
-#' @param path a location on your computer where the database should be installed.
-#'  By default, will install to `.taxald` in your home directory.
+#' @param dbdir a location on your computer where the database should be installed.
+#'  By default, will look for a location given by `Sys.getenv("TAXALD_HOME")` if not specified.
 #' @param authorities a list (character vector) of authorities to be included in the
 #'  database. By default, will install `itis`.  See details for a list of recognized
 #'  authorities. Use `authorities="all"` to install all available authorities automatically.
@@ -28,7 +24,6 @@
 #'  - `wd`, wikidata
 #' @return path where database has been installed (invisibly)
 #' @export
-#' @aliases create_db create_taxadb
 #' @importFrom utils download.file
 #' @importFrom DBI dbConnect dbDisconnect
 #' @importFrom arkdb unark
@@ -39,13 +34,14 @@
 #'   # create_db(tmp, authorities = "itis")
 #'
 #' }
-create_db <- function(authorities = "itis", 
+td_create <- function(dbdir = Sys.getenv("TAXALD_HOME"), 
+                      authorities = "itis", 
                       schema = "hierarchy",
                       overwrite = FALSE,
-                      lines = 1e6,
-                      path = Sys.getenv("TAXALD_HOME", 
-                                        file.path(path.expand("~"),
-                                                 ".taxald"))){
+                      lines = 1e6
+                      ){
+  
+  dbdir <- td_home(dbdir)
   recognized_authorities = c("itis", 
                              "ncbi", 
                              "col", 
@@ -84,8 +80,8 @@ create_db <- function(authorities = "itis",
   dir.create(file.path(tmp, "taxald"), FALSE)
   utils::download.file(urls, file.path(tmp, "taxald", files))
   
-  dir.create(path, FALSE)
-  con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), path)
+  dir.create(dbdir, FALSE)
+  con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
   
   ## silence readr progress bar in arkdb
   progress <- getOption("readr.show_progress")
@@ -108,11 +104,9 @@ create_db <- function(authorities = "itis",
   #            table = table, key = "id"))
   
   DBI::dbDisconnect(con)
-  invisible(path)
+  invisible(dbdir)
 }
 
-#' @export
-create_taxadb <- create_db
 
 #R.utils::bzip2("taxa.sqlite", remove = FALSE)
 ## Set up database connection from compressed file

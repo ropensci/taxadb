@@ -6,7 +6,7 @@
 \usage{
 taxa_tbl(authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd"), schema = c("hierarchy", "taxonid", "synonyms", "common",
-  "long"), db = connect_db())
+  "long"), db = td_connect())
 }
 \arguments{
 \item{authority}{from which authority should the hierachy be returned?
