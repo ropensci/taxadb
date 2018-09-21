@@ -5,9 +5,10 @@ library(taxald)
 library(dplyr)
 
 
-test_that("we can set up a db and call basic functions", {
+test_that("setup-free calls to basic functions", {
   
-
+  td_home(tempdir()) # Sets a location for peristent cache
+  
   df <- taxa_tbl(authority = "itis", schema = "hierarchy", db = NULL)
   chameleons <- filter(df, family == "Chamaeleonidae")
   

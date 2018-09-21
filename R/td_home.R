@@ -1,9 +1,12 @@
 
 #' td_home
+#' 
+#' Set taxald home directory where database will be stored
 #' @param dbdir a location on your computer where the database should be installed.
 #' By default, will look for a location given by `Sys.getenv("TAXALD_HOME")` if not specified.
 #' @param create should the location be created if no directory exits? 
 #' @return dbdir path that will be used.
+#' @export
 td_home <- function(dbdir = Sys.getenv("TAXALD_HOME"), create = TRUE){
   if(dbdir == ""){
     stop(paste0(

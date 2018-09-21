@@ -16,5 +16,5 @@ By default, will look for a location given by \code{Sys.getenv("TAXALD_HOME")} i
 dbdir path that will be used.
 }
 \description{
-td_home
+Set taxald home directory where database will be stored
 }
