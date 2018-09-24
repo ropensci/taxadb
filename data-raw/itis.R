@@ -133,11 +133,18 @@ taxonid <- itis_long %>% select(id, name, rank, name_usage, update_date) %>%
   distinct()  %>% arrange(id)
 
 ##  NEED map of synonym to accepted name!
-itis_synonyms <- taxonid %>% filter(name_usage %in% c("not accepted", "invalid")) %>% select(-name_usage)
+synonyms <- taxonid %>% filter(name_usage %in% c("not accepted", "invalid")) %>% select(-name_usage)
 itis_taxonid <- taxonid %>% filter(name_usage %in% c("accepted", "valid")) %>% select(-name_usage)
 
 
-write_tsv(itis_synonyms, "data/itis_synonyms.tsv.bz2")
+syn_table <- 
+  read_tsv("taxizedb/itis/synonym_links.tsv.bz2", 
+           col_names = c("id", "accepted_id", "update_date")) %>% 
+  mutate(id = paste0("ITIS:", id), 
+         accepted_id = paste0("ITIS:", accepted_id)) %>%
+  right_join(synonyms)
+
+write_tsv(syn_table, "data/itis_synonyms.tsv.bz2")
 
 ## assert ids are unique
 itis_taxonid %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
