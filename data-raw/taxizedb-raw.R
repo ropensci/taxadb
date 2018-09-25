@@ -1,3 +1,6 @@
+
+## apt -y install mariadb-client postgresql-client
+
 library(arkdb)
 library(taxizedb) # remotes::install_github("ropensci/taxizedb")
 

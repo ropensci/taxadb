@@ -3,7 +3,14 @@ Version: 0.0.0.9000
 Title: Taxonomic Linked Data 
 Description: Creates a local database of many commonly used taxonomic authorities
              and provides functions that can quickly query this data.  
-Authors@R: person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"))
+Authors@R: c(
+            person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"),
+                   comment = c(ORCID = "0000-0002-1642-628X")),
+            person("Noam", "Ross", , "ross@ecohealthalliance.org", role ="ctb",
+                   comment = c(ORCID = "0000-0002-2136-0000")),
+            person("Scott", "Chamberlain", role ="ctb", 
+                   comment = c(ORCID="0000-0003-1444-9135"))
+            )
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -16,8 +23,8 @@ Imports:
     arkdb,
     tibble,
     memoise,
-    readr
-Remotes: cboettig/arkdb, cboettig/piggyback
+    readr,
+    rappdirs
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Suggests:

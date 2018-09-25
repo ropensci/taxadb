@@ -7,7 +7,8 @@
 #' @param create should the location be created if no directory exits? 
 #' @return dbdir path that will be used.
 #' @export
-td_home <- function(dbdir = Sys.getenv("TAXALD_HOME"), create = TRUE){
+#' @importFrom rappdirs user_data_dir
+td_home <- function(dbdir = rappdirs::user_data_dir("taxald"), create = TRUE){
   if(dbdir == ""){
     stop(paste0(
       'Please set a location for the taxald database by running:\n\n\t',

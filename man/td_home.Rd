@@ -4,7 +4,7 @@
 \alias{td_home}
 \title{td_home}
 \usage{
-td_home(dbdir = Sys.getenv("TAXALD_HOME"), create = TRUE)
+td_home(dbdir = rappdirs::user_data_dir("taxald"), create = TRUE)
 }
 \arguments{
 \item{dbdir}{a location on your computer where the database should be installed.

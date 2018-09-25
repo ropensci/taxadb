@@ -7,15 +7,25 @@ library(dplyr)
 
 test_that("we can set up a db and call basic functions", {
   
-  tmp <- tempdir()
-  td_create(tmp)
+  tmp <- file.path(tempdir(), "taxald")
+  td_create(dbdir = tmp)
+  db <- td_connect(tmp)
 
-  df <- taxa_tbl(authority = "itis", schema = "hierarchy")
-  chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()
+  df <- taxa_tbl(authority = "itis", 
+                 schema = "hierarchy", 
+                 db = td_connect(tmp))
   
-  df <- descendants(name = "Aves", rank = "class")
-  species <- ids(df$species)
-  hier <- classification(df$species)
+  chameleons <- df %>% 
+    filter(family == "Chamaeleonidae") %>% 
+    collect()
+  
+  df <- descendants(name = "Aves", 
+                    rank = "class", 
+                    db = td_connect(tmp))
+  species <- ids(df$species, 
+                 db = td_connect(tmp))
+  hier <- classification(df$species, 
+                         db = td_connect(tmp))
   
   expect_is(df, "data.frame")
   expect_is(species, "data.frame")

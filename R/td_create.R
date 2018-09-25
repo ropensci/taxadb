@@ -26,22 +26,21 @@
 #' @export
 #' @importFrom utils download.file
 #' @importFrom DBI dbConnect dbDisconnect
-#' @importFrom arkdb unark
+#' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom MonetDBLite MonetDBLite
 #' @examples
 #' \dontrun{
 #'   # tmp <- tempdir()
-#'   # create_db(tmp, authorities = "itis")
+#'   # create_db(authorities = "itis", dbdir = tmp)
 #'
 #' }
-td_create <- function(dbdir = Sys.getenv("TAXALD_HOME"), 
-                      authorities = "itis", 
+td_create <- function(authorities = "itis", 
                       schema = "hierarchy",
                       overwrite = FALSE,
+                      dbdir = td_home(),
                       lines = 1e6
                       ){
   
-  dbdir <- td_home(dbdir)
   recognized_authorities = c("itis", 
                              "ncbi", 
                              "col", 
@@ -58,14 +57,9 @@ td_create <- function(dbdir = Sys.getenv("TAXALD_HOME"),
   
   ## FIXME include some messaging about the large downloads etc?
   
-  ## FIXME generate list of data files to download based on requested
-  if(length(schema) > 1){
-    warning(paste("multiple schema formats requested; only using",
-                  schema[[1]]))
-    schema <- schema[[1]]
-  }
-  
-  files <- paste0(authorities, "_", schema, ".tsv.bz2") 
+  files <- vapply(schema, 
+                  function(s) paste0(authorities, "_", s, ".tsv.bz2"),
+                  character(1))
   ## FIXME Confirm download first if corresponding tables already exist
   
   
@@ -89,7 +83,8 @@ td_create <- function(dbdir = Sys.getenv("TAXALD_HOME"),
   
   arkdb::unark(file.path(tmp, "taxald", files), 
                db_con = con, 
-               lines = 1e6, 
+               lines = 1e6,
+               streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite)
   
   # reset readr progress bar.

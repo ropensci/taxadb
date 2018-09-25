@@ -89,10 +89,6 @@ ncbi_long <- ncbi %>%
   inner_join(expand)
 
 
-system.time({
-  write_tsv(ncbi_long, bzfile("data/ncbi_long.tsv.bz2", compression=9))
-})
-
 
 ## Example query: how many species of fishes do we know?
 #fishes <- ncbi_long %>% 
@@ -113,37 +109,27 @@ ncbi_wide <-
   spread(path_rank, path)
 
 
-system.time({
-  write_tsv(ncbi_wide, bzfile("data/ncbi_hierarchy.tsv.bz2", compression=9))
-})
-
-
-
-## Combine heirarchy into a single column of pipe-separated values.
-wide_hierarchy <- tidyr::unite(recursive_ncbi_ids, hierarchy, -tsn, sep = " | ") %>%
-  rename(id = tsn) 
-ncbi %>% left_join(wide_hierarchy)
 
 ### 
-library(tidyverse)
-ncbi_long <- read_tsv("data/ncbi_long.tsv.bz2")
-
 ncbi_taxonid <- ncbi_long %>% 
-  select(id, name, rank, date, type) %>% 
-  filter(name_type == "scientific name") %>%
-  distinct()
-  
-ncbi_hierarchy_long <- ncbi_long %>% 
-  select(id, path_id, path_name, path_rank) %>% 
-  filter(name_type == "scientific name") %>%
+  select(id = path_id, name = path, rank = path_rank, type = path_type) %>%
+  filter(type == "scientific name") %>%
+  select(-type) %>%
   distinct() 
 
-ncbi_taxonid <- ncbi_long %>% 
-  select(id, name, rank, date, type) %>% 
-  filter(name_type == "scientific name") %>%
-  distinct()
+## Synonyms table including all scientific names.
+## makes table longer, but gives us only one column to match against
+ncbi_synonyms <- ncbi_long %>% 
+  select(id = path_id, given_name = path, name_type = path_type) %>% 
+  filter(name_type != "scientific name") %>%
+  distinct() %>% 
+  left_join(ncbi_taxonid, by = c("id"))
+
+#write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
+#write_tsv(ncbi_wide, "data/ncbi_hierarchy.tsv.bz2")
 
 
+write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
+write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
 
-ncbi_wide <- read_tsv("data/ncbi_wide.tsv.bz2")
 

@@ -15,5 +15,7 @@
 #' 
 #' }
 td_connect <- function(dbdir = td_home()){
+  
+  
   DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 }
