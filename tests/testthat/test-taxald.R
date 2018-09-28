@@ -8,12 +8,14 @@ library(dplyr)
 test_that("we can set up a db and call basic functions", {
   
   tmp <- file.path(tempdir(), "taxald")
+  dir.create(tmp, showWarnings = FALSE)
+  
   td_create(dbdir = tmp)
   db <- td_connect(tmp)
 
   df <- taxa_tbl(authority = "itis", 
                  schema = "hierarchy", 
-                 db = td_connect(tmp))
+                 db = db)
   
   chameleons <- df %>% 
     filter(family == "Chamaeleonidae") %>% 
@@ -21,11 +23,11 @@ test_that("we can set up a db and call basic functions", {
   
   df <- descendants(name = "Aves", 
                     rank = "class", 
-                    db = td_connect(tmp))
+                    db = db)
   species <- ids(df$species, 
                  db = td_connect(tmp))
   hier <- classification(df$species, 
-                         db = td_connect(tmp))
+                         db = db)
   
   expect_is(df, "data.frame")
   expect_is(species, "data.frame")

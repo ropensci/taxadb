@@ -51,10 +51,9 @@ classification <- function(species = NULL,
                           null_tibble(id, species), 
                           copy = TRUE)
   
-  if(collect && inherits(db, "DBIConnection")){ 
+  if(collect && inherits(out, "tbl_lazy")){ 
     ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(db)
   }
   
   out

@@ -14,8 +14,8 @@
 #' db <- connect_db()
 #' 
 #' }
-td_connect <- function(dbdir = td_home()){
-  
-  
-  DBI::dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+td_connect <- function(dbdir = rappdirs::user_data_dir("taxald")){
+  dbname <- file.path(dbdir, "monetdblite")
+  dir.create(dbname, FALSE)
+  DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname)
 }

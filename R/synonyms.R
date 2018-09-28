@@ -29,10 +29,9 @@ synonyms <- function(name = NULL,
   
   ## ITIS seems to map synonyms that are obviously species names into higher ranks??
   
-  if(collect && inherits(db, "DBIConnection")){ 
+  if(collect && inherits(out, "tbl_lazy")){ 
     ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(db)
   }
   
   out

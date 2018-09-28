@@ -4,7 +4,7 @@
 \alias{td_connect}
 \title{Connect to the taxald database}
 \usage{
-td_connect(dbdir = td_home())
+td_connect(dbdir = rappdirs::user_data_dir("taxald"))
 }
 \arguments{
 \item{dbdir}{Path to the database. Defaults to \code{TAXALD_HOME}

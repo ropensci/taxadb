@@ -22,21 +22,22 @@ descendants <- function(name = NULL,
   ## technically could guess rank from name most but not all time
   ## could still do this as join rather than a filter with appropriate table construction
   
-  if(schema == "hierarchy"){
     df <- data.frame(setNames(list(name),  rank), stringsAsFactors = FALSE)
     df$id <- id
-    out <- dplyr::semi_join(
-      taxa_tbl(authority = authority,
-               schema = "hierarchy", 
-               db = db),
-      df,
-      copy = TRUE, by = rank)
-  }
+    
+    taxa <- taxa_tbl(authority = authority,
+                     schema = "hierarchy", 
+                     db = db)
+    
+    out <- dplyr::semi_join(taxa, 
+                            df, 
+                            copy = TRUE, 
+                            by = rank)
   
-  if(collect && inherits(db, "DBIConnection")){
+  
+  if(collect && inherits(out, "tbl_lazy")){
     ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(db)
   }
   
   out

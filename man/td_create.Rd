@@ -5,7 +5,8 @@
 \title{create a local taxonomic database}
 \usage{
 td_create(authorities = "itis", schema = "hierarchy",
-  overwrite = FALSE, dbdir = td_home(), lines = 1e+06)
+  overwrite = FALSE, lines = 1e+06,
+  dbdir = rappdirs::user_data_dir("taxald"), db = td_connect(dbdir))
 }
 \arguments{
 \item{authorities}{a list (character vector) of authorities to be included in the
@@ -18,11 +19,14 @@ authorities. Use \code{authorities="all"} to install all available authorities a
 to "ask" for interactive interface, or \code{TRUE} to force overwrite (i.e. updating
 a local database upon new release.)}
 
-\item{dbdir}{a location on your computer where the database should be installed.
-By default, will look for a location given by \code{Sys.getenv("TAXALD_HOME")} if not specified.}
-
 \item{lines}{number of lines that can be safely read in to memory at once. Leave
 at default or increase for faster importing if you have plenty of spare RAM.}
+
+\item{dbdir}{a location on your computer where the database should be installed.
+Defaults to user data directory given by \url{rappdirs::user_data_dir}.}
+
+\item{db}{connection to a database.  By default, taxald will set up its own
+fast \url{MonetDBLite::MonetDBLite} connection.}
 }
 \value{
 path where database has been installed (invisibly)

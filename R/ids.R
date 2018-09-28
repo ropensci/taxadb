@@ -26,10 +26,9 @@ ids <- function(name = NULL,
   out <- dplyr::select(out, "id", "species")
   
   
-  if(collect && inherits(db, "DBIConnection")){
+  if(collect && inherits(out, "tbl_lazy")){
     ## Return an in-memory object
     out <- dplyr::collect(out)
-    DBI::dbDisconnect(db)
   }
   
   out
