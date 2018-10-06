@@ -31,6 +31,7 @@
 #' @importFrom DBI dbConnect dbDisconnect
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom MonetDBLite MonetDBLite
+#' @importFrom readr cols
 #' @examples
 #' \dontrun{
 #'   # tmp <- tempdir()
@@ -91,7 +92,7 @@ td_create <- function(authorities = "itis",
                lines = 1e6,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
-               col_types = cols(.default = "c"))
+               col_types = readr::cols(.default = "c"))
   
   # reset readr progress bar.
   options(readr.show_progress = progress)
