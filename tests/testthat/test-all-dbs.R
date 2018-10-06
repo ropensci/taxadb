@@ -11,16 +11,16 @@ test_that("we can set up a db and call basic functions", {
   skip_on_travis()
   skip_on_cran()
   
-  
-
-  td_create(authorities = "itis")
-  td_create(authorities = "ncbi")
-  td_create(authorities = "col")
-  td_create(authorities = "tbl")
-  td_create(authorities = "gbif")
+  schema <- c("hierarchy", "taxonid", "synonyms")
+  overwrite = TRUE
+  td_create(authorities = "itis", schema = schema, overwrite = overwrite)
+  td_create(authorities = "ncbi", schema = schema, overwrite = overwrite)
+  td_create(authorities = "col", schema = schema)
+  td_create(authorities = "tpl")
+  td_create(authorities = "gbif", schema = c("hierarchy"))
   td_create(authorities = "fb")
   td_create(authorities = "slb")
-  #td_create(authorities = "wd")
+  td_create(authorities = "wd")
   
   
   td_create(authorities = "all")

@@ -61,10 +61,12 @@ td_create <- function(authorities = "itis",
   stopifnot(all(schema %in% recognized_schema))
   
   ## supports vectorized schema and authorities lists.  
-  files <- vapply(schema, function(s) 
-                    paste0(authorities, "_", s, ".tsv.bz2"),
-                  character(1))
+  files <- unlist(lapply(schema, function(s) 
+                    paste0(authorities, "_", s, ".tsv.bz2")))
   dest <- file.path(dbdir, files)
+  
+  new_dest <- dest
+  new_files <- files
   
   if(!overwrite){
     drop <- vapply(dest, file.exists, logical(1))
@@ -72,7 +74,7 @@ td_create <- function(authorities = "itis",
     new_files <- files[!drop]
   }
   
-  if(length(dest) >= 1L){
+  if(length(new_files) >= 1L){
     ## FIXME eventually these should be Zenodo URLs
     urls <- paste0("https://github.com/cboettig/taxald/",
                    "releases/download/v1.0.0/",
@@ -88,7 +90,8 @@ td_create <- function(authorities = "itis",
                db_con = db, 
                lines = 1e6,
                streamable_table = arkdb::streamable_readr_tsv(),
-               overwrite = overwrite)
+               overwrite = overwrite,
+               col_types = cols(.default = "c"))
   
   # reset readr progress bar.
   options(readr.show_progress = progress)
