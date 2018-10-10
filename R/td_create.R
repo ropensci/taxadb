@@ -69,18 +69,21 @@ td_create <- function(authorities = "itis",
   new_dest <- dest
   new_files <- files
 
-  if(!overwrite){
+  if (!overwrite) {
     drop <- vapply(dest, file.exists, logical(1))
     new_dest <- dest[!drop]
     new_files <- files[!drop]
   }
 
-  if(length(new_files) >= 1L){
+  if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
     urls <- paste0("https://github.com/cboettig/taxald/",
                    "releases/download/v1.0.0/",
                    "data", ".2f", new_files)
-    utils::download.file(urls, new_dest)
+    ## method must be specified for download.file to work w/ vectors
+    utils::download.file(urls, new_dest,
+                         method = "libcurl",
+                         quiet = TRUE)
   }
 
   ## silence readr progress bar in arkdb
