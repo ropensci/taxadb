@@ -1,4 +1,24 @@
-# Database schema for taxald
+---
+title: "Database schema for `taxald`"
+author: "Carl Boettiger"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{schema}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+
+# 
 
 
 `taxald` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxald` at this time are:
