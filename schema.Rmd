@@ -1,0 +1,122 @@
+# Database schema for taxald
+
+
+`taxald` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxald` at this time are:
+
+- `itis`: [The Integrated Taxonomic Information System](https://www.itis.gov/)
+- `col`: [The Catalogue of Life](http://www.catalogueoflife.org/)
+- `ncbi`: [The National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/)
+- `gbif`: [The Global Biodiversity Information Facility](https://www.gbif.org/)
+- `tpl`: [The Plant List](http://www.theplantlist.org/)
+- `fb`: [FishBase](https://fishbase.ca)
+- `slb`: [SeaLifeBase](https://www.sealifebase.ca/)
+- `wd`: [WikiData](https://wikidata.org)
+
+
+These authorities provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these authorities, `taxald` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  `taxald` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these authorities.
+
+Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL.  to implement these, `taxald` imports the compressed flat files into a local, column-oriented database, [`MonetDBLite`](), which can be installed entirely as an R package with no additional server setup required.  This provides a persistant store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxald` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxald` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
+
+This vignette summarizes the table schema defined by `taxald`.  Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
+
+
+```{r}
+library(taxald)
+td_create("all")
+```
+
+## taxonid schema
+
+A taxonid schema is provided for every authority, containing the columns:
+
+- `id`
+- `name`
+- `rank`
+
+Some authorities may report additional optional columns, such as the update date.
+
+```{r}
+taxa_tbl("itis", "taxonid")
+```
+
+Note that `taxald` tables report all identifiers using authority prefixes.  Certain authorities only provide taxanomic identifiers to species names (rank is always species).  Currently this includes `gbif`, `fb`, `slb`.  `ncbi`, `col` and `itis` provide taxonomic identifers to scientific names at any rank.   
+
+
+## Hierarchy table
+
+Any valid rank is a column, and a taxon `id` is a unique key.
+
+First column is named `id`, all subsequent columns are corresponding rank names.  Note that this wide format does not support unnamed rank levels, which are common in certain classifications such as NCBI.  Additional issues arise in some databases (e.g. also in NCBI) where a rank name is duplicated.  
+
+Example:
+
+```{r}
+taxa_tbl("col", "hierarchy")
+```
+
+
+## Synonyms table
+
+A synonyms table can be build for most but not all authorities. Columns in the synonyms table are:
+
+- `name`: Synonym or any other type (misspelling, alternate name) that is not the accepted name but can be unambiguously matched to an accepted name.   
+- `accepted_name`: The corresponding accepted name according to the authority
+- `id`: the id of the *accepted name*
+- `rank`: the rank of the accepted name.
+
+And optional fields:
+
+- `synonym_id`: Some authorities (e.g. ITIS, FB, COL) provide unique identifiers corresponding to the synonym name.  
+- `name_type`: the type of name given in `name`, e.g. `synonym`, `misspelling`, etc. 
+
+Example:
+
+```{r}
+taxa_tbl("gbif", "synonyms")
+```
+
+
+## Common names
+
+Common names are avialable from several authorities, but tidy tables for `taxald` have not yet been implemented.  Common names tables are expected to follow the following schema:
+
+- `id` The taxonomic identifier for the species (or possibly other rank)
+- `name` The common name / vernacular name
+- `language` The language in which the common name is given, if known. (all lowercase)
+- `language_code` the two-letter language code.
+
+## Long format
+
+Single-table representation of core taxonomic and hierarchical data.  Format includes followings required columns:
+
+id | name | rank  | path    |  path_rank  | path_id
+---|------|-------|---------|-------------|---------
+
+And the following optional columns:
+
+ rank_id  | path_rank_id  | name_type   | date
+----------|---------------|-------------|---------
+
+(Most databases do not define `rank_id`, e.g. ids corresponding to the ranks themselves)
+
+These tables are considerably larger and longer than other formats, which can make them slow to query.  Note that for each taxonomic name, `id` and the corresponding `name`, and `rank` of the `id` are repeated across the full path hierarchy.  This format is not installed and not used by functions of `taxald` at this time. 
+
+A fundamental advantage of this format is that it can be defined identically for every table, meaning that all authorities could be combined into a single table using the long format. both the `taxonid` and `hierarchy` formats can be derived directly from this format, and this format can represent information such as unnamed or duplicate ranks that cannot be represented in the `hierarchy` format.  
+
+
+Example:
+
+
+```{r}
+taxa_tbl("itis", "long", NULL)
+```
+
+
+## Conventions
+
+- `species` is always given as the scientific name associated with the species; e.g. `Homo sapiens` not `sapiens`.  (ITIS convention)
+- Identifiers use the integer identifier defined by the authority, prefixed by the authority abbreviation in all capital letters: `ITIS:`, `GBIF:`, etc.
+- Rank names are always lower case without hyphens or spaces. Rank names should be mapped
+  to a table of standard accepted rank names (i.e. those recognized by ITIS, NCBI, Wikidata),
+  and rank names should have 
+- Encoding is UTF-8
