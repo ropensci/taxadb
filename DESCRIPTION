@@ -15,7 +15,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
-Imports: 
+Imports:
     dplyr,
     dbplyr,
     DBI,
@@ -24,12 +24,18 @@ Imports:
     tibble,
     memoise,
     readr,
-    rappdirs
+    rappdirs,
+    rlang,
+    magrittr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Suggests:
-    spelling, 
+    spelling,
     testthat,
     covr,
-    tictoc
+    tictoc,
+    knitr,
+    rmarkdown,
+    purrr
 Language: en-US
+VignetteBuilder: knitr
