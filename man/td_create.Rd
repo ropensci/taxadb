@@ -4,8 +4,8 @@
 \alias{td_create}
 \title{create a local taxonomic database}
 \usage{
-td_create(authorities = "itis", schema = "hierarchy",
-  overwrite = FALSE, lines = 1e+06,
+td_create(authorities = "itis", schema = c("hierarchy", "taxonid",
+  "synonyms"), overwrite = FALSE, lines = 1e+06,
   dbdir = rappdirs::user_data_dir("taxald"), db = td_connect(dbdir))
 }
 \arguments{
