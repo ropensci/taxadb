@@ -80,8 +80,12 @@ td_create <- function(authorities = "itis",
     urls <- paste0("https://github.com/cboettig/taxald/",
                    "releases/download/v1.0.0/",
                    "data", ".2f", new_files)
+
+    ## Gabor recommends we drop-in curl::download_file instead here!
+    ## or something fancier with curl_fetch_multi
     ## method must be specified for download.file to work w/ vectors
-    utils::download.file(urls, new_dest,
+    utils::download.file(urls,
+                         new_dest,
                          method = "libcurl",
                          quiet = TRUE)
   }
