@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 
 
-```{r}
+```{r message = FALSE}
 library(taxald)
 library(dplyr)
 library(tidyr)
@@ -51,7 +51,7 @@ Our goal will be to associate each name with a definitive taxonomic ID of an exi
 
 To get started, we'll install all the data sources available to `taxald` into a local database. This may take a while, particularly over a slow internet connection, but it needs to be done only once.  The downloaded size of all data is around 3 GB.  Once this task completes, our subsequent operations should all be quite fast.  
 
-```{r}
+```{r message=FALSE}
 td_create(authorities = "all")
 ```
 
@@ -69,10 +69,10 @@ my_taxa <- primates %>%  # 233 taxa
 
 is.na(my_taxa$id) %>% sum()
 ```
-We manage to resolve 230 of the 233 species.  Not bad.  
+Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species.  Not bad!
 
 
-By default, `taxald::ids()` function automatically resolves names against both ids and any synonyms recognized by the requested authority (ITIS). If we did not resolve synonyms, we find many more of the names would not match: 
+Note that in fact only 180 of the names were recognized as valid species names by ITIS initially.  Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:
 
 ```{r}
 tmp <- primates %>%  
@@ -82,7 +82,7 @@ tmp <- primates %>%
 is.na(tmp$id) %>% sum()
 ```
 
-
+Similarly, we can compute ids for all authorities:
 
 
 ```{r}
@@ -99,23 +99,41 @@ my_taxa <- primates %>%
 
 ```
 
-Which IDs are missing?
+Can any single authority resolve all species names?
 
 ```{r}
-my_taxa$has_match <- my_taxa %>% 
+my_taxa %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+
+No luck.  Looks like `itis` has the most matches with 230.  (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).  
+
+We can also ask: do any species have no match in any authority?
+
+```{r}
+has_match <- my_taxa %>% 
   select(-species) %>%
   purrr::map_dfc(function(x) !is.na(x)) %>% 
   rowSums() > 0
+
+my_taxa %>% filter(!has_match)
 ```
 
-Looks like wikidata covers the most, including anything covered by at least one other authority: 
+One species still fails to resolve under any authority. Somewhat surprising given that this Black-and-white lemur from Madagascar is common enough to have a [Wikipedia page](https://en.wikipedia.org/wiki/Black-and-white_ruffed_lemur).
+
+## Hierarchy
+
+Once we have resolved our ids, we can also get full classification information. This example uses the default authority, ITIS:
 
 ```{r}
-missing_wd <- my_taxa %>% filter(is.na(wd)) %>% pull(species)
-missing_all <- my_taxa %>% filter(!has_match) %>% pull(species)
-
-still_missing <- identical(missing_wd, missing_all)
-
+primate_ids <- ids(primates$species)
+classification(id = primate_ids)
 ```
 
-Let's try the synonyms tables from the other authorities: 
+the `classification` function can work on species names directly, but this will not resolve syonyms to identifiers first.  As a result, only the 180 already recognized species names can be resolved in this case:
+
+```{r}
+classification(species = primate_ids$name)
+```
+

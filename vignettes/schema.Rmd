@@ -1,5 +1,5 @@
 ---
-title: "Database schema for `taxald`"
+title: "Database schema for taxald"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -13,12 +13,10 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  eval = as.logical(Sys.getenv("CARL"))
 )
 ```
 
-
-# 
 
 
 `taxald` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxald` at this time are:
@@ -40,7 +38,7 @@ Using the schema defined below, most common operations can be expressed in terms
 This vignette summarizes the table schema defined by `taxald`.  Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
 
 
-```{r}
+```{r message = FALSE}
 library(taxald)
 td_create("all")
 ```
@@ -124,10 +122,8 @@ These tables are considerably larger and longer than other formats, which can ma
 A fundamental advantage of this format is that it can be defined identically for every table, meaning that all authorities could be combined into a single table using the long format. both the `taxonid` and `hierarchy` formats can be derived directly from this format, and this format can represent information such as unnamed or duplicate ranks that cannot be represented in the `hierarchy` format.  
 
 
-Example:
 
-
-```{r}
+```{r eval=FALSE}
 taxa_tbl("itis", "long", NULL)
 ```
 

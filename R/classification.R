@@ -31,7 +31,7 @@ classification <- function(species = NULL,
                            collect = TRUE,
                            db = td_connect()){
 
-  out <- dplyr::semi_join(taxa_tbl(authority = authority,
+  out <- dplyr::right_join(taxa_tbl(authority = authority,
                                    schema = "hierarchy",
                                    db = db),
                           null_tibble(id, species),
