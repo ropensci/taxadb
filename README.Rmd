@@ -55,11 +55,11 @@ descendants(name = "Aves", rank = "class")
 
 ## Learn More
 
-### [An introduction to taxald](https://cboettig.github.io/taxald/docs/articles/articles/taxald.html) 
+### [An introduction to taxald](https://cboettig.github.io/taxald/articles/articles/taxald.html) 
 
-The [taxald introduction](https://cboettig.github.io/taxald/docs/articles/articles/taxald.html) 
+The [taxald introduction](https://cboettig.github.io/taxald/articles/articles/taxald.html) 
 provides an overview showing how `taxald` functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.  
 
-### [taxald schemas](https://cboettig.github.io/taxald/docs/articles/articles/schema.html)
+### [taxald schemas](https://cboettig.github.io/taxald/articles/articles/schema.html)
 
-See the [schemas](https://cboettig.github.io/taxald/docs/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxald` functions, and more about the different authorities accessed by taxald.  
+See the [schemas](https://cboettig.github.io/taxald/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxald` functions, and more about the different authorities accessed by taxald.  

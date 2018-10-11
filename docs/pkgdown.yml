@@ -4,4 +4,5 @@ pkgdown_sha: 16c6506a153dacf99c185f0ef62488458297d301
 articles:
   schema: articles/schema.html
   taxald: articles/taxald.html
+  intro: intro.html
 
