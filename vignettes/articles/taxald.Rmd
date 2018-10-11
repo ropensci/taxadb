@@ -12,8 +12,7 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = is.na(Sys.getenv("CARL", NA))
+  comment = "#>"
 )
 ```
 
@@ -134,6 +133,6 @@ classification(id = primate_ids)
 the `classification` function can work on species names directly, but this will not resolve syonyms to identifiers first.  As a result, only the 180 already recognized species names can be resolved in this case:
 
 ```{r}
-classification(species = primate_ids$name)
+classification(species = primates$species)
 ```
 

@@ -2,6 +2,6 @@ pandoc: 2.2.1
 pkgdown: 1.1.0.9000
 pkgdown_sha: 16c6506a153dacf99c185f0ef62488458297d301
 articles:
-  schema: schema.html
-  taxald: taxald.html
+  schema: articles/schema.html
+  taxald: articles/taxald.html
 

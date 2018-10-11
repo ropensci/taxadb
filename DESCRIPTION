@@ -39,3 +39,5 @@ Suggests:
     purrr
 Language: en-US
 VignetteBuilder: knitr
+URL: https://github.com/cboettig/taxald
+BugReports: https://github.com/cboettig/taxald/issues

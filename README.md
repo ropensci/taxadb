@@ -1,92 +1,67 @@
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) [![Travis build status](https://travis-ci.org/cboettig/taxald.svg?branch=master)](https://travis-ci.org/cboettig/taxald) [![Coverage status](https://codecov.io/gh/cboettig/taxald/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxald?branch=master) [![CRAN status](https://www.r-pkg.org/badges/version/taxald)](https://cran.r-project.org/package=taxald)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Travis build
+status](https://travis-ci.org/cboettig/taxald.svg?branch=master)](https://travis-ci.org/cboettig/taxald)
+[![Coverage
+status](https://codecov.io/gh/cboettig/taxald/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxald?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/taxald)](https://cran.r-project.org/package=taxald)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-taxald
-======
 
-**This package is purley exploratory at this stage!**
+# taxald
 
-Central to `taxald` design is to create a *local* database of all available taxonomic authority data that we can query quickly, even when working with tens of thousands of species. The second key feature of `taxald` design is to return queries from each authority using a *consistent* and convenient table structure, facilitating queries that compare, combine, or work across names from multiple authorities.
+The goal of `taxald` is to provide fast access to taxonomic data and
+manipulations, such as resolving taxonomic names to ids, looking up
+higher classification ranks of given species, or returning a list of all
+species below a given rank. These tasks are particularly common when
+synthesizing data across large species assemblies, such as combining
+occurrence records with trait records.
 
-Install and initial setup
--------------------------
+Existing approaches to these problems typically rely on web APIs, which
+can make them impractical for work with large numbers of species or in
+more complex pipelines. Queries and returned formats also differ across
+the different taxonomic authorities, making tasks that query multiple
+authorities particularly complex. `taxald` creates a *local* database of
+most readily available taxonomic authorities, each of which is
+transformed into consistent, standard, and researcher-friendly tabular
+formats.
 
-`taxald` should now be installable. To get started, try:
+## Install and initial setup
+
+To get started, install the development version directly from GitHub:
 
 ``` r
 devtools::install_github("cboettig/taxald")
 ```
 
+Before we can use most `taxald` functions, we need to do a one-time
+installation of the database `taxald` uses for almost all commands. This
+can take a while to run, but needs only be done once. The database is
+installed on your local hard-disk and will persist between R sessions.
+By default, the database will be installed in your user’s application
+data directory, as detected by the `rappdirs` package. (Set a custom
+location instead using `dbdir` argument.)
+
 ``` r
 library(taxald)
-library(tictoc) # let's display timing of queries for reference
-```
-
-Before we can use most `taxald` functions, we need to do a one-time installation of the database `taxald` uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local harddisk and will persist between R sessions. We download and install the database, specifying this location:
-
-``` r
-td_create(dbdir = "~/.taxald")
+td_create()
 #> not overwriting itis_hierarchy
+#> not overwriting itis_taxonid
+#> not overwriting itis_synonyms
 ```
 
-The default behavior installs only the ITIS database using the hierachy schema. While this should be sufficient for getting started on basic tasks like looking up classification or translating between IDs and scientific names, users will want to install additional authorities and schemas for advanced use. See the `authorities` vignette for details. By default, `taxald` will install the database into a hidden `.taxald` folder in your home directory (`~/.taxald`). You can control this by passing the path to `create_taxadb()` or setting the environmental variable `TAXALD_HOME` to a different location.
+The default behavior installs only the ITIS database. You can also
+specify a list of authorities to install, or install every authority
+using `td_create("all")`.
 
-This function downloads each of the individual tables and loads them into a [MonetDBLite](https://www.monetdb.org) database. (MonetDBLite is much like SQLite, requiring no external server setup. However, for our purposes, MonetDB's columnar design provides significantly faster performance than SQLite, Postgres, or even some in-memory operations in `dplyr`.)
+## Test drive
 
-Currently tables are pulled from the development cache on GitHub. Many of these tables are still being cleaned up and standardized, see [schema.md](schema.md). Multiple tablesare provided for each authority, though some of these contain redundant information, different orientations may prove more convenient or computationally efficient.
-
-Package API
------------
-
-Once the database is installed, we can start to make some queries.
-
-First, let's get a nice big species list, say, all the birds (known to ITIS):
+Once the databases have been set up, we’re ready to explore.  
+Here’s a list of all the birds species known to ITIS:
 
 ``` r
-tic()
-df <- descendants(name = "Aves", rank = "class")
-toc()
-#> 1.41 sec elapsed
-```
-
-How many species did we get?
-
-``` r
-length(df$species)
-#> [1] 10401
-```
-
-Generally, we have a species list could have come from some particular research project, and the names may not match those of any one particular authority.
-
-``` r
-tic()
-ids(df$species)
-#> Joining, by = "species"
-#> # A tibble: 10,401 x 2
-#>    id          species                   
-#>    <chr>       <chr>                     
-#>  1 ITIS:174375 Struthio camelus          
-#>  2 ITIS:174379 Rhea americana            
-#>  3 ITIS:174385 Dromaius novaehollandiae  
-#>  4 ITIS:174388 Casuarius bennetti        
-#>  5 ITIS:174390 Casuarius unappendiculatus
-#>  6 ITIS:174394 Apteryx australis         
-#>  7 ITIS:174400 Tinamus guttatus          
-#>  8 ITIS:174401 Tinamus major             
-#>  9 ITIS:174402 Tinamus osgoodi           
-#> 10 ITIS:174403 Tinamus solitarius        
-#> # ... with 10,391 more rows
-toc()
-#> 1.279 sec elapsed
-```
-
-We can get the full hierachical classification for this list of species:
-
-``` r
-tic()
-classification(df$species)
-#> Joining, by = "species"
+descendants(name = "Aves", rank = "class")
 #> # A tibble: 10,401 x 26
 #>    id    class family genus infraclass infrakingdom infraorder infraphylum
 #>    <chr> <chr> <chr>  <chr> <chr>      <chr>        <chr>      <chr>      
@@ -106,30 +81,21 @@ classification(df$species)
 #> #   suborder <chr>, subphylum <chr>, subsection <chr>, subtribe <chr>,
 #> #   superclass <chr>, superfamily <chr>, superorder <chr>,
 #> #   superphylum <chr>, tribe <chr>
-toc()
-#> 0.368 sec elapsed
 ```
 
-Design sketch/spec for package API:
+## Learn More
 
--   Given vector of taxonomic names, return taxonomic identifiers
--   Given taxonomic identifiers, return heirarchical classification.
+### [An introduction to taxald](https://cboettig.github.io/taxald/docs/articles/articles/taxald.html)
 
-(Note that for some authorities, e.g. GBIF and TPL, taxonomic identifiers are only assigned to species names. So given the name of a higher-level rank, no id could be returned)
+The [taxald
+introduction](https://cboettig.github.io/taxald/docs/articles/articles/taxald.html)
+provides an overview showing how `taxald` functions can help us
+synthesize data across a given list of species by resolving synonyms and
+identifiers.
 
--   Given any higher-order rank name (e.g. `infraorder`) return identifiers of all member species.
+### [taxald schemas](https://cboettig.github.io/taxald/docs/articles/articles/schema.html)
 
--   Given common names, resolve to accepted scientific name
-
--   Resolve any known miss-spelling, recognized synonymous name, generic name or name-part to corresponding taxonomic name.
-
--   Map between identifiers
-
--   Normalize rank names
-
--   Resolve a list of names across multiple authorities to attain higher coverage,
--   provide merged tables
-
-See [schema.md](schema.md) for a sketch of the underlying database architecture imposed on the data source from each authority.
-
-Note that all inputs and outputs should be vectorized.
+See the
+[schemas](https://cboettig.github.io/taxald/docs/articles/articles/schema.html)
+vignette for an overview of the underlying tables used by `taxald`
+functions, and more about the different authorities accessed by taxald.
