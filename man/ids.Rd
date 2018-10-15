@@ -5,15 +5,20 @@
 \title{Return taxonomic identifiers from a given namespace}
 \usage{
 ids(name = NULL, authority = c("itis", "ncbi", "col", "tpl", "gbif",
-  "fb", "slb", "wd"), collect = TRUE, db = td_connect())
+  "fb", "slb", "wd"), synonyms_check = TRUE, pull = TRUE,
+  collect = TRUE, db = td_connect())
 }
 \arguments{
-\item{name}{a character vector of species names.
-(Most authorities can also return ids for higher-level
+\item{name}{a character vector of species names, e.g. "Homo sapiens"
+(Most but not all authorities can also return ids for higher-level
 taxonomic names).}
 
 \item{authority}{from which authority should the hierachy be returned?
 Default is 'itis'.}
+
+\item{synonyms_check}{Should we check if names are recognized synonyms? Default FALSE.}
+
+\item{pull}{logical, should we pull out the id column or return the full table?}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -28,4 +33,10 @@ a data.frame with columns of \code{id}, scientific
 }
 \description{
 Return taxonomic identifiers from a given namespace
+}
+\details{
+NOTE on matching synonyms: Some authorities (like ITIS) issue separate synonym_ids
+corresponding to synonym names. The \code{ids()} function \emph{does not} return synonym ids.
+Rather, if a name is recognized as a synonym, we will look up the appropriate
+accepted name and the ID associated with the accepted name and return that.
 }

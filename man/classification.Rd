@@ -43,13 +43,4 @@ Likewise, some authorities (i.e. NCBI) use some unnamed rank levels
 (i.e. a scientific name is associated with a clade, but the clade is
 not associated with any traditionally recognized rank). In these cases,
 see the "long" schema for more complete classification.
-
-If setting \code{collect = FALSE}, consider calling \code{db = td_connect()}
-in a separate call and passing the resulting connection object, \code{db}
-explicitly to all subsequent \code{taxald} functions.  This will allow them
-to re-use the existing connection, which can also be used in conjunction
-with the returned results for further on-disk queries. In general, this will
-only be desirable when tables are extremely large or availability memory is
-extremely limited. Under most use cases, the defaults for \code{collect} and
-\code{db} should be appropriate.
 }

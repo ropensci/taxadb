@@ -1,35 +1,94 @@
 ## FIXME Does not support lookup of non-species-level ids. Using taxonid schema would fix this.
 
 #' Return taxonomic identifiers from a given namespace
-#' 
-#' @param name a character vector of species names. 
-#' (Most authorities can also return ids for higher-level
+#'
+#' @param name a character vector of species names, e.g. "Homo sapiens"
+#' (Most but not all authorities can also return ids for higher-level
 #'  taxonomic names).
-#' @inheritParams classification
-#' @return a data.frame with columns of `id`, scientific 
+#' @param synonyms_check Should we check if names are recognized synonyms? Default FALSE.
+#' @param pull logical, should we pull out the id column or return the full table?
+#' @param authority from which authority should the hierachy be returned?
+#'  Default is 'itis'.
+#' @param collect logical, default `TRUE`. Should we return an in-memory
+#' data.frame (default, usually the most convenient), or a reference to
+#' lazy-eval table on disk (useful for very large tables on which we may
+#' first perform subsequent filtering operations.)
+#' @param db a connection to the taxald database. See details.
+#' @return a data.frame with columns of `id`, scientific
 #' `name`, and `rank` and a row for each species name queried.
-#' 
+#'
+#' @details
+#' NOTE on matching synonyms: Some authorities (like ITIS) issue separate synonym_ids
+#' corresponding to synonym names. The `ids()` function *does not* return synonym ids.
+#' Rather, if a name is recognized as a synonym, we will look up the appropriate
+#' accepted name and the ID associated with the accepted name and return that.
+#'
 #' @export
+#' @importFrom dplyr quo
+#' @importFrom rlang !!
+#' @importFrom magrittr %>%
 ids <- function(name = NULL,
                 authority = c("itis", "ncbi", "col", "tpl",
                               "gbif", "fb", "slb", "wd"),
+                synonyms_check = TRUE,
+                pull = TRUE,           # Should we avoid options that change return type?
                 collect = TRUE,
                 db = td_connect()){
-  
-  out <- 
-    dplyr::semi_join(
-      taxa_tbl(authority = authority, 
-               schema = "hierarchy", 
-               db = db), 
-      dplyr::tibble(species = name),
-      copy = TRUE) 
-  out <- dplyr::select(out, "id", "species")
-  
-  
-  if(collect && inherits(out, "tbl_lazy")){
-    ## Return an in-memory object
-    out <- dplyr::collect(out)
+
+  ## Use right_join, so unmatched names are kept, with NA
+  out <- dplyr::right_join(
+      taxa_tbl(authority, "taxonid", db),
+      dplyr::tibble(name),
+      by = "name",
+      copy = TRUE)
+  # input table will be copied in, cleaned on disconnect
+  out <- select(out, "id", "name", "rank")
+
+## SQL execution with larger tables is SO MUCH slower using filter!
+#  system.time({
+#  taxon_names <- name # must not use protected term
+#  out <- dplyr::filter(
+#    taxa_tbl("itis", "taxonid", db),
+#    name %IN% taxon_names)
+#  out <- collect(out)
+#  })
+
+  id <- "id"
+  id_column <- quo(id)
+
+  if (synonyms_check) {
+
+    not_missing <-
+      dplyr::filter(out, !is.na(!!id_column))
+
+    missing <-
+      filter(out, is.na(!!id_column)) %>%
+      dplyr::select("name")
+
+    syn <- dplyr::right_join(
+      taxa_tbl(authority, "synonyms", db),
+      missing,
+      by = "name"
+      ) %>%
+      dplyr::select("name", "id", "rank")
+
+    out <- dplyr::union(not_missing, syn)
+
   }
-  
+
+
+  if (pull) {
+
+    return( dplyr::pull(out, !!id_column) )
+  }
+
+  if (collect && inherits(out, "tbl_lazy")) {
+    ## Return an in-memory object
+    return( dplyr::collect(out) )
+  }
+
   out
 }
+
+
+

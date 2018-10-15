@@ -18,3 +18,4 @@ data/*
 *.sqlite.bz2
 .Rbuildignore
 taxadb
+inst/doc
