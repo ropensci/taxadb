@@ -129,12 +129,19 @@ fs::file_move("data/itis_wide.tsv.bz2", "data/itis_hierarchy.tsv.bz2")
 ## accepted == valid
 ### https://www.itis.gov/submit_guidlines.html#usage
 
-taxonid <- itis_long %>% select(id, name, rank, name_usage, update_date) %>%
-  distinct()  %>% arrange(id)
+taxonid <- itis_long %>% 
+  select(id, name, rank, name_usage, update_date) %>%
+  distinct()  %>% 
+  arrange(id)
 
 ##  NEED map of synonym to accepted name!
-synonyms <- taxonid %>% filter(name_usage %in% c("not accepted", "invalid")) %>% select(-name_usage)
-itis_taxonid <- taxonid %>% filter(name_usage %in% c("accepted", "valid")) %>% select(-name_usage)
+synonyms <- taxonid %>% 
+  filter(name_usage %in% c("not accepted", "invalid")) %>% 
+  select(-name_usage)
+
+itis_taxonid <- taxonid %>% 
+  filter(name_usage %in% c("accepted", "valid")) %>%
+  select(-name_usage)
 
 
 syn_table <- 
@@ -144,24 +151,19 @@ syn_table <-
          accepted_id = paste0("ITIS:", accepted_id)) %>%
   right_join(synonyms)
 
-write_tsv(syn_table, "data/itis_synonyms.tsv.bz2")
+accepted <- itis_ids %>% select(id, name) %>% rename(accepted_name = name)
+
+itis_synonyms <- itis_synonyms %>% 
+  rename(synonym_id = id, id = accepted_id) %>%
+  left_join(accepted) %>% 
+  select(name, accepted_name, id, synonym_id, rank, update_date)
+
+write_tsv(itis_synonyms, "data/itis_synonyms.tsv.bz2")
+
+
 
 ## assert ids are unique
 itis_taxonid %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
-
 write_tsv(itis_taxonid, "data/itis_taxonid.tsv.bz2")
-
-
-itis_paths  <- itis_long %>% select(id, path_id, path, path_rank, path_rank_id) %>%
-  distinct() %>% arrange(id)
-
-
-itis_names <- itis_long %>% select(id, name = common_name, language) %>% distinct() 
-
-
-
-
-
-
 
 

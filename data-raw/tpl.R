@@ -35,5 +35,9 @@ tpl_long <- tpl_wide %>%
 
 write_tsv(tpl_long, "data/tpl_long.tsv.bz2")
 
+
+## taxonid
+tpl_long %>% select(id, name, rank) %>% distinct() %>% write_tsv("data/tpl_taxonid.tsv.bz2")
+
 # test parsing
 tmp <- read_tsv("data/tpl_wide.tsv.bz2")

@@ -118,3 +118,12 @@ id_map <- wd_taxon %>%
 # pryr::object_size(wd_long) # 1.22 GB
 
 # lapply(ls(), function(x) pryr::object_size(get(x)))
+
+wd_long <- read_tsv("data/wd_long.tsv.bz2")
+wd_long %>% select(id, name, rank) %>% distinct() %>% write_tsv("data/wd_taxonid.tsv.bz2")
+
+
+dummy_synonyms <- tibble(id = NA, accepted_name = NA, name = NA, type = NA, synonym_id = NA, rank = NA)
+write_tsv(dummy_synonyms, "data/tpl_synonyms.tsv.bz2")
+
+
