@@ -125,6 +125,11 @@ ncbi_synonyms <- ncbi_long %>%
   distinct() %>% 
   left_join(ncbi_taxonid, by = c("id"))
 
+ncbi_synonyms <- ncbi_synonyms %>% 
+  rename(accepted_name = name, name = given_name) %>%
+  select(name, accepted_name, id, rank, name_type)
+
+
 #write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
 #write_tsv(ncbi_wide, "data/ncbi_hierarchy.tsv.bz2")
 

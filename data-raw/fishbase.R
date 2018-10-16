@@ -1,11 +1,14 @@
 library(rfishbase) # 3.0
 library(tidyverse)
 
+
+
+
 fb <- as_tibble(rfishbase::load_taxa())
 fb_wide <- fb %>% 
   select( id = SpecCode, 
-          genus = Genus, 
           species = Species, 
+          genus = Genus, 
           subfamily = Subfamily, 
           family = Family,
           order = Order, 
@@ -17,20 +20,25 @@ fb_wide <- fb %>%
 
 write_tsv(fb_wide, "data/fb_hierarchy.tsv.bz2")
 
+fb_taxonid <- fb_wide %>% select(id, species) %>% gather(rank, name, -id)
+write_tsv(fb_taxonid, "data/fb_taxonid.tsv.bz2")
+
+
 species <- rfishbase:::fb_species()
 synonyms <- rfishbase::synonyms(NULL) %>%
   left_join(species) %>% 
   rename(id = SpecCode)  %>% 
+  mutate(id = paste0("FB:", id),
+         SynCode = paste0("FB:", SynCode),
+         TaxonLevel = tolower(TaxonLevel)) %>%
   select(id,
-         species = Species,
-         synonym,
+         accepted_name = Species,
+         name = synonym,
          type = Status,
-         syn_id = SynCode,
-         rank = TaxonLevel, 
-         tsn = TSN, 
-         col = CoL_ID, 
-         worms = WoRMS_ID, 
-         zoobank = ZooBank_ID)
+         synonym_id = SynCode,
+         rank = TaxonLevel)
+
+write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
 
 
 
@@ -60,16 +68,47 @@ slb_wide <- slb %>%
   select( id = SpecCode, 
           genus = Genus, 
           species = Species, 
-          subfamily = SubFamily, 
+          subfamily = Subfamily, 
           family = Family,
           order = Order, 
           class = Class,
-          common_name = FBname) %>%
-  mutate(id = paste0("SLB:", id)) %>%
-  select(id, species, genus, subfamily, 
-         family, order, class, common_name)
+          phylum = Phylum,
+          kingdom = Kingdom) %>%
+  mutate(id = paste0("SLB:", id)) 
 
 write_tsv(slb_wide, "data/slb_hierarchy.tsv.bz2")
+
+
+slb_taxonid <- slb_wide %>% select(id, species) %>% gather(rank, name, -id)
+write_tsv(slb_taxonid, "data/slb_taxonid.tsv.bz2")
+
+
+
+species <- rfishbase:::fb_species(server = "sealifebase")
+syn <- rfishbase::synonyms(NULL, server = "sealifebase")
+
+slb_synonyms <- syn %>%
+  left_join(species) %>% 
+  rename(id = SpecCode)  %>% 
+  mutate(id = paste0("SLB:", id),
+         SynCode = paste0("SLB:", SynCode),
+         TaxonLevel = tolower(TaxonLevel)) %>%
+  select(id,
+         accepted_name = Species,
+         name = synonym,
+         type = Status,
+         synonym_id = SynCode,
+         rank = TaxonLevel)
+
+write_tsv(slb_synonyms, "data/slb_synonyms.tsv.bz2")
+
+
+
+
+
+
+
+
 
 
 
