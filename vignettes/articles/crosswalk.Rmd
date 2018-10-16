@@ -1,0 +1,81 @@
+---
+title: "Crosswalking The Authorities"
+author: "Carl Boettiger"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{crosswalk}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+```{r message = FALSE}
+library(taxald)
+library(dplyr)
+library(tidyr)
+```
+
+
+```{r}
+fish <- taxa_tbl("fb")
+
+my_taxa <- 
+  fish %>%  
+  select(fb = id, species) %>% 
+  collect() %>%
+  mutate(itis = ids(species, "itis"),
+         ncbi = ids(species, "ncbi"),
+         #col = ids(species, "col"),
+         gbif = ids(species, "gbif"),
+         #wd = ids(species, "wd"),
+         tpl = ids(species, "tpl"),
+        # fb = ids(species, "fb"),
+         slb = ids(species, "slb")) 
+```
+
+
+```{r}
+my_taxa %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+
+Looks like three plants have matching scientific names to some of our fish:
+
+```{r}
+fish %>% pull(species) %>% ids(authority = "tpl", pull = FALSE) %>% filter(!is.na(id))
+```
+
+This also probably explains why `col` and `wd` are returning the wrong-length matches:
+
+```{r}
+species <- pull(fish, species)
+
+col_fb <- ids(species, "col", pull = FALSE) 
+dim(col_fb)[1] - length(species)
+
+wd_fb <- ids(species, "wd", pull = FALSE) 
+dim(wd_fb)[1] - length(species)
+
+```
+
+
+
+
+```{r}
+has_match <- my_taxa %>% 
+  select(-species) %>%
+  purrr::map_dfc(function(x) !is.na(x)) %>% 
+  rowSums() > 0
+
+my_taxa %>% filter(!has_match)
+```
