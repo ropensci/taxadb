@@ -1,5 +1,5 @@
 ---
-title: "taxald tutorial"
+title: "taxald overview"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

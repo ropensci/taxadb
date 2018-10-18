@@ -52,7 +52,8 @@ my_taxa %>%
 Looks like three plants have matching scientific names to some of our fish:
 
 ```{r}
-fish %>% pull(species) %>% ids(authority = "tpl", pull = FALSE) %>% filter(!is.na(id))
+dup <- fish %>% pull(species) %>% ids(authority = "tpl", pull = FALSE) %>% filter(!is.na(id))
+dup
 ```
 
 This also probably explains why `col` and `wd` are returning the wrong-length matches:
@@ -68,6 +69,16 @@ dim(wd_fb)[1] - length(species)
 
 ```
 
+```{r}
+
+#col_hierarchy <- classification(id = col_fb$id) %>% filter(kingdom == "Animalia") 
+
+taxa_tbl("col", "hierarchy") %>%
+  filter(kingdom == "Animalia") %>%
+  semi_join(select(col_fb, id), copy = TRUE) %>%
+  select(id, species) %>% 
+  collect()
+```
 
 
 
