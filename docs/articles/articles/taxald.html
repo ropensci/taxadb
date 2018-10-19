@@ -142,8 +142,8 @@
 <a href="#resolving-names" class="anchor"></a>Resolving names</h2>
 <p>Match a list of 233 species names against a naming authority:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">my_taxa &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span><span class="co"># 233 taxa</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species)) </a></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw">is.na</span>(id))</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/mutate">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species)) </a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/filter">filter</a></span>(<span class="kw">is.na</span>(id))</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; # A tibble: 3 x 2</span></a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;   species                   id   </span></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt;</span></a>
@@ -151,7 +151,7 @@
 <a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; 2 Saguinus fuscicollis      &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; 3 Saguinus nigricollis      &lt;NA&gt;</span></a></code></pre></div>
 <p>Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species. Not bad! Actually,two of these do appear in ITIS records, but map to no accepted name according to ITIS:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">unmatched &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw">is.na</span>(id)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(species) </a>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">unmatched &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/filter">filter</a></span>(<span class="kw">is.na</span>(id)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/pull">pull</a></span>(species) </a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(unmatched)</a>
 <a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
 <a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt;   name                  accepted_name id    synonym_id  rank   update_date</span></a>
@@ -161,7 +161,7 @@
 <a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; 3 Leontopithecus chrys… &lt;NA&gt;          &lt;NA&gt;  &lt;NA&gt;        &lt;NA&gt;   &lt;NA&gt;</span></a></code></pre></div>
 <p>Under the hood, <code>ids</code> checks the names against synonyms known to the authority as well. If we only looke for direct matches, we would have faired far worse. We can turn off synonyms checks to compare: only 180 of the names were recognized as valid species names by ITIS initially. Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">tmp &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, </a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/mutate">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, </a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">                  <span class="dt">synonyms_check =</span> <span class="ot">FALSE</span>)) </a>
 <a class="sourceLine" id="cb7-4" data-line-number="4"></a>
 <a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw">is.na</span>(tmp<span class="op">$</span>id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()</a>
@@ -185,7 +185,7 @@
 <p>Note that <code>name</code> is the name we provided (species names in this case, but it they do not have to be). Because <code>synonyms-check</code> is <code>TRUE</code> by default, we get a list of accepted names recognized (by ITIS in this case, our default authority).</p>
 <p>We aren’t stuck with ITIS though, we can work with other naming authorities as well:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">my_taxa &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">itis =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"itis"</span>),</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/mutate">mutate</a></span>(<span class="dt">itis =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"itis"</span>),</a>
 <a class="sourceLine" id="cb9-3" data-line-number="3">         <span class="dt">ncbi =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"ncbi"</span>),</a>
 <a class="sourceLine" id="cb9-4" data-line-number="4">         <span class="dt">col =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"col"</span>),</a>
 <a class="sourceLine" id="cb9-5" data-line-number="5">         <span class="dt">gbif =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"gbif"</span>),</a>
@@ -201,8 +201,8 @@
 <a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;  2 Allocebus tri… ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q9… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt;  3 Alouatta belz… ITIS:5… NCBI:3… COL:21… &lt;NA&gt;    WD:Q7… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt;  4 Alouatta cara… ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
-<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt;  5 Alouatta coib… ITIS:9… &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    WD:Q9… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
-<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt;  6 Alouatta fusca ITIS:9… NCBI:1… &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt;  5 Alouatta coib… ITIS:9… &lt;NA&gt;    COL:21… &lt;NA&gt;    WD:Q9… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt;  6 Alouatta fusca ITIS:9… NCBI:1… COL:21… &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb9-20" data-line-number="20"><span class="co">#&gt;  7 Alouatta pall… ITIS:5… NCBI:3… COL:21… &lt;NA&gt;    WD:Q1… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb9-21" data-line-number="21"><span class="co">#&gt;  8 Alouatta pigra ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
 <a class="sourceLine" id="cb9-22" data-line-number="22"><span class="co">#&gt;  9 Alouatta sara  ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
@@ -210,18 +210,18 @@
 <a class="sourceLine" id="cb9-24" data-line-number="24"><span class="co">#&gt; # ... with 223 more rows</span></a></code></pre></div>
 <p>Can any single authority resolve all species names?</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/select">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(x)))</a>
 <a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; itis ncbi  col gbif   wd  tpl   fb  slb </span></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;  230   90  195  101  209    0    0    0</span></a></code></pre></div>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;  230   90  219  101  209    0    0    0</span></a></code></pre></div>
 <p>Looks like <code>itis</code> has the most matches with 230. (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).</p>
 <p>We can also ask: do any species have no match in any authority?</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">has_match &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/select">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dfc</a></span>(<span class="cf">function</span>(x) <span class="op">!</span><span class="kw">is.na</span>(x)) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb11-4" data-line-number="4"><span class="st">  </span><span class="kw">rowSums</span>() <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span></a>
 <a class="sourceLine" id="cb11-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span>has_match)</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/filter">filter</a></span>(<span class="op">!</span>has_match)</a>
 <a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co">#&gt; # A tibble: 1 x 9</span></a>
 <a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co">#&gt;   species                   itis  ncbi  col   gbif  wd    tpl   fb    slb  </span></a>
 <a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;</span></a>
