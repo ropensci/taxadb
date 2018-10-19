@@ -90,7 +90,7 @@
       <h1>taxald overview</h1>
                         <h4 class="author">Carl Boettiger</h4>
             
-            <h4 class="date">2018-10-18</h4>
+            <h4 class="date">2018-10-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/cboettig/taxald/blob/master/vignettes/articles/taxald.Rmd"><code>vignettes/articles/taxald.Rmd</code></a></small>
       <div class="hidden name"><code>taxald.Rmd</code></div>
@@ -140,100 +140,142 @@
 <div id="resolving-names" class="section level2">
 <h2 class="hasAnchor">
 <a href="#resolving-names" class="anchor"></a>Resolving names</h2>
-<p><strong>Developer note: the following outlines the current mechanism for name resolution, which queries the recognized names and synonyms (if present) of each authority sequentially. While this is illustrative of the underlying process, we probably want a helper function which automates this.</strong></p>
 <p>Match a list of 233 species names against a naming authority:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">my_taxa &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span><span class="co"># 233 taxa</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species)) </a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw">is.na</span>(my_taxa<span class="op">$</span>id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt; [1] 3</span></a></code></pre></div>
-<p>Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species. Not bad!</p>
-<p>Note that in fact only 180 of the names were recognized as valid species names by ITIS initially. Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">tmp &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, </a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">                  <span class="dt">synonyms_check =</span> <span class="ot">FALSE</span>)) </a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw">is.na</span>(tmp<span class="op">$</span>id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; [1] 53</span></a></code></pre></div>
-<p>Similarly, we can compute ids for all authorities:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">my_taxa &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">itis =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"itis"</span>),</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">         <span class="dt">ncbi =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"ncbi"</span>),</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">         <span class="dt">col =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"col"</span>),</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">         <span class="dt">gbif =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"gbif"</span>),</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">         <span class="dt">wd =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"wd"</span>),</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">         <span class="dt">tpl =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"tpl"</span>),</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">         <span class="dt">fb =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"fb"</span>),</a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">         <span class="dt">slb =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"slb"</span>)) </a></code></pre></div>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species)) </a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw">is.na</span>(id))</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; # A tibble: 3 x 2</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;   species                   id   </span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt;</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt; 1 Leontopithecus chrysomela &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; 2 Saguinus fuscicollis      &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; 3 Saguinus nigricollis      &lt;NA&gt;</span></a></code></pre></div>
+<p>Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species. Not bad! Actually,two of these do appear in ITIS records, but map to no accepted name according to ITIS:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">unmatched &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw">is.na</span>(id)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(species) </a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(unmatched)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt;   name                  accepted_name id    synonym_id  rank   update_date</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;      </span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; 1 Saguinus fuscicollis  &lt;NA&gt;          &lt;NA&gt;  ITIS:572924 speci… 2017-03-30 </span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; 2 Saguinus nigricollis  &lt;NA&gt;          &lt;NA&gt;  ITIS:572932 speci… 2017-03-30 </span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; 3 Leontopithecus chrys… &lt;NA&gt;          &lt;NA&gt;  &lt;NA&gt;        &lt;NA&gt;   &lt;NA&gt;</span></a></code></pre></div>
+<p>Under the hood, <code>ids</code> checks the names against synonyms known to the authority as well. If we only looke for direct matches, we would have faired far worse. We can turn off synonyms checks to compare: only 180 of the names were recognized as valid species names by ITIS initially. Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">tmp &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, </a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">                  <span class="dt">synonyms_check =</span> <span class="ot">FALSE</span>)) </a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw">is.na</span>(tmp<span class="op">$</span>id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; [1] 53</span></a></code></pre></div>
+<p>By default, <code>ids</code> is returning just a numeric vector of <code>ids</code>, which is useful for operations such as <code>mutate</code> above. However, it is often convenient to return the full table of matched names, rather than pulling out just the <code>ids</code>, like so:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="../../reference/ids.html">ids</a></span>(primates<span class="op">$</span>species, <span class="dt">pull =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt; # A tibble: 233 x 4</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#&gt;    id          name                 rank    accepted_name       </span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;       &lt;chr&gt;                &lt;chr&gt;   &lt;chr&gt;               </span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt;  1 ITIS:180092 Homo sapiens         species Homo sapiens        </span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt;  2 ITIS:180095 Saimiri sciureus     species Saimiri sciureus    </span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt;  3 ITIS:180098 Macaca fascicularis  species Macaca fascicularis </span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt;  4 ITIS:180099 Macaca mulatta       species Macaca mulatta      </span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt;  5 ITIS:552515 Chlorocebus aethiops species Chlorocebus aethiops</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt;  6 ITIS:555659 Macaca fuscata       species Macaca fuscata      </span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt;  7 ITIS:572857 Allocebus trichotis  species Allocebus trichotis </span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt;  8 ITIS:572858 Cheirogaleus major   species Cheirogaleus major  </span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co">#&gt;  9 ITIS:572859 Cheirogaleus medius  species Cheirogaleus medius </span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co">#&gt; 10 ITIS:572861 Microcebus murinus   species Microcebus murinus  </span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="co">#&gt; # ... with 223 more rows</span></a></code></pre></div>
+<p>Note that <code>name</code> is the name we provided (species names in this case, but it they do not have to be). Because <code>synonyms-check</code> is <code>TRUE</code> by default, we get a list of accepted names recognized (by ITIS in this case, our default authority).</p>
+<p>We aren’t stuck with ITIS though, we can work with other naming authorities as well:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">my_taxa &lt;-<span class="st"> </span>primates <span class="op">%&gt;%</span><span class="st">  </span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">itis =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"itis"</span>),</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">         <span class="dt">ncbi =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"ncbi"</span>),</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">         <span class="dt">col =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"col"</span>),</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">         <span class="dt">gbif =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"gbif"</span>),</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">         <span class="dt">wd =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"wd"</span>),</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">         <span class="dt">tpl =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"tpl"</span>),</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">         <span class="dt">fb =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"fb"</span>),</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9">         <span class="dt">slb =</span> <span class="kw"><a href="../../reference/ids.html">ids</a></span>(species, <span class="st">"slb"</span>)) </a>
+<a class="sourceLine" id="cb9-10" data-line-number="10">my_taxa</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt; # A tibble: 233 x 9</span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt;    species        itis    ncbi    col     gbif    wd     tpl   fb    slb  </span></a>
+<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;  1 Allenopithecu… ITIS:5… &lt;NA&gt;    COL:21… &lt;NA&gt;    WD:Q1… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;  2 Allocebus tri… ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q9… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt;  3 Alouatta belz… ITIS:5… NCBI:3… COL:21… &lt;NA&gt;    WD:Q7… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt;  4 Alouatta cara… ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt;  5 Alouatta coib… ITIS:9… &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    WD:Q9… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt;  6 Alouatta fusca ITIS:9… NCBI:1… &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-20" data-line-number="20"><span class="co">#&gt;  7 Alouatta pall… ITIS:5… NCBI:3… COL:21… &lt;NA&gt;    WD:Q1… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-21" data-line-number="21"><span class="co">#&gt;  8 Alouatta pigra ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-22" data-line-number="22"><span class="co">#&gt;  9 Alouatta sara  ITIS:5… &lt;NA&gt;    COL:21… GBIF:2… WD:Q8… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-23" data-line-number="23"><span class="co">#&gt; 10 Alouatta seni… ITIS:5… NCBI:9… COL:21… GBIF:2… WD:Q5… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb9-24" data-line-number="24"><span class="co">#&gt; # ... with 223 more rows</span></a></code></pre></div>
 <p>Can any single authority resolve all species names?</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(x)))</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; itis ncbi  col gbif   wd  tpl   fb  slb </span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt;  230   90  195  101  209    0    0    0</span></a></code></pre></div>
-<p>No luck. Looks like <code>itis</code> has the most matches with 230. (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(x)))</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; itis ncbi  col gbif   wd  tpl   fb  slb </span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;  230   90  195  101  209    0    0    0</span></a></code></pre></div>
+<p>Looks like <code>itis</code> has the most matches with 230. (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).</p>
 <p>We can also ask: do any species have no match in any authority?</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">has_match &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dfc</a></span>(<span class="cf">function</span>(x) <span class="op">!</span><span class="kw">is.na</span>(x)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="st">  </span><span class="kw">rowSums</span>() <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span>has_match)</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; # A tibble: 1 x 9</span></a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt;   species           itis  ncbi  col   gbif  wd    tpl   fb    slb  </span></a>
-<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;</span></a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt; 1 Varecia variegata &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</span></a></code></pre></div>
-<p>One species still fails to resolve under any authority. Somewhat surprising given that this Black-and-white lemur from Madagascar is common enough to have a <a href="https://en.wikipedia.org/wiki/Black-and-white_ruffed_lemur">Wikipedia page</a>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">has_match &lt;-<span class="st"> </span>my_taxa <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/purrr/topics/map">map_dfc</a></span>(<span class="cf">function</span>(x) <span class="op">!</span><span class="kw">is.na</span>(x)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="st">  </span><span class="kw">rowSums</span>() <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">my_taxa <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span>has_match)</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co">#&gt; # A tibble: 1 x 9</span></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co">#&gt;   species                   itis  ncbi  col   gbif  wd    tpl   fb    slb  </span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;</span></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co">#&gt; 1 Leontopithecus chrysomela &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</span></a></code></pre></div>
+<p>One species still fails to resolve under any authority. A web search does resolve this as a misspelling, to <code>Leontopithecus chrysomelas</code>, but not one that is recongized automatically by the ITIS known synonyms.</p>
 </div>
 <div id="hierarchy" class="section level2">
 <h2 class="hasAnchor">
 <a href="#hierarchy" class="anchor"></a>Hierarchy</h2>
 <p>Once we have resolved our ids, we can also get full classification information. This example uses the default authority, ITIS:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">primate_ids &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/ids.html">ids</a></span>(primates<span class="op">$</span>species)</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw"><a href="../../reference/classification.html">classification</a></span>(<span class="dt">id =</span> primate_ids)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; Joining, by = "id"</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt; # A tibble: 233 x 26</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt;    id    class family genus infraclass infrakingdom infraorder infraphylum</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;      </span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt;  1 ITIS… Mamm… Homin… Homo  Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt;  2 ITIS… Mamm… Cebid… Saim… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt;  3 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt;  4 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt;  5 ITIS… Mamm… Cerco… Chlo… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt;  6 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt;  7 ITIS… Mamm… Cheir… Allo… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;  8 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;  9 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt; 10 ITIS… Mamm… Cheir… Micr… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt; # ... with 223 more rows, and 18 more variables: kingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt; #   order &lt;chr&gt;, phylum &lt;chr&gt;, section &lt;chr&gt;, species &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt; #   subclass &lt;chr&gt;, subfamily &lt;chr&gt;, subgenus &lt;chr&gt;, subkingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb9-20" data-line-number="20"><span class="co">#&gt; #   suborder &lt;chr&gt;, subphylum &lt;chr&gt;, subsection &lt;chr&gt;, subtribe &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb9-21" data-line-number="21"><span class="co">#&gt; #   superclass &lt;chr&gt;, superfamily &lt;chr&gt;, superorder &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb9-22" data-line-number="22"><span class="co">#&gt; #   superphylum &lt;chr&gt;, tribe &lt;chr&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">primate_ids &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/ids.html">ids</a></span>(primates<span class="op">$</span>species)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw"><a href="../../reference/classification.html">classification</a></span>(<span class="dt">id =</span> primate_ids)</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; Joining, by = "id"</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt; # A tibble: 233 x 26</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt;    id    class family genus infraclass infrakingdom infraorder infraphylum</span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;      </span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt;  1 ITIS… Mamm… Homin… Homo  Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt;  2 ITIS… Mamm… Cebid… Saim… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">#&gt;  3 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt;  4 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt;  5 ITIS… Mamm… Cerco… Chlo… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co">#&gt;  6 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co">#&gt;  7 ITIS… Mamm… Cheir… Allo… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">#&gt;  8 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">#&gt;  9 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co">#&gt; 10 ITIS… Mamm… Cheir… Micr… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co">#&gt; # ... with 223 more rows, and 18 more variables: kingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt; #   order &lt;chr&gt;, phylum &lt;chr&gt;, section &lt;chr&gt;, species &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co">#&gt; #   subclass &lt;chr&gt;, subfamily &lt;chr&gt;, subgenus &lt;chr&gt;, subkingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co">#&gt; #   suborder &lt;chr&gt;, subphylum &lt;chr&gt;, subsection &lt;chr&gt;, subtribe &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co">#&gt; #   superclass &lt;chr&gt;, superfamily &lt;chr&gt;, superorder &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-22" data-line-number="22"><span class="co">#&gt; #   superphylum &lt;chr&gt;, tribe &lt;chr&gt;</span></a></code></pre></div>
 <p>the <code>classification</code> function can work on species names directly, but this will not resolve syonyms to identifiers first. As a result, only the 180 already recognized species names can be resolved in this case:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="../../reference/classification.html">classification</a></span>(<span class="dt">species =</span> primates<span class="op">$</span>species)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; Joining, by = "species"</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">#&gt; # A tibble: 233 x 26</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt;    id    class family genus infraclass infrakingdom infraorder infraphylum</span></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;      </span></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt;  1 ITIS… Mamm… Homin… Homo  Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt;  2 ITIS… Mamm… Cebid… Saim… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co">#&gt;  3 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co">#&gt;  4 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#&gt;  5 ITIS… Mamm… Cerco… Chlo… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co">#&gt;  6 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co">#&gt;  7 ITIS… Mamm… Cheir… Allo… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co">#&gt;  8 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co">#&gt;  9 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-15" data-line-number="15"><span class="co">#&gt; 10 ITIS… Mamm… Cheir… Micr… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
-<a class="sourceLine" id="cb10-16" data-line-number="16"><span class="co">#&gt; # ... with 223 more rows, and 18 more variables: kingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb10-17" data-line-number="17"><span class="co">#&gt; #   order &lt;chr&gt;, phylum &lt;chr&gt;, section &lt;chr&gt;, species &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="co">#&gt; #   subclass &lt;chr&gt;, subfamily &lt;chr&gt;, subgenus &lt;chr&gt;, subkingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb10-19" data-line-number="19"><span class="co">#&gt; #   suborder &lt;chr&gt;, subphylum &lt;chr&gt;, subsection &lt;chr&gt;, subtribe &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb10-20" data-line-number="20"><span class="co">#&gt; #   superclass &lt;chr&gt;, superfamily &lt;chr&gt;, superorder &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb10-21" data-line-number="21"><span class="co">#&gt; #   superphylum &lt;chr&gt;, tribe &lt;chr&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="../../reference/classification.html">classification</a></span>(<span class="dt">species =</span> primates<span class="op">$</span>species)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; Joining, by = "species"</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt; # A tibble: 233 x 26</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt;    id    class family genus infraclass infrakingdom infraorder infraphylum</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;      </span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;  1 ITIS… Mamm… Homin… Homo  Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt;  2 ITIS… Mamm… Cebid… Saim… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt;  3 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;  4 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt;  5 ITIS… Mamm… Cerco… Chlo… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt;  6 ITIS… Mamm… Cerco… Maca… Eutheria   Deuterostom… Simiiform… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt;  7 ITIS… Mamm… Cheir… Allo… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt;  8 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt;  9 ITIS… Mamm… Cheir… Chei… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt; 10 ITIS… Mamm… Cheir… Micr… Eutheria   Deuterostom… Lemurifor… Gnathostom…</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt; # ... with 223 more rows, and 18 more variables: kingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="co">#&gt; #   order &lt;chr&gt;, phylum &lt;chr&gt;, section &lt;chr&gt;, species &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">#&gt; #   subclass &lt;chr&gt;, subfamily &lt;chr&gt;, subgenus &lt;chr&gt;, subkingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19"><span class="co">#&gt; #   suborder &lt;chr&gt;, subphylum &lt;chr&gt;, subsection &lt;chr&gt;, subtribe &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="co">#&gt; #   superclass &lt;chr&gt;, superfamily &lt;chr&gt;, superorder &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="co">#&gt; #   superphylum &lt;chr&gt;, tribe &lt;chr&gt;</span></a></code></pre></div>
 </div>
 </div>
   </div>
