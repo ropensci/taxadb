@@ -24,7 +24,7 @@
 #' accepted name and the ID associated with the accepted name and return that.
 #'
 #' @export
-#' @importFrom dplyr quo
+#' @importFrom dplyr quo tibble filter right_join
 #' @importFrom rlang !!
 #' @importFrom magrittr %>%
 ids <- function(name = NULL,
@@ -35,31 +35,28 @@ ids <- function(name = NULL,
                 collect = TRUE,
                 db = td_connect()){
 
+  input_table <- dplyr::tibble(name)
+
   ## Use right_join, so unmatched names are kept, with NA
+  ## Using right join, names appear in order of authority
   out <- dplyr::right_join(
       taxa_tbl(authority, "taxonid", db),
-      dplyr::tibble(name),
+      input_table,
       by = "name",
-      copy = TRUE)
+      copy = TRUE) %>%
+    select("id", "name", "rank")
   # input table will be copied in, cleaned on disconnect
-  out <- select(out, "id", "name", "rank")
 
-## SQL execution with larger tables is SO MUCH slower using filter!
-#  system.time({
-#  taxon_names <- name # must not use protected term
-#  out <- dplyr::filter(
-#    taxa_tbl("itis", "taxonid", db),
-#    name %IN% taxon_names)
-#  out <- collect(out)
-#  })
+  ## SQL with larger tables is MUCH slower using filter!
 
   id <- "id"
-  id_column <- quo(id)
+  id_column <- dplyr::quo(id)
 
   if (synonyms_check) {
 
     not_missing <-
-      dplyr::filter(out, !is.na(!!id_column))
+      dplyr::filter(out, !is.na(!!id_column)) %>%
+      dplyr::mutate(accepted_name = name)
 
     missing <-
       filter(out, is.na(!!id_column)) %>%
@@ -69,17 +66,22 @@ ids <- function(name = NULL,
       taxa_tbl(authority, "synonyms", db),
       missing,
       by = "name"
-      ) %>%
-      dplyr::select("name", "id", "rank")
+      )
 
-    out <- dplyr::union(not_missing, syn)
+    out <- dplyr::union(
+      not_missing,
+      dplyr::select(syn, "name", "id", "accepted_name", "rank"))
+
 
   }
 
 
   if (pull) {
-
-    return( dplyr::pull(out, !!id_column) )
+    ## Sort by input if returning a vector
+    id <- input_table %>%
+      dplyr::inner_join(dplyr::collect(out), by = "name") %>%
+      dplyr::pull(!!id_column)
+      return(id)
   }
 
   if (collect && inherits(out, "tbl_lazy")) {
