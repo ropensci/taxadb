@@ -1,5 +1,5 @@
 ---
-title: "taxald tutorial"
+title: "taxald overview"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -57,7 +57,6 @@ td_create(authorities = "all")
 
 ## Resolving names
 
-**Developer note: the following outlines the current mechanism for name resolution, which queries the recognized names and synonyms (if present) of each authority sequentially.  While this is illustrative of the underlying process, we probably want a helper function which automates this.**
 
 Match a list of 233 species names against a naming authority:  
 
@@ -65,13 +64,22 @@ Match a list of 233 species names against a naming authority:
 ```{r}
 my_taxa <- primates %>%  # 233 taxa
   mutate(id = ids(species)) 
-
-is.na(my_taxa$id) %>% sum()
 ```
-Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species.  Not bad!
 
 
-Note that in fact only 180 of the names were recognized as valid species names by ITIS initially.  Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:
+```{r}
+my_taxa %>% filter(is.na(id))
+```
+
+Only 3 species are missing ids, so we have managed to resolve 230 of the 233 species.  Not bad!  Actually,two of these do appear in ITIS records, but map to no accepted name according to ITIS:
+
+```{r}
+unmatched <- my_taxa %>% filter(is.na(id)) %>% pull(species) 
+synonyms(unmatched)
+
+```
+
+Under the hood, `ids` checks the names against synonyms known to the authority as well. If we only looke for direct matches, we would have faired far worse.  We can turn off synonyms checks to compare: only 180 of the names were recognized as valid species names by ITIS initially.  Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:
 
 ```{r}
 tmp <- primates %>%  
@@ -81,11 +89,17 @@ tmp <- primates %>%
 is.na(tmp$id) %>% sum()
 ```
 
-Similarly, we can compute ids for all authorities:
-
+By default, `ids` is returning just a numeric vector of `ids`, which is useful for operations such as `mutate` above.  However, it is often convenient to return the full table of matched names, rather than pulling out just the `ids`, like so:
 
 ```{r}
+ids(primates$species, pull = FALSE)
+```
 
+Note that `name` is the name we provided (species names in this case, but it they do not have to be).  Because `synonyms-check` is `TRUE` by default, we get a list of accepted names recognized (by ITIS in this case, our default authority).  
+
+We aren't stuck with ITIS though, we can work with other naming authorities as well:
+
+```{r}
 my_taxa <- primates %>%  
   mutate(itis = ids(species, "itis"),
          ncbi = ids(species, "ncbi"),
@@ -95,6 +109,7 @@ my_taxa <- primates %>%
          tpl = ids(species, "tpl"),
          fb = ids(species, "fb"),
          slb = ids(species, "slb")) 
+my_taxa
 
 ```
 
@@ -106,7 +121,7 @@ my_taxa %>%
   purrr::map_dbl(function(x) sum(!is.na(x)))
 ```
 
-No luck.  Looks like `itis` has the most matches with 230.  (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).  
+Looks like `itis` has the most matches with 230.  (Of course taxon-specific authorities like The Plant List, FishBase, and SeaLifeBase contain no primates).  
 
 We can also ask: do any species have no match in any authority?
 
@@ -119,7 +134,7 @@ has_match <- my_taxa %>%
 my_taxa %>% filter(!has_match)
 ```
 
-One species still fails to resolve under any authority. Somewhat surprising given that this Black-and-white lemur from Madagascar is common enough to have a [Wikipedia page](https://en.wikipedia.org/wiki/Black-and-white_ruffed_lemur).
+One species still fails to resolve under any authority. A web search does resolve this as a misspelling, to `Leontopithecus chrysomelas`, but not one that is recongized automatically by the ITIS known synonyms. 
 
 ## Hierarchy
 
