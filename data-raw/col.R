@@ -1,122 +1,131 @@
 ## apt-get -y install mariadb-client postgresql-client
-library(taxizedb) 
+library(taxizedb)
 library(tidyverse)
 library(stringr)
 
 ## taxizedb import method:
 # col <- db_download_col()
 # db_load_col(col, host="mariadb", user="root", pwd="password")
-# col_db <- src_col(host="mariadb", user="root", password="password")
+col_db <- src_col(host="mariadb", user="root", password="password")
 
-## Connect to our first table:
-# col_taxa <- tbl(col_db, "_species_details") 
+## Edit /etc/mariadb/my.cnf and restart container, e.g.
+# net_read_timeout=600
+# net_write_timeout=180
+# wait_timeout=86400
+# interactive_timeout=86400
+# max_allowed_packet=128M
+#
 
-## We can skip past taxizedb MySQL dump, and access the arkdb files from taxizedb:
-## This installs data for all taxizedb databases into the `taxadb` directory as flat files
-piggyback::pb_download(repo="cboettig/taxadb")
+#lapply(DBI::dbListTables(pool),
+#       function(x)
+#         tbl(pool, x) %>% collect() %>% readr::write_tsv(paste0("taxizedb/col/", x, ".tsv.bz2")))
 
-col_taxa <- read_tsv("taxizedb/col/_species_details.tsv.bz2")
-
-# drop LSIDs, URIs are better.  (Unfortunately neither 
-# ID numbers or LSIDs seems to provide a resolvable prefix)
-#drop <- grepl("\\w+_lsid$", names(col_taxa))
-#col_taxa <- col_taxa[!drop]
-
-col_taxa <- col_taxa %>% 
-  select(taxon_id, kingdom_name, phylum_name, class_name, order_name,
-         superfamily_name, family_name, genus_name, subgenus_name,
-         species_name, infraspecies_name,  kingdom_id, phylum_id,
-         class_id, order_id,  superfamily_id, family_id, genus_id,
-         subgenus_id,  species_id,  infraspecies_id, is_extinct) %>% collect()
+library(arkdb)
+#conn <- poolCheckout(pool)
+ark(col_db, fs::dir_create("taxizedb/col"),
+    streamable_table = streamable_readr_tsv(),
+    lines = 1e4L, mc.cores = 1L, overwrite = FALSE)
 
 
-## Transform to long form
-col_names <- col_taxa %>% 
-  select(taxon_id, kingdom = kingdom_name, phylum = phylum_name, class = class_name, 
-         order = order_name,  superfamily = superfamily_name, family = family_name, 
-         genus = genus_name, subgenus = subgenus_name, 
+
+
+search_all <- read_tsv("taxizedb/col/_search_all.tsv.bz2")
+#  search_scientific <- read_tsv("taxizedb/col/_search_scientific.tsv.bz2")
+#  natural_keys <- read_tsv("taxizedb/col/_natural_keys.tsv.bz2")
+scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2")
+#  synonym_name_element <- read_tsv("taxizedb/col/synonym_name_element.tsv.bz2")
+#  synonym <- read_tsv("taxizedb/col/synonym.tsv.bz2")
+#  scientific_name_element <- read_tsv("taxizedb/col/taxonomic_rank.tsv.bz2")
+#  taxonomic_rank <-read_tsv("taxizedb/col/taxonomic_rank.tsv.bz2")
+
+## search_all has:
+#  7,469,592 rows
+#  3,526,372 distinct ids
+master <-  search_all %>%
+  rename(name_status_id = name_status) %>%
+  left_join(bind_rows(scientific_name_status, data_frame(id = 0, name_status = "other")),
+            by = c("name_status_id" = "id"))
+
+col_taxonid <- master %>%
+  filter(name_status == "accepted name") %>%
+  select(id, name, rank) %>% distinct()
+
+
+
+all_synonyms <- master %>%
+  filter(name_status != "accepted name") %>%
+  select(synonym_id = id, name, rank, id = accepted_taxon_id, type = name_status) %>%
+  distinct()
+
+mapped_synonyms <- all_synonyms %>% filter(id > 0)
+## type == "other" (NA) names are not resolved. Includes common names, etc.
+synonyms <- mapped_synonyms %>%
+  left_join(select(col_taxonid, accepted_name = name, id)) %>%
+  select(id, accepted_name, name, type, rank, synonym_id)
+
+
+species_details <- read_tsv("taxizedb/col/_species_details.tsv.bz2")
+hierarchy <- species_details %>%
+  select(id = taxon_id, kingdom = kingdom_name, phylum = phylum_name, class = class_name,
+         order = order_name,  superfamily = superfamily_name, family = family_name,
+         genus = genus_name, subgenus = subgenus_name,
          species = species_name, infraspecies = infraspecies_name)
-col_ids <- col_taxa %>% 
-  select(taxon_id, kingdom = kingdom_id, phylum = phylum_id, class = class_id, 
+
+
+col_taxonid %>%
+  mutate(id = paste0("COL:", id)) %>%
+  write_tsv("data/col_taxonid.tsv.bz2")
+
+synonyms %>%
+  mutate(id = paste0("COL:", id),
+         synonym_id = paste0("COL:", synonym_id)) %>%
+  write_tsv("data/col_synonyms.tsv.bz2")
+
+hierarchy %>%
+  mutate(id = paste0("COL:", id)) %>%
+  write_tsv("data/col_hierarchy.tsv.bz2")
+
+
+
+
+## NOTES:
+
+## 3,367,875 rows with accepted_name
+accepted <- master %>% filter(name_status == "accepted name")  %>% distinct()
+## but only 1,612,913 distinct rows of id,name,rank,group.
+## This is because each species is basically listed twice, with name_element as Genus and then as species.
+duplicates <- accepted %>% count(id) %>% arrange(desc(n)) %>% filter(n>1) %>% pull(id)
+multi_id <- accepted %>% filter(id %in% duplicates) %>% arrange(id)
+
+
+## Omitting group we see 1,603,420 , ie. 9,493 names have the same id, same species name, but different groups:
+## This is due to duplicates with NA group and real group
+same_id_diff_group <- accepted %>% select(id, group) %>% distinct() %>% count(id) %>% arrange(desc(n)) %>% filter(n>1) %>% pull(id)
+accepted %>% filter(id %in% same_id_diff_group) %>% arrange(id) %>% select(id, name, group, rank, source_database_name) %>% distinct()
+
+## Even after omitting group, 201 have duplicate ids, i.e. multiple "accepted name" names mapping to the same id: e.g.
+#
+# 10750775 Adelocephala (Oiticicia) purpurascens intensiva        subspecies
+# 10750775 Adelocephala (Oiticicia) purpurascens subsp. intensiva subspecies
+
+col_taxonid <- master %>% filter(name_status == "accepted name") %>% select(id, name, rank) %>% distinct()
+
+duplicate_id <- col_taxonid %>% count(id) %>% arrange(desc(n)) %>% filter(n > 1) %>% pull(id)
+col_taxonid %>% filter(id %in% duplicate_id) %>% arrange(id)
+
+
+## Why so many more accepted names than are distinct for this set?
+master %>% filter(name_status == "accepted name") %>% select(id, name, rank, name_status, group, accepted_taxon_id, source_database_name) %>% distinct()
+
+x %>%  select(id, name, rank, name_status, group, accepted_taxon_id, source_database_name)
+
+
+
+
+
+
+col_ids <- species_details %>%
+  select(taxon_id, kingdom = kingdom_id, phylum = phylum_id, class = class_id,
          order = order_id, superfamily = superfamily_id, family = family_id,
-         genus = genus_id, subgenus = subgenus_id,  
+         genus = genus_id, subgenus = subgenus_id,
          species = species_id,  infraspecies = infraspecies_id)
-
-other <- col_taxa %>%  
-  select(taxon_id, is_extinct) %>%
-  mutate(is_extinct = as.logical(is_extinct))
-
-col_long <- 
-  left_join(
-    col_ids %>% gather(path_rank, path_id, -taxon_id),
-    col_names %>% gather(path_rank, path, -taxon_id)
-  ) %>% 
-  left_join(other) %>% 
-  rename(id = taxon_id)
-
-
-sci_names <- col_names %>% 
-  select(id = taxon_id, genus, species) %>% 
-  tidyr::unite(name, genus, species, sep = " ") %>% 
-  mutate(rank = "species")
-
-col_long <- 
-  col_long %>% 
-  left_join(sci_names) %>% 
-  mutate_if(is.integer, function(x) paste0("COL:", x)) %>%
- select(id, name, rank, path, path_rank, path_id, is_extinct)
-
-col_wide <- 
-  col_long %>% 
-  select(id, species = name, path, path_rank) %>% 
-  distinct() %>%
-  spread(path_rank, path) 
-
-write_tsv(col_long, "data/col_long.tsv.bz2")
-write_tsv(col_wide, "data/col_wide.tsv.bz2")
-
-library(tidyverse)
-col_wide <- read_tsv("data/col_hierarchy.tsv.bz2")
-
-col_hierarchy <- col_wide %>% 
-  select(id, kingdom, phylum, class, 
-                    order, superfamily, family,
-                    genus, subgenus,  
-                    species,  infraspecies) %>% 
-  mutate(species = str_trim(paste(genus, species, str_replace_na(infraspecies, ""))))
-write_tsv(col_hierarchy, "data/col_hierarchy.tsv.bz2")
-
-col_taxonid <- 
-col_wide %>% 
-  select(id, species) %>% 
-  distinct() %>% 
-  mutate(rank = "species") %>% 
-  rename(name = species) 
-write_tsv(col_taxonid, bzfile("data/col_taxonid.tsv.bz2", compression=9))
-
-###############
-
-col_sci <- read_tsv("taxizedb/col/_search_scientific.tsv.bz2")
-
-
-
-
-#col_taxonid <- col_long %>% 
-#  select(id, name, rank) %>%
-#  distinct()
-
-#col_hierarchy_long <- col_long %>% 
-#  select(id, path_id, path, path_rank) %>% 
-#  distinct() 
-#write_tsv(col_hierarchy_long, bzfile("data/col_hierarchy_long.tsv.bz2", compression=9))
-
-## Drop col_long, it is just right_join(col_taxonid, col_hierarchy_long)
-
-## No synonyms available
-#col_synonyms <- col_long %>% 
-#  select(id, name, rank) %>% 
-#  distinct()
-
-#write_tsv(col_synonyms, bzfile("data/col_synonyms.tsv.bz2", compression=9))
-
-
