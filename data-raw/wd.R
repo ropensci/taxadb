@@ -124,6 +124,6 @@ wd_long %>% select(id, name, rank) %>% distinct() %>% write_tsv("data/wd_taxonid
 
 
 dummy_synonyms <- tibble(id = NA, accepted_name = NA, name = NA, type = NA, synonym_id = NA, rank = NA)
-write_tsv(dummy_synonyms, "data/tpl_synonyms.tsv.bz2")
+write_tsv(dummy_synonyms, "data/wd_synonyms.tsv.bz2")
 
 
