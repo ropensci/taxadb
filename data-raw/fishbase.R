@@ -40,7 +40,12 @@ synonyms <- rfishbase::synonyms(NULL) %>%
 
 write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
 
-
+##Collapse taxonid and synonym 
+# all the info we need is already in the synonym table
+# multiple kinds of synonyms (see unique(ids_syn$type)), not sure what they all mean
+ids_syn <- synonyms %>%
+  select(id, rank, name, type, synonym_id) #can decide if we want to keep synonym_id
+  
 
 ## Consider preserving stock code?
 common <- rfishbase:::fb_tbl("comnames")  %>%
