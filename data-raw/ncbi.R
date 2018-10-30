@@ -2,14 +2,16 @@
 library(taxizedb) 
 library(tidyverse)
 
-ncbi_store <- db_download_ncbi()
+# ncbi_store <- db_download_ncbi()
+# 
+# db_load_ncbi() ## not needed for ncbi
+# ncbi_db <- src_ncbi(ncbi_store)
 
-db_load_ncbi() ## not needed for ncbi
-ncbi_db <- src_ncbi(ncbi_store)
-
-ncbi_taxa <- inner_join(tbl(ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
-  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) %>%
-  collect()
+ncbi_taxa <- 
+  #inner_join((ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
+  inner_join(read_tsv("taxizedb/ncbi/nodes.tsv.bz2"), read_tsv("taxizedb/ncbi/names.tsv.bz2")) %>%
+  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) #%>%
+  #collect()
 
 
 ncbi_ids <- ncbi_taxa %>% 
@@ -88,6 +90,8 @@ ncbi_long <- ncbi %>%
   inner_join(long_hierarchy) %>%
   inner_join(expand)
 
+ncbi_longid <- ncbi_long %>%
+  select(id, name, rank, type = path_type)
 
 
 ## Example query: how many species of fishes do we know?
@@ -136,5 +140,5 @@ ncbi_synonyms <- ncbi_synonyms %>%
 
 write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
 write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
-
+write_tsv(ncbi_longid, "data/ncbi_longid.tsv.bz2")
 
