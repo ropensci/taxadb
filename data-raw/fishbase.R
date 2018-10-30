@@ -44,7 +44,7 @@ write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
 # all the info we need is already in the synonym table
 # multiple kinds of synonyms (see unique(ids_syn$type)), not sure what they all mean
 ids_syn <- synonyms %>%
-  select(id, rank, name, type, synonym_id) #can decide if we want to keep synonym_id
+  select(id, rank, name, type)
   
 
 ## Consider preserving stock code?
