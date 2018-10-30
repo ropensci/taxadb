@@ -46,10 +46,14 @@ master <-  search_all %>%
   left_join(bind_rows(scientific_name_status, data_frame(id = 0, name_status = "other")),
             by = c("name_status_id" = "id"))
 
+col_longid <- master %>%
+  select(id = accepted_taxon_id, name, rank, type = name_status) %>%
+  filter(id > 0) %>% 
+  distinct()
+
 col_taxonid <- master %>%
   filter(name_status == "accepted name") %>%
   select(id, name, rank) %>% distinct()
-
 
 
 all_synonyms <- master %>%
@@ -75,6 +79,10 @@ hierarchy <- species_details %>%
 col_taxonid %>%
   mutate(id = paste0("COL:", id)) %>%
   write_tsv("data/col_taxonid.tsv.bz2")
+
+col_longid %>%
+  mutate(id = paste0("COL:", id)) %>%
+  write_tsv("data/col_longid.tsv.bz2")
 
 synonyms %>%
   mutate(id = paste0("COL:", id),
