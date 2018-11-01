@@ -178,3 +178,5 @@ itis_longid <- itis_synonyms %>%
   select(id, name, rank, update_date) %>%
   mutate(type = "synonym") %>%
   bind_rows(itis_taxonid %>% mutate(type = "accepted"))
+
+write_tsv(itis_longid, "data/itis_longid.tsv.bz2")
