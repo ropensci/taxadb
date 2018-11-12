@@ -50,19 +50,21 @@ gbif_long <-
   select(id = taxon_id, name = canonicalName, rank = rank, genericName, taxonomicStatus)
 write_tsv(gbif_long, "data/gbif_long.tsv.bz2")
 
-gbif_long %>%
+gbif_taxonid <- gbif_long %>%
   filter(taxonomicStatus == "accepted") %>%
   select(id, name, rank) %>%
-  distinct() %>%
-write_tsv("data/gbif_taxonid.tsv.bz2")
-
-gbif_synonyms <- gbif_long %>%
-  filter(taxonomicStatus != "accepted") %>%
-  select(id, accepted_name = name, rank, name = genericName, name_type = taxonomicStatus) %>%
   distinct()
+write_tsv(gbif_taxonid, "data/gbif_taxonid.tsv.bz2")
+
+# gbif_synonyms <- gbif_long %>%
+#   filter(taxonomicStatus != "accepted") %>%
+#   select(synonym_id = id, accepted_name = name, rank, name = genericName, type = taxonomicStatus) %>%
+#   distinct()# %>%
+#   
+# syn_temp <- left_join(gbif_synonyms, select(gbif_synonyms, id = synonym_id, name), by = c("accepted_name" = "name"))
 
 
-write_tsv(gbif_synonyms, "data/gbif_synonyms.tsv.bz2")
+#write_tsv(gbif_synonyms, "data/gbif_synonyms.tsv.bz2")
 
 
 
