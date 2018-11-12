@@ -43,6 +43,7 @@ synonyms <- synonym_table %>%
   filter(type == "accepted name", accepted_name != name) %>%
   select(-type) %>%
   mutate(type = "epithet synonym") %>%
+  rename(name = "accepted_name", accepted_name = "name") %>%
   bind_rows(synonym_table %>% filter(type != "accepted name"))
 
 write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
