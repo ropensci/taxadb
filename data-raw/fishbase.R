@@ -25,7 +25,7 @@ write_tsv(fb_taxonid, "data/fb_taxonid.tsv.bz2")
 
 
 species <- rfishbase:::fb_species()
-synonyms <- rfishbase::synonyms(NULL) %>%
+synonym_table <- rfishbase::synonyms(NULL) %>%
   left_join(species) %>% 
   rename(id = SpecCode)  %>% 
   mutate(id = paste0("FB:", id),
@@ -37,6 +37,13 @@ synonyms <- rfishbase::synonyms(NULL) %>%
          type = Status,
          synonym_id = SynCode,
          rank = TaxonLevel)
+
+#find accepted names that are actually useful synonym maps, create table with just synonyms 
+synonyms <- synonym_table %>%
+  filter(type == "accepted name", accepted_name != name) %>%
+  select(-type) %>%
+  mutate(type = "epithet synonym") %>%
+  bind_rows(synonym_table %>% filter(type != "accepted name"))
 
 write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
 
