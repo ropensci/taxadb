@@ -49,10 +49,12 @@ synonyms <- synonym_table %>%
 write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
 
 ##Collapse taxonid and synonym 
-ids_syn <- synonyms %>%
-  select(id, rank, name, type) %>%
-  bind_rows(fb_taxonid)
-  
+fb_longid <- synonyms %>%
+  select(id, rank, name) %>%
+  bind_rows(fb_taxonid) %>%
+  distinct()
+
+write_tsv(fb_longid, "data/fb_longid.tsv.bz2")  
 
 ## Consider preserving stock code?
 common <- rfishbase:::fb_tbl("comnames")  %>%
