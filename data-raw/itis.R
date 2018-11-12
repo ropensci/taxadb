@@ -2,13 +2,15 @@
 library(taxizedb) 
 library(tidyverse)
 
-itis_store <- db_download_itis()
+#itis_store <- db_download_itis()
 ## Need to fix locale issue
 #db_load_itis(itis_store, user = "postgres", pwd = "password", host = "postgres")
-itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
+#itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
 
 ## not that rank_id isn't a unique id by itself!
-rank_tbl <- tbl(itis_db, "taxon_unit_types") %>% 
+rank_tbl <- 
+  #rank_tbl <- tbl(itis_db, "taxon_unit_types") %>%
+  read_tsv("taxizedb/itis/taxon_unit_types.tsv.bz2") %>% 
   select(kingdom_id, rank_id, rank_name) %>% 
   collect() %>% 
   unite(rank_id, -rank_name, sep = "-") %>% 
@@ -17,22 +19,26 @@ rank_tbl <- tbl(itis_db, "taxon_unit_types") %>%
             stringr::str_to_lower(rank_name),"\\s"))
 
 hierarch <- 
-  tbl(itis_db, "taxonomic_units") %>% 
+  #tbl(itis_db, "taxonomic_units") %>% 
+  read_tsv("taxizedb/itis/taxonomic_units.tsv.bz2") %>% 
   mutate(rank_id = paste(kingdom_id, rank_id, sep="-")) %>% 
   select(tsn, parent_tsn, rank_id, complete_name) %>% distinct()
 
 itis_taxa <- 
   left_join(
     inner_join(hierarch, rank_tbl, copy = TRUE), 
-    tbl(itis_db, "hierarchy") %>% select(tsn, parent_tsn, hierarchy_string)
+    #tbl(itis_db, "hierarchy") %>% select(tsn, parent_tsn, hierarchy_string)
+    read_tsv("taxizedb/itis/hierarchy.tsv.bz2") %>% select(tsn, parent_tsn, hierarchy_string)
   ) %>% 
   arrange(tsn) %>% 
   select(tsn, complete_name, rank_name, 
          rank_id, parent_tsn, hierarchy_string) %>%
-  left_join(select(tbl(itis_db, "vernaculars"), 
+  left_join(#select(tbl(itis_db, "vernaculars"), 
+            select(read_tsv("taxizedb/itis/vernaculars.tsv.bz2"),
                    tsn, vernacular_name, language))  %>%
  left_join(
-           select(tbl(itis_db, "taxonomic_units"), 
+           #select(tbl(itis_db, "taxonomic_units"),
+            select(read_tsv("taxizedb/itis/taxonomic_units.tsv.bz2"),
                   tsn, update_date, name_usage)
   ) %>%
   rename(id = tsn, 
@@ -45,7 +51,8 @@ itis_taxa <-
          parent_id = paste0("ITIS:", parent_id))
 
 ## Read in from database -- a little slow
-itis <- collect(itis_taxa)
+#itis <- collect(itis_taxa)
+itis <- itis_taxa
 
 ## transforms we do in R
 itis$hierarchy_string <- gsub("(\\d+)", "ITIS:\\1",
@@ -145,15 +152,15 @@ itis_taxonid <- taxonid %>%
 
 
 syn_table <- 
-  read_tsv("taxizedb/itis/synonym_links.tsv.bz2", 
-           col_names = c("id", "accepted_id", "update_date")) %>% 
-  mutate(id = paste0("ITIS:", id), 
-         accepted_id = paste0("ITIS:", accepted_id)) %>%
+  read_tsv("taxizedb/itis/synonym_links.tsv.bz2") %>% 
+  mutate(id = paste0("ITIS:", tsn), 
+         accepted_id = paste0("ITIS:", tsn_accepted)) %>%
+  mutate(update_date = as_date(update_date)) %>%
   right_join(synonyms)
 
-accepted <- itis_ids %>% select(id, name) %>% rename(accepted_name = name)
+accepted <- itis_taxonid %>% select(id, name) %>% rename(accepted_name = name)
 
-itis_synonyms <- itis_synonyms %>% 
+itis_synonyms <- syn_table %>% 
   rename(synonym_id = id, id = accepted_id) %>%
   left_join(accepted) %>% 
   select(name, accepted_name, id, synonym_id, rank, update_date)
@@ -166,4 +173,10 @@ write_tsv(itis_synonyms, "data/itis_synonyms.tsv.bz2")
 itis_taxonid %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
 write_tsv(itis_taxonid, "data/itis_taxonid.tsv.bz2")
 
+#long form with accepted and synonyms in one name column
+itis_longid <- itis_synonyms %>%
+  select(id, name, rank, update_date) %>%
+  mutate(type = "synonym") %>%
+  bind_rows(itis_taxonid %>% mutate(type = "accepted"))
 
+write_tsv(itis_longid, "data/itis_longid.tsv.bz2")
