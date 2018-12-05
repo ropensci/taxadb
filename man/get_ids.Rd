@@ -17,6 +17,8 @@ include higher-order ranks in most authorities).}
 \code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
 \code{prefix} (e.g. \code{NCBI:9606}), or \code{uri}
 (e.g. \code{https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606}).}
+
+\item{...}{additional arguments passed to \code{ids()}}
 }
 \description{
 A drop-in replacement for \code{[taxize::get_ids()]}

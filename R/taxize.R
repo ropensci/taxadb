@@ -1,4 +1,4 @@
-## Drop in replacements for taxize
+## Drop in replacements for taxize functions
 
 #' get_ids
 #'
@@ -10,6 +10,7 @@
 #' `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
 #' `prefix` (e.g. `NCBI:9606`), or `uri`
 #' (e.g. `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606`).
+#' @param ... additional arguments passed to `ids()`
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
 #' are not recognized by taxald and will throw an error here. Meanwhile,
 #' taxald recognizes several authorities not known to `[taxize::get_ids()]`.
@@ -32,7 +33,8 @@ get_ids <- function(names,
   format <- match.arg(format)
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
-  out <- ids(name = names, authority = db, ...)
+  out <- ids(name = names, authority = db,
+             pull = TRUE, collect = TRUE, ...)
   switch(format,
          "uri" = prefix_to_uri(out),
          "prefix" = out,
@@ -66,11 +68,3 @@ prefix_to_uri <- function(x){
   replace_empty(out)
 }
 
-#' Get NCBI Identifiers
-#' A drop-in replacement for `[taxize::get_uid()]`
-#'
-#' @param a scientific name (or vector of scientific names)
-#' @export
-get_uid <- function(sciname, ...){
-  get_ids(name = sciname, authority = "ncbi", ...)
-}
