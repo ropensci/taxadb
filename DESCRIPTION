@@ -6,6 +6,8 @@ Description: Creates a local database of many commonly used taxonomic authoritie
 Authors@R: c(
             person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"),
                    comment = c(ORCID = "0000-0002-1642-628X")),
+            person("Kari", "Norman", role= "aut",
+                   comment = c(ORCID = "0000-0002-2029-2325")),       
             person("Noam", "Ross", , "ross@ecohealthalliance.org", role ="ctb",
                    comment = c(ORCID = "0000-0002-2136-0000")),
             person("Scott", "Chamberlain", role ="ctb", 
@@ -28,7 +30,7 @@ Imports:
     rlang,
     magrittr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests:
     spelling,
     testthat,

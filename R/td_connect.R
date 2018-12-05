@@ -1,7 +1,6 @@
 #' Connect to the taxald database
 #'
-#' @param dbdir Path to the database. Defaults to `TAXALD_HOME`
-#' environmental variable, which defaults to `~/.taxald`.
+#' @param dbdir Path to the database.
 #' @return Returns a `src_dbi` connection to the database
 #' @details Primarily useful when a lower-level interface to the
 #' database is required.  Most `taxald` functions will connect

@@ -2,6 +2,8 @@
 
 export(classification)
 export(descendants)
+export(get_ids)
+export(get_uid)
 export(ids)
 export(synonyms)
 export(taxa_tbl)
