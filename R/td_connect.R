@@ -15,6 +15,10 @@
 #' }
 td_connect <- function(dbdir = rappdirs::user_data_dir("taxald")){
 
+  ## FIXME td_connect should detect:
+  ## A. if monetdb is locked
+  ## B. if monetdb is pointing to another location
+
   db <- mget("td_db", envir = taxald_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
     if (DBI::dbIsValid(db)) {

@@ -7,9 +7,11 @@
 #'   include higher-order ranks in most authorities).
 #' @param db abbreviation code for the authority.  See details.
 #' @param format Format for the returned: bare identifier, one of
-#' `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
-#' `prefix` (e.g. `NCBI:9606`), or `uri`
-#' (e.g. `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606`).
+#'   - `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
+#'   - `prefix` (e.g. `NCBI:9606`), or
+#'   - `uri` (e.g.
+#'   `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606`).
+#' @param taxald_db Connection to from `[td_connect]()`.
 #' @param ... additional arguments passed to `ids()`
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
 #' are not recognized by taxald and will throw an error here. Meanwhile,
@@ -29,12 +31,14 @@ get_ids <- function(names,
                     db = c("itis", "ncbi", "col", "tpl",
                            "gbif", "fb", "slb", "wd"),
                     format = c("bare", "prefix", "uri"),
+                    taxald_db = td_connect(),
                     ...){
   format <- match.arg(format)
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
   out <- ids(name = names, authority = db,
-             pull = TRUE, collect = TRUE, ...)
+             pull = TRUE, collect = TRUE,
+             db = taxald_db)
   switch(format,
          "uri" = prefix_to_uri(out),
          "prefix" = out,

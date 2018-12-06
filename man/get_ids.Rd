@@ -5,7 +5,8 @@
 \title{get_ids}
 \usage{
 get_ids(names, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd"), format = c("bare", "prefix", "uri"), ...)
+  "wd"), format = c("bare", "prefix", "uri"), taxald_db = td_connect(),
+  ...)
 }
 \arguments{
 \item{names}{a list of scientific names (which may
@@ -14,9 +15,14 @@ include higher-order ranks in most authorities).}
 \item{db}{abbreviation code for the authority.  See details.}
 
 \item{format}{Format for the returned: bare identifier, one of
-\code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
-\code{prefix} (e.g. \code{NCBI:9606}), or \code{uri}
-(e.g. \code{https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606}).}
+\itemize{
+\item \code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
+\item \code{prefix} (e.g. \code{NCBI:9606}), or
+\item \code{uri} (e.g.
+\code{https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606}).
+}}
+
+\item{taxald_db}{Connection to from \code{[td_connect]()}.}
 
 \item{...}{additional arguments passed to \code{ids()}}
 }
