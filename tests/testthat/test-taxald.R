@@ -7,13 +7,10 @@ library(dplyr)
 
 test_that("we can set up a db and call basic functions", {
 
-  taxald:::td_disconnect()
 
-  tmp <- file.path(tempdir(), "taxald")
-  dir.create(tmp, showWarnings = FALSE)
 
-  td_create(dbdir = tmp)
-  db <- td_connect(tmp)
+  td_create(dbdir = test_db)
+  db <- td_connect(test_db)
 
   df <- taxa_tbl(authority = "itis",
                  db = db)
@@ -26,7 +23,7 @@ test_that("we can set up a db and call basic functions", {
                     rank = "class",
                     db = db)
   species <- ids(df$species,
-                 db = td_connect(tmp))
+                 db = td_connect(test_db))
   hier <- classification(df$species,
                          db = db)
 

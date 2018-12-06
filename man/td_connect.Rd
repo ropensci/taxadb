@@ -7,8 +7,7 @@
 td_connect(dbdir = rappdirs::user_data_dir("taxald"))
 }
 \arguments{
-\item{dbdir}{Path to the database. Defaults to \code{TAXALD_HOME}
-environmental variable, which defaults to \code{~/.taxald}.}
+\item{dbdir}{Path to the database.}
 }
 \value{
 Returns a \code{src_dbi} connection to the database

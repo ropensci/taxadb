@@ -17,11 +17,16 @@ taxa_tbl <- function(
   schema <- match.arg(schema)
   tbl_name <- paste(authority, schema, sep = "_")
   if (is.null(db)) return(quick_db(tbl_name))
-
+  if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
 
   dplyr::tbl(db, tbl_name)
 }
 
+has_table <- function(table = NULL, db = td_connect()){
+  if(is.null(db)) return(FALSE)
+  else if (table %in% DBI::dbListTables(db)) return(TRUE)
+  else FALSE
+}
 
 #' @importFrom memoise memoise
 #' @importFrom readr read_tsv
