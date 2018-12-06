@@ -22,6 +22,6 @@ test_that("we can get ids without a DB", {
   db <- td_connect(test_db)
 
   bare <- get_ids("Homo sapiens", taxald_db = NULL)
-  expect_identical(bare, "ITIS:180092")
+  expect_identical(bare, "180092")
 
 })
