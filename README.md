@@ -1,7 +1,9 @@
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build
 status](https://travis-ci.org/cboettig/taxald.svg?branch=master)](https://travis-ci.org/cboettig/taxald)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/cboettig/taxald?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxald)
 [![Coverage
 status](https://codecov.io/gh/cboettig/taxald/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxald?branch=master)
 [![CRAN
