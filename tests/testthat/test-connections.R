@@ -2,6 +2,7 @@ context("test connections")
 
 test_that("we can detect locked connections", {
 
+  skip("not implemented yet")
   dbpath <- file.path(test_db, "monetdblite")
   dir.create(dbpath, FALSE, TRUE)
   lockfile <- file.path(dbpath, ".gdk_lock")
@@ -20,7 +21,7 @@ test_that("we can use alternative DBs, such as SQLite", {
   dbname <- file.path(dbdir, "taxald.sqlite")
 
   db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
-  td_create("hierarchy", db = db)
+  td_create(schema = "hierarchy", db = db)
   itis <- taxa_tbl(authority = "itis",
                    schema = "hierarchy",
                    db = db)
