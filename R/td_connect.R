@@ -15,9 +15,17 @@
 #' }
 td_connect <- function(dbdir = rappdirs::user_data_dir("taxald")){
 
-  ## FIXME td_connect should detect:
-  ## A. if monetdb is locked
-  ## B. if monetdb is pointing to another location
+  dbname <- file.path(dbdir, "monetdblite")
+
+  ## Stop if monetdb is locked (monetdblite/.gdk_lock)
+  if(file.exists(file.path(dbname, ".gdk_lock"))){
+    stop(paste("Cannot connect to taxald database.",
+               "database is locked, possibly by another",
+               "active R session. Close the other active session",
+               "first to continue. If no other session exists",
+               "consider deleting",  file.path(dbname, ".gdk_lock")))
+  }
+  ## Stop if monetdb is pointing to another location from the same session
 
   db <- mget("td_db", envir = taxald_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
@@ -26,7 +34,6 @@ td_connect <- function(dbdir = rappdirs::user_data_dir("taxald")){
     }
   }
 
-  dbname <- file.path(dbdir, "monetdblite")
   dir.create(dbname, FALSE)
   db <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname)
   assign("td_db", db, envir = taxald_cache)
