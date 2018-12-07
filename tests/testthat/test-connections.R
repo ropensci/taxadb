@@ -22,7 +22,7 @@ test_that("we can use alternative DBs, such as SQLite", {
 
   db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
 
-  ## wow, this shouldn't be needed(?) Or should be dplyr or arkdb at least?
+  ## new readr bug https://github.com/tidyverse/readr/issues/939
   setOldClass(c("spec_tbl_df", "data.frame"))
 
   ## and here we go.
