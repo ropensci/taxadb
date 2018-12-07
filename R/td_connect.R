@@ -18,13 +18,7 @@ td_connect <- function(dbdir = rappdirs::user_data_dir("taxald")){
   dbname <- file.path(dbdir, "monetdblite")
 
   ## Stop if monetdb is locked (monetdblite/.gdk_lock)
-  if(file.exists(file.path(dbname, ".gdk_lock"))){
-    stop(paste("Cannot connect to taxald database.",
-               "database is locked, possibly by another",
-               "active R session. Close the other active session",
-               "first to continue. If no other session exists",
-               "consider deleting",  file.path(dbname, ".gdk_lock")))
-  }
+  ## CANNOT Just check if this file exists -- that breaks every connection!
   ## Stop if monetdb is pointing to another location from the same session
 
   db <- mget("td_db", envir = taxald_cache, ifnotfound = NA)[[1]]
