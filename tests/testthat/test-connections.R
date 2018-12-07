@@ -21,6 +21,11 @@ test_that("we can use alternative DBs, such as SQLite", {
   dbname <- file.path(dbdir, "taxald.sqlite")
 
   db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
+
+  ## wow, this shouldn't be needed(?) Or should be dplyr or arkdb at least?
+  setOldClass(c("spec_tbl_df", "data.frame"))
+
+  ## and here we go.
   td_create(schema = "hierarchy", db = db)
   itis <- taxa_tbl(authority = "itis",
                    schema = "hierarchy",
