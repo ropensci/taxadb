@@ -19,7 +19,7 @@ include higher-order ranks in most authorities).}
 \item \code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
 \item \code{prefix} (e.g. \code{NCBI:9606}), or
 \item \code{uri} (e.g.
-\code{https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606}).
+\code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
 \item{taxald_db}{Connection to from \code{[td_connect]()}.}
