@@ -10,7 +10,7 @@
 #'   - `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
 #'   - `prefix` (e.g. `NCBI:9606`), or
 #'   - `uri` (e.g.
-#'   `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606`).
+#'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxald_db Connection to from `[td_connect]()`.
 #' @param ... additional arguments passed to `ids()`
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
