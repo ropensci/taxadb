@@ -94,10 +94,6 @@ ncbi_long <- ncbi %>%
   inner_join(long_hierarchy) %>%
   inner_join(expand)
 
-ncbi_longid <- ncbi_long %>%
-  select(id, name, rank, type = path_type)
-
-
 ## Example query: how many species of fishes do we know?
 #fishes <- ncbi_long %>%
 #  filter(path == "fishes", rank == "species") %>%
@@ -154,5 +150,4 @@ ncbi_taxonid %>%
 
 write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
 write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
-write_tsv(ncbi_longid, "data/ncbi_longid.tsv.bz2")
 

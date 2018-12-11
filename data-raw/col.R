@@ -6,25 +6,13 @@ library(stringr)
 ## taxizedb import method:
 # col <- db_download_col()
 # db_load_col(col, host="mariadb", user="root", pwd="password")
-col_db <- src_col(host="mariadb", user="root", password="password")
-
+# col_db <- src_col(host="mariadb", user="root", password="password")
 ## Edit /etc/mariadb/my.cnf and restart container, e.g.
 # net_read_timeout=600
 # net_write_timeout=180
 # wait_timeout=86400
 # interactive_timeout=86400
 # max_allowed_packet=128M
-#
-
-#lapply(DBI::dbListTables(pool),
-#       function(x)
-#         tbl(pool, x) %>% collect() %>% readr::write_tsv(paste0("taxizedb/col/", x, ".tsv.bz2")))
-
-library(arkdb)
-#conn <- poolCheckout(pool)
-ark(col_db, fs::dir_create("taxizedb/col"),
-    streamable_table = streamable_readr_tsv(),
-    lines = 1e4L, mc.cores = 1L, overwrite = FALSE)
 
 
 
@@ -46,12 +34,9 @@ master <-  search_all %>%
   left_join(bind_rows(scientific_name_status, data_frame(id = 0, name_status = "other")),
             by = c("name_status_id" = "id"))
 
-col_longid <- master %>%
-  select(id = accepted_taxon_id, name, rank, type = name_status) %>%
-  filter(id > 0) %>% 
-  distinct()
+rm(search_all, scientific_name_status)
 
-col_taxonid <- master %>%
+col_accepted_id <- master %>%
   filter(name_status == "accepted name") %>%
   select(id, name, rank) %>% distinct()
 
@@ -64,7 +49,7 @@ all_synonyms <- master %>%
 mapped_synonyms <- all_synonyms %>% filter(id > 0)
 ## type == "other" (NA) names are not resolved. Includes common names, etc.
 synonyms <- mapped_synonyms %>%
-  left_join(select(col_taxonid, accepted_name = name, id)) %>%
+  left_join(select(col_accepted_id, accepted_name = name, id)) %>%
   select(id, accepted_name, name, type, rank, synonym_id)
 
 
@@ -75,23 +60,24 @@ hierarchy <- species_details %>%
          genus = genus_name, subgenus = subgenus_name,
          species = species_name, infraspecies = infraspecies_name)
 
-
-col_taxonid %>%
-  mutate(id = paste0("COL:", id)) %>%
-  write_tsv("data/col_taxonid.tsv.bz2")
-
-col_longid %>%
-  mutate(id = paste0("COL:", id)) %>%
-  write_tsv("data/col_longid.tsv.bz2")
-
-synonyms %>%
-  mutate(id = paste0("COL:", id),
-         synonym_id = paste0("COL:", synonym_id)) %>%
-  write_tsv("data/col_synonyms.tsv.bz2")
-
 hierarchy %>%
   mutate(id = paste0("COL:", id)) %>%
   write_tsv("data/col_hierarchy.tsv.bz2")
+
+rm(heirarchy, species_details, master)
+
+
+
+col_taxonid <- synonyms %>%
+  rename(accepted_id = id, id = synonym_id) %>%
+  select(id, name, rank, accepted_id, name_type = type) %>%
+  bind_rows(mutate(col_accepted_id, accepted_id = id, name_type = "accepted")) %>%
+  distinct() %>%
+  mutate(accepted_id = paste0("COL:", accepted_id),
+         id = paste0("COL:", id)) %>%
+  select(id, name, rank, name_type, accepted_id)
+
+write_tsv(col_taxonid, "data/col_taxonid.tsv.bz2")
 
 
 
@@ -116,10 +102,10 @@ accepted %>% filter(id %in% same_id_diff_group) %>% arrange(id) %>% select(id, n
 # 10750775 Adelocephala (Oiticicia) purpurascens intensiva        subspecies
 # 10750775 Adelocephala (Oiticicia) purpurascens subsp. intensiva subspecies
 
-col_taxonid <- master %>% filter(name_status == "accepted name") %>% select(id, name, rank) %>% distinct()
+col_accepted_id <- master %>% filter(name_status == "accepted name") %>% select(id, name, rank) %>% distinct()
 
-duplicate_id <- col_taxonid %>% count(id) %>% arrange(desc(n)) %>% filter(n > 1) %>% pull(id)
-col_taxonid %>% filter(id %in% duplicate_id) %>% arrange(id)
+duplicate_id <- col_accepted_id %>% count(id) %>% arrange(desc(n)) %>% filter(n > 1) %>% pull(id)
+col_accepted_id %>% filter(id %in% duplicate_id) %>% arrange(id)
 
 
 ## Why so many more accepted names than are distinct for this set?

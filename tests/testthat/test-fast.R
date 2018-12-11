@@ -15,7 +15,7 @@ test_that("setup-free calls to basic functions", {
   hier <- classification(df$species, db = NULL)
 
   expect_is(df, "data.frame")
-  expect_is(species, "character")
+  expect_is(species, "data.frame")
   expect_is(hier, "data.frame")
   expect_is(chameleons, "data.frame")
   expect_gt(dim(df)[1], 1)
