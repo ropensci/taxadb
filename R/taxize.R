@@ -36,9 +36,16 @@ get_ids <- function(names,
   format <- match.arg(format)
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
-  out <- ids(name = names, authority = db,
-             pull = TRUE, collect = TRUE,
+  df <- ids(name = names,
+             authority = db,
+             collect = TRUE,
              db = taxald_db)
+
+  if("accepted_id" %in% names(df))
+   out <- df %>% pull("accepted_id")
+  else
+    out <- df %>% pull("id")
+
   switch(format,
          "uri" = prefix_to_uri(out),
          "prefix" = out,
