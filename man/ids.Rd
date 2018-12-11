@@ -21,19 +21,21 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
 \item{db}{a connection to the taxald database. See details.}
-
-\item{pull}{logical, should we pull out the id column or return the full table?}
 }
 \value{
 a data.frame with columns of \code{id}, scientific
-\code{name}, and \code{rank} and a row for each species name queried.
+\code{name}, and \code{rank}, and \code{accepted_id} (if data includes synonyms)
+and a row for each species name queried.
 }
 \description{
 Return taxonomic identifiers from a given namespace
 }
 \details{
-NOTE on matching synonyms: Some authorities (like ITIS) issue separate synonym_ids
-corresponding to synonym names. The \code{ids()} function \emph{does not} return synonym ids.
-Rather, if a name is recognized as a synonym, we will look up the appropriate
-accepted name and the ID associated with the accepted name and return that.
+Some authorities (ITIS, COL, FB/SLB, NCBI) provide synonyms as well.  These
+are included in the name list search.  The data.frame returned will then
+include an \code{accepted_id} column, providing the synonym for the requested table.
+In this case, the \code{id} column corresponds to the id for either the name column --
+that is, if the name is a synonym, this is the id for the synonym; if the name
+is accepted, this id is the same as the accepted id.  NCBI does not issue ids
+for known synonyms, so the id is missing for synonym names in this case.
 }
