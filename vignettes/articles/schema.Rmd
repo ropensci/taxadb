@@ -46,11 +46,12 @@ td_create("all")
 
 A taxonid schema is provided for every authority, containing the columns:
 
-- `id`
-- `name`
-- `rank`
+- `id`: a unique id for the name (including authority prefix)
+- `name`: a Latin name (either accepted or known synonym) 
+- `rank`: the rank (as given by the authority)
+- `accepted_id` the accepted id; (for synonyms, otherwise identical to the `id` for accepted names)
 
-Some authorities may report additional optional columns, such as the update date.
+Some authorities may report additional optional columns, such as the `update_date`, `name_type`.
 
 ```{r}
 taxa_tbl("itis", "taxonid")
@@ -76,12 +77,12 @@ taxa_tbl("col", "hierarchy")
 
 A synonyms table can be build for most but not all authorities. Columns in the synonyms table are:
 
-- `name`: Synonym or any other type (misspelling, alternate name) that is not the accepted name but can be unambiguously matched to an accepted name.   
+- `synonym`: Synonym or any other type (misspelling, alternate name) that is not the accepted name but can be unambiguously matched to an accepted name.   
 - `accepted_name`: The corresponding accepted name according to the authority
-- `id`: the id of the *accepted name*
+- `accepted_id`: the id of the *accepted name*
 - `rank`: the rank of the accepted name.
 
-And optional fields:
+Optional fields 
 
 - `synonym_id`: Some authorities (e.g. ITIS, FB, COL) provide unique identifiers corresponding to the synonym name.  
 - `name_type`: the type of name given in `name`, e.g. `synonym`, `misspelling`, etc. 
@@ -111,8 +112,8 @@ id | name | rank  | path    |  path_rank  | path_id
 
 And the following optional columns:
 
- rank_id  | path_rank_id  | name_type   | date
-----------|---------------|-------------|---------
+ rank_id  | path_rank_id  | name_type   | date    | common_name
+----------|---------------|-------------|---------| --------------
 
 (Most databases do not define `rank_id`, e.g. ids corresponding to the ranks themselves)
 
