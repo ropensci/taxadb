@@ -24,22 +24,35 @@ library(dplyr)
 library(tidyr)
 ```
 
+Work in progress -- the mismatches of `itis`, `col` and `wd` here illustrate the complexity of name matching.  Some names resolve multiple times.  Some authorities (ITIS) recognize certain synonyms that they still haven't mapped to accepted id.  
 
 ```{r}
-fish <- taxa_tbl("fb")
-
-my_taxa <- 
-  fish %>%  
+fish <- taxa_tbl("fb") %>%  
   select(fb = id, species) %>% 
-  collect() %>%
-  mutate(itis = ids(species, "itis"),
-         ncbi = ids(species, "ncbi"),
-         #col = ids(species, "col"),
-         gbif = ids(species, "gbif"),
-         #wd = ids(species, "wd"),
-         tpl = ids(species, "tpl"),
-        # fb = ids(species, "fb"),
-         slb = ids(species, "slb")) 
+  collect() 
+species <- pull(fish, species)
+
+itis <- ids(species, "itis")
+wd <- ids(species, "wd")
+col <- ids(species, "col")
+
+## Note each of these authorities all return more rows than we had in the input table!
+sapply(list(fb = fish, itis = itis, wd = wd, col = col), function(x) length(x[[1]]))
+
+```
+
+
+```{r}
+my_taxa <- fish %>%
+
+  mutate(#itis = get_ids(species, "itis"),
+         ncbi = get_ids(species, "ncbi"),
+         #col = get_ids(species, "col"),
+         gbif = get_ids(species, "gbif"),
+         #wd = get_ids(species, "wd"),
+         tpl = get_ids(species, "tpl"),
+        # fb = get_ids(species, "fb"),
+         slb = get_ids(species, "slb")) 
 ```
 
 
@@ -52,7 +65,7 @@ my_taxa %>%
 Looks like three plants have matching scientific names to some of our fish:
 
 ```{r}
-dup <- fish %>% pull(species) %>% ids(authority = "tpl", pull = FALSE) %>% filter(!is.na(id))
+dup <- fish %>% pull(species) %>% ids(authority = "tpl") %>% filter(!is.na(id))
 dup
 ```
 
@@ -61,10 +74,10 @@ This also probably explains why `col` and `wd` are returning the wrong-length ma
 ```{r}
 species <- pull(fish, species)
 
-col_fb <- ids(species, "col", pull = FALSE) 
+col_fb <- ids(species, "col") 
 dim(col_fb)[1] - length(species)
 
-wd_fb <- ids(species, "wd", pull = FALSE) 
+wd_fb <- ids(species, "wd") 
 dim(wd_fb)[1] - length(species)
 
 ```
@@ -84,7 +97,7 @@ taxa_tbl("col", "hierarchy") %>%
 
 ```{r}
 has_match <- my_taxa %>% 
-  select(-species) %>%
+  select(-species, -fb) %>%
   purrr::map_dfc(function(x) !is.na(x)) %>% 
   rowSums() > 0
 

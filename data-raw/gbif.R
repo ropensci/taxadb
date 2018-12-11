@@ -11,7 +11,7 @@ library(tidyverse)
 #gbif_taxa <- tbl(gbif_db, "gbif") %>% collect()
 
 
-piggyback::pb_download(repo="cboettig/taxadb")
+#piggyback::pb_download(repo="cboettig/taxadb")
 gbif_taxa <- read_tsv("taxizedb/gbif/gbif.tsv.bz2")
 
 gbif_taxa <- gbif_taxa %>%
@@ -53,14 +53,15 @@ write_tsv(gbif_long, "data/gbif_long.tsv.bz2")
 gbif_taxonid <- gbif_long %>%
   filter(taxonomicStatus == "accepted") %>%
   select(id, name, rank) %>%
-  distinct()
+  distinct() %>%
+  mutate(accepted_id = id) # for consistency, even though we lack synonyms
 write_tsv(gbif_taxonid, "data/gbif_taxonid.tsv.bz2")
 
 # gbif_synonyms <- gbif_long %>%
 #   filter(taxonomicStatus != "accepted") %>%
 #   select(synonym_id = id, accepted_name = name, rank, name = genericName, type = taxonomicStatus) %>%
 #   distinct()# %>%
-#   
+#
 # syn_temp <- left_join(gbif_synonyms, select(gbif_synonyms, id = synonym_id, name), by = c("accepted_name" = "name"))
 
 

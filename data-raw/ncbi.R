@@ -1,35 +1,39 @@
+## taxizedb also needs these cli clients installed separately:
 ## apt-get -y install mariadb-client postgresql-client
-library(taxizedb) 
+#library(taxizedb)
+
+## We can use the flatfiles instead
 library(tidyverse)
 
 # ncbi_store <- db_download_ncbi()
-# 
+#
 # db_load_ncbi() ## not needed for ncbi
 # ncbi_db <- src_ncbi(ncbi_store)
 
-ncbi_taxa <- 
+
+ncbi_taxa <-
   #inner_join((ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
   inner_join(read_tsv("taxizedb/ncbi/nodes.tsv.bz2"), read_tsv("taxizedb/ncbi/names.tsv.bz2")) %>%
   select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) #%>%
   #collect()
 
 
-ncbi_ids <- ncbi_taxa %>% 
+ncbi_ids <- ncbi_taxa %>%
   select(tsn = tax_id, parent_tsn = parent_tax_id) %>%
-  distinct() %>% 
+  distinct() %>%
   mutate(tsn = paste0("NCBI:", tsn),
          parent_tsn = paste0("NCBI:", parent_tsn))
 
 ## note: NCBI doesn't have rank ids
-ncbi <- ncbi_taxa %>% 
+ncbi <- ncbi_taxa %>%
   select(id = tax_id, name = name_txt, rank, name_type = name_class) %>%
-  mutate(id = paste0("NCBI:", id)) 
+  mutate(id = paste0("NCBI:", id))
 
 rm(ncbi_taxa)
 
-## Recursively JOIN on id = parent 
+## Recursively JOIN on id = parent
 ## FIXME do properly with recursive function and dplyr programming calls
-recursive_ncbi_ids <- ncbi_ids %>% 
+recursive_ncbi_ids <- ncbi_ids %>%
   left_join(rename(ncbi_ids, p2 = parent_tsn), by = c("parent_tsn" = "tsn")) %>%
   left_join(rename(ncbi_ids, p3 = parent_tsn), by = c("p2" = "tsn")) %>%
   left_join(rename(ncbi_ids, p4 = parent_tsn), by = c("p3" = "tsn")) %>%
@@ -72,67 +76,73 @@ rm(ncbi_ids)
 ## expect_true: confirm we have resolved all ids
 all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
-long_hierarchy <- 
-  recursive_ncbi_ids %>% 
-  tidyr::gather(dummy, path_id, -tsn) %>% 
-  select(id = tsn, path_id) %>% 
+long_hierarchy <-
+  recursive_ncbi_ids %>%
+  tidyr::gather(dummy, path_id, -tsn) %>%
+  select(id = tsn, path_id) %>%
   distinct() %>%
-  arrange(id) 
+  arrange(id)
 
 rm(recursive_ncbi_ids)
 
-expand <- ncbi %>% 
-  select(path_id = id, path = name, path_rank = rank, path_type = name_type) 
+expand <- ncbi %>%
+  select(path_id = id, path = name, path_rank = rank, path_type = name_type)
 
-ncbi_long <- ncbi %>% 
-  filter(name_type == "scientific name") %>% 
-  select(-name_type) %>%  
+ncbi_long <- ncbi %>%
+  filter(name_type == "scientific name") %>%
+  select(-name_type) %>%
   inner_join(long_hierarchy) %>%
   inner_join(expand)
 
-ncbi_longid <- ncbi_long %>%
-  select(id, name, rank, type = path_type)
-
-
 ## Example query: how many species of fishes do we know?
-#fishes <- ncbi_long %>% 
-#  filter(path == "fishes", rank == "species") %>% 
+#fishes <- ncbi_long %>%
+#  filter(path == "fishes", rank == "species") %>%
 #  select(id, name, rank) %>% distinct()
 # 33,082 known species
 
 ## Wide-format classification table (scientific names only)
-ncbi_wide <- 
-  ncbi_long %>% 
-  filter(path_type == "scientific name", rank == "species") %>% 
-  select(id, species = name, path, path_rank) %>% 
+ncbi_wide <-
+  ncbi_long %>%
+  filter(path_type == "scientific name", rank == "species") %>%
+  select(id, species = name, path, path_rank) %>%
   distinct() %>%
   filter(path_rank != "no rank") %>% ## Wide format includes named ranks only
-  filter(path_rank != "superfamily") %>%  
+  filter(path_rank != "superfamily") %>%
   # ncbii has a few duplicate "superfamily" with both as "scientific name"
   # This is probably a bug in there data as one of these should be "synonym"(?)
   spread(path_rank, path)
 
 
 
-### 
-ncbi_taxonid <- ncbi_long %>% 
+###
+ncbi_taxonid <- ncbi_long %>%
   select(id = path_id, name = path, rank = path_rank, type = path_type) %>%
   filter(type == "scientific name") %>%
   select(-type) %>%
-  distinct() 
+  distinct()
 
 ## Synonyms table including all scientific names.
 ## makes table longer, but gives us only one column to match against
-ncbi_synonyms <- ncbi_long %>% 
-  select(id = path_id, given_name = path, name_type = path_type) %>% 
+ncbi_synonyms <- ncbi_long %>%
+  select(id = path_id, given_name = path, name_type = path_type) %>%
   filter(name_type != "scientific name") %>%
-  distinct() %>% 
+  distinct() %>%
   left_join(ncbi_taxonid, by = c("id"))
 
-ncbi_synonyms <- ncbi_synonyms %>% 
+ncbi_synonyms <- ncbi_synonyms %>%
   rename(accepted_name = name, name = given_name) %>%
   select(name, accepted_name, id, rank, name_type)
 
+ncbi_taxonid <-
+ncbi_taxonid %>%
+  mutate(name_type = "accepted",
+         accepted_id = id) %>%
+  bind_rows(
+    ncbi_synonyms %>%
+      select(name, accepted_id = id, rank, name_type) %>%
+      mutate(id = NA)
+  ) %>%
+  select(id, name, rank, accepted_id, name_type)
 
 #write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
 #write_tsv(ncbi_wide, "data/ncbi_hierarchy.tsv.bz2")
@@ -140,5 +150,4 @@ ncbi_synonyms <- ncbi_synonyms %>%
 
 write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
 write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
-write_tsv(ncbi_longid, "data/ncbi_longid.tsv.bz2")
 

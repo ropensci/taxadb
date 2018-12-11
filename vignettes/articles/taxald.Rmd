@@ -38,7 +38,7 @@ Unfortunately, as anyone who has attempted this kind of exercise over more than 
 For instance, we consider the 233 primate species names used in the `geiger` package `primates` data.  To avoid installing that dependency-heavy package, a copy of these names has been cached in `taxald` and can be loaded as follows: 
 
 ```{r}
-ex <- system.file("extdata", "primates.tsv.bz2", package = "taxald")
+ex <- system.file("extdata", "primates.tsv.bz2", package = "taxald", mustWork = TRUE)
 primates <- readr::read_tsv(ex)
 primates
 ```
@@ -63,7 +63,7 @@ Match a list of 233 species names against a naming authority:
 
 ```{r}
 my_taxa <- primates %>%  # 233 taxa
-  mutate(id = ids(species)) 
+  mutate(id = get_ids(species, format = "prefix")) 
 ```
 
 
@@ -79,20 +79,12 @@ synonyms(unmatched)
 
 ```
 
-Under the hood, `ids` checks the names against synonyms known to the authority as well. If we only looke for direct matches, we would have faired far worse.  We can turn off synonyms checks to compare: only 180 of the names were recognized as valid species names by ITIS initially.  Another 50 were resolved through synonym matching, which we can see by turning off the synonym-matching behavior and requesting ids only for direct matches:
+Under the hood, `get_ids` checks the names against synonyms known to the authority as well. If we only looke for direct matches, we would have faired far worse.  
+
+Mimicking `taxize` function of the same name `get_ids` is returning just a vector of `ids`, which is useful for operations such as `mutate` above.  However, it is often convenient to return the full table of matched names.  Here we can see that many of the names we have matched against are actually synonyms, and that `get_ids` has been able to resolve them into accepted ids.  
 
 ```{r}
-tmp <- primates %>%  
-  mutate(id = ids(species, 
-                  synonyms_check = FALSE)) 
-
-is.na(tmp$id) %>% sum()
-```
-
-By default, `ids` is returning just a numeric vector of `ids`, which is useful for operations such as `mutate` above.  However, it is often convenient to return the full table of matched names, rather than pulling out just the `ids`, like so:
-
-```{r}
-ids(primates$species, pull = FALSE)
+ids(primates$species)
 ```
 
 Note that `name` is the name we provided (species names in this case, but it they do not have to be).  Because `synonyms-check` is `TRUE` by default, we get a list of accepted names recognized (by ITIS in this case, our default authority).  
@@ -101,14 +93,14 @@ We aren't stuck with ITIS though, we can work with other naming authorities as w
 
 ```{r}
 my_taxa <- primates %>%  
-  mutate(itis = ids(species, "itis"),
-         ncbi = ids(species, "ncbi"),
-         col = ids(species, "col"),
-         gbif = ids(species, "gbif"),
-         wd = ids(species, "wd"),
-         tpl = ids(species, "tpl"),
-         fb = ids(species, "fb"),
-         slb = ids(species, "slb")) 
+  mutate(itis = get_ids(species, "itis"),
+         ncbi = get_ids(species, "ncbi"),
+         col = get_ids(species, "col"),
+         gbif = get_ids(species, "gbif"),
+         wd = get_ids(species, "wd"),
+         tpl = get_ids(species, "tpl"),
+         fb = get_ids(species, "fb"),
+         slb = get_ids(species, "slb")) 
 my_taxa
 
 ```
@@ -141,7 +133,7 @@ One species still fails to resolve under any authority. A web search does resolv
 Once we have resolved our ids, we can also get full classification information. This example uses the default authority, ITIS:
 
 ```{r}
-primate_ids <- ids(primates$species)
+primate_ids <- get_ids(primates$species, format = "prefix")
 classification(id = primate_ids)
 ```
 
