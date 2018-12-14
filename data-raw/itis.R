@@ -1,7 +1,7 @@
 ## apt-get -y install mariadb-client postgresql-client
-library(taxizedb)
+#library(taxizedb)
 library(tidyverse)
-
+library(piggyback)
 #itis_store <- db_download_itis()
 ## Need to fix locale issue
 #db_load_itis(itis_store, user = "postgres", pwd = "password", host = "postgres")
@@ -96,25 +96,9 @@ itis_long <- itis %>%
          path_rank, path_id, path_rank_id, name_usage, update_date) %>%
   mutate(update_date = as_date(update_date))
 
-
-## encode language with common name(?)
-
-## Some langauage names have the same language code.
-## ISOcodes puts duplicates in same column, we need a tidy look-up table
-iso <- ISOcodes::ISO_639_2 %>%
-  select(language = Name, code = Alpha_2) %>%
-  na.omit() %>%
-  separate(language, c("name", "name2", "name3", "name4", "name5"),
-           sep = ";", extra="warn", fill = "right") %>%
-  gather(key, language, -code) %>%
-  select(-key) %>%
-  na.omit()
-
-itis_for_rdf <-
-  itis_long %>%
-  left_join(iso) %>%
-  unite("common_name", common_name, code, sep = "@")
-
+system.time({
+  write_tsv(itis_long, bzfile("data/itis_long.tsv.bz2", compression=9))
+})
 
 
 #itis_long <- read_tsv("data/itis_long.tsv.bz2")
@@ -127,9 +111,7 @@ itis_hierarchy <-
   spread(path_rank, path)
 
 
-system.time({
-  write_tsv(itis_long, bzfile("data/itis_long.tsv.bz2", compression=9))
-})
+
 ## write at compression 9 for best compression
 system.time({
   write_tsv(itis_hierarchy, bzfile("data/itis_hierarchy.tsv.bz2", compression=9))
