@@ -5,7 +5,7 @@
 \title{get_ids}
 \usage{
 get_ids(names, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd"), format = c("bare", "prefix", "uri"), taxald_db = td_connect(),
+  "wd"), format = c("bare", "prefix", "uri"), taxadb_db = td_connect(),
   ...)
 }
 \arguments{
@@ -22,7 +22,7 @@ include higher-order ranks in most authorities).}
 \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxald_db}{Connection to from \code{[td_connect]()}.}
+\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
 \item{...}{additional arguments passed to \code{ids()}}
 }
@@ -31,11 +31,11 @@ A drop-in replacement for \code{[taxize::get_ids()]}
 }
 \details{
 Note that some taxize authorities: \code{nbn}, \code{tropicos}, and \code{eol},
-are not recognized by taxald and will throw an error here. Meanwhile,
-taxald recognizes several authorities not known to \code{[taxize::get_ids()]}.
+are not recognized by taxadb and will throw an error here. Meanwhile,
+taxadb recognizes several authorities not known to \code{[taxize::get_ids()]}.
 Both include \code{itis}, \code{ncbi}, \code{col}, and \code{gbif}.
 
-Like all taxald functions, this function will run
+Like all taxadb functions, this function will run
 fastest if a local copy of the authority is installed in advance
 using \code{[td_create()]}.
 }

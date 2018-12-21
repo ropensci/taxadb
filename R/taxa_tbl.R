@@ -1,7 +1,7 @@
 
-#' Return a reference to a given table in the taxald database
+#' Return a reference to a given table in the taxadb database
 #'
-#' @param db a connection to the taxald database. Default will
+#' @param db a connection to the taxadb database. Default will
 #' attempt to connect automatically.
 #' @param schema the table schema on which we want to run the query
 #' @importFrom dplyr tbl
@@ -35,7 +35,7 @@ quick_db <- memoise::memoise(
     # FIXME -- use the same rappdirs location, not tmpfile!
     tmp <- tempfile(fileext = ".tsv.bz2")
     download.file(
-      paste0("https://github.com/cboettig/taxald/",
+      paste0("https://github.com/cboettig/taxadb/",
              "releases/download/v1.0.0/data.2f",
              tbl_name, ".tsv.bz2"),
              tmp)

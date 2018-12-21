@@ -13,10 +13,10 @@
 #'  a local database upon new release.)
 #' @param dbdir a location on your computer where the database should be installed.
 #'  Defaults to user data directory given by [rappdirs::user_data_dir]().
-#' @param db connection to a database.  By default, taxald will set up its own
+#' @param db connection to a database.  By default, taxadb will set up its own
 #' fast [MonetDBLite::MonetDBLite]() connection.
 #' @details
-#'  Authorities recognized by taxald are:
+#'  Authorities recognized by taxadb are:
 #'  - `itis`
 #'  - `ncbi`
 #'  - `col`
@@ -42,7 +42,7 @@ td_create <- function(authorities = "itis",
                       schema = c("hierarchy", "taxonid", "synonyms"),
                       overwrite = FALSE,
                       lines = 1e6,
-                      dbdir =  rappdirs::user_data_dir("taxald"),
+                      dbdir =  rappdirs::user_data_dir("taxadb"),
                       db = td_connect(dbdir)
                       ){
 
@@ -77,7 +77,7 @@ td_create <- function(authorities = "itis",
 
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
-    urls <- paste0("https://github.com/cboettig/taxald/",
+    urls <- paste0("https://github.com/cboettig/taxadb/",
                    "releases/download/v1.0.0/",
                    "data", ".2f", new_files)
 

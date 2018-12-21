@@ -1,5 +1,5 @@
 ---
-title: "Database schema for taxald"
+title: "Database schema for taxadb"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 
-`taxald` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxald` at this time are:
+`taxadb` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxadb` at this time are:
 
 - `itis`: [The Integrated Taxonomic Information System](https://www.itis.gov/)
 - `col`: [The Catalogue of Life](http://www.catalogueoflife.org/)
@@ -30,15 +30,15 @@ knitr::opts_chunk$set(
 - `wd`: [WikiData](https://wikidata.org)
 
 
-These authorities provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these authorities, `taxald` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  `taxald` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these authorities.
+These authorities provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these authorities, `taxadb` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  `taxadb` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these authorities.
 
-Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL.  to implement these, `taxald` imports the compressed flat files into a local, column-oriented database, [`MonetDBLite`](), which can be installed entirely as an R package with no additional server setup required.  This provides a persistant store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxald` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxald` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
+Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL.  to implement these, `taxadb` imports the compressed flat files into a local, column-oriented database, [`MonetDBLite`](), which can be installed entirely as an R package with no additional server setup required.  This provides a persistant store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxadb` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxadb` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
 
-This vignette summarizes the table schema defined by `taxald`.  Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
+This vignette summarizes the table schema defined by `taxadb`.  Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
 
 
 ```{r message = FALSE}
-library(taxald)
+library(taxadb)
 td_create("all")
 ```
 
@@ -57,7 +57,7 @@ Some authorities may report additional optional columns, such as the `update_dat
 taxa_tbl("itis", "taxonid")
 ```
 
-Note that `taxald` tables report all identifiers using authority prefixes.  Certain authorities only provide taxanomic identifiers to species names (rank is always species).  Currently this includes `gbif`, `fb`, `slb`.  `ncbi`, `col` and `itis` provide taxonomic identifers to scientific names at any rank.   
+Note that `taxadb` tables report all identifiers using authority prefixes.  Certain authorities only provide taxanomic identifiers to species names (rank is always species).  Currently this includes `gbif`, `fb`, `slb`.  `ncbi`, `col` and `itis` provide taxonomic identifers to scientific names at any rank.   
 
 
 ## Hierarchy table
@@ -96,7 +96,7 @@ taxa_tbl("gbif", "synonyms")
 
 ## Common names
 
-Common names are avialable from several authorities, but tidy tables for `taxald` have not yet been implemented.  Common names tables are expected to follow the following schema:
+Common names are avialable from several authorities, but tidy tables for `taxadb` have not yet been implemented.  Common names tables are expected to follow the following schema:
 
 - `id` The taxonomic identifier for the species (or possibly other rank)
 - `name` The common name / vernacular name
@@ -117,7 +117,7 @@ And the following optional columns:
 
 (Most databases do not define `rank_id`, e.g. ids corresponding to the ranks themselves)
 
-These tables are considerably larger and longer than other formats, which can make them slow to query.  Note that for each taxonomic name, `id` and the corresponding `name`, and `rank` of the `id` are repeated across the full path hierarchy.  This format is not installed and not used by functions of `taxald` at this time. 
+These tables are considerably larger and longer than other formats, which can make them slow to query.  Note that for each taxonomic name, `id` and the corresponding `name`, and `rank` of the `id` are repeated across the full path hierarchy.  This format is not installed and not used by functions of `taxadb` at this time. 
 
 A fundamental advantage of this format is that it can be defined identically for every table, meaning that all authorities could be combined into a single table using the long format. both the `taxonid` and `hierarchy` formats can be derived directly from this format, and this format can represent information such as unnamed or duplicate ranks that cannot be represented in the `hierarchy` format.  
 
@@ -136,3 +136,9 @@ taxa_tbl("itis", "long", NULL)
   to a table of standard accepted rank names (i.e. those recognized by ITIS, NCBI, Wikidata),
   and rank names should have 
 - Encoding is UTF-8
+
+
+
+```{r include=FALSE}
+taxadb:::td_disconnect()
+```

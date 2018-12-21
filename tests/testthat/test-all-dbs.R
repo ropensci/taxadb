@@ -1,7 +1,7 @@
-context("taxald")
+context("taxadb")
 
 library(testthat)
-library(taxald)
+library(taxadb)
 library(dplyr)
 
 

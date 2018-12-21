@@ -6,7 +6,7 @@
 #'  specified as (`Genus species` or `Genus species epithet`)
 #' @param id alternately users can provide a vector of species ids.
 #'  IDs must be prefixed matching the requested authority.  See `id`
-#'  column returned by most `taxald` functions for examples.
+#'  column returned by most `taxadb` functions for examples.
 #' @inheritParams ids
 #' @return a data.frame with one row for each requested species,
 #'  giving the species id, and column for each of the unique-rank

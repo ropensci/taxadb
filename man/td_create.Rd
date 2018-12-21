@@ -6,7 +6,7 @@
 \usage{
 td_create(authorities = "itis", schema = c("hierarchy", "taxonid",
   "synonyms"), overwrite = FALSE, lines = 1e+06,
-  dbdir = rappdirs::user_data_dir("taxald"), db = td_connect(dbdir))
+  dbdir = rappdirs::user_data_dir("taxadb"), db = td_connect(dbdir))
 }
 \arguments{
 \item{authorities}{a list (character vector) of authorities to be included in the
@@ -25,7 +25,7 @@ at default or increase for faster importing if you have plenty of spare RAM.}
 \item{dbdir}{a location on your computer where the database should be installed.
 Defaults to user data directory given by \url{rappdirs::user_data_dir}.}
 
-\item{db}{connection to a database.  By default, taxald will set up its own
+\item{db}{connection to a database.  By default, taxadb will set up its own
 fast \url{MonetDBLite::MonetDBLite} connection.}
 }
 \value{
@@ -35,7 +35,7 @@ path where database has been installed (invisibly)
 create a local taxonomic database
 }
 \details{
-Authorities recognized by taxald are:
+Authorities recognized by taxadb are:
 \itemize{
 \item \code{itis}
 \item \code{ncbi}
