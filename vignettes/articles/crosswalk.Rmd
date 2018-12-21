@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 
 ```{r message = FALSE}
-library(taxald)
+library(taxadb)
 library(dplyr)
 library(tidyr)
 ```
@@ -103,3 +103,10 @@ has_match <- my_taxa %>%
 
 my_taxa %>% filter(!has_match)
 ```
+
+
+
+```{r include=FALSE}
+taxadb:::td_disconnect()
+```
+

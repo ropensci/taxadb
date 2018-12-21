@@ -19,7 +19,7 @@ test_that("we can use alternative DBs, such as SQLite", {
 
   ## NOTE: SQLite joins are waaaay slower than MonetDBLite
   dbdir <- tempdir()
-  dbname <- file.path(dbdir, "taxald.sqlite")
+  dbname <- file.path(dbdir, "taxadb.sqlite")
 
   db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
 

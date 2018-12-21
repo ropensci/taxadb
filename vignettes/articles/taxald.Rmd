@@ -1,10 +1,10 @@
 ---
-title: "taxald overview"
+title: "taxadb overview"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{taxald}
+  %\VignetteIndexEntry{taxadb}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 
 ```{r message = FALSE}
-library(taxald)
+library(taxadb)
 library(dplyr)
 library(tidyr)
 ```
@@ -35,10 +35,10 @@ Unfortunately, as anyone who has attempted this kind of exercise over more than 
 **Synonyms**.  One of the most common problems is the existence of synonyms: different names or different spellings of a given scientific name.  While this could include definite miss-spellings, for there are many species for which authorities can differ in the preferred name -- essentially, two or more different names correspond to the same species, and should be treated as such in our species join.  
 
 
-For instance, we consider the 233 primate species names used in the `geiger` package `primates` data.  To avoid installing that dependency-heavy package, a copy of these names has been cached in `taxald` and can be loaded as follows: 
+For instance, we consider the 233 primate species names used in the `geiger` package `primates` data.  To avoid installing that dependency-heavy package, a copy of these names has been cached in `taxadb` and can be loaded as follows: 
 
 ```{r}
-ex <- system.file("extdata", "primates.tsv.bz2", package = "taxald", mustWork = TRUE)
+ex <- system.file("extdata", "primates.tsv.bz2", package = "taxadb", mustWork = TRUE)
 primates <- readr::read_tsv(ex)
 primates
 ```
@@ -48,7 +48,7 @@ Our goal will be to associate each name with a definitive taxonomic ID of an exi
 
 ## Setup
 
-To get started, we'll install all the data sources available to `taxald` into a local database. This may take a while, particularly over a slow internet connection, but it needs to be done only once.  The downloaded size of all data is around 3 GB.  Once this task completes, our subsequent operations should all be quite fast.  
+To get started, we'll install all the data sources available to `taxadb` into a local database. This may take a while, particularly over a slow internet connection, but it needs to be done only once.  The downloaded size of all data is around 3 GB.  Once this task completes, our subsequent operations should all be quite fast.  
 
 ```{r message=FALSE}
 td_create(authorities = "all")
@@ -141,5 +141,11 @@ the `classification` function can work on species names directly, but this will 
 
 ```{r}
 classification(species = primates$species)
+```
+
+
+
+```{r include=FALSE}
+taxadb:::td_disconnect()
 ```
 

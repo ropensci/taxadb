@@ -20,7 +20,7 @@ data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
-\item{db}{a connection to the taxald database. See details.}
+\item{db}{a connection to the taxadb database. See details.}
 }
 \value{
 a data.frame with columns of \code{id}, scientific

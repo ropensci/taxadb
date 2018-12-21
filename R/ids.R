@@ -11,7 +11,7 @@
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
 #' first perform subsequent filtering operations.)
-#' @param db a connection to the taxald database. See details.
+#' @param db a connection to the taxadb database. See details.
 #' @return a data.frame with columns of `id`, scientific
 #' `name`, and `rank`, and `accepted_id` (if data includes synonyms)
 #'  and a row for each species name queried.

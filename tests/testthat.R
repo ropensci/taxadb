@@ -1,4 +1,4 @@
 library(testthat)
-library(taxald)
+library(taxadb)
 
-test_check("taxald")
+test_check("taxadb")

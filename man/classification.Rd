@@ -14,7 +14,7 @@ specified as (\code{Genus species} or \code{Genus species epithet})}
 
 \item{id}{alternately users can provide a vector of species ids.
 IDs must be prefixed matching the requested authority.  See \code{id}
-column returned by most \code{taxald} functions for examples.}
+column returned by most \code{taxadb} functions for examples.}
 
 \item{authority}{from which authority should the hierachy be returned?
 Default is 'itis'.}
@@ -24,7 +24,7 @@ data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
-\item{db}{a connection to the taxald database. See details.}
+\item{db}{a connection to the taxadb database. See details.}
 }
 \value{
 a data.frame with one row for each requested species,

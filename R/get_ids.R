@@ -11,14 +11,14 @@
 #'   - `prefix` (e.g. `NCBI:9606`), or
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
-#' @param taxald_db Connection to from `[td_connect]()`.
+#' @param taxadb_db Connection to from `[td_connect]()`.
 #' @param ... additional arguments passed to `ids()`
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
-#' are not recognized by taxald and will throw an error here. Meanwhile,
-#' taxald recognizes several authorities not known to `[taxize::get_ids()]`.
+#' are not recognized by taxadb and will throw an error here. Meanwhile,
+#' taxadb recognizes several authorities not known to `[taxize::get_ids()]`.
 #' Both include `itis`, `ncbi`, `col`, and `gbif`.
 #'
-#' Like all taxald functions, this function will run
+#' Like all taxadb functions, this function will run
 #' fastest if a local copy of the authority is installed in advance
 #' using `[td_create()]`.
 #' @examples \donttest{
@@ -31,7 +31,7 @@ get_ids <- function(names,
                     db = c("itis", "ncbi", "col", "tpl",
                            "gbif", "fb", "slb", "wd"),
                     format = c("bare", "prefix", "uri"),
-                    taxald_db = td_connect(),
+                    taxadb_db = td_connect(),
                     ...){
   format <- match.arg(format)
   # be compatible with common space delimiters
@@ -39,7 +39,7 @@ get_ids <- function(names,
   df <- ids(name = names,
              authority = db,
              collect = TRUE,
-             db = taxald_db)
+             db = taxadb_db)
 
   if("accepted_id" %in% names(df))
    out <- df %>% pull("accepted_id")

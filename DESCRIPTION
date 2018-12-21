@@ -1,4 +1,4 @@
-Package: taxald
+Package: taxadb
 Version: 0.0.0.9000
 Title: Taxonomic Linked Data 
 Description: Creates a local database of many commonly used taxonomic authorities
@@ -42,5 +42,5 @@ Suggests:
     purrr
 Language: en-US
 VignetteBuilder: knitr
-URL: https://github.com/cboettig/taxald
-BugReports: https://github.com/cboettig/taxald/issues
+URL: https://github.com/cboettig/taxadb
+BugReports: https://github.com/cboettig/taxadb/issues

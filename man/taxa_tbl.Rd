@@ -2,7 +2,7 @@
 % Please edit documentation in R/taxa_tbl.R
 \name{taxa_tbl}
 \alias{taxa_tbl}
-\title{Return a reference to a given table in the taxald database}
+\title{Return a reference to a given table in the taxadb database}
 \usage{
 taxa_tbl(authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd"), schema = c("hierarchy", "taxonid", "synonyms", "common",
@@ -14,9 +14,9 @@ Default is 'itis'.}
 
 \item{schema}{the table schema on which we want to run the query}
 
-\item{db}{a connection to the taxald database. Default will
+\item{db}{a connection to the taxadb database. Default will
 attempt to connect automatically.}
 }
 \description{
-Return a reference to a given table in the taxald database
+Return a reference to a given table in the taxadb database
 }

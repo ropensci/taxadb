@@ -3,10 +3,10 @@ output: github_document
 ---
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis build status](https://travis-ci.org/cboettig/taxald.svg?branch=master)](https://travis-ci.org/cboettig/taxald)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/cboettig/taxald?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxald)
-[![Coverage status](https://codecov.io/gh/cboettig/taxald/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxald?branch=master)
-[![CRAN status](https://www.r-pkg.org/badges/version/taxald)](https://cran.r-project.org/package=taxald)
+[![Travis build status](https://travis-ci.org/cboettig/taxadb.svg?branch=master)](https://travis-ci.org/cboettig/taxadb)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/cboettig/taxadb?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxadb)
+[![Coverage status](https://codecov.io/gh/cboettig/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxadb?branch=master)
+[![CRAN status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -18,11 +18,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# taxald
+# taxadb
 
-The goal of `taxald` is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
+The goal of `taxadb` is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
 
-Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxald` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
+Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
 
 
 ## Install and initial setup
@@ -30,14 +30,14 @@ Existing approaches to these problems typically rely on web APIs, which can make
 To get started, install the development version directly from GitHub:
 
 ```{r eval=FALSE}
-devtools::install_github("cboettig/taxald")
+devtools::install_github("cboettig/taxadb")
 ```
 
 
-Before we can use most `taxald` functions, we need to do a one-time installation of the database `taxald` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local hard-disk and will persist between R sessions.  By default, the database will be installed in your user's application data directory, as detected by the `rappdirs` package.  (Set a custom location instead using `dbdir` argument.)
+Before we can use most `taxadb` functions, we need to do a one-time installation of the database `taxadb` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local hard-disk and will persist between R sessions.  By default, the database will be installed in your user's application data directory, as detected by the `rappdirs` package.  (Set a custom location instead using `dbdir` argument.)
 
 ```{r }
-library(taxald)
+library(taxadb)
 td_create()
 ```
 
@@ -56,11 +56,16 @@ descendants(name = "Aves", rank = "class")
 
 ## Learn More
 
-### [An introduction to taxald](https://cboettig.github.io/taxald/articles/articles/taxald.html) 
+### [An introduction to taxadb](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
 
-The [taxald introduction](https://cboettig.github.io/taxald/articles/articles/taxald.html) 
-provides an overview showing how `taxald` functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.  
+The [taxadb introduction](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
+provides an overview showing how `taxadb` functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.  
 
-### [taxald schemas](https://cboettig.github.io/taxald/articles/articles/schema.html)
+### [taxadb schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html)
 
-See the [schemas](https://cboettig.github.io/taxald/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxald` functions, and more about the different authorities accessed by taxald.  
+See the [schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxadb` functions, and more about the different authorities accessed by taxadb.  
+
+
+```{r include=FALSE}
+taxadb:::td_disconnect()
+```

@@ -1,7 +1,7 @@
 context("fast")
 
 library(testthat)
-library(taxald)
+library(taxadb)
 library(dplyr)
 
 

@@ -2,9 +2,9 @@
 % Please edit documentation in R/td_connect.R
 \name{td_connect}
 \alias{td_connect}
-\title{Connect to the taxald database}
+\title{Connect to the taxadb database}
 \usage{
-td_connect(dbdir = rappdirs::user_data_dir("taxald"))
+td_connect(dbdir = rappdirs::user_data_dir("taxadb"))
 }
 \arguments{
 \item{dbdir}{Path to the database.}
@@ -13,11 +13,11 @@ td_connect(dbdir = rappdirs::user_data_dir("taxald"))
 Returns a \code{src_dbi} connection to the database
 }
 \description{
-Connect to the taxald database
+Connect to the taxadb database
 }
 \details{
 Primarily useful when a lower-level interface to the
-database is required.  Most \code{taxald} functions will connect
+database is required.  Most \code{taxadb} functions will connect
 automatically without the user needing to call this function.
 }
 \examples{
