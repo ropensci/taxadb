@@ -13,6 +13,7 @@
 <script src="pkgdown.js"></script><meta property="og:title" content="Taxonomic Linked Data ">
 <meta property="og:description" content="Creates a local database of many commonly used taxonomic authorities
              and provides functions that can quickly query this data.  ">
+<meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -91,11 +92,12 @@
 
     
     
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <div id="taxadb" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#taxadb" class="anchor"></a>taxadb</h1></div>
+<a href="#taxadb" class="anchor"></a>taxadb <img src="reference/figures/logo.png" align="right" alt="" width="120">
+</h1></div>
+
 <p>The goal of <code>taxadb</code> is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records.</p>
 <p>Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines. Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. <code>taxadb</code> creates a <em>local</em> database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.</p>
 <div id="install-and-initial-setup" class="section level2">
@@ -106,13 +108,9 @@
 <p>Before we can use most <code>taxadb</code> functions, we need to do a one-time installation of the database <code>taxadb</code> uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local hard-disk and will persist between R sessions. By default, the database will be installed in your user’s application data directory, as detected by the <code>rappdirs</code> package. (Set a custom location instead using <code>dbdir</code> argument.)</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(taxadb)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; Importing itis_hierarchy.tsv.bz2 in 1000000 line chunks:</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; Identifier(s) "order", "section" are reserved SQL keywords and need(s) to be quoted in queries.</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;  ...Done! (in 22.54365 secs)</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; Importing itis_taxonid.tsv.bz2 in 1000000 line chunks:</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;  ...Done! (in 17.05039 secs)</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; Importing itis_synonyms.tsv.bz2 in 1000000 line chunks:</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;  ...Done! (in 3.457511 secs)</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; not overwriting itis_hierarchy</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; not overwriting itis_taxonid</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; not overwriting itis_synonyms</span></a></code></pre></div>
 <p>The default behavior installs only the ITIS database. You can also specify a list of authorities to install, or install every authority using <code><a href="reference/td_create.html">td_create("all")</a></code>.</p>
 </div>
 <div id="test-drive" class="section level2">

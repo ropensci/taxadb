@@ -1,4 +1,8 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# taxadb <img src="man/figures/logo.png" align="right" alt="" width="120" />
+
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build
 status](https://travis-ci.org/cboettig/taxadb.svg?branch=master)](https://travis-ci.org/cboettig/taxadb)
@@ -8,10 +12,6 @@ status](https://ci.appveyor.com/api/projects/status/github/cboettig/taxadb?branc
 status](https://codecov.io/gh/cboettig/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-# taxadb
 
 The goal of `taxadb` is to provide fast access to taxonomic data and
 manipulations, such as resolving taxonomic names to ids, looking up
