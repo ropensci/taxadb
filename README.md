@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# taxadb <img src="man/figures/logo.png" align="right" alt="" width="120" />
+# taxadb <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build
