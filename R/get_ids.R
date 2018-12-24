@@ -27,6 +27,7 @@
 #' get_ids("Homo sapiens", db= "ncbi", format = "uri")
 #' }
 #' @export
+#' @importFrom dplyr pull
 get_ids <- function(names,
                     db = c("itis", "ncbi", "col", "tpl",
                            "gbif", "fb", "slb", "wd"),
@@ -42,9 +43,9 @@ get_ids <- function(names,
              db = taxadb_db)
 
   if("accepted_id" %in% names(df))
-   out <- df %>% pull("accepted_id")
+   out <- df %>% dplyr::pull("accepted_id")
   else
-    out <- df %>% pull("id")
+    out <- df %>% dplyr::pull("id")
 
   switch(format,
          "uri" = prefix_to_uri(out),
