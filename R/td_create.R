@@ -32,8 +32,7 @@
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom MonetDBLite MonetDBLite
 #' @importFrom readr cols
-#' @examples
-#' \dontrun{
+#' @examples \dontrun{
 #'   # tmp <- tempdir()
 #'   # create_db(authorities = "itis", dbdir = tmp)
 #'

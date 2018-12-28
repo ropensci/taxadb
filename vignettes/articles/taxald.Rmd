@@ -15,6 +15,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+taxadb:::td_disconnect()
+MonetDBLite::monetdblite_shutdown()
+
 ```
 
 
@@ -148,5 +151,6 @@ classification(species = primates$species)
 
 ```{r include=FALSE}
 taxadb:::td_disconnect()
+MonetDBLite::monetdblite_shutdown()
 ```
 

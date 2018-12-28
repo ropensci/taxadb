@@ -15,7 +15,10 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval=FALSE
 )
-## No idea why travis etc can't handle this
+
+
+taxadb:::td_disconnect()
+MonetDBLite::monetdblite_shutdown()
 ```
 
 
@@ -67,5 +70,6 @@ See the [schemas](https://cboettig.github.io/taxadb/articles/articles/schema.htm
 
 ```{r include=FALSE}
 taxadb:::td_disconnect()
+MonetDBLite::monetdblite_shutdown()
 ```
 

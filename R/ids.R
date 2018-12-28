@@ -34,16 +34,19 @@ ids <- function(name = NULL,
                               "gbif", "fb", "slb", "wd"),
                 collect = TRUE,
                 db = td_connect()){
-
-  input_table <- dplyr::tibble(name)
+  sort <- TRUE # dummy name
+  input_table <- dplyr::tibble(name, sort = 1:length(name))
 
   ## Use right_join, so unmatched names are kept, with NA
-  ## Using right join, names appear in order of authority
-  out <- dplyr::right_join(
+  ## Using right join, names appear in order of authority!
+  out <-
+    dplyr::right_join(
       taxa_tbl(authority, "taxonid", db),
       input_table,
       by = "name",
-      copy = TRUE)
+      copy = TRUE) %>%
+    dplyr::arrange(sort) %>%
+    select(-sort)
 
   if (collect && inherits(out, "tbl_lazy")) {
     ## Return an in-memory object

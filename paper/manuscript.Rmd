@@ -1,0 +1,80 @@
+---
+title: "taxadb: A High-Performance Local Taxonomic Database Interface"
+author:
+  - name: "Kari Norman"
+    affiliation: ucb
+  - name: "Jorrit Poelen"
+    affiliation: jorritt
+  - name: "Scott Chamberlain"
+    affiliation: ropensci      
+  - name: "Carl Boettiger"
+    affiliation: ucb, 1
+address:
+  - code: ucb
+    address: "Dept of Environmental Science, Policy, and Management, University of California Berkeley, Berkeley CA 94720-3114, USA"
+  - code: jorrit
+    address: "Independent consultant, Oakland, CA, USA"
+  - code: ropensci
+    address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA"
+abstract: |
+  A familiar and growing challenge in ecological and evolutionary research is that of reconciling scientific names of relevant taxa when combining data from separate sources. While this problem is already well understood and numerous naming authorities have been created to address the issue, most researchers lack a fast, consistent, and intuitive way to reconcile taxonomic names.  Here, we present `taxadb` R package to address this gap.  In contrast to existing tools, `taxadb` provides the following:
+  1) `taxadb` accesses established naming authorities to resolve synonyms, IDs, and hiearchical classification.  
+  2) `taxadb` creates a local database, managed automatically from within R, that provides fast operations on millions of taxonomic names.
+  3) `taxadb` provides a consistent and intuitive data format
+  4) `taxadb` is built on a simple, extensible and language agnostic design that can easily accomodiate new authorities.
+  
+journal: "Methods in Ecology & Evolution"
+date: "`r Sys.Date()`"
+bibliography: refs.bib
+output: rticles::elsevier_article
+---
+
+The purpose and strengths of `taxadb` can be most easily seen through an introductory example.  
+
+```{r}
+library(tidyverse)
+library(taxadb)
+```
+
+```{r}
+td_create("gbif")
+```
+
+
+```{r}
+url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
+col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
+               "Spanish_Common_Name", "ORDER", "Family", "Genus", "Species")
+bbs <- readr::read_table("bbs.txt", 
+                         skip = 9, 
+                         col_names = col_names, 
+                         col_types = "ccccccccc")
+
+```
+
+```{r}
+species_list = paste(bbs$Genus, bbs$Species)
+length(species_list)
+```
+
+
+```{r}
+bbs_ids <- 
+data_frame(species = species_list) %>% 
+  mutate(gbif = get_ids(species, "gbif", "prefix"),
+         col = get_ids(species, "col", "prefix"),
+         itis = get_ids(species, "itis", "prefix"),
+         ncbi = get_ids(species, "ncbi", "prefix"),
+         wikidata = get_ids(species, "wd", "prefix")) 
+```
+
+
+1. A problem already solved  including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
+
+
+2. Performance.  A fundamental challenge of most existing services is the use of internet-based Application Programming Interfaces, (web API)s to resolve individual names.  The motivation for an API-based approach is reasonable: (1) Web APIs are a ubiquitous standard of data exchange (2) make very minimal assumptions about the language, software, or hardware avaialable to the user, (3) users access a single centrally managed database that is maintained and upgraded by the provider, and (4) the provider can easily control access to the data, measure usage statistics, and enforce rate limits.  Many existing tools provide bindings of these APIs as functions to a specific language [@chamberlain2013; @taxize; @itis; @rotl; @worrms; @wikitaxa]
+
+Instead of binding existing web APIs, `taxadb` is built around a set compressed text files following a simple and consistent schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  By default `taxadb` uses MonetDBLite [@monetdblite], a columnar-oriented relational database requiring no additional installation and providing persistent disk-based storage which can be orders of magnitude faster than traditional database servers such as Postgres [@monetdblite]
+
+3. Consistency 
+

@@ -40,7 +40,7 @@ fastest if a local copy of the authority is installed in advance
 using \code{[td_create()]}.
 }
 \examples{
-\donttest{
+\dontrun{
 get_ids("Homo sapiens")
 get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
 get_ids("Homo sapiens", db= "ncbi", format = "uri")

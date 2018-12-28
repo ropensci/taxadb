@@ -16,3 +16,6 @@
 ^codemeta\.json$
 ^data$
 ^vignettes/articles$
+pkgdown
+paper
+
