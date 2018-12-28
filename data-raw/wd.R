@@ -9,11 +9,17 @@
 download.file("https://github.com/globalbioticinteractions/nomer/raw/45543c100c4b4c3a892250768ffe0bb7ef6569fe/nomer/src/main/resources/org/globalbioticinteractions/nomer/util/taxon_ranks.tsv", "wd_taxon_ranks.tsv")
 wd_ranks <- read_tsv("wd_taxon_ranks.tsv") %>% select(rank_id = id, rank = name)
 
-download.file("https://zenodo.org/record/1213477/files/wikidata-taxon-info20171227.tsv.gz", "wd-taxon.tsv.gz")
+## wikidata crosswalk(?)
 download.file("https://zenodo.org/record/1213477/files/links-globi-wd-ott.tsv.gz", "wd-links.tsv.gz")
+wd_sameas <- read_tsv("wd-links.tsv.gz", col_names = c("id", "same_as"), quote="")
+
+
+
+
 ## Not 20 GB.
 library(tidyverse)
-wd_links <- read_tsv("wd-links.tsv.gz", col_names = c("id", "same_as"), quote="")
+download.file("https://zenodo.org/record/1213477/files/wikidata-taxon-info20171227.tsv.gz", "wd-taxon.tsv.gz")
+
 wd_taxon <- read_tsv("wd-taxon.tsv.gz", col_names = c("id", "name", "rank_id", "parent", "same_as"), quote = "")
 
 ## Lets create the tables...  ugh, it's recursive join time again  on id = parent

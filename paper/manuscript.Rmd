@@ -68,6 +68,128 @@ data_frame(species = species_list) %>%
          wikidata = get_ids(species, "wd", "prefix")) 
 ```
 
+```{r}
+## Consider: Working from a focal authority:
+## select all rows where focal authority did not match but another authority did
+## for each matched authority, access species name associated with id, and requery
+
+## OR consider: access accepted species name associated with any authority, requery that in original authority?
+## 
+
+## OR consider? generate a combined taxonid table for all authorities
+```
+
+```{r}
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+
+ITIS resolves the most names, but no authority resolves all the names provided.  
+
+```{r}
+unmatched <- species_list[is.na(bbs_ids$itis)]
+
+first_two <- function(x){ tmp <- strsplit(x, " ")[[1]]; paste(tmp[[1]], tmp[[2]]) }
+drop_sp <- function(x) gsub("(\\w+)\\s+sp\\.", "\\1", x)
+
+matched <- unmatched %>% 
+  map_chr(first_two) %>% 
+  drop_sp() %>%
+  get_ids("itis", "prefix")
+
+matched %>% is.na() %>% sum()
+
+still_umatched <- unmatched[is.na(matched)]
+
+```
+
+```{r}
+first_two_fuzzy <- function(x){ 
+  tmp <- strsplit(x, " ")[[1]]
+  paste0(tmp[[1]], " ", tmp[[2]], "%") 
+}
+
+only_genus <- function(x){ 
+  purrr::map_chr(x, function(x) strsplit(x, " ")[[1]][[1]])
+}
+name_to_regex <- function(x){ 
+  x <- gsub("(\\w+)\\s+sp\\..*", "\\1.*", x)
+  # x <- gsub("(\\w+)\\s+(\\w+).*", "\\1 \\2.*", x)
+  x <- gsub("(\\w+)\\s+(\\w{1,3}).*", "\\1 \\2.*", x)
+  x
+}
+name_to_regex(still_umatched)
+
+## subset by genus first
+tmp <- 
+  right_join(taxa_tbl("itis", "hierarchy"), 
+           data_frame(genus = only_genus(still_umatched)),
+           copy = TRUE) %>% select(id) %>% 
+  left_join(taxa_tbl("itis", "taxonid"), by="id") %>%
+  distinct() %>% 
+  collect() 
+
+df <- data_frame(regex_name = name_to_regex(still_umatched))
+i <- vapply(df$regex_name, 
+            function(x) which(grepl(x, tmp$name)),
+            integer(1))
+tmp[i,] %>%  select(id, name) %>% distinct()
+
+tmp[which(grepl("Rallus.*", tmp$name)), ] %>%  select(id, name) %>% distinct()
+
+
+```
+
+```{r}
+matched <- tmp %>%   
+  fuzzyjoin::regex_inner_join(
+    data.frame(regex_name = name_to_regex(still_umatched)),
+    by = c(name = "regex_name")
+  )
+```
+
+
+
+```{r}
+matches <- 
+  right_join(taxa_tbl("itis", "hierarchy"), 
+           data_frame(genus = only_genus(species_list)),
+           copy = TRUE) %>% 
+  distinct() %>% 
+  collect() 
+# uses smaller table filtered by genus
+library(fuzzyjoin)
+left_join(data_frame(species = species_list), matches)
+  
+
+stringdist_left_join(data_frame(species = species_list), matches)
+
+  
+  right_join(data_frame(species = first_two(unmatched))) %>% 
+  select(id, species) %>% 
+  distinct()
+
+taxa_tbl("itis", "taxonid") %>%
+  filter(name %in% c("Rallus%", "Vermivora%"), rank == "species")
+
+taxa_tbl("itis", "hierarchy") %>% filter(genus == "Rallus") %>% select(genus, species)
+```
+
+```{r}
+itis <- ids(species_list, "itis") 
+col <- accepted_name(bbs_ids$itis, "itis") %>% pull(name) %>% get_ids("col")
+sum(!is.na(col))
+```
+
+```{r}
+unmatched <- bbs_ids %>%  
+  select(-species) %>%
+  purrr::map_dfc(function(x) !is.na(x)) %>% 
+  rowSums() < 1
+
+sum(!unmatched)
+```
 
 1. A problem already solved  including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
 

@@ -58,3 +58,34 @@ ids <- function(name = NULL,
 
 
 
+
+
+## FIXME abstract this to filter on id / name / generic column?
+accepted_name <- function(id = NULL,
+                authority = c("itis", "ncbi", "col", "tpl",
+                              "gbif", "fb", "slb", "wd"),
+                collect = TRUE,
+                db = td_connect()){
+  sort <- TRUE # dummy name
+  input_table <- dplyr::tibble(id, sort = 1:length(id))
+
+  ## Use right_join, so unmatched names are kept, with NA
+  ## Means names appear in order of authority, so we must arrange
+  ## after-the-fact to match the query order
+  out <-
+    dplyr::right_join(
+      taxa_tbl(authority, "taxonid", db),
+      input_table,
+      by = "id",
+      copy = TRUE) %>%
+    dplyr::arrange(sort) %>%
+    select(-sort)
+
+  if (collect && inherits(out, "tbl_lazy")) {
+    ## Return an in-memory object
+    return( dplyr::collect(out) )
+  }
+
+  out
+}
+
