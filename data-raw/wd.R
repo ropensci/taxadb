@@ -101,6 +101,10 @@ wd_wide <- uniques %>% spread(path_rank, path)
 write_tsv(wd_wide, bzfile("data/wd_hierarchy.tsv.bz2", compression=9))
 
 
+## Should query wikidata for all synonyms and all crosswalked ids!
+
+
+
 ## Debug info: use this to up the duplicated ranks.
 has_duplicate_rank <- pre_spread %>%
   group_by(id, path_rank) %>%
