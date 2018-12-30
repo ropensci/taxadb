@@ -3,8 +3,6 @@ library(tidyverse)
 download.file("http://files.opentreeoflife.org/ott/ott3.0/ott3.0.tgz", "ott3.0.tgz")
 untar("ott3.0.tgz", compressed = "gzip")
 
-readr::read_lines("ott/synonyms.tsv", n_max = 5)
-
 # Really would be nice if we followed the DAMN STANDARD. tsv is tab-delimited,
 # not "\\t\\|\\t" delimited, people!
 
@@ -14,8 +12,8 @@ synonyms <- read_tsv("ott/synonyms.tsv") %>%
 taxonomy <- read_tsv("ott/taxonomy.tsv") %>%
   select(name, uid, parent_uid, rank, uniqname, sourceinfo, flags)
 
-unlink("ott3.0.tgz")
-unlink("ott", recursive = TRUE)
+#unlink("ott3.0.tgz")
+#unlink("ott", recursive = TRUE)
 
 ## sourceinfo is comma-separated list of identifiers which synonym resolves against
 ## (identifiers of accepted names, not just ids to the synonym, not listed)
@@ -86,26 +84,31 @@ pre_spread <-
   filter(rank == "species") %>%
   select(id, species = name, path, path_rank) %>%
   distinct() %>%
-  filter(!is.na(path_rank))
+  filter(!is.na(path_rank)) %>%
+### some duplicates occur with spaces in names:
+  filter(!grepl(" ", path))  %>%
+  filter(path_rank != "species") %>%
+   mutate(id = paste0("OTT:", id))
 
-rm(ott_long)
+## Many have multiple names at a given rank! e.g. kingdom Chloroplastida & Archaeplastida
+## Use tidy_names()
+dedup <- pre_spread %>%
+  mutate(orig_rank = path_rank) %>%
+  group_by(id, orig_rank) %>%
+  mutate(path_rank = tidy_names(orig_rank, quiet= TRUE)) %>%
+  select(-orig_rank)
 
-### Some are duplicates
-#ott_wide <- pre_spread %>% spread(path_rank, path)
 
-#saveRDS(pre_spread, "pre_spread.rds")
-#pre_spread <- readRDS("~/pre_spread.rds")
+## Worse method, takes first among the duplicates
+#pre_spread <- pre_spread %>% mutate(row = 1:n())
+#tmp <- pre_spread %>% select(id, path_rank, row) %>% group_by(path_rank) %>% top_n(1)
+#uniques <- left_join(tmp, pre_spread, by = c("row", "id",  "path_rank")) %>% ungroup()
 
-## Some species names / ids have multiple ranks at the same level (i.e. is part of two suborders)
-## In order to spread, we use this trick to just take the first of these in that case.
-pre_spread <- pre_spread %>% mutate(row = 1:n())
-tmp <- pre_spread %>% select(id, path_rank, row) %>% group_by(path_rank) %>% top_n(1)
-uniques <- left_join(tmp, pre_spread, by = c("row", "id",  "path_rank")) %>% ungroup()
+ott_wide <- dedup %>% spread(path_rank, path)
+write_tsv(ott_wide, "data/ott_hierarchy.tsv.bz2")
 
-uniques %>% pull(path_rank) %>% unique()
 
-rm(pre_spread)
-write_tsv(ott_wide, bzfile("data/ott_hierarchy.tsv.bz2", compression=9))
+
 
 
 ## Debug info: use this to view the duplicated ranks.
@@ -116,6 +119,12 @@ has_duplicate_rank <- pre_spread %>%
 dups <- pre_spread %>%
   semi_join(select(has_duplicate_rank, id, path_rank))
 
-dups
+x = tidy_names(c("class", "class"))
 
+dedup_ex <- dups  %>%
+  mutate(orig_rank = path_rank) %>%
+  group_by(id, orig_rank) %>%
+  mutate(path_rank = tidy_names(orig_rank, quiet = TRUE)) %>%
+  select(-orig_rank)
+dedup_ex
 rm(has_duplicate_rank, dups)
