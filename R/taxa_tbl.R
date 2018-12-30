@@ -1,4 +1,5 @@
-
+KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
+                       "gbif", "fb", "slb", "wd", "ott")
 #' Return a reference to a given table in the taxadb database
 #'
 #' @param db a connection to the taxadb database. Default will
@@ -8,8 +9,7 @@
 #' @inheritParams classification
 #' @export
 taxa_tbl <- function(
-  authority = c("itis", "ncbi", "col", "tpl",
-                "gbif", "fb", "slb", "wd"),
+  authority = KNOWN_AUTHORITIES,
   schema = c("hierarchy", "taxonid", "synonyms", "common", "long"),
   db = td_connect()){
 

@@ -66,7 +66,13 @@ data_frame(species = species_list) %>%
          itis = get_ids(species, "itis", "prefix"),
          ncbi = get_ids(species, "ncbi", "prefix"),
          wikidata = get_ids(species, "wd", "prefix")) 
+
 ```
+
+```{r}
+ott_ids <- ids(species_list, "ott")
+```
+
 
 ```{r}
 ## Consider: Working from a focal authority:

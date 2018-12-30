@@ -17,14 +17,15 @@
 #' fast [MonetDBLite::MonetDBLite]() connection.
 #' @details
 #'  Authorities recognized by taxadb are:
-#'  - `itis`
-#'  - `ncbi`
-#'  - `col`
-#'  - `tpl`
-#'  - `gbif`
+#'  - `itis`: Integrated Taxonomic Information System, <https://www.itis.gov/>
+#'  - `ncbi`:  National Center for Biotechnology Information, <https://www.ncbi.nlm.nih.gov/taxonomy>
+#'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>
+#'  - `tpl`: The Plant List, <http://www.theplantlist.org/>
+#'  - `gbif`: Global Biodiversity Information Facility, <https://www.gbif.org/>
 #'  - `fb` FishBase, <http://fishbase.org>
 #'  - `slb`, SeaLifeBase, <http://sealifebase.org>
-#'  - `wd`, wikidata
+#'  - `wd`, Wikidata: <https://www.wikidata.org/>
+#'  - `ott` OpenTree Taxonomy: <https://github.com/OpenTreeOfLife/reference-taxonomy>
 #' @return path where database has been installed (invisibly)
 #' @export
 #' @importFrom utils download.file
@@ -45,14 +46,7 @@ td_create <- function(authorities = "itis",
                       db = td_connect(dbdir)
                       ){
 
-  recognized_authorities = c("itis",
-                             "ncbi",
-                             "col",
-                             "tpl",
-                             "gbif",
-                             "fb",
-                             "slb",
-                             "wd")
+  recognized_authorities = KNOWN_AUTHORITIES
   recognized_schema = c("hierarchy", "taxonid", "synonyms")
   if (authorities == "all") {
     authorities <- recognized_authorities
