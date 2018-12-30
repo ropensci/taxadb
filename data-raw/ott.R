@@ -38,13 +38,19 @@ write_tsv(ott_synonyms, "data/ott_synonyms.tsv.bz2")
 ## TaxonID table
 ott_taxonid <- bind_rows(
   taxonomy %>% select(id = uid, name, rank) %>%
-    mutate(accepted_id = id, type = "accepted_name"),
-  synonyms %>% select(accepted_id = uid, name) %>%
-    mutate(id = NA, rank = NA)
-) %>% mutate(id = paste0("OTT:", id))
+    mutate(id = paste0("OTT:", id)) %>%
+    mutate(accepted_id = id, name_type = "accepted_name"),
+  synonyms %>%
+    select(accepted_id = uid, name, name_type = type) %>%
+    left_join(select(taxonomy, uid, rank),
+              by = c("accepted_id" = "uid")) %>%
+    mutate(id = NA, accepted_id = paste0("OTT:", accepted_id))
+)
+
 
 dir.create("data", FALSE)
 write_tsv(ott_taxonid, "data/ott_taxonid.tsv.bz2")
+
 
 rm(synonyms, ott_taxonid)
 
