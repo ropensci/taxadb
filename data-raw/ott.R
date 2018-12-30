@@ -12,14 +12,13 @@ synonyms <- read_tsv("ott/synonyms.tsv") %>%
 taxonomy <- read_tsv("ott/taxonomy.tsv") %>%
   select(name, uid, parent_uid, rank, uniqname, sourceinfo, flags)
 
-#unlink("ott3.0.tgz")
-#unlink("ott", recursive = TRUE)
 
 ## sourceinfo is comma-separated list of identifiers which synonym resolves against
 ## (identifiers of accepted names, not just ids to the synonym, not listed)
 ## UIDs are OTT ids of the ACCEPTED NAMES.  no ids to synonym names
 
-# synonyms involve a lot of types, but mostly "synonym".  Does not include "accepted" names.
+# synonyms involve a lot of types, but mostly "synonym".
+## Does not include "accepted" names.
 synonyms %>% count(type) %>% arrange(desc(n))
 
 
@@ -38,7 +37,7 @@ ott_taxonid <- bind_rows(
 dir.create("data", FALSE)
 write_tsv(ott_taxonid, "data/ott_taxonid.tsv.bz2")
 
-rm(synonyms)
+rm(synonyms, ott_taxonid)
 
 max <- pull(taxonomy, rank) %>% unique() %>% length()
 
@@ -90,25 +89,26 @@ pre_spread <-
   filter(path_rank != "species") %>%
    mutate(id = paste0("OTT:", id))
 
-## Many have multiple names at a given rank! e.g. kingdom Chloroplastida & Archaeplastida
+## Many have multiple names at a given rank! e.g.
+## kingdom Chloroplastida & Archaeplastida
 ## Use tidy_names()
 dedup <- pre_spread %>%
   mutate(orig_rank = path_rank) %>%
   group_by(id, orig_rank) %>%
   mutate(path_rank = tidy_names(orig_rank, quiet= TRUE)) %>%
+  ungroup() %>%
   select(-orig_rank)
-
-
-## Worse method, takes first among the duplicates
-#pre_spread <- pre_spread %>% mutate(row = 1:n())
-#tmp <- pre_spread %>% select(id, path_rank, row) %>% group_by(path_rank) %>% top_n(1)
-#uniques <- left_join(tmp, pre_spread, by = c("row", "id",  "path_rank")) %>% ungroup()
+rm(pre_spread, ott_long)
 
 ott_wide <- dedup %>% spread(path_rank, path)
 write_tsv(ott_wide, "data/ott_hierarchy.tsv.bz2")
 
 
+unlink("ott3.0.tgz")
+unlink("ott", recursive = TRUE)
 
+
+###################
 
 
 ## Debug info: use this to view the duplicated ranks.
@@ -127,4 +127,13 @@ dedup_ex <- dups  %>%
   mutate(path_rank = tidy_names(orig_rank, quiet = TRUE)) %>%
   select(-orig_rank)
 dedup_ex
+
+
 rm(has_duplicate_rank, dups)
+
+## Worse method, takes first among the duplicates
+#pre_spread <- pre_spread %>% mutate(row = 1:n())
+#tmp <- pre_spread %>% select(id, path_rank, row)
+# %>% group_by(path_rank) %>% top_n(1)
+#uniques <- left_join(tmp, pre_spread,
+# by = c("row", "id",  "path_rank")) %>% ungroup()
