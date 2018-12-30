@@ -27,6 +27,15 @@ synonyms %>% count(type) %>% arrange(desc(n))
 # including "extinct", "environmental", & "incertae_sedis"
 taxonomy %>% count(flags) %>% arrange(desc(n))
 
+## Synonyms table: id, accepted_name, rank, name, name_type
+ott_synonyms <- taxonomy %>%
+  select(accepted_name = name, uid, rank) %>%
+  right_join(synonyms) %>%
+  select(id = uid, accepted_name, name, rank, name_type = type) %>%
+  mutate(id = paste0("OTT:", id))
+write_tsv(ott_synonyms, "data/ott_synonyms.tsv.bz2")
+
+## TaxonID table
 ott_taxonid <- bind_rows(
   taxonomy %>% select(id = uid, name, rank) %>%
     mutate(accepted_id = id, type = "accepted_name"),
@@ -104,9 +113,15 @@ ott_wide <- dedup %>% spread(path_rank, path)
 write_tsv(ott_wide, "data/ott_hierarchy.tsv.bz2")
 
 
-unlink("ott3.0.tgz")
-unlink("ott", recursive = TRUE)
 
+
+library(piggyback)
+fs::dir_ls("data") %>% pb_upload()
+
+
+
+#unlink("ott3.0.tgz")
+#unlink("ott", recursive = TRUE)
 
 ###################
 
