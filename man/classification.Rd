@@ -4,9 +4,8 @@
 \alias{classification}
 \title{Return the full classification hierarchy for requested species or ids}
 \usage{
-classification(species = NULL, id = NULL, authority = c("itis",
-  "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"), collect = TRUE,
-  db = td_connect())
+classification(species = NULL, id = NULL,
+  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
 }
 \arguments{
 \item{species}{a character vector of species names, typically

@@ -30,8 +30,7 @@
 #' @importFrom rlang !!
 #' @importFrom magrittr %>%
 ids <- function(name = NULL,
-                authority = c("itis", "ncbi", "col", "tpl",
-                              "gbif", "fb", "slb", "wd"),
+                authority = KNOWN_AUTHORITIES,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
@@ -65,8 +64,7 @@ deduplicate_ids <- function(x){
 
 ## FIXME abstract this to filter on id / name / generic column?
 accepted_name <- function(id = NULL,
-                authority = c("itis", "ncbi", "col", "tpl",
-                              "gbif", "fb", "slb", "wd"),
+                authority = KNOWN_AUTHORITIES,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name

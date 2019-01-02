@@ -4,8 +4,8 @@
 \alias{synonyms}
 \title{synonyms}
 \usage{
-synonyms(name = NULL, authority = c("itis", "ncbi", "col", "tpl",
-  "gbif", "fb", "slb", "wd"), collect = TRUE, db = td_connect())
+synonyms(name = NULL, authority = KNOWN_AUTHORITIES, collect = TRUE,
+  db = td_connect())
 }
 \arguments{
 \item{name}{a character vector of species names, e.g. "Homo sapiens"

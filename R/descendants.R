@@ -10,37 +10,36 @@
 # @importFrom rlang !! := UQ quo enquo
 # @importFrom magrittr %>%
 #' @importFrom dplyr semi_join select filter distinct
-descendants <- function(name = NULL, 
-                        rank = NULL, 
+descendants <- function(name = NULL,
+                        rank = NULL,
                         id = NULL,
-                        authority = c("itis", "ncbi", "col", "tpl",
-                                      "gbif", "fb", "slb", "wd"),
+                        authority = KNOWN_AUTHORITIES,
                         collect = TRUE,
                         db = td_connect(),
                         schema = "hierarchy"){
-  
+
   ## technically could guess rank from name most but not all time
   ## could still do this as join rather than a filter with appropriate table construction
-  
+
     df <- data.frame(setNames(list(name),  rank), stringsAsFactors = FALSE)
     df$id <- id
-    
+
     taxa <- taxa_tbl(authority = authority,
-                     schema = "hierarchy", 
+                     schema = "hierarchy",
                      db = db)
-    
-    out <- dplyr::semi_join(taxa, 
-                            df, 
-                            copy = TRUE, 
+
+    out <- dplyr::semi_join(taxa,
+                            df,
+                            copy = TRUE,
                             by = rank)
-  
-  
+
+
   if(collect && inherits(out, "tbl_lazy")){
     ## Return an in-memory object
     out <- dplyr::collect(out)
   }
-  
+
   out
-  
+
 }
 

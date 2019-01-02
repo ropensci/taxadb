@@ -45,7 +45,7 @@ td_create("gbif")
 url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
 col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
                "Spanish_Common_Name", "ORDER", "Family", "Genus", "Species")
-bbs <- readr::read_table("bbs.txt", 
+bbs <- readr::read_table(url, 
                          skip = 9, 
                          col_names = col_names, 
                          col_types = "ccccccccc")

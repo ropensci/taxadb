@@ -5,8 +5,8 @@
 \title{Get all members (descendants) of a given rank level}
 \usage{
 descendants(name = NULL, rank = NULL, id = NULL,
-  authority = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd"),
-  collect = TRUE, db = td_connect(), schema = "hierarchy")
+  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect(),
+  schema = "hierarchy")
 }
 \arguments{
 \item{name}{taxonomic name (e.g. "Aves")}
