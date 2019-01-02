@@ -18,4 +18,5 @@
 ^vignettes/articles$
 pkgdown
 paper
+^ISSUES\.md$
 

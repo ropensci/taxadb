@@ -37,14 +37,15 @@ create a local taxonomic database
 \details{
 Authorities recognized by taxadb are:
 \itemize{
-\item \code{itis}
-\item \code{ncbi}
-\item \code{col}
-\item \code{tpl}
-\item \code{gbif}
+\item \code{itis}: Integrated Taxonomic Information System, \url{https://www.itis.gov/}
+\item \code{ncbi}:  National Center for Biotechnology Information, \url{https://www.ncbi.nlm.nih.gov/taxonomy}
+\item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
+\item \code{tpl}: The Plant List, \url{http://www.theplantlist.org/}
+\item \code{gbif}: Global Biodiversity Information Facility, \url{https://www.gbif.org/}
 \item \code{fb} FishBase, \url{http://fishbase.org}
 \item \code{slb}, SeaLifeBase, \url{http://sealifebase.org}
-\item \code{wd}, wikidata
+\item \code{wd}, Wikidata: \url{https://www.wikidata.org/}
+\item \code{ott} OpenTree Taxonomy: \url{https://github.com/OpenTreeOfLife/reference-taxonomy}
 }
 }
 \examples{

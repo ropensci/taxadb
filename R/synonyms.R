@@ -5,8 +5,7 @@
 #' @inheritParams ids
 #' @export
 synonyms <- function(name = NULL,
-                     authority = c("itis", "ncbi", "col", "tpl",
-                                         "gbif", "fb", "slb", "wd"),
+                     authority = KNOWN_AUTHORITIES,
                      collect = TRUE,
                      db = td_connect()){
 

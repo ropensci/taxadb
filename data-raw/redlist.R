@@ -46,15 +46,15 @@ write_tsv(hierarchy, "data/iucn_hierarchy.tsv.bz2")
 
 ## ~ 10 hours to run
 system.time({
-syn_list <- vector("list", length = length(full$scientific_name))
-#for(i in seq_along(full$scientific_name)){
+  syn_list <- vector("list", length = length(full$scientific_name))
+  #for(i in seq_along(full$scientific_name)){
 
-sofar <- 1
-for(i in sofar:length(full$scientific_name)){
-  syn_list[[i]] <- tryCatch(rredlist::rl_synonyms(full$scientific_name[[i]], key),
-                            error = function(e) list(),
-                            finally = NULL)
-}
+  sofar <- 1
+  for(i in sofar:length(full$scientific_name)){
+    syn_list[[i]] <- tryCatch(rredlist::rl_synonyms(full$scientific_name[[i]], key),
+                              error = function(e) list(),
+                              finally = NULL)
+  }
 })
 
 syn_table <- syn_list %>% map_dfr("result") %>% as_tibble()
@@ -79,8 +79,8 @@ system.time({
   sofar <- 1
   for(i in sofar:length(full$scientific_name)){
     common_list[[i]] <- tryCatch(rredlist::rl_common_names(full$scientific_name[[i]], key),
-                              error = function(e) list(),
-                              finally = NULL)
+                                 error = function(e) list(),
+                                 finally = NULL)
   }
 })
 
