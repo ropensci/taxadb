@@ -1,5 +1,6 @@
 KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
-                       "gbif", "fb", "slb", "wd", "ott")
+                       "gbif", "fb", "slb", "wd", "ott",
+                       "iucn")
 #' Return a reference to a given table in the taxadb database
 #'
 #' @param db a connection to the taxadb database. Default will

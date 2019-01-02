@@ -57,7 +57,10 @@ ids <- function(name = NULL,
 }
 
 
+## If species name appears twice in the table -- what should we do?
+deduplicate_ids <- function(x){
 
+}
 
 
 ## FIXME abstract this to filter on id / name / generic column?

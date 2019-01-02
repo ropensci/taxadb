@@ -28,10 +28,9 @@
 #' }
 #' @export
 #' @importFrom dplyr pull
+# @importFrom tibble column_to_rowname
 get_ids <- function(names,
-                    db = c("itis", "ncbi", "col", "tpl",
-                           "gbif", "fb", "slb", "wd"),
-                    format = c("bare", "prefix", "uri"),
+                    db = KNOWN_AUTHORITIES,
                     taxadb_db = td_connect(),
                     ...){
   format <- match.arg(format)
@@ -42,11 +41,16 @@ get_ids <- function(names,
              collect = TRUE,
              db = taxadb_db)
 
-  if("accepted_id" %in% names(df))
-   out <- df %>% dplyr::pull("accepted_id")
-  else
-    out <- df %>% dplyr::pull("id")
-
+  ## More aggressive logic to enforce
+  ## we get precisely one ID or NA for each name queried
+  #df <- tibble::column_to_rownames(df, "name")
+  if("accepted_id" %in% names(df)){
+    #out <- df[names, "accepted_id"]
+    out <- pull(df, "accepted_id")
+  } else {
+    #out <- df[names, "id"]
+    out <- pull(df, "id")
+  }
   switch(format,
          "uri" = prefix_to_uri(out),
          "prefix" = out,
