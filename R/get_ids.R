@@ -32,6 +32,7 @@
 get_ids <- function(names,
                     db = KNOWN_AUTHORITIES,
                     taxadb_db = td_connect(),
+                    format = c("bare", "prefix", "uri"),
                     ...){
   format <- match.arg(format)
   # be compatible with common space delimiters

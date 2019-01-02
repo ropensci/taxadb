@@ -4,7 +4,8 @@
 \alias{get_ids}
 \title{get_ids}
 \usage{
-get_ids(names, db = KNOWN_AUTHORITIES, taxadb_db = td_connect(), ...)
+get_ids(names, db = KNOWN_AUTHORITIES, taxadb_db = td_connect(),
+  format = c("bare", "prefix", "uri"), ...)
 }
 \arguments{
 \item{names}{a list of scientific names (which may
@@ -14,8 +15,6 @@ include higher-order ranks in most authorities).}
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
-\item{...}{additional arguments passed to \code{ids()}}
-
 \item{format}{Format for the returned: bare identifier, one of
 \itemize{
 \item \code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
@@ -23,6 +22,8 @@ include higher-order ranks in most authorities).}
 \item \code{uri} (e.g.
 \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
+
+\item{...}{additional arguments passed to \code{ids()}}
 }
 \description{
 A drop-in replacement for \code{[taxize::get_ids()]}
