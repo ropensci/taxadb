@@ -1,8 +1,20 @@
+
+#install.packages('rredlist')
+library(rredlist)
 library(tidyverse)
 library(httr)
+
+## Public token from Redlist API website examples:
+key <- "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee"
+
+## How many pages of records?
+x <- GET(paste0("http://apiv3.iucnredlist.org/api/v3/speciescount?token=",key))
+max <- ceiling(as.numeric(content(x)$count) / 10000) - 1
+
+## Get em all
 links <- paste0("http://apiv3.iucnredlist.org/api/v3/species/page/",
-                0:9,
-                "?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee")
+                0:max,
+                "?token=", key)
 system.time({
 
   full <- links %>%
@@ -16,16 +28,61 @@ system.time({
     })
 })
 
-## Or just read in result to save time
-full <- read_csv("https://espm-157.github.io/extinction-module/all_species.csv")
 
-#install.packages('rredlist')
-library(rredlist)
-key <- "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee"
-#c("Geranoaetus albicaudatus", "Hopea auriculata") %>%
-synonyms <- full$scientific_name %>%
-  map_dfr(function(name){
-      return <- rredlist::rl_synonyms(name, key = key)
-      return$result
-    })
+sentence_case <- function(x) {
+  Hmisc::capitalize(str_to_lower(x))
+  #gsub("(. )([A-Z])(.+)", "\\1\\U\\2\\L\\3", x)
+}
+hierarchy <- full %>% select(id = taxonid, kingdom = kingdom_name, phylum = phylum_name,
+                             class = class_name, order = order_name, family = family_name,
+                             genus = genus_name, species = scientific_name) %>%
+  mutate_if(is.character, sentence_case) %>%
+  mutate(id = paste0("IUCN:", id))
+
+dir.create("data", FALSE)
+write_tsv(hierarchy, "data/iucn_hierarchy.tsv.bz2")
+
+
+
+## May take days to run!!
+system.time({
+syn_list <- vector("list", length = length(full$scientific_name))
+#for(i in seq_along(full$scientific_name)){
+
+sofar <- 1
+for(i in sofar:length(full$scientific_name)){
+  syn_list[[i]] <- tryCatch(rredlist::rl_synonyms(full$scientific_name[[i]], key),
+                            error = function(e) list(),
+                            finally = NULL)
+}
+})
+
+syn_table <- syn_list %>% map_dfr("result") %>% as_tibble()
+syn_table %>% select(accepted_id, accepted_name, synonym) %>% write_tsv("data/iucn_synonyms.tsv.bz2")
+
+
+taxonid <- hierarchy %>%
+  select(id, name = species) %>% mutate(rank = "species") %>%
+  bind_rows(syn_table %>%
+              select(id = accepted_id, name = synonym) %>%
+              mutate(id = paste0("IUCN:", id), rank = "species")
+  )
+write_tsv(taxonid, "data/iucn_taxonid.tsv.bz2")
+
+##library(piggyback)
+##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% pb_upload(tag = "v1.0.0")
+
+## May take days to run!!
+system.time({
+  common_list <- vector("list", length = length(full$scientific_name))
+  #for(i in seq_along(full$scientific_name)){
+
+  sofar <- 1
+  for(i in sofar:length(full$scientific_name)){
+    common_list[[i]] <- tryCatch(rredlist::rl_common_names(full$scientific_name[[i]], key),
+                              error = function(e) list(),
+                              finally = NULL)
+  }
+})
+
 
