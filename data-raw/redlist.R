@@ -44,7 +44,7 @@ write_tsv(hierarchy, "data/iucn_hierarchy.tsv.bz2")
 
 
 
-## May take days to run!!
+## ~ 10 hours to run
 system.time({
 syn_list <- vector("list", length = length(full$scientific_name))
 #for(i in seq_along(full$scientific_name)){
@@ -69,10 +69,9 @@ taxonid <- hierarchy %>%
   )
 write_tsv(taxonid, "data/iucn_taxonid.tsv.bz2")
 
-##library(piggyback)
-##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% pb_upload(tag = "v1.0.0")
 
-## May take days to run!!
+
+## ~ 10 hours to run
 system.time({
   common_list <- vector("list", length = length(full$scientific_name))
   #for(i in seq_along(full$scientific_name)){
@@ -85,4 +84,29 @@ system.time({
   }
 })
 
+null_as_na_name <- function(x){ if(is.null(x$name)) return(as.character(NA)); x$name}
 
+names <- map_chr(common_list, null_as_na_name)
+common <- common_list %>% map_dfr(function(x) as_tibble(x$result))
+
+null_as_na_result <- function(x){ if(length(x) == 0)
+  return(tibble(taxonname = as.character(NA), primary=NA, language=as.character(NA)))
+  x
+  }
+
+common <- common_list %>%
+  map_dfr(function(x)
+  data.frame(name = null_as_na_name(x), as_tibble(null_as_na_result(x$result)),
+             stringsAsFactors = FALSE)
+  ) %>%
+  as_tibble() %>%
+  rename(scientific_name = name, commonname = taxonname) %>%
+  left_join(select(full, id = taxonid, scientific_name)) %>%
+  mutate(id = paste0("IUCN:", id)) %>%
+  select(id, scientific_name, commonname, primary, language)
+
+write_tsv(common, "data/iucn_common.tsv.bz2")
+
+
+##library(piggyback)
+##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% pb_upload(tag = "v1.0.0")
