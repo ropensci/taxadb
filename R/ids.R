@@ -47,6 +47,8 @@ ids <- function(name = NULL,
     dplyr::arrange(sort) %>%
     select(-sort)
 
+
+
   if (collect && inherits(out, "tbl_lazy")) {
     ## Return an in-memory object
     return( dplyr::collect(out) )
@@ -57,8 +59,19 @@ ids <- function(name = NULL,
 
 
 ## If species name appears twice in the table -- what should we do?
-deduplicate_ids <- function(x){
+deduplicate_ids <- function(species){
 
+  ## adds a column indicating how many times species name appears.
+  ## sorts with duplicates at top for inspection.
+  # duplicates <- species %>% count(name) %>%
+  #   inner_join(species, by ="name") %>% arrange(desc(n))
+
+  if("name_type" %in% colnames(species))
+  ## A common reason for duplicates is that the same name matches
+  species %>%
+    ## Uses explicit factor to enforce order
+    mutate(name_type = factor(name_type,  c("synonym", "accepted"))) %>%
+    group_by(name) %>% top_n(1, name_type)
 }
 
 

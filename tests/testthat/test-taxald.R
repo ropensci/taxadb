@@ -22,8 +22,14 @@ test_that("we can set up a db and call basic functions", {
   df <- descendants(name = "Aves",
                     rank = "class",
                     db = db)
+
+
   species <- ids(df$species,
                  db = td_connect(test_db))
+
+  ## confirm order did not change
+  expect_identical(head(df$species), head(species$name))
+
   hier <- classification(df$species,
                          db = db)
 
