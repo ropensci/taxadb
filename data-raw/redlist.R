@@ -3,6 +3,7 @@
 library(rredlist)
 library(tidyverse)
 library(httr)
+source("data-raw/helper-routines.R")
 
 ## Public token from Redlist API website examples:
 key <- "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee"
@@ -66,7 +67,8 @@ taxonid <- hierarchy %>%
   bind_rows(syn_table %>%
               select(id = accepted_id, name = synonym) %>%
               mutate(id = paste0("IUCN:", id), rank = "species")
-  )
+  ) %>%
+  de_duplicate()
 write_tsv(taxonid, "data/iucn_taxonid.tsv.bz2")
 
 

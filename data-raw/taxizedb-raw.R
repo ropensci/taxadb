@@ -8,6 +8,10 @@
 ## as a piggyback from the github repo.  Simply run:
 ##     piggyback::pb_download(repo = "cboettig/taxadb")
 
+
+## Also need:
+## apt-get -y install mariadb-client postgresql-client
+
 library(arkdb)
 library(taxizedb)
 

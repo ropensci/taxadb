@@ -1,18 +1,10 @@
-## apt-get -y install mariadb-client postgresql-client
-#library(taxizedb)
 library(tidyverse)
-library(piggyback)
-#itis_store <- db_download_itis()
-## Need to fix locale issue
-#db_load_itis(itis_store, user = "postgres", pwd = "password", host = "postgres")
-#itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
 
 ## all available flat files in original formats
 piggyback::pb_download(repo = "cboettig/taxadb")
 
 ## not that rank_id isn't a unique id by itself!
 rank_tbl <-
-  #rank_tbl <- tbl(itis_db, "taxon_unit_types") %>%
   read_tsv("taxizedb/itis/taxon_unit_types.tsv.bz2") %>%
   select(kingdom_id, rank_id, rank_name) %>%
   collect() %>%
@@ -22,7 +14,6 @@ rank_tbl <-
             stringr::str_to_lower(rank_name),"\\s"))
 
 hierarch <-
-  #tbl(itis_db, "taxonomic_units") %>%
   read_tsv("taxizedb/itis/taxonomic_units.tsv.bz2") %>%
   mutate(rank_id = paste(kingdom_id, rank_id, sep="-")) %>%
   select(tsn, parent_tsn, rank_id, complete_name) %>% distinct()
@@ -30,18 +21,16 @@ hierarch <-
 itis_taxa <-
   left_join(
     inner_join(hierarch, rank_tbl, copy = TRUE),
-    #tbl(itis_db, "hierarchy")
     read_tsv("taxizedb/itis/hierarchy.tsv.bz2") %>%
       select(tsn, parent_tsn, hierarchy_string)
   ) %>%
   arrange(tsn) %>%
   select(tsn, complete_name, rank_name,
          rank_id, parent_tsn, hierarchy_string) %>%
-  left_join(#select(tbl(itis_db, "vernaculars"),
+  left_join(
             select(read_tsv("taxizedb/itis/vernaculars.tsv.bz2"),
                    tsn, vernacular_name, language))  %>%
  left_join(
-           #select(tbl(itis_db, "taxonomic_units"),
             select(read_tsv("taxizedb/itis/taxonomic_units.tsv.bz2"),
                   tsn, update_date, name_usage)
   ) %>%
@@ -54,8 +43,6 @@ itis_taxa <-
          rank_id = paste0("ITIS:", rank_id),
          parent_id = paste0("ITIS:", parent_id))
 
-## Read in from database -- a little slow
-#itis <- collect(itis_taxa)
 itis <- itis_taxa
 
 ## transforms we do in R
@@ -101,7 +88,6 @@ system.time({
 })
 
 
-#itis_long <- read_tsv("data/itis_long.tsv.bz2")
 ## Wide-format classification table (scientific names only)
 itis_hierarchy <-
   itis_long %>%
@@ -136,6 +122,11 @@ accepted <- taxonid %>%
    mutate(accepted_id = id,
           name_usage = "accepted")
 
+
+## For deduplicate_ids() function, drop cases where synonym == accepted name
+source("data-raw/helper-routines.R")
+
+
 ## A single name column which contains both synonyms and accepted names
 ## Useful for matching since we usually don't know what we have.
 itis_taxonid <-
@@ -146,7 +137,8 @@ itis_taxonid <-
   mutate(update_date = as_date(update_date)) %>%
   right_join(synonyms) %>%
   bind_rows(accepted) %>%
-  select(id, name, rank, accepted_id, name_usage, update_date)
+  select(id, name, rank, accepted_id, name_type = name_usage, update_date) %>%
+  de_duplicate()
 
 ## A mapping in which synonym
 itis_synonyms <- full_join(

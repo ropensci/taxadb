@@ -1,4 +1,5 @@
 library(tidyverse)
+source("data-raw/helper-routines.R")
 
 download.file("http://files.opentreeoflife.org/ott/ott3.0/ott3.0.tgz", "ott3.0.tgz")
 untar("ott3.0.tgz", compressed = "gzip")
@@ -45,7 +46,8 @@ ott_taxonid <- bind_rows(
     left_join(select(taxonomy, uid, rank),
               by = c("accepted_id" = "uid")) %>%
     mutate(id = NA, accepted_id = paste0("OTT:", accepted_id))
-)
+  ) %>%
+  de_duplicate()
 
 
 dir.create("data", FALSE)

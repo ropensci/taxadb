@@ -1,5 +1,6 @@
 library(rfishbase) # 3.0
 library(tidyverse)
+souce("data-raw/helper-routines.R")
 
 #### Fishbase
 fb <- as_tibble(rfishbase::load_taxa())
@@ -50,7 +51,7 @@ fb_taxonid <- synonyms %>%
   rename(accepted_id = id, id = synonym_id) %>%
   select(id, name, rank, accepted_id, name_type = type) %>%
   bind_rows(mutate(accepted, accepted_id = id, name_type = "accepted")) %>%
-  distinct()
+  distinct()  %>% de_duplicate()
 
 write_tsv(fb_taxonid, "data/fb_taxonid.tsv.bz2")
 
@@ -126,7 +127,7 @@ slb_taxonid <- slb_synonyms %>%
   rename(accepted_id = id, id = synonym_id) %>%
   select(id, name, rank, accepted_id, name_type = type) %>%
   bind_rows(mutate(slb_accepted, accepted_id = id, name_type = "accepted")) %>%
-  distinct()
+  distinct() %>% de_duplicate()
 
 write_tsv(slb_taxonid, "data/slb_taxonid.tsv.bz2")
 

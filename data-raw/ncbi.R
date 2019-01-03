@@ -1,21 +1,9 @@
-## taxizedb also needs these cli clients installed separately:
-## apt-get -y install mariadb-client postgresql-client
-#library(taxizedb)
-
-## We can use the flatfiles instead
 library(tidyverse)
-
-# ncbi_store <- db_download_ncbi()
-#
-# db_load_ncbi() ## not needed for ncbi
-# ncbi_db <- src_ncbi(ncbi_store)
-
+source("data-raw/helper-routines.R")
 
 ncbi_taxa <-
-  #inner_join((ncbi_db, "nodes"), tbl(ncbi_db, "names")) %>%
   inner_join(read_tsv("taxizedb/ncbi/nodes.tsv.bz2"), read_tsv("taxizedb/ncbi/names.tsv.bz2")) %>%
-  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class) #%>%
-  #collect()
+  select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class)
 
 
 ncbi_ids <- ncbi_taxa %>%
@@ -142,7 +130,8 @@ ncbi_taxonid %>%
       select(name, accepted_id = id, rank, name_type) %>%
       mutate(id = NA)
   ) %>%
-  select(id, name, rank, accepted_id, name_type)
+  select(id, name, rank, accepted_id, name_type) %>%
+  de_duplicate()
 
 #write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
 #write_tsv(ncbi_wide, "data/ncbi_hierarchy.tsv.bz2")

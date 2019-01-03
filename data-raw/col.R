@@ -1,20 +1,7 @@
-## apt-get -y install mariadb-client postgresql-client
 library(taxizedb)
 library(tidyverse)
 library(stringr)
-
-## taxizedb import method:
-# col <- db_download_col()
-# db_load_col(col, host="mariadb", user="root", pwd="password")
-# col_db <- src_col(host="mariadb", user="root", password="password")
-## Edit /etc/mariadb/my.cnf and restart container, e.g.
-# net_read_timeout=600
-# net_write_timeout=180
-# wait_timeout=86400
-# interactive_timeout=86400
-# max_allowed_packet=128M
-
-
+source("data-raw/helper-routines.R")
 
 
 search_all <- read_tsv("taxizedb/col/_search_all.tsv.bz2")
@@ -75,7 +62,8 @@ col_taxonid <- synonyms %>%
   distinct() %>%
   mutate(accepted_id = paste0("COL:", accepted_id),
          id = paste0("COL:", id)) %>%
-  select(id, name, rank, name_type, accepted_id)
+  select(id, name, rank, name_type, accepted_id) %>%
+  de_duplicate()
 
 write_tsv(col_taxonid, "data/col_taxonid.tsv.bz2")
 
