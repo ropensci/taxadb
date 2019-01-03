@@ -28,7 +28,7 @@ test_that("we can set up a db and call basic functions", {
                  db = td_connect(test_db))
 
   ## confirm order did not change
-  expect_identical(head(df$species), head(species$name))
+  expect_identical(df$species, species$name)
 
   hier <- classification(df$species,
                          db = db)
