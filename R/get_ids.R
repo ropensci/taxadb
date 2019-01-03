@@ -28,7 +28,7 @@
 #' }
 #' @export
 #' @importFrom dplyr pull
-# @importFrom tibble column_to_rowname
+#' @importFrom tibble column_to_rownames
 get_ids <- function(names,
                     db = KNOWN_AUTHORITIES,
                     taxadb_db = td_connect(),
@@ -44,7 +44,7 @@ get_ids <- function(names,
 
   ## More aggressive logic to enforce
   ## we get precisely one ID or NA for each name queried
-  #df <- tibble::column_to_rownames(df, "name")
+  df <- tibble::column_to_rownames(df, "name")
   if("accepted_id" %in% names(df)){
     #out <- df[names, "accepted_id"]
     out <- pull(df, "accepted_id")
