@@ -17,7 +17,7 @@ td_create("itis")
 
 
 ```{r}
-read_tsv(system.file("extdata/bbs.tsv"))
+bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
 
 ```
 
