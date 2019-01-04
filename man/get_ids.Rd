@@ -4,16 +4,14 @@
 \alias{get_ids}
 \title{get_ids}
 \usage{
-get_ids(names, db = KNOWN_AUTHORITIES, taxadb_db = td_connect(),
-  format = c("bare", "prefix", "uri"), ...)
+get_ids(names, db = KNOWN_AUTHORITIES, format = c("bare", "prefix",
+  "uri"), taxadb_db = td_connect(), ...)
 }
 \arguments{
 \item{names}{a list of scientific names (which may
 include higher-order ranks in most authorities).}
 
 \item{db}{abbreviation code for the authority.  See details.}
-
-\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
 \item{format}{Format for the returned: bare identifier, one of
 \itemize{
@@ -22,6 +20,8 @@ include higher-order ranks in most authorities).}
 \item \code{uri} (e.g.
 \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
+
+\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
 \item{...}{additional arguments passed to \code{ids()}}
 }

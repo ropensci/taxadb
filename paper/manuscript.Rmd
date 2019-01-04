@@ -37,23 +37,25 @@ library(taxadb)
 ```
 
 ```{r}
-td_create("gbif")
+td_create("all")
 ```
 
 
 ```{r}
 url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
 col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
-               "Spanish_Common_Name", "ORDER", "Family", "Genus", "Species")
+               "Spanish_Common_Name", "order", "family", "genus", "species")
 bbs <- readr::read_table(url, 
                          skip = 9, 
                          col_names = col_names, 
                          col_types = "ccccccccc")
+bbs <- bbs %>% mutate(species = paste(genus, species))
+readr::write_tsv(bbs, "inst/extdata/bbs.tsv")
 
 ```
 
 ```{r}
-species_list = paste(bbs$Genus, bbs$Species)
+species_list = paste(bbs$genus, bbs$species)
 length(species_list)
 ```
 
@@ -62,12 +64,27 @@ length(species_list)
 bbs_ids <- 
 data_frame(species = species_list) %>% 
   mutate(gbif = get_ids(species, "gbif", "prefix"),
-         col = get_ids(species, "col", "prefix"),
+          col = get_ids(species, "col", "prefix"),
          itis = get_ids(species, "itis", "prefix"),
          ncbi = get_ids(species, "ncbi", "prefix"),
-         wikidata = get_ids(species, "wd", "prefix")) 
+     wikidata = get_ids(species, "wd", "prefix"),
+         #iucn = get_ids(species, "iucn", "prefix"),
+          ott = get_ids(species, "ott","prefix") 
+  )
 
 ```
+
+
+
+```{r}
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+
+```{r}
+```
+
 
 ```{r}
 ott_ids <- ids(species_list, "ott")
@@ -85,11 +102,6 @@ ott_ids <- ids(species_list, "ott")
 ## OR consider? generate a combined taxonid table for all authorities
 ```
 
-```{r}
-bbs_ids %>% 
-  select(-species) %>% 
-  purrr::map_dbl(function(x) sum(!is.na(x)))
-```
 
 ITIS resolves the most names, but no authority resolves all the names provided.  
 
