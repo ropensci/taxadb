@@ -1,0 +1,102 @@
+---
+title: "fuzzy-matching.Rmd"
+author: "Carl Boettiger"
+date: "1/3/2019"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(taxadb)
+```
+
+```{r}
+td_create("itis")
+```
+
+
+```{r}
+url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
+col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
+               "Spanish_Common_Name", "order", "family", "genus", "species")
+bbs <- readr::read_table(url, 
+                         skip = 9, 
+                         col_names = col_names, 
+                         col_types = "ccccccccc")
+bbs <- bbs %>% mutate(species = paste(genus, species))
+#readr::write_tsv(bbs, "inst/extdata/bbs.tsv")
+
+```
+
+
+
+```{r}
+name <- bbs$species
+authority <- "itis"
+db <- td_connect()
+match <- "contains"
+```
+
+
+# Strategy 1: SQL-based fuzzy match
+
+```{r}
+name_pattern <- switch(match,
+                         starts_with = paste0(name, "%"),
+                         contains =  paste0("%", name, "%")
+  )
+
+  system.time({
+  out <- purrr::map_dfr(name_pattern,
+          function(pattern)
+            taxa_tbl(authority, "taxonid", db) %>%
+            filter(name %like% pattern) %>% collect()
+         )
+  })
+out
+```
+
+
+# Strategy 2: Extract a smaller table
+
+```{r}
+  ## Strategy: extract all potential matches by Genus alone.  assumes first name is a genus name!
+  only_genus <- function(name)  stringi::stri_extract_first_words(name)
+  id_tbl <- ids(only_genus(name), authority = authority, db = db, collect = FALSE) %>%
+    select(name) %>%
+    inner_join(select(taxa_tbl(authority, "hierarchy"), id, genus), by = c(name = "genus")) %>%
+    select(id) %>% inner_join(taxa_tbl(authority, "taxonid"), by = "id") %>%
+    distinct() %>%
+    collect()
+
+  name_regex <- switch(match,
+                         starts_with = paste0(name, ".*"),
+                         contains =  paste0(".*", name, ".*")
+  )
+  
+  id_tbl <- collect(taxa_tbl(authority, "taxonid"))
+  
+  ## Using the genus subset -- a much smaller list of matches -- is this good or bad?
+  system.time({
+    out2 <- purrr::map_dfr(name_regex, function(pattern)
+      filter(id_tbl, grepl(pattern, name))
+    )
+  })
+  
+  
+
+```
+
+
+
+```{r}   
+  ## In memory, even slower!! 
+  system.time({
+    id_tbl <-  collect(taxa_tbl(authority, "taxonid"))
+    out2 <- purrr::map_dfr(name_regex, function(pattern)
+      filter(id_tbl, grepl(pattern, name))
+    )
+  })
+
+```
