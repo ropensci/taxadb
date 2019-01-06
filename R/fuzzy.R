@@ -8,26 +8,26 @@ search <- function(name = NULL,
                    db = td_connect()){
   match <- match.arg(match)
   switch(match,
-         exact = get_ids(name = name,
+         exact = get_ids(names = name,
                          authority = authority,
                          format = format,
-                         taxadb_db = db),
+                         db = db),
          starts_with = fuzzy_ids(name = name,
                                  authority = authority,
                                  match = match,
                                  format = format,
-                                 taxadb_db = db),
+                                 db = db),
          contains = fuzzy_ids(name = name,
                               authority = authority,
                               match = match,
                               format = format,
-                              taxadb_db = db),
+                              db = db),
 
          )
 }
 
 
-#'
+#
 clean_names <-
   function(names,
            fix_delim = TRUE,
@@ -90,3 +90,5 @@ fuzzy_ids <- function(name = NULL,
 
 
 }
+
+globalVariables("%like%")
