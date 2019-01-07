@@ -63,10 +63,12 @@ syn_table %>% select(accepted_id, accepted_name, synonym) %>% write_tsv("data/iu
 
 
 taxonid <- hierarchy %>%
-  select(id, name = species) %>% mutate(rank = "species") %>%
+  select(id, name = species) %>% mutate(rank = "species", name_type = "accepted name") %>%
   bind_rows(syn_table %>%
               select(id = accepted_id, name = synonym) %>%
-              mutate(id = paste0("IUCN:", id), rank = "species")
+              mutate(id = paste0("IUCN:", id),
+                     rank = "species",
+                     name_type = "synonym")
   ) %>%
   de_duplicate()
 write_tsv(taxonid, "data/iucn_taxonid.tsv.bz2")
@@ -111,4 +113,4 @@ write_tsv(common, "data/iucn_common.tsv.bz2")
 
 
 ##library(piggyback)
-##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% pb_upload(tag = "v1.0.0")
+##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% piggyback::pb_upload(tag = "v1.0.0")
