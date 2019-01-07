@@ -1,4 +1,5 @@
-## FIXME Does not support lookup of non-species-level ids. Using taxonid schema would fix this.
+## FIXME Does not support lookup of non-species-level ids.
+## Using taxonid schema would fix this.
 
 #' Return taxonomic identifiers from a given namespace
 #'

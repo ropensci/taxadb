@@ -1,7 +1,15 @@
 # Queries based on fully joined records
+library(dplyr)
+library(taxadb)
 
-any_id <- function(names){
-full <-
+
+all_ids <- function(name = NULL,
+                collect = TRUE,
+                db = td_connect()){
+  sort <- TRUE # dummy name
+  input_table <- dplyr::tibble(name, sort = 1:length(name))
+
+  full <-
   dplyr::full_join(select(taxa_tbl("itis", "taxonid"),
                           "itis" = "accepted_id", "name", "rank"),
                    select(taxa_tbl("ncbi", "taxonid"),
@@ -32,4 +40,23 @@ full <-
                           "tpl" = "id", "name", "rank"),
                    by = c("name", "rank"))
 
+  # paste("SELECT * INTO newtable FROM", show_query(full))
+
+  ## Use right_join, so unmatched names are kept, with NA
+  out <-
+    dplyr::right_join(
+      full,
+      input_table,
+      by = "name",
+      copy = TRUE) %>%
+    dplyr::arrange(sort) %>%
+    select(-sort)
+
+  if (collect && inherits(out, "tbl_lazy")) {
+    ## Return an in-memory object
+    return( dplyr::collect(out) )
+  }
+
+  out
 }
+
