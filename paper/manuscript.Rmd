@@ -42,33 +42,22 @@ td_create("all")
 
 
 ```{r}
-url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
-col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
-               "Spanish_Common_Name", "order", "family", "genus", "species")
-bbs <- readr::read_table(url, 
-                         skip = 9, 
-                         col_names = col_names, 
-                         col_types = "ccccccccc")
-bbs <- bbs %>% mutate(species = paste(genus, species))
-readr::write_tsv(bbs, "inst/extdata/bbs.tsv")
-
+bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
 ```
 
 ```{r}
-species_list = paste(bbs$genus, bbs$species)
-length(species_list)
+dim(bbs)
 ```
 
 
 ```{r}
 bbs_ids <- 
-data_frame(species = species_list) %>% 
+bbs %>% select(species) %>%
   mutate(gbif = get_ids(species, "gbif", "prefix"),
           col = get_ids(species, "col", "prefix"),
          itis = get_ids(species, "itis", "prefix"),
          ncbi = get_ids(species, "ncbi", "prefix"),
      wikidata = get_ids(species, "wd", "prefix"),
-         #iucn = get_ids(species, "iucn", "prefix"),
           ott = get_ids(species, "ott","prefix") 
   )
 
@@ -82,7 +71,45 @@ bbs_ids %>%
   purrr::map_dbl(function(x) sum(!is.na(x)))
 ```
 
+
 ```{r}
+bbs_ids <- bbs %>% 
+  select(species) %>% 
+  mutate(species = clean_names(species)) %>%
+  mutate(gbif = get_ids(species, "gbif", "prefix"),
+          col = get_ids(species, "col", "prefix"),
+         itis = get_ids(species, "itis", "prefix"),
+         ncbi = get_ids(species, "ncbi", "prefix"),
+     wikidata = get_ids(species, "wd", "prefix"),
+          ott = get_ids(species, "ott","prefix") 
+  )
+
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+
+```{r}
+ids <- get_ids(clean_names(bbs$species), "ott", "prefix")
+unmatched <- bbs$species[is.na(ids)]
+clean_names(unmatched)
+```
+
+```{r}
+unmatched <- bbs$species[is.na(bbs_ids$ott)]
+length(unmatched)
+
+drop_sp.(unmatched) %>%
+  binomial_names()
+
+clean_names(unmatched)
+```
+
+```{r}
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::transpose() %>%
+  purrr::map_dbl(function(x) sum(!is.na(x)) < 1) %>% sum()
 ```
 
 
