@@ -11,9 +11,10 @@
 
 ## Also need:
 ## apt-get -y install mariadb-client postgresql-client
-
+library(readr)
 library(arkdb)
 library(taxizedb)
+library(magrittr)
 
 #### ITIS ###########
 itis_store <- db_download_itis()
@@ -33,17 +34,33 @@ db_load_ncbi() ## not needed for ncbi
 ncbi_db <- src_ncbi(ncbi_store)
 ark(ncbi_db, fs::dir_create("taxizedb/ncbi"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
 
-#### GBIF ############
-gbif <- db_download_gbif()
-db_load_gbif()## not needed
-gbif_db <- src_gbif(gbif)
-ark(gbif_db, fs::dir_create("taxizedb/gbif"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
 
 ### COL ###################
 col <- db_download_col()
 #db_load_col(col, host="mariadb", user="root", pwd="password")  ## Slow to rerun
 col_db <- src_col(host="mariadb", user="root", password="password")
 ark(col_db, fs::dir_create("taxizedb/col"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
+
+
+#### GBIF ############
+#gbif <- db_download_gbif()
+#db_load_gbif()## not needed
+#gbif_db <- src_gbif(gbif)
+#ark(gbif_db, fs::dir_create("taxizedb/gbif"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
+
+
+## GBIF DIRECT ###
+
+## extracted from: https://doi.org/10.15468/39omei
+download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
+              "taxizedb/gbif/backbone.zip")
+unzip("taxizedb/gbif/backbone.zip", exdir="taxizedb/gbif")
+taxon <- read_tsv("taxizedb/gbif/Taxon.tsv")
+common <- read_tsv("taxizedb/gbif/VernacularName.tsv")
+fs::dir_ls("taxizedb/gbif/") %>% fs::file_delete()
+## Cache original file:
+write_tsv(taxon, "taxizedb/gbif/taxon.tsv.bz2")
+write_tsv(common, "taxizedb/gbif/vernacular.tsv.bz2")
 
 
 library(fs)

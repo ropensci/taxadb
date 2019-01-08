@@ -42,6 +42,8 @@ all_ids <- function(name = NULL,
 
   # paste("SELECT * INTO newtable FROM", show_query(full))
 
+  ## replace synonym with accepted name in each case first?
+
   ## Use right_join, so unmatched names are kept, with NA
   out <-
     dplyr::right_join(
