@@ -19,3 +19,4 @@ data/*
 .Rbuildignore
 taxadb
 inst/doc
+taxizedb

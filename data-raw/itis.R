@@ -143,12 +143,13 @@ itis_taxonid <-
 ## A mapping in which synonym
 itis_synonyms <- full_join(
   itis_taxonid %>%
-    filter(name_usage == "synonym") %>%
-    select(synonym = name, synonym_id = id, accepted_id),
+    filter(name_type == "synonym") %>%
+    select(synonym = name, synonym_id = id, accepted_id, name_type),
   itis_taxonid %>%
-    filter(name_usage == "accepted") %>%
-    select(-id, -name_usage)) %>%
-  select(name, synonym, synonym_id, accepted_id, rank, update_date)
+    filter(name_type == "accepted") %>%
+    select(-id)
+  ) %>%
+  select(name, synonym, synonym_id, accepted_id, rank, update_date, name_type)
 
 
 write_tsv(itis_synonyms, "data/itis_synonyms.tsv.bz2")
