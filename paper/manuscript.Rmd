@@ -71,22 +71,11 @@ bbs_ids %>%
   purrr::map_dbl(function(x) sum(!is.na(x)))
 ```
 
+`get_ids` by default looks only for exact matches.  We can get more matches by cleaning the names first.  `clean_names()` 
 
 ```{r}
-bbs_ids <- bbs %>% 
-  select(species) %>% 
-  mutate(species = clean_names(species)) %>%
-  mutate(gbif = get_ids(species, "gbif", "prefix"),
-          col = get_ids(species, "col", "prefix"),
-         itis = get_ids(species, "itis", "prefix"),
-         ncbi = get_ids(species, "ncbi", "prefix"),
-     wikidata = get_ids(species, "wd", "prefix"),
-          ott = get_ids(species, "ott","prefix") 
-  )
-
-bbs_ids %>% 
-  select(-species) %>% 
-  purrr::map_dbl(function(x) sum(!is.na(x)))
+clean_names(bbs$species, 
+            )
 ```
 
 ```{r}

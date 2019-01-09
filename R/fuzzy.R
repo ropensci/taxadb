@@ -27,7 +27,35 @@ search <- function(name = NULL,
 }
 
 
-#
+#' Clean taxonomic names
+#'
+#' A utility to sanitize taxonomic names to increase probability of resolving names.
+#'
+#' @param names a character vector of taxonomic names (usually species names)
+#' @param fix_delim Should we replace separators `.`, `_`, `-`
+#' with spaces? e.g. 'Homo.sapiens' becomes 'Homo sapiens'.
+#' logical, default TRUE.
+#' @param binomial_only Attempt to prune name to a binomial name, e.g.
+#'  Genus and species (specific epithet), e.g. `Homo sapiens sapiens`
+#'  becomes `Homo sapiens`. logical, default TRUE.
+#' @param remove_sp Should we drop unspecified species epithet designations?
+#' e.g. `Homo sp.` becomes `Homo` (thus only matching against genus level ids).
+#' logical, default TRUE.
+#' @details Current implementation is limited to handling a few common cases.
+#' Additional extensions may be added later. A goal of the `clean_names` function
+#' is that any modification rule of the name strings be precise, atomic, and
+#' toggle-able, rather than relying on clever but more opaque rules and
+#' arbitrary scores. This utility should always be used with care, as
+#' indiscriminant modification of names may result in successful but inaccurate
+#' name matching. A good pattern is to only apply this function to the subset
+#' of names that cannot be directly matched.
+#'
+#'
+#' @importFrom stringi stri_replace_all_regex stri_extract_all_words
+#' @importFrom stringi stri_trim stri_split_regex
+#' @export
+#' @examples
+#' clean_names(c("Homo sapiens sapiens", "Homo.sapiens", "Homo sp."))
 clean_names <-
   function(names,
            fix_delim = TRUE,
@@ -44,8 +72,7 @@ clean_names <-
 }
 
 ## Name cleaning utilities
-#' @importFrom stringi stri_replace_all_regex stri_extract_all_words
-#' @importFrom stringi stri_trim stri_split_regex
+
 set_space_delim <- function(x)
   stringi::stri_replace_all_regex(x, "(_|-|\\.)", " ") %>%
   stringi::stri_trim()
@@ -59,7 +86,9 @@ binomial_names <- function(x){
     stringi::stri_extract_all_words(simplify = TRUE)
   stringi::stri_trim(paste(s[,1], s[,2]))
 }
-
+drop_author_year <- function(x){
+  stringi::stri_replace_all_regex(x, "\\(.+)", "")
+}
 
 #' @importFrom dplyr bind_rows filter collect mutate
 fuzzy_ids <- function(name = NULL,
