@@ -14,10 +14,7 @@ gbif_taxa <- taxon %>%
          original_id = originalNameUsageID)  %>%
   rename(species = specificEpithet,
          epithet = infraspecificEpithet) %>%
-  mutate(id = paste0("GBIF:", id),
-         species = paste(genus, species, epithet),
-         accepted_id = paste0("GBIF:", accepted_id),
-         original_id = paste0("GBIF:", original_id))
+  mutate(species = paste(genus, species, epithet))
 
     ## canonicalName appears to be: Genus + specificEpithet + infraspecificEpithet
 ## i.e. SpecificEpithet ~ a name at the "species" rank
@@ -30,7 +27,8 @@ gbif_wide <- gbif_taxa  %>%
   filter(taxonomicStatus == "accepted") %>%
   select(id,
          kingdom, phylum, class, order, family, genus, species, epithet,
-         genericName)
+         genericName) %>%
+  mutate(id = paste0("GBIF:", id))
 write_tsv(gbif_wide, "data/gbif_hierarchy.tsv.bz2")
 rm(gbif_wide)
 
@@ -46,7 +44,10 @@ gbif_taxa <-
 accepted <- filter(gbif_taxa, name_type == "accepted") %>% mutate(accepted_id = id)
 rest <- filter(gbif_taxa, name_type != "accepted") %>% filter(!is.na(accepted_id))
 
-gbif_taxonid <- bind_rows(accepted, rest) %>%de_duplicate()
+gbif_taxonid <- bind_rows(accepted, rest) %>%
+  de_duplicate() %>%
+  mutate(id = paste0("GBIF:", id),
+         accepted_id = paste0("GBIF:", accepted_id))
 write_tsv(gbif_taxonid, "data/gbif_taxonid.tsv.bz2")
 
 
@@ -59,7 +60,9 @@ gbif_synonyms <- full_join(
   gbif_taxonid %>%
     filter(name_type == "accepted") %>%
     select(-id))  %>%
-    select(name, synonym, synonym_id, accepted_id, rank, name_type)
+    select(name, synonym, synonym_id, accepted_id, rank, name_type) %>%
+  mutate(synonym_id = paste0("GBIF:", id),
+         accepted_id = paste0("GBIF:", accepted_id))
 
 write_tsv(gbif_synonyms, "data/gbif_synonyms.tsv.bz2")
 
