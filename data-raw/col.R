@@ -5,9 +5,10 @@ source("data-raw/helper-routines.R")
 
 
 search_all <- read_tsv("taxizedb/col/_search_all.tsv.bz2")
+scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2")
+
 #  search_scientific <- read_tsv("taxizedb/col/_search_scientific.tsv.bz2")
 #  natural_keys <- read_tsv("taxizedb/col/_natural_keys.tsv.bz2")
-scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2")
 #  synonym_name_element <- read_tsv("taxizedb/col/synonym_name_element.tsv.bz2")
 #  synonym <- read_tsv("taxizedb/col/synonym.tsv.bz2")
 #  scientific_name_element <- read_tsv("taxizedb/col/taxonomic_rank.tsv.bz2")
