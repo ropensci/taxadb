@@ -1,12 +1,25 @@
-library(taxizedb)
 library(tidyverse)
-library(stringr)
+library(stringi)
+library(piggyback)
 source("data-raw/helper-routines.R")
+piggyback::pb_download(repo="cboettig/taxadb", tag = "data") # raw data cache
 
+char <- cols(.default = col_character())
 
-search_all <- read_tsv("taxizedb/col/_search_all.tsv.bz2")
-scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2")
+search_all <- read_tsv("taxizedb/col/_search_all.tsv.bz2", col_types = char)
+scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2",
+                                   col_types = char)
 
+species_details <- read_tsv("taxizedb/col/_species_details.tsv.bz2", col_types = char)
+
+hierarchy <- species_details %>%
+  select(taxonID = taxon_id, kingdom = kingdom_name, phylum = phylum_name, class = class_name,
+         order = order_name,  superfamily = superfamily_name, family = family_name,
+         genus = genus_name, subgenus = subgenus_name,
+         specificEpithet = species_name, infraspecificEpithet = infraspecies_name)  %>%
+  mutate(taxonID = stringi::stri_paste("COL:", taxonID))
+
+rm(species_details)
 #  search_scientific <- read_tsv("taxizedb/col/_search_scientific.tsv.bz2")
 #  natural_keys <- read_tsv("taxizedb/col/_natural_keys.tsv.bz2")
 #  synonym_name_element <- read_tsv("taxizedb/col/synonym_name_element.tsv.bz2")
@@ -19,58 +32,68 @@ scientific_name_status <- read_tsv("taxizedb/col/scientific_name_status.tsv.bz2"
 #  3,526,372 distinct ids
 master <-  search_all %>%
   rename(name_status_id = name_status) %>%
-  left_join(bind_rows(scientific_name_status, data_frame(id = 0, name_status = "other")),
+  left_join(bind_rows(scientific_name_status,
+                      data_frame(id = "0",
+                                 name_status = "other")),
             by = c("name_status_id" = "id"))
 
-rm(search_all, scientific_name_status)
+rm(search_all,scientific_name_status)
 
-col_accepted_id <- master %>%
-  filter(name_status == "accepted name") %>%
-  select(id, name, rank) %>% distinct()
-
+accepted <- bind_rows(
+  master %>%
+    filter(name_status == "accepted name") %>%
+    select(id, name, rank),
+  master %>%
+    filter(name_status == "other") %>%
+    select(id, name, rank)
+  ) %>% distinct()
 
 all_synonyms <- master %>%
   filter(name_status != "accepted name") %>%
   select(synonym_id = id, name, rank, id = accepted_taxon_id, type = name_status) %>%
   distinct()
 
-mapped_synonyms <- all_synonyms %>% filter(id > 0)
+rm(master)
+mapped_synonyms <- all_synonyms %>% filter(id != "0")
 ## type == "other" (NA) names are not resolved. Includes common names, etc.
 synonyms <- mapped_synonyms %>%
-  left_join(select(col_accepted_id, accepted_name = name, id)) %>%
+  left_join(select(accepted, accepted_name = name, id)) %>%
   select(id, accepted_name, name, type, rank, synonym_id)
-
-
-species_details <- read_tsv("taxizedb/col/_species_details.tsv.bz2")
-hierarchy <- species_details %>%
-  select(id = taxon_id, kingdom = kingdom_name, phylum = phylum_name, class = class_name,
-         order = order_name,  superfamily = superfamily_name, family = family_name,
-         genus = genus_name, subgenus = subgenus_name,
-         species = species_name, infraspecies = infraspecies_name)
-
-hierarchy %>%
-  mutate(id = paste0("COL:", id)) %>%
-  write_tsv("data/col_hierarchy.tsv.bz2")
-
-rm(heirarchy, species_details, master)
-
 
 
 col_taxonid <- synonyms %>%
   rename(accepted_id = id, id = synonym_id) %>%
   select(id, name, rank, accepted_id, name_type = type) %>%
-  bind_rows(mutate(col_accepted_id, accepted_id = id, name_type = "accepted")) %>%
+  bind_rows(mutate(accepted, accepted_id = id, name_type = "accepted")) %>%
   distinct() %>%
-  mutate(accepted_id = paste0("COL:", accepted_id),
-         id = paste0("COL:", id)) %>%
-  select(id, name, rank, name_type, accepted_id) %>%
+  mutate(accepted_id = stringi::stri_paste("COL:", accepted_id),
+         id = stringi::stri_paste("COL:", id)) %>%
+  select(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
   de_duplicate()
 
-write_tsv(col_taxonid, "data/col_taxonid.tsv.bz2")
+col <- col_taxonid %>% left_join(hierarchy)
+
+write_tsv(col, "dwc/col.tsv.bz2")
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+#############
 ## NOTES:
 
 ## 3,367,875 rows with accepted_name
@@ -91,10 +114,10 @@ accepted %>% filter(id %in% same_id_diff_group) %>% arrange(id) %>% select(id, n
 # 10750775 Adelocephala (Oiticicia) purpurascens intensiva        subspecies
 # 10750775 Adelocephala (Oiticicia) purpurascens subsp. intensiva subspecies
 
-col_accepted_id <- master %>% filter(name_status == "accepted name") %>% select(id, name, rank) %>% distinct()
+accepted_id <- master %>% filter(name_status == "accepted name") %>% select(id, name, rank) %>% distinct()
 
-duplicate_id <- col_accepted_id %>% count(id) %>% arrange(desc(n)) %>% filter(n > 1) %>% pull(id)
-col_accepted_id %>% filter(id %in% duplicate_id) %>% arrange(id)
+duplicate_id <- accepted_id %>% count(id) %>% arrange(desc(n)) %>% filter(n > 1) %>% pull(id)
+accepted_id %>% filter(id %in% duplicate_id) %>% arrange(id)
 
 
 ## Why so many more accepted names than are distinct for this set?
@@ -104,11 +127,6 @@ x %>%  select(id, name, rank, name_status, group, accepted_taxon_id, source_data
 
 
 
-
-
-
-col_ids <- species_details %>%
-  select(taxon_id, kingdom = kingdom_id, phylum = phylum_id, class = class_id,
-         order = order_id, superfamily = superfamily_id, family = family_id,
-         genus = genus_id, subgenus = subgenus_id,
-         species = species_id,  infraspecies = infraspecies_id)
+## name_status == "other" is strictly accepted higher taxon names!
+master %>% filter(name_status == "other") %>% count(rank) %>% arrange(desc(n))
+master %>% filter(name_status == "other") %>% filter(accepted_taxon_id != "0")
