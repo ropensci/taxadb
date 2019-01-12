@@ -122,10 +122,46 @@ write_tsv(ott_wide, "data/ott_hierarchy.tsv.bz2")
 
 
 
+##### Rename things to Darwin Core ########
+library(taxadb)
+source("data-raw/helper-routines.R")
 
-library(piggyback)
-fs::dir_ls("data") %>% pb_upload()
+taxonid <-
+  collect(taxa_tbl("ott", "taxonid")) %>%
+  distinct() %>%
+  de_duplicate()
 
+wide <- collect(taxa_tbl("ott", "hierarchy")) %>% distinct()
+dwc <- taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+                     #infraspecificEpithet
+              ),
+            by = c("acceptedNameUsageID" =  "taxonID"))
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+dwc <- dwc %>%
+  ## CRAZY SLOW! use vectorized stringi operation instead(?)
+  mutate(taxonomicStatus = dplyr::recode_factor(taxonomicStatus, "accepted_name" = "accepted"))
+
+
+write_tsv(dwc, "dwc/ott.tsv.bz2")
+
+
+## testing
+dwc %>%
+  filter(!is.na(infraspecificEpithet), taxonRank == "species", !is.na(genus)) %>%
+  select(scientificName, taxonRank, taxonomicStatus, genus, specificEpithet, infraspecificEpithet)
 
 
 #unlink("ott3.0.tgz")

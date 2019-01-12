@@ -1,4 +1,8 @@
 library(tidyverse)
+library(stringi)
+library(piggyback)
+source("data-raw/helper-routines.R")
+
 
 ## all available flat files in original formats
 piggyback::pb_download(repo = "cboettig/taxadb")
@@ -39,9 +43,9 @@ itis_taxa <-
          common_name = vernacular_name,
          name = complete_name,
          rank = rank_name)  %>%
-  mutate(id = paste0("ITIS:", id),
-         rank_id = paste0("ITIS:", rank_id),
-         parent_id = paste0("ITIS:", parent_id))
+  mutate(id = stri_paste("ITIS:", id),
+         rank_id = stri_paste("ITIS:", rank_id),
+         parent_id = stri_paste("ITIS:", parent_id))
 
 itis <- itis_taxa
 
@@ -132,8 +136,8 @@ source("data-raw/helper-routines.R")
 itis_taxonid <-
   read_tsv("taxizedb/itis/synonym_links.tsv.bz2") %>%
   rename(id = tsn, accepted_id = tsn_accepted) %>%
-  mutate(id = paste0("ITIS:", id),
-         accepted_id = paste0("ITIS:", accepted_id)) %>%
+  mutate(id = stri_paste("ITIS:", id),
+         accepted_id = stri_paste("ITIS:", accepted_id)) %>%
   mutate(update_date = as_date(update_date)) %>%
   right_join(synonyms) %>%
   bind_rows(accepted) %>%
@@ -157,4 +161,32 @@ write_tsv(itis_taxonid, "data/itis_taxonid.tsv.bz2")
 
 
 
+##### Rename things to Darwin Core
+library(taxadb)
+source("data-raw/helper-routines.R")
 
+taxonid <-
+  collect(taxa_tbl("itis", "taxonid")) %>%
+  distinct() %>%
+  de_duplicate()
+
+wide <- collect(taxa_tbl("itis", "hierarchy")) %>% distinct()
+dwc <- taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+                     #infraspecificEpithet
+              ),
+            by = c("acceptedNameUsageID" =  "taxonID"))
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+write_tsv(dwc, "dwc/itis.tsv.bz2")

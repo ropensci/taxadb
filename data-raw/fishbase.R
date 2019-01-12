@@ -49,7 +49,7 @@ fb_taxonid <- synonyms %>%
   distinct()  %>% de_duplicate()
 
 ## Rename things to Darwin Core
-fb <- fb_taxonid %>%
+dwc <- fb_taxonid %>%
   rename(taxonID = id,
          scientificName = name,
          taxonRank = rank,
@@ -63,7 +63,13 @@ fb <- fb_taxonid %>%
                      ),
   by = "taxonID")
 
-write_tsv(fb, "dwc/fb.tsv.bz2")
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+
+
+write_tsv(dwc, "dwc/fb.tsv.bz2")
 
 
 
@@ -138,7 +144,7 @@ slb_taxonid <- slb_synonyms %>%
 
 
 ## Rename things to Darwin Core
-slb <- slb_taxonid %>%
+dwc <- slb_taxonid %>%
   rename(taxonID = id,
          scientificName = name,
          taxonRank = rank,
@@ -151,6 +157,11 @@ slb <- slb_taxonid %>%
                      #infraspecificEpithet
               ),
             by = "taxonID")
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
 
 write_tsv(slb, "dwc/slb.tsv.bz2")
 

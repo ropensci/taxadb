@@ -116,6 +116,7 @@ library(taxadb)
 taxonid <-
   collect(taxa_tbl("iucn", "taxonid")) %>%
   distinct() %>%
+  ## IUCN doesn't give IDs to synonyms, didn't have an accepted_id
   mutate(accepted_id = id,
          name_type = dplyr::recode_factor(name_type, "accepted name" = "accepted"))
 
@@ -135,11 +136,11 @@ dwc <- taxonid %>%
             by = "taxonID")
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
-dwc$specificEpithet <- species[,1]
-dwc$infraspecificEpithet <- species[,2]
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
 dwc$taxonID[dwc$taxonomicStatus != "accepted"] <- as.character(NA)
 
-write_tsv(slb, "dwc/iucn.tsv.bz2")
+write_tsv(dwc, "dwc/iucn.tsv.bz2")
 
 ##library(piggyback)
 ##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% piggyback::pb_upload(tag = "v1.0.0")
