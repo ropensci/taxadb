@@ -124,6 +124,7 @@ write_tsv(ott_wide, "data/ott_hierarchy.tsv.bz2")
 
 ##### Rename things to Darwin Core ########
 library(taxadb)
+library(tidyverse)
 source("data-raw/helper-routines.R")
 
 taxonid <-
@@ -150,9 +151,10 @@ species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
+
+## note: stringi MUCH faster than recode_factor!
 dwc <- dwc %>%
-  ## CRAZY SLOW! use vectorized stringi operation instead(?)
-  mutate(taxonomicStatus = dplyr::recode_factor(taxonomicStatus, "accepted_name" = "accepted"))
+  mutate(taxonomicStatus = stringi::stri_replace_all(taxonomicStatus, "accepted_name",  fixed="accepted"))
 
 
 write_tsv(dwc, "dwc/ott.tsv.bz2")
