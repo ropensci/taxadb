@@ -43,8 +43,13 @@ ids <- function(name = NULL,
       input_table,
       by = "scientificName",
       copy = TRUE) %>%
-    dplyr::arrange(sort) %>%
+    dplyr::arrange(sort) %>% # enforce original order
     select(-sort)
+
+  ## A known synonym can match two different valid names!
+  ## 'Trochalopteron henrici gucenense' is a synonym for:
+  ## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
+  ## (according to ITIS)
 
   if (collect && inherits(out, "tbl_lazy")) {
     ## Return an in-memory object

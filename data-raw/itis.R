@@ -183,7 +183,8 @@ dwc <- taxonid %>%
                      specificEpithet = species
                      #infraspecificEpithet
               ),
-            by = c("acceptedNameUsageID" =  "taxonID"))
+            by = c("acceptedNameUsageID" =  "taxonID")) %>%
+  distinct()
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]

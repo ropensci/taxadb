@@ -21,15 +21,16 @@ test_that("we can set up a db and call basic functions", {
 
   df <- descendants(name = "Aves",
                     rank = "class",
-                    db = db)
+                    db = db)  %>%
+    filter(taxonomicStatus == "accepted")
 
 
   species <- ids(df$scientificName,
-                 db = db)
+                 db = db) %>%
+    filter(taxonomicStatus == "accepted")
 
-  # FIXME
   ## confirm order did not change
-  # expect_identical(df$scientificName, species$scientificName)
+  expect_identical(df$scientificName, species$scientificName)
 
   hier <- classification(df$scientificName,
                          db = db)
