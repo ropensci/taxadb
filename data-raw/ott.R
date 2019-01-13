@@ -154,7 +154,7 @@ dwc$infraspecificEpithet <- species[,3]
 
 ## note: stringi MUCH faster than recode_factor!
 dwc <- dwc %>%
-  mutate(taxonomicStatus = stringi::stri_replace_all(taxonomicStatus, "accepted_name",  fixed="accepted"))
+  mutate(taxonomicStatus = stringi::stri_replace_all(taxonomicStatus, "accepted",  fixed="accepted_name"))
 
 
 write_tsv(dwc, "dwc/ott.tsv.bz2")
