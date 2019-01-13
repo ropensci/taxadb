@@ -8,7 +8,7 @@ syn_table <- function(taxon, accepted = "accepted"){
              synonym_id = taxonID,
              taxonomicStatus,
              acceptedNameUsageID),
-    gbif_taxonid %>%
+    taxon %>%
       filter(taxonomicStatus == accepted) %>%
       select(acceptedNameUsage = scientificName,
              acceptedNameUsageID,

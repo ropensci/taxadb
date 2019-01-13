@@ -31,7 +31,7 @@ classification <- function(species = NULL,
                            db = td_connect()){
 
   out <- dplyr::right_join(taxa_tbl(authority = authority,
-                                   schema = "hierarchy",
+                                   schema = "dwc",
                                    db = db),
                           null_tibble(id, species),
                           copy = TRUE)

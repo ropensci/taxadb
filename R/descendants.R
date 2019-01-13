@@ -25,7 +25,7 @@ descendants <- function(name = NULL,
     df$id <- id
 
     taxa <- taxa_tbl(authority = authority,
-                     schema = "hierarchy",
+                     schema = "dwc",
                      db = db)
 
     out <- dplyr::semi_join(taxa,

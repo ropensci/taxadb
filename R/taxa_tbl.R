@@ -11,7 +11,7 @@ KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
 #' @export
 taxa_tbl <- function(
   authority = KNOWN_AUTHORITIES,
-  schema = c("hierarchy", "taxonid", "synonyms", "common", "long"),
+  schema = c("dwc", "common", "long"),
   db = td_connect()){
 
   authority <- match.arg(authority)

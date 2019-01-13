@@ -1,5 +1,3 @@
-## FIXME Does not support lookup of non-species-level ids.
-## Using taxonid schema would fix this.
 
 #' Return taxonomic identifiers from a given namespace
 #'
@@ -41,7 +39,7 @@ ids <- function(name = NULL,
   ## Using right join, names appear in order of authority!
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "taxonid", db),
+      taxa_tbl(authority, "dwc", db),
       input_table,
       by = "name",
       copy = TRUE) %>%
@@ -72,7 +70,7 @@ accepted_name <- function(id = NULL,
   ## after-the-fact to match the query order
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "taxonid", db),
+      taxa_tbl(authority, "dwc", db),
       input_table,
       by = "id",
       copy = TRUE) %>%

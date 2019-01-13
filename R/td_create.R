@@ -39,7 +39,7 @@
 #'
 #' }
 td_create <- function(authorities = "itis",
-                      schema = c("hierarchy", "taxonid", "synonyms"),
+                      schema = c("dwc"),
                       overwrite = FALSE,
                       lines = 1e6,
                       dbdir =  rappdirs::user_data_dir("taxadb"),
@@ -47,16 +47,13 @@ td_create <- function(authorities = "itis",
                       ){
 
   recognized_authorities = KNOWN_AUTHORITIES
-  recognized_schema = c("hierarchy", "taxonid", "synonyms")
   if (authorities == "all") {
     authorities <- recognized_authorities
   }
   stopifnot(all(authorities %in% recognized_authorities))
-  stopifnot(all(schema %in% recognized_schema))
 
   ## supports vectorized schema and authorities lists.
-  files <- unlist(lapply(schema, function(s)
-                    paste0(authorities, "_", s, ".tsv.bz2")))
+  files <- paste0(authorities, "_", s, ".tsv.bz2")
   dest <- file.path(dbdir, files)
 
   new_dest <- dest
@@ -71,7 +68,7 @@ td_create <- function(authorities = "itis",
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
     urls <- paste0("https://github.com/cboettig/taxadb/",
-                   "releases/download/v1.0.0/",
+                   "releases/download/dwc/",
                    "data", ".2f", new_files)
 
     ## Gabor recommends we drop-in curl::download_file instead here!
