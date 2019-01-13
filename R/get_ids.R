@@ -42,15 +42,11 @@ get_ids <- function(names,
              collect = TRUE,
              db = taxadb_db)
 
-  ## More aggressive logic to enforce
-  ## we get precisely one ID or NA for each name queried
-  # df <- tibble::column_to_rownames(df, "name")
-  if("accepted_id" %in% names(df)){
-    #out <- df[names, "accepted_id"]
-    out <- pull(df, "accepted_id")
+  if("acceptedNameUsageID" %in% names(df)){
+    out <- pull(df, "acceptedNameUsageID")
   } else {
-    #out <- df[names, "id"]
-    out <- pull(df, "id")
+    #out <- df[names, "taxonID"]
+    out <- pull(df, "taxonID")
   }
   switch(format,
          "uri" = prefix_to_uri(out),

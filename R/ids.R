@@ -33,7 +33,7 @@ ids <- function(name = NULL,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(name, sort = 1:length(name))
+  input_table <- dplyr::tibble(scientificName = name, sort = 1:length(name))
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Using right join, names appear in order of authority!
@@ -41,7 +41,7 @@ ids <- function(name = NULL,
     dplyr::right_join(
       taxa_tbl(authority, "dwc", db),
       input_table,
-      by = "name",
+      by = "scientificName",
       copy = TRUE) %>%
     dplyr::arrange(sort) %>%
     select(-sort)
@@ -63,7 +63,7 @@ accepted_name <- function(id = NULL,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(id, sort = 1:length(id))
+  input_table <- dplyr::tibble(taxonID = id, sort = 1:length(id))
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Means names appear in order of authority, so we must arrange
@@ -72,7 +72,7 @@ accepted_name <- function(id = NULL,
     dplyr::right_join(
       taxa_tbl(authority, "dwc", db),
       input_table,
-      by = "id",
+      by = "taxonID",
       copy = TRUE) %>%
     dplyr::arrange(sort) %>%
     select(-sort)
