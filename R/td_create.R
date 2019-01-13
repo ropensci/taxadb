@@ -53,7 +53,7 @@ td_create <- function(authorities = "itis",
   stopifnot(all(authorities %in% recognized_authorities))
 
   ## supports vectorized schema and authorities lists.
-  files <- paste0(authorities, "_", s, ".tsv.bz2")
+  files <- paste0(authorities, ".tsv.bz2")
   dest <- file.path(dbdir, files)
 
   new_dest <- dest
@@ -69,7 +69,7 @@ td_create <- function(authorities = "itis",
     ## FIXME eventually these should be Zenodo URLs
     urls <- paste0("https://github.com/cboettig/taxadb/",
                    "releases/download/dwc/",
-                   "data", ".2f", new_files)
+                   "dwc", ".2f", new_files)
 
     ## Gabor recommends we drop-in curl::download_file instead here!
     ## or something fancier with curl_fetch_multi

@@ -4,8 +4,8 @@
 \alias{taxa_tbl}
 \title{Return a reference to a given table in the taxadb database}
 \usage{
-taxa_tbl(authority = KNOWN_AUTHORITIES, schema = c("hierarchy",
-  "taxonid", "synonyms", "common", "long"), db = td_connect())
+taxa_tbl(authority = KNOWN_AUTHORITIES, schema = c("dwc", "common",
+  "long"), db = td_connect())
 }
 \arguments{
 \item{authority}{from which authority should the hierachy be returned?

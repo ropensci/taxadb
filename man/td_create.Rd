@@ -4,9 +4,9 @@
 \alias{td_create}
 \title{create a local taxonomic database}
 \usage{
-td_create(authorities = "itis", schema = c("hierarchy", "taxonid",
-  "synonyms"), overwrite = FALSE, lines = 1e+06,
-  dbdir = rappdirs::user_data_dir("taxadb"), db = td_connect(dbdir))
+td_create(authorities = "itis", schema = c("dwc"), overwrite = FALSE,
+  lines = 1e+06, dbdir = rappdirs::user_data_dir("taxadb"),
+  db = td_connect(dbdir))
 }
 \arguments{
 \item{authorities}{a list (character vector) of authorities to be included in the
