@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 
-`taxadb` relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below.  The database dumps provided by authorities supported in `taxadb` at this time are:
+`taxadb` relies on a set of pre-assembled tables following a set of standardized schema layouts using Darwin Core vocabulary, as outlined below.  The database dumps provided by providers supported in `taxadb` at this time are:
 
 - `itis`: [The Integrated Taxonomic Information System](https://www.itis.gov/)
 - `col`: [The Catalogue of Life](http://www.catalogueoflife.org/)
@@ -28,110 +28,89 @@ knitr::opts_chunk$set(
 - `fb`: [FishBase](https://fishbase.ca)
 - `slb`: [SeaLifeBase](https://www.sealifebase.ca/)
 - `wd`: [WikiData](https://wikidata.org)
+- `iucn`: The IUCN Red List of endangered species status
+- `ott`: Open Tree of Life taxonomy.  
 
+Note that `col`, `gbif`, `ott`, are explicitly synthesis projects integrating the databases of names from a range of (many) other providers, while `itis`, `iucn`, `ncbi`, `tpl`, `fb`, and `slb` are independent name providers.  The synthetic or integrated name lists are not a complete substitute for the databases they integrate, owing to both differences in how up-to-date the relative records are as well as to either expert disagreements or algorithmic miss-matches.  `taxadb` makes no attempt to provide an opinion or reconciliation mechanism to any of these issues, but only to provide convenient access to data and functions for manipulating these records in a fast and consistent manner.
 
-These authorities provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these authorities, `taxadb` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  `taxadb` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these authorities.
+These providers provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these providers, `taxadb` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  `taxadb` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these providers.
 
-Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL.  to implement these, `taxadb` imports the compressed flat files into a local, column-oriented database, [`MonetDBLite`](), which can be installed entirely as an R package with no additional server setup required.  This provides a persistant store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxadb` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxadb` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
+Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL.  to implement these, `taxadb` imports the compressed flat files into a local, column-oriented database, [`MonetDBLite`](), which can be installed entirely as an R package with no additional server setup required.  This provides a persistent store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxadb` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxadb` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
 
-This vignette summarizes the table schema defined by `taxadb`.  Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
+This vignette summarizes the table schema defined by `taxadb`.  Pre-processing of the original database dumps from each provider into the format described here can be found in the corresponding scripts in `data-raw` directory of the R package source code. 
 
 
 ```{r message = FALSE}
+library(dplyr)
 library(taxadb)
 td_create("all")
 ```
 
-## taxonid schema
-
-A taxonid schema is provided for every authority, containing the columns:
-
-- `id`: a unique id for the name (including authority prefix)
-- `name`: a Latin name (either accepted or known synonym) 
-- `rank`: the rank (as given by the authority)
-- `accepted_id` the accepted id; (for synonyms, otherwise identical to the `id` for accepted names)
-
-Some authorities may report additional optional columns, such as the `update_date`, `name_type`.
-
-```{r}
-taxa_tbl("itis", "taxonid")
-```
-
-Note that `taxadb` tables report all identifiers using authority prefixes.  Certain authorities only provide taxanomic identifiers to species names (rank is always species).  Currently this includes `gbif`, `fb`, `slb`.  `ncbi`, `col` and `itis` provide taxonomic identifers to scientific names at any rank.   
+## data schema
 
 
-## Hierarchy table
+- `taxonID`: a unique id for the name (including provider prefix).  Note that some providers do not assign IDs to synonyms, but only to accepted names.  In this case, the `taxonID` should be `NA`, and the ID to the accepted name should be specified in `acceptedNameUsageID`.  
+- `scientificName`: a Latin name, either accepted or known synonym, at the lowest resolved level for the taxon.  While DWC encourages the use of authorship citations, these are intentionally omitted in most tables as inconsistency in abbreviations and formatting make names with authors much harder to resolve.  When available, this information is provided in the additional optional columns using the corresponding Darwin Core terms.  
+- `taxonRank`: the rank (as given by the provider) of this taxon.
+- `acceptedNameUsageID` the accepted identifier.  For synonyms, the scientificName of the row with the corresponding `taxonID` gives the accepted name, according to the data provider in question.  For accepted names, this is identical to the `taxonID` for the name. If not provided, it is assumed this is the same as the `taxonID`.  
+- `taxonomicStatus` Either "accepted", for an accepted scientific name, or a term indicating if the name is a known synonym, common misspelling, etc.
 
-Any valid rank is a column, and a taxon `id` is a unique key.
-
-First column is named `id`, all subsequent columns are corresponding rank names.  Note that this wide format does not support unnamed rank levels, which are common in certain classifications such as NCBI.  Additional issues arise in some databases (e.g. also in NCBI) where a rank name is duplicated.  
-
-Example:
+Some providers may report additional optional columns, see below.  
 
 ```{r}
-taxa_tbl("col", "hierarchy")
+taxa_tbl("itis")
 ```
 
 
-## Synonyms table
+## Hierarchy Terms
 
-A synonyms table can be build for most but not all authorities. Columns in the synonyms table are:
+Darwin Core defines several commonly recognized ranks as possible Taxon properties as well: `kingdom`, `phylum`, `class`, `order`, `family`, `genus`, `specificEpithet`, and `intraspecificEpithet`.  Additionally, the taxonomic rank of any scientific name can be specified under `taxonRank`, whether or not it is one of these names.  
 
-- `synonym`: Synonym or any other type (misspelling, alternate name) that is not the accepted name but can be unambiguously matched to an accepted name.   
-- `accepted_name`: The corresponding accepted name according to the authority
-- `accepted_id`: the id of the *accepted name*
-- `rank`: the rank of the accepted name.
+Semantically (specifically in the RDF sense), treating ranks as properties seems somewhat crude.  Database providers (and thus different experts) disagree both about what rank levels they recognize and what names belong in what ranks.  NCBI recognizes over 40 named ranks and numerous unnamed ranks.  OTT, in true cladistic fashion, identifies all mammals as being not only in the class "Mammalia", but also in the "class" of lobe-finned-fish, Sarcopterygii.  To distinguish between these different treatments, it would be semantically most consistent to associate a (or multiple) `taxonRankID` with each taxonomic entry, rather than a a taxonRank. This ID could be specific to the data provider, and indicate the rank name that provider associates with that rank.  Few (wikidata, with its strong RDF roots, is an exception) providers associate IDs with rank levels though. 
 
-Optional fields 
+In practice, treating ranks as properties (i.e. as column headings) is far more consistent with typical scientific usage and convenient for common applications, such as generating a list of all birds or all frogs by a simple filter on names in a column. 
 
-- `synonym_id`: Some authorities (e.g. ITIS, FB, COL) provide unique identifiers corresponding to the synonym name.  
-- `name_type`: the type of name given in `name`, e.g. `synonym`, `misspelling`, etc. 
 
-Example:
+## Synonyms
+
+The `taxonomicStatus` value indicates if the name provided is a synonym, misspelling or an accepted name.  `taxadb` does not enforce any controlled vocabulary on the use of these terms beyond using the term `accepted` to indicate that the `scientificName` is an accepted name (i.e. the `dwc:acceptedNameUsage`) for the taxon.  Including both accepted names and synonyms in the `scientificName` column greatly facilitates taxonomic name resolution: a user can just perform an SQL filtering join from a given list of names and the taxadb table in order to resolve names to identifiers (`acceptedNameUsageID`s).  
+
+Hierarchical information is given using the accepted name classification for synonyms as well as accepted names.  This makes it possible to filter a table by some major group:
 
 ```{r}
-taxa_tbl("gbif", "synonyms")
+birds <- taxa_tbl() %>% filter(class=="Aves") 
+birds %>% head()
 ```
+
+before joining against either synonym or accepted name, and also makes it easier to see what the accepted name for a synonym:
+
+```{r}
+birds %>% 
+  filter(taxonomicStatus != "accepted") %>% 
+  select(scientificName, taxonomicStatus, genus, specificEpithet) %>%
+  head()
+
+```
+
+## Additional fields
 
 
 ## Common names
 
-Common names are avialable from several authorities, but tidy tables for `taxadb` have not yet been implemented.  Common names tables are expected to follow the following schema:
+Common names are available from several providers, but tidy tables for `taxadb` have not yet been implemented.  Common names tables are expected to follow the following schema:
 
 - `id` The taxonomic identifier for the species (or possibly other rank)
 - `name` The common name / vernacular name
 - `language` The language in which the common name is given, if known. (all lowercase)
 - `language_code` the two-letter language code.
 
-## Long format
+## Linked Data formats
 
-Single-table representation of core taxonomic and hierarchical data.  Format includes followings required columns:
-
-id | name | rank  | path    |  path_rank  | path_id
----|------|-------|---------|-------------|---------
-
-And the following optional columns:
-
- rank_id  | path_rank_id  | name_type   | date    | common_name
-----------|---------------|-------------|---------| --------------
-
-(Most databases do not define `rank_id`, e.g. ids corresponding to the ranks themselves)
-
-These tables are considerably larger and longer than other formats, which can make them slow to query.  Note that for each taxonomic name, `id` and the corresponding `name`, and `rank` of the `id` are repeated across the full path hierarchy.  This format is not installed and not used by functions of `taxadb` at this time. 
-
-A fundamental advantage of this format is that it can be defined identically for every table, meaning that all authorities could be combined into a single table using the long format. both the `taxonid` and `hierarchy` formats can be derived directly from this format, and this format can represent information such as unnamed or duplicate ranks that cannot be represented in the `hierarchy` format.  
-
-
-
-```{r eval=FALSE}
-taxa_tbl("itis", "long", NULL)
-```
-
+`taxadb` tables can easily be interpreted as semantic data and will be made available as RDF triples.  This permits the richer SPARQL-based queries of taxonomic information, in addition to the SQL-based queries.  This data format will be the focus of a separate R package interface `taxald`.  
 
 ## Conventions
 
-- `species` is always given as the scientific name associated with the species; e.g. `Homo sapiens` not `sapiens`.  (ITIS convention)
-- Identifiers use the integer identifier defined by the authority, prefixed by the authority abbreviation in all capital letters: `ITIS:`, `GBIF:`, etc.
+- Identifiers use the integer identifier defined by the provider, prefixed by the provider abbreviation in all capital letters: `ITIS:`, `GBIF:`, etc.
 - Rank names are always lower case without hyphens or spaces. Rank names should be mapped
   to a table of standard accepted rank names (i.e. those recognized by ITIS, NCBI, Wikidata),
   and rank names should have 

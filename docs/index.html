@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">taxadb</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
 
@@ -61,13 +61,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/articles/crosswalk.html">Crosswalking The Authorities</a>
-    </li>
-    <li>
       <a href="articles/articles/schema.html">Database schema for taxadb</a>
-    </li>
-    <li>
-      <a href="articles/articles/taxald.html">taxadb overview</a>
     </li>
     <li>
       <a href="articles/intro.html">Quickstart for taxadb</a>
@@ -112,10 +106,7 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"cboettig/taxadb"</span>)</a></code></pre></div>
 <p>Before we can use most <code>taxadb</code> functions, we need to do a one-time installation of the database <code>taxadb</code> uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local hard-disk and will persist between R sessions. By default, the database will be installed in your user’s application data directory, as detected by the <code>rappdirs</code> package. (Set a custom location instead using <code>dbdir</code> argument.)</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; not overwriting itis_hierarchy</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; not overwriting itis_taxonid</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; not overwriting itis_synonyms</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a></code></pre></div>
 <p>The default behavior installs only the ITIS database. You can also specify a list of authorities to install, or install every authority using <code><a href="reference/td_create.html">td_create("all")</a></code>.</p>
 </div>
 <div id="test-drive" class="section level2">
@@ -124,25 +115,22 @@
 <p>Once the databases have been set up, we’re ready to explore.<br>
 Here’s a list of all the birds species known to ITIS:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="reference/descendants.html">descendants</a></span>(<span class="dt">name =</span> <span class="st">"Aves"</span>, <span class="dt">rank =</span> <span class="st">"class"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; # A tibble: 10,401 x 26</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt;    id    class family genus infraclass infrakingdom infraorder infraphylum</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;      </span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;  1 ITIS… Aves  Strut… Stru… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;  2 ITIS… Aves  Rheid… Rhea  &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;  3 ITIS… Aves  Droma… Drom… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;  4 ITIS… Aves  Casua… Casu… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  5 ITIS… Aves  Casua… Casu… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  6 ITIS… Aves  Apter… Apte… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  7 ITIS… Aves  Tinam… Tina… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  8 ITIS… Aves  Tinam… Tina… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  9 ITIS… Aves  Tinam… Tina… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; 10 ITIS… Aves  Tinam… Tina… &lt;NA&gt;       Deuterostom… &lt;NA&gt;       Gnathostom…</span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; # ... with 10,391 more rows, and 18 more variables: kingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; #   order &lt;chr&gt;, phylum &lt;chr&gt;, section &lt;chr&gt;, species &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; #   subclass &lt;chr&gt;, subfamily &lt;chr&gt;, subgenus &lt;chr&gt;, subkingdom &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-18" data-line-number="18"><span class="co">#&gt; #   suborder &lt;chr&gt;, subphylum &lt;chr&gt;, subsection &lt;chr&gt;, subtribe &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">#&gt; #   superclass &lt;chr&gt;, superfamily &lt;chr&gt;, superorder &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-20" data-line-number="20"><span class="co">#&gt; #   superphylum &lt;chr&gt;, tribe &lt;chr&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; # A tibble: 12,614 x 14</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt;    taxonID acceptedNameUsa… update_date scientificName taxonRank</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;  1 ITIS:1… ITIS:562791      2016-04-29  Rollandia mic… species  </span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;  2 ITIS:1… ITIS:176409      2016-04-29  Ardea helias   species  </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;  3 ITIS:1… ITIS:707807      2016-04-29  Mesites varie… species  </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;  4 ITIS:1… ITIS:561100      2016-04-29  Mesites unico… species  </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  5 ITIS:1… ITIS:561100      2016-04-29  Mesoenas unic… species  </span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  6 ITIS:1… ITIS:707807      2016-04-29  Mesoenas vari… species  </span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  7 ITIS:1… ITIS:562791      2016-04-29  Podiceps micr… species  </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  8 ITIS:1… ITIS:563259      2016-04-29  Colymbus rufi… species  </span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  9 ITIS:1… ITIS:824133      2016-04-29  Podiceps tric… species  </span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; 10 ITIS:1… ITIS:174508      2016-04-29  Colymbus domi… species  </span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; # … with 12,604 more rows, and 9 more variables: taxonomicStatus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; #   kingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; #   genus &lt;chr&gt;, specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;</span></a></code></pre></div>
 </div>
 <div id="learn-more" class="section level2">
 <h2 class="hasAnchor">
@@ -185,6 +173,8 @@ Here’s a list of all the birds species known to ITIS:</p>
 <ul class="list-unstyled">
 <li>Carl Boettiger <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-1642-628X" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
 <li>Kari Norman <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-2029-2325" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
+<li>Jorrit Poelen <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3138-4118" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
+<li>Scott Chamberlain <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-1444-9135" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
 <li><a href="authors.html">All authors...</a></li>
 </ul>
 </div>
@@ -205,7 +195,7 @@ Here’s a list of all the birds species known to ITIS:</p>
 
 
       <footer><div class="copyright">
-  <p>Developed by Carl Boettiger, Kari Norman.</p>
+  <p>Developed by Carl Boettiger, Kari Norman, Jorrit Poelen, Scott Chamberlain.</p>
 </div>
 
 <div class="pkgdown">

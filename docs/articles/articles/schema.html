@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">taxadb</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
 
@@ -60,13 +60,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../../articles/articles/crosswalk.html">Crosswalking The Authorities</a>
-    </li>
-    <li>
       <a href="../../articles/articles/schema.html">Database schema for taxadb</a>
-    </li>
-    <li>
-      <a href="../../articles/articles/taxald.html">taxadb overview</a>
     </li>
     <li>
       <a href="../../articles/intro.html">Quickstart for taxadb</a>
@@ -96,7 +90,7 @@
       <h1>Database schema for taxadb</h1>
                         <h4 class="author">Carl Boettiger</h4>
             
-            <h4 class="date">2018-12-27</h4>
+            <h4 class="date">2019-01-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/cboettig/taxadb/blob/master/vignettes/articles/schema.Rmd"><code>vignettes/articles/schema.Rmd</code></a></small>
       <div class="hidden name"><code>schema.Rmd</code></div>
@@ -105,7 +99,7 @@
 
     
     
-<p><code>taxadb</code> relies on a set of pre-assembled tables following a set of standardized schema layouts outlined below. The database dumps provided by authorities supported in <code>taxadb</code> at this time are:</p>
+<p><code>taxadb</code> relies on a set of pre-assembled tables following a set of standardized schema layouts using Darwin Core vocabulary, as outlined below. The database dumps provided by providers supported in <code>taxadb</code> at this time are:</p>
 <ul>
 <li>
 <code>itis</code>: <a href="https://www.itis.gov/">The Integrated Taxonomic Information System</a>
@@ -131,115 +125,107 @@
 <li>
 <code>wd</code>: <a href="https://wikidata.org">WikiData</a>
 </li>
+<li>
+<code>iucn</code>: The IUCN Red List of endangered species status</li>
+<li>
+<code>ott</code>: Open Tree of Life taxonomy.</li>
 </ul>
-<p>These authorities provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in <code>taxon_id,parent_id</code> pairs.) To make it faster and easier to work across these authorities, <code>taxadb</code> defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks. <code>taxadb</code> pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these authorities.</p>
-<p>Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL. to implement these, <code>taxadb</code> imports the compressed flat files into a local, column-oriented database, <a href=""><code>MonetDBLite</code></a>, which can be installed entirely as an R package with no additional server setup required. This provides a persistant store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory. The columnar structure enables blazingly fast joins. Once the database is created, <code>taxadb</code> simply wraps a set of user-friendly R functions around common <code>SQL</code> queries, implemented in the popular <code>dplyr</code> syntax. By default, <code>taxadb</code> will always collect the results of these queries to return familiar, in-memory objects to the R user. Optional arguments allow more direct access the database queries.</p>
-<p>This vignette summarizes the table schema defined by <code>taxadb</code>. Pre-processing of the original database dumps from each authority into the format described here can be found in the corresponding scripts in <code>data-raw</code> directory of the R package source code.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="../../reference/td_create.html">td_create</a></span>(<span class="st">"all"</span>)</a></code></pre></div>
-<div id="taxonid-schema" class="section level2">
+<p>Note that <code>col</code>, <code>gbif</code>, <code>ott</code>, are explicitly synthesis projects integrating the databases of names from a range of (many) other providers, while <code>itis</code>, <code>iucn</code>, <code>ncbi</code>, <code>tpl</code>, <code>fb</code>, and <code>slb</code> are independent name providers. The synthetic or integrated name lists are not a complete substitute for the databases they integrate, owing to both differences in how up-to-date the relative records are as well as to either expert disagreements or algorithmic miss-matches. <code>taxadb</code> makes no attempt to provide an opinion or reconciliation mechanism to any of these issues, but only to provide convenient access to data and functions for manipulating these records in a fast and consistent manner.</p>
+<p>These providers provide taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in <code>taxon_id,parent_id</code> pairs.) To make it faster and easier to work across these providers, <code>taxadb</code> defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks. <code>taxadb</code> pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these providers.</p>
+<p>Using the schema defined below, most common operations can be expressed in terms of very standard operations, such as simple filtering joins in SQL. to implement these, <code>taxadb</code> imports the compressed flat files into a local, column-oriented database, <a href=""><code>MonetDBLite</code></a>, which can be installed entirely as an R package with no additional server setup required. This provides a persistent store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory. The columnar structure enables blazingly fast joins. Once the database is created, <code>taxadb</code> simply wraps a set of user-friendly R functions around common <code>SQL</code> queries, implemented in the popular <code>dplyr</code> syntax. By default, <code>taxadb</code> will always collect the results of these queries to return familiar, in-memory objects to the R user. Optional arguments allow more direct access the database queries.</p>
+<p>This vignette summarizes the table schema defined by <code>taxadb</code>. Pre-processing of the original database dumps from each provider into the format described here can be found in the corresponding scripts in <code>data-raw</code> directory of the R package source code.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="../../reference/td_create.html">td_create</a></span>(<span class="st">"all"</span>)</a></code></pre></div>
+<div id="data-schema" class="section level2">
 <h2 class="hasAnchor">
-<a href="#taxonid-schema" class="anchor"></a>taxonid schema</h2>
-<p>A taxonid schema is provided for every authority, containing the columns:</p>
+<a href="#data-schema" class="anchor"></a>data schema</h2>
 <ul>
 <li>
-<code>id</code>: a unique id for the name (including authority prefix)</li>
+<code>taxonID</code>: a unique id for the name (including provider prefix). Note that some providers do not assign IDs to synonyms, but only to accepted names. In this case, the <code>taxonID</code> should be <code>NA</code>, and the ID to the accepted name should be specified in <code>acceptedNameUsageID</code>.<br>
+</li>
 <li>
-<code>name</code>: a Latin name (either accepted or known synonym)</li>
+<code>scientificName</code>: a Latin name, either accepted or known synonym, at the lowest resolved level for the taxon. While DWC encourages the use of authorship citations, these are intentionally omitted in most tables as inconsistency in abbreviations and formatting make names with authors much harder to resolve. When available, this information is provided in the additional optional columns using the corresponding Darwin Core terms.<br>
+</li>
 <li>
-<code>rank</code>: the rank (as given by the authority)</li>
+<code>taxonRank</code>: the rank (as given by the provider) of this taxon.</li>
 <li>
-<code>accepted_id</code> the accepted id; (for synonyms, otherwise identical to the <code>id</code> for accepted names)</li>
+<code>acceptedNameUsageID</code> the accepted identifier. For synonyms, the scientificName of the row with the corresponding <code>taxonID</code> gives the accepted name, according to the data provider in question. For accepted names, this is identical to the <code>taxonID</code> for the name. If not provided, it is assumed this is the same as the <code>taxonID</code>.<br>
+</li>
+<li>
+<code>taxonomicStatus</code> Either “accepted”, for an accepted scientific name, or a term indicating if the name is a known synonym, common misspelling, etc.</li>
 </ul>
-<p>Some authorities may report additional optional columns, such as the <code>update_date</code>, <code>name_type</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>, <span class="st">"taxonid"</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; # Source:   table&lt;itis_taxonid&gt; [?? x 6]</span></a>
+<p>Some providers may report additional optional columns, see below.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; # Source:   table&lt;itis&gt; [?? x 14]</span></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;    id         accepted_id update_date name                rank   name_usage</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;               &lt;chr&gt;  &lt;chr&gt;     </span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt;  1 ITIS:100   ITIS:50     2015-03-02  Spirillum beijerin… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;  2 ITIS:1000… ITIS:724028 2007-06-14  Hypogastrura jonda… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;  3 ITIS:1000… ITIS:724028 2007-06-14  Achorutes jondavi   speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;  4 ITIS:1000… ITIS:804239 2016-04-01  Niponius itoi       speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt;  5 ITIS:1000… ITIS:804276 2016-04-01  Chlamydopsis rufom… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt;  6 ITIS:1000… ITIS:804277 2016-04-01  Chlamydopsis maste… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt;  7 ITIS:1000… ITIS:804279 2016-04-01  Chlamydopsis darwi… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#&gt;  8 ITIS:1000… ITIS:804309 2016-04-01  Chlamydopsis excav… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co">#&gt;  9 ITIS:1000… ITIS:804309 2016-04-01  Chlamydopsis punct… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">#&gt; 10 ITIS:1000… ITIS:724073 2007-06-14  Hypogastrura pseud… speci… synonym   </span></a>
-<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="co">#&gt; # ... with more rows</span></a></code></pre></div>
-<p>Note that <code>taxadb</code> tables report all identifiers using authority prefixes. Certain authorities only provide taxanomic identifiers to species names (rank is always species). Currently this includes <code>gbif</code>, <code>fb</code>, <code>slb</code>. <code>ncbi</code>, <code>col</code> and <code>itis</code> provide taxonomic identifers to scientific names at any rank.</p>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;    taxonID acceptedNameUsa… update_date scientificName taxonRank</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt;  1 ITIS:1… ITIS:50          2015-03-02  Spirillum bei… species  </span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;  2 ITIS:1… ITIS:724028      2007-06-14  Hypogastrura … species  </span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;  3 ITIS:1… ITIS:724028      2007-06-14  Achorutes jon… species  </span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;  4 ITIS:1… ITIS:804239      2016-04-01  Niponius itoi  species  </span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt;  5 ITIS:1… ITIS:804276      2016-04-01  Chlamydopsis … species  </span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt;  6 ITIS:1… ITIS:804277      2016-04-01  Chlamydopsis … species  </span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt;  7 ITIS:1… ITIS:804279      2016-04-01  Chlamydopsis … species  </span></a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#&gt;  8 ITIS:1… ITIS:804309      2016-04-01  Chlamydopsis … species  </span></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co">#&gt;  9 ITIS:1… ITIS:804309      2016-04-01  Chlamydopsis … species  </span></a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">#&gt; 10 ITIS:1… ITIS:724073      2007-06-14  Hypogastrura … species  </span></a>
+<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="co">#&gt; # … with more rows, and 9 more variables: taxonomicStatus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb2-17" data-line-number="17"><span class="co">#&gt; #   kingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb2-18" data-line-number="18"><span class="co">#&gt; #   genus &lt;chr&gt;, specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;</span></a></code></pre></div>
 </div>
-<div id="hierarchy-table" class="section level2">
+<div id="hierarchy-terms" class="section level2">
 <h2 class="hasAnchor">
-<a href="#hierarchy-table" class="anchor"></a>Hierarchy table</h2>
-<p>Any valid rank is a column, and a taxon <code>id</code> is a unique key.</p>
-<p>First column is named <code>id</code>, all subsequent columns are corresponding rank names. Note that this wide format does not support unnamed rank levels, which are common in certain classifications such as NCBI. Additional issues arise in some databases (e.g. also in NCBI) where a rank name is duplicated.</p>
-<p>Example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>, <span class="st">"hierarchy"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; # Source:   table&lt;col_hierarchy&gt; [?? x 11]</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;    id    kingdom phylum class order superfamily family genus subgenus</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;   </span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;  1 COL:2 Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Tasm… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;  2 COL:6 Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Tasm… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;  3 COL:8 Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Torr… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  4 COL:… Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Vict… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  5 COL:… Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Vict… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  6 COL:… Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Vict… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  7 COL:… Animal… Mollu… Gast… Styl… Rhytidoidea Rhyti… Vict… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  8 COL:… Animal… Mollu… Gast… Styl… Acavoidea   Caryo… Anog… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;  9 COL:… Animal… Mollu… Gast… Styl… Acavoidea   Caryo… Braz… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; 10 COL:… Animal… Mollu… Gast… Styl… Acavoidea   Caryo… Cary… &lt;NA&gt;    </span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; # ... with more rows, and 2 more variables: species &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; #   infraspecies &lt;chr&gt;</span></a></code></pre></div>
+<a href="#hierarchy-terms" class="anchor"></a>Hierarchy Terms</h2>
+<p>Darwin Core defines several commonly recognized ranks as possible Taxon properties as well: <code>kingdom</code>, <code>phylum</code>, <code>class</code>, <code>order</code>, <code>family</code>, <code>genus</code>, <code>specificEpithet</code>, and <code>intraspecificEpithet</code>. Additionally, the taxonomic rank of any scientific name can be specified under <code>taxonRank</code>, whether or not it is one of these names.</p>
+<p>Semantically (specifically in the RDF sense), treating ranks as properties seems somewhat crude. Database providers (and thus different experts) disagree both about what rank levels they recognize and what names belong in what ranks. NCBI recognizes over 40 named ranks and numerous unnamed ranks. OTT, in true cladistic fashion, identifies all mammals as being not only in the class “Mammalia”, but also in the “class” of lobe-finned-fish, Sarcopterygii. To distinguish between these different treatments, it would be semantically most consistent to associate a (or multiple) <code>taxonRankID</code> with each taxonomic entry, rather than a a taxonRank. This ID could be specific to the data provider, and indicate the rank name that provider associates with that rank. Few (wikidata, with its strong RDF roots, is an exception) providers associate IDs with rank levels though.</p>
+<p>In practice, treating ranks as properties (i.e. as column headings) is far more consistent with typical scientific usage and convenient for common applications, such as generating a list of all birds or all frogs by a simple filter on names in a column.</p>
 </div>
-<div id="synonyms-table" class="section level2">
+<div id="synonyms" class="section level2">
 <h2 class="hasAnchor">
-<a href="#synonyms-table" class="anchor"></a>Synonyms table</h2>
-<p>A synonyms table can be build for most but not all authorities. Columns in the synonyms table are:</p>
-<ul>
-<li>
-<code>synonym</code>: Synonym or any other type (misspelling, alternate name) that is not the accepted name but can be unambiguously matched to an accepted name.<br>
-</li>
-<li>
-<code>accepted_name</code>: The corresponding accepted name according to the authority</li>
-<li>
-<code>accepted_id</code>: the id of the <em>accepted name</em>
-</li>
-<li>
-<code>rank</code>: the rank of the accepted name.</li>
-</ul>
-<p>Optional fields</p>
-<ul>
-<li>
-<code>synonym_id</code>: Some authorities (e.g. ITIS, FB, COL) provide unique identifiers corresponding to the synonym name.<br>
-</li>
-<li>
-<code>name_type</code>: the type of name given in <code>name</code>, e.g. <code>synonym</code>, <code>misspelling</code>, etc.</li>
-</ul>
-<p>Example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"gbif"</span>, <span class="st">"synonyms"</span>)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; # Source:   table&lt;gbif_synonyms&gt; [?? x 5]</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt;    id        accepted_name     rank    name              name_type</span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;   &lt;chr&gt;             &lt;chr&gt;    </span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt;  1 GBIF:0    incertae sedis    kingdom incertae sedis    doubtful </span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt;  2 GBIF:104  Prasinophyta      phylum  Prasinophyta      synonym  </span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt;  3 GBIF:191  Bryopsidophyceae  class   Bryopsidophyceae  synonym  </span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt;  4 GBIF:287  Fragilariophyceae class   Fragilariophyceae synonym  </span></a>
-<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt;  5 GBIF:835  Eutreptiales      order   Eutreptiales      synonym  </span></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt;  6 GBIF:1345 Chlorococcales    order   Chlorococcales    synonym  </span></a>
-<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt;  7 GBIF:1902 Krohnitelldae     family  Krohnitelldae     synonym  </span></a>
-<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt;  8 GBIF:1909 Chlorangiaceae    family  Chlorangiaceae    synonym  </span></a>
-<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt;  9 GBIF:1964 Haploposthiidae   family  Haploposthiidae   synonym  </span></a>
-<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt; 10 GBIF:1976 Questidae         family  Questidae         synonym  </span></a>
-<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt; # ... with more rows</span></a></code></pre></div>
+<a href="#synonyms" class="anchor"></a>Synonyms</h2>
+<p>The <code>taxonomicStatus</code> value indicates if the name provided is a synonym, misspelling or an accepted name. <code>taxadb</code> does not enforce any controlled vocabulary on the use of these terms beyond using the term <code>accepted</code> to indicate that the <code>scientificName</code> is an accepted name (i.e. the <code>dwc:acceptedNameUsage</code>) for the taxon. Including both accepted names and synonyms in the <code>scientificName</code> column greatly facilitates taxonomic name resolution: a user can just perform an SQL filtering join from a given list of names and the taxadb table in order to resolve names to identifiers (<code>acceptedNameUsageID</code>s).</p>
+<p>Hierarchical information is given using the accepted name classification for synonyms as well as accepted names. This makes it possible to filter a table by some major group:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">birds &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(class<span class="op">==</span><span class="st">"Aves"</span>) </a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">birds <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>()</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; # Source:   lazy query [?? x 14]</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;   taxonID acceptedNameUsa… update_date scientificName taxonRank</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt; 1 ITIS:1… ITIS:562791      2016-04-29  Rollandia mic… species  </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt; 2 ITIS:1… ITIS:176409      2016-04-29  Ardea helias   species  </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt; 3 ITIS:1… ITIS:707807      2016-04-29  Mesites varie… species  </span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt; 4 ITIS:1… ITIS:561100      2016-04-29  Mesites unico… species  </span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt; 5 ITIS:1… ITIS:561100      2016-04-29  Mesoenas unic… species  </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt; 6 ITIS:1… ITIS:707807      2016-04-29  Mesoenas vari… species  </span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt; # … with 9 more variables: taxonomicStatus &lt;chr&gt;, kingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; #   phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; #   specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;</span></a></code></pre></div>
+<p>before joining against either synonym or accepted name, and also makes it easier to see what the accepted name for a synonym:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">birds <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(taxonomicStatus <span class="op">!=</span><span class="st"> "accepted"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(scientificName, taxonomicStatus, genus, specificEpithet) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>()</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt; # Source:   lazy query [?? x 4]</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt;   scientificName        taxonomicStatus genus      specificEpithet</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;           &lt;chr&gt;      &lt;chr&gt;          </span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; 1 Rollandia micropterum synonym         Rollandia  microptera     </span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt; 2 Ardea helias          synonym         Eurypyga   helias         </span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt; 3 Mesites variegata     synonym         Mesitornis variegatus     </span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt; 4 Mesites unicolor      synonym         Mesitornis unicolor       </span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt; 5 Mesoenas unicolor     synonym         Mesitornis unicolor       </span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt; 6 Mesoenas variegata    synonym         Mesitornis variegatus</span></a></code></pre></div>
+</div>
+<div id="additional-fields" class="section level2">
+<h2 class="hasAnchor">
+<a href="#additional-fields" class="anchor"></a>Additional fields</h2>
 </div>
 <div id="common-names" class="section level2">
 <h2 class="hasAnchor">
 <a href="#common-names" class="anchor"></a>Common names</h2>
-<p>Common names are avialable from several authorities, but tidy tables for <code>taxadb</code> have not yet been implemented. Common names tables are expected to follow the following schema:</p>
+<p>Common names are available from several providers, but tidy tables for <code>taxadb</code> have not yet been implemented. Common names tables are expected to follow the following schema:</p>
 <ul>
 <li>
 <code>id</code> The taxonomic identifier for the species (or possibly other rank)</li>
@@ -251,44 +237,16 @@
 <code>language_code</code> the two-letter language code.</li>
 </ul>
 </div>
-<div id="long-format" class="section level2">
+<div id="linked-data-formats" class="section level2">
 <h2 class="hasAnchor">
-<a href="#long-format" class="anchor"></a>Long format</h2>
-<p>Single-table representation of core taxonomic and hierarchical data. Format includes followings required columns:</p>
-<table class="table">
-<thead><tr class="header">
-<th>id</th>
-<th>name</th>
-<th>rank</th>
-<th>path</th>
-<th>path_rank</th>
-<th>path_id</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-<p>And the following optional columns:</p>
-<table class="table">
-<thead><tr class="header">
-<th>rank_id</th>
-<th>path_rank_id</th>
-<th>name_type</th>
-<th>date</th>
-<th>common_name</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-<p>(Most databases do not define <code>rank_id</code>, e.g. ids corresponding to the ranks themselves)</p>
-<p>These tables are considerably larger and longer than other formats, which can make them slow to query. Note that for each taxonomic name, <code>id</code> and the corresponding <code>name</code>, and <code>rank</code> of the <code>id</code> are repeated across the full path hierarchy. This format is not installed and not used by functions of <code>taxadb</code> at this time.</p>
-<p>A fundamental advantage of this format is that it can be defined identically for every table, meaning that all authorities could be combined into a single table using the long format. both the <code>taxonid</code> and <code>hierarchy</code> formats can be derived directly from this format, and this format can represent information such as unnamed or duplicate ranks that cannot be represented in the <code>hierarchy</code> format.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>, <span class="st">"long"</span>, <span class="ot">NULL</span>)</a></code></pre></div>
+<a href="#linked-data-formats" class="anchor"></a>Linked Data formats</h2>
+<p><code>taxadb</code> tables can easily be interpreted as semantic data and will be made available as RDF triples. This permits the richer SPARQL-based queries of taxonomic information, in addition to the SQL-based queries. This data format will be the focus of a separate R package interface <code>taxald</code>.</p>
 </div>
 <div id="conventions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#conventions" class="anchor"></a>Conventions</h2>
 <ul>
-<li>
-<code>species</code> is always given as the scientific name associated with the species; e.g. <code>Homo sapiens</code> not <code>sapiens</code>. (ITIS convention)</li>
-<li>Identifiers use the integer identifier defined by the authority, prefixed by the authority abbreviation in all capital letters: <code>ITIS:</code>, <code>GBIF:</code>, etc.</li>
+<li>Identifiers use the integer identifier defined by the provider, prefixed by the provider abbreviation in all capital letters: <code>ITIS:</code>, <code>GBIF:</code>, etc.</li>
 <li>Rank names are always lower case without hyphens or spaces. Rank names should be mapped to a table of standard accepted rank names (i.e. those recognized by ITIS, NCBI, Wikidata), and rank names should have</li>
 <li>Encoding is UTF-8</li>
 </ul>
@@ -300,11 +258,12 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#taxonid-schema">taxonid schema</a></li>
-      <li><a href="#hierarchy-table">Hierarchy table</a></li>
-      <li><a href="#synonyms-table">Synonyms table</a></li>
+<li><a href="#data-schema">data schema</a></li>
+      <li><a href="#hierarchy-terms">Hierarchy Terms</a></li>
+      <li><a href="#synonyms">Synonyms</a></li>
+      <li><a href="#additional-fields">Additional fields</a></li>
       <li><a href="#common-names">Common names</a></li>
-      <li><a href="#long-format">Long format</a></li>
+      <li><a href="#linked-data-formats">Linked Data formats</a></li>
       <li><a href="#conventions">Conventions</a></li>
       </ul>
 </div>
@@ -314,7 +273,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Carl Boettiger, Kari Norman.</p>
+  <p>Developed by Carl Boettiger, Kari Norman, Jorrit Poelen, Scott Chamberlain.</p>
 </div>
 
 <div class="pkgdown">
