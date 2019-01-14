@@ -84,12 +84,15 @@ td_create <- function(authorities = "itis",
   progress <- getOption("readr.show_progress")
   options(readr.show_progress = FALSE)
 
+  ## silence MonetDBLite complaints about reserved SQL characters
+  suppressMessages({ # unfortunately silences all arkdb messages too!
   arkdb::unark(dest,
                db_con = db,
                lines = 1e6,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
                col_types = readr::cols(.default = "c"))
+  })
 
   # reset readr progress bar.
   options(readr.show_progress = progress)
@@ -101,9 +104,4 @@ td_create <- function(authorities = "itis",
 
   invisible(dbdir)
 }
-
-
-#R.utils::bzip2("taxa.sqlite", remove = FALSE)
-## Set up database connection from compressed file
-#R.utils::bunzip2("taxa.sqlite.bz2", remove = FALSE)
 

@@ -37,6 +37,8 @@ ids <- function(name = NULL,
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Using right join, names appear in order of authority!
+
+  suppress_msg({   # grrrrr... MonetDBLite has to whine about upper-case characters
   out <-
     dplyr::right_join(
       taxa_tbl(authority, "dwc", db),
@@ -45,7 +47,7 @@ ids <- function(name = NULL,
       copy = TRUE) %>%
     dplyr::arrange(sort) %>% # enforce original order
     select(-sort)
-
+  })
   ## A known synonym can match two different valid names!
   ## 'Trochalopteron henrici gucenense' is a synonym for:
   ## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'

@@ -42,6 +42,8 @@ get_ids <- function(names,
              collect = TRUE,
              db = taxadb_db)
 
+  df <- duplicate_as_unresolved(df)
+
   if("acceptedNameUsageID" %in% names(df)){
     out <- pull(df, "acceptedNameUsageID")
   } else {
