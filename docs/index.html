@@ -106,7 +106,8 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"cboettig/taxadb"</span>)</a></code></pre></div>
 <p>Before we can use most <code>taxadb</code> functions, we need to do a one-time installation of the database <code>taxadb</code> uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local hard-disk and will persist between R sessions. By default, the database will be installed in your user’s application data directory, as detected by the <code>rappdirs</code> package. (Set a custom location instead using <code>dbdir</code> argument.)</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a></code></pre></div>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; not overwriting itis</span></a></code></pre></div>
 <p>The default behavior installs only the ITIS database. You can also specify a list of authorities to install, or install every authority using <code><a href="reference/td_create.html">td_create("all")</a></code>.</p>
 </div>
 <div id="test-drive" class="section level2">
