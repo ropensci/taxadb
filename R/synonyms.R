@@ -1,6 +1,8 @@
 
 ## A mapping in which synonym and accepted names are listed in the same row
 syn_table <- function(taxon, accepted = "accepted"){
+
+  suppress_msg({
   synonyms <- full_join(
     taxon %>%
       filter(taxonomicStatus != accepted) %>%
@@ -14,6 +16,7 @@ syn_table <- function(taxon, accepted = "accepted"){
              acceptedNameUsageID,
              taxonRank,
              taxonomicStatus))
+  })
 
 }
 

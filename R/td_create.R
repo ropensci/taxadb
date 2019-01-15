@@ -85,7 +85,7 @@ td_create <- function(authorities = "itis",
   options(readr.show_progress = FALSE)
 
   ## silence MonetDBLite complaints about reserved SQL characters
-  suppressMessages({ # unfortunately silences all arkdb messages too!
+  suppress_msg({ # unfortunately silences all arkdb messages too!
   arkdb::unark(dest,
                db_con = db,
                lines = 1e6,
