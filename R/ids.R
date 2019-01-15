@@ -1,5 +1,3 @@
-## FIXME Does not support lookup of non-species-level ids.
-## Using taxonid schema would fix this.
 
 #' Return taxonomic identifiers from a given namespace
 #'
@@ -35,18 +33,25 @@ ids <- function(name = NULL,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(name, sort = 1:length(name))
+  input_table <- dplyr::tibble(scientificName = name, sort = 1:length(name))
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Using right join, names appear in order of authority!
+
+  suppress_msg({   # bc MonetDBLite whines about upper-case characters
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "taxonid", db),
+      taxa_tbl(authority, "dwc", db),
       input_table,
-      by = "name",
+      by = "scientificName",
       copy = TRUE) %>%
-    dplyr::arrange(sort) %>%
+    dplyr::arrange(sort) %>% # enforce original order
     select(-sort)
+  })
+  ## A known synonym can match two different valid names!
+  ## 'Trochalopteron henrici gucenense' is a synonym for:
+  ## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
+  ## (according to ITIS)
 
   if (collect && inherits(out, "tbl_lazy")) {
     ## Return an in-memory object
@@ -65,16 +70,16 @@ accepted_name <- function(id = NULL,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(id, sort = 1:length(id))
+  input_table <- dplyr::tibble(taxonID = id, sort = 1:length(id))
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Means names appear in order of authority, so we must arrange
   ## after-the-fact to match the query order
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "taxonid", db),
+      taxa_tbl(authority, "dwc", db),
       input_table,
-      by = "id",
+      by = "taxonID",
       copy = TRUE) %>%
     dplyr::arrange(sort) %>%
     select(-sort)

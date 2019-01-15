@@ -111,5 +111,36 @@ common <- common_list %>%
 
 write_tsv(common, "data/iucn_common.tsv.bz2")
 
+##### Rename things to Darwin Core
+library(taxadb)
+taxonid <-
+  collect(taxa_tbl("iucn", "taxonid")) %>%
+  distinct() %>%
+  ## IUCN doesn't give IDs to synonyms, didn't have an accepted_id
+  mutate(accepted_id = id,
+         name_type = dplyr::recode_factor(name_type, "accepted name" = "accepted"))
+
+wide <- collect(taxa_tbl("iucn", "hierarchy")) %>% distinct()
+dwc <- taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+                     #infraspecificEpithet
+              ),
+            by = "taxonID")
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+dwc$taxonID[dwc$taxonomicStatus != "accepted"] <- as.character(NA)
+
+write_tsv(dwc, "dwc/iucn.tsv.bz2")
+
 ##library(piggyback)
 ##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% piggyback::pb_upload(tag = "v1.0.0")

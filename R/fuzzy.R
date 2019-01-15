@@ -107,7 +107,7 @@ fuzzy_ids <- function(name = NULL,
     lapply(name_pattern,
           function(pattern){
 
-            taxa_tbl(authority, "taxonid", db) %>%
+            taxa_tbl(authority, "dwc", db) %>%
             dplyr::filter(name %like% pattern) %>%
             dplyr::collect() %>%
             dplyr::mutate(input_name = gsub("%", "", pattern))

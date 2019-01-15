@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">taxadb</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
 
@@ -95,13 +95,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/articles/crosswalk.html">Crosswalking The Authorities</a>
-    </li>
-    <li>
       <a href="../articles/articles/schema.html">Database schema for taxadb</a>
-    </li>
-    <li>
-      <a href="../articles/articles/taxald.html">taxadb overview</a>
     </li>
     <li>
       <a href="../articles/intro.html">Quickstart for taxadb</a>
@@ -140,9 +134,9 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>td_create</span>(<span class='kw'>authorities</span> <span class='kw'>=</span> <span class='st'>"itis"</span>, <span class='kw'>schema</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"hierarchy"</span>, <span class='st'>"taxonid"</span>,
-  <span class='st'>"synonyms"</span>), <span class='kw'>overwrite</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>lines</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>,
-  <span class='kw'>dbdir</span> <span class='kw'>=</span> <span class='kw pkg'>rappdirs</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/rappdirs/topics/user_data_dir'>user_data_dir</a></span>(<span class='st'>"taxadb"</span>), <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>(<span class='no'>dbdir</span>))</pre>
+    <pre class="usage"><span class='fu'>td_create</span>(<span class='kw'>authorities</span> <span class='kw'>=</span> <span class='st'>"itis"</span>, <span class='kw'>schema</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"dwc"</span>), <span class='kw'>overwrite</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>lines</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>, <span class='kw'>dbdir</span> <span class='kw'>=</span> <span class='kw pkg'>rappdirs</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/rappdirs/topics/user_data_dir'>user_data_dir</a></span>(<span class='st'>"taxadb"</span>),
+  <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>(<span class='no'>dbdir</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -187,14 +181,15 @@ fast <a href='MonetDBLite::MonetDBLite'>MonetDBLite::MonetDBLite</a> connection.
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Authorities recognized by taxadb are:</p><ul>
-<li><p><code>itis</code></p></li>
-<li><p><code>ncbi</code></p></li>
-<li><p><code>col</code></p></li>
-<li><p><code>tpl</code></p></li>
-<li><p><code>gbif</code></p></li>
+<li><p><code>itis</code>: Integrated Taxonomic Information System, <a href='https://www.itis.gov/'>https://www.itis.gov/</a></p></li>
+<li><p><code>ncbi</code>:  National Center for Biotechnology Information, <a href='https://www.ncbi.nlm.nih.gov/taxonomy'>https://www.ncbi.nlm.nih.gov/taxonomy</a></p></li>
+<li><p><code>col</code>: Catalogue of Life, <a href='http://www.catalogueoflife.org/'>http://www.catalogueoflife.org/</a></p></li>
+<li><p><code>tpl</code>: The Plant List, <a href='http://www.theplantlist.org/'>http://www.theplantlist.org/</a></p></li>
+<li><p><code>gbif</code>: Global Biodiversity Information Facility, <a href='https://www.gbif.org/'>https://www.gbif.org/</a></p></li>
 <li><p><code>fb</code> FishBase, <a href='http://fishbase.org'>http://fishbase.org</a></p></li>
 <li><p><code>slb</code>, SeaLifeBase, <a href='http://sealifebase.org'>http://sealifebase.org</a></p></li>
-<li><p><code>wd</code>, wikidata</p></li>
+<li><p><code>wd</code>, Wikidata: <a href='https://www.wikidata.org/'>https://www.wikidata.org/</a></p></li>
+<li><p><code>ott</code> OpenTree Taxonomy: <a href='https://github.com/OpenTreeOfLife/reference-taxonomy'>https://github.com/OpenTreeOfLife/reference-taxonomy</a></p></li>
 </ul>
     
 
@@ -223,7 +218,7 @@ fast <a href='MonetDBLite::MonetDBLite'>MonetDBLite::MonetDBLite</a> connection.
 
       <footer>
       <div class="copyright">
-  <p>Developed by Carl Boettiger, Kari Norman.</p>
+  <p>Developed by Carl Boettiger, Kari Norman, Jorrit Poelen, Scott Chamberlain.</p>
 </div>
 
 <div class="pkgdown">

@@ -30,11 +30,14 @@ classification <- function(species = NULL,
                            collect = TRUE,
                            db = td_connect()){
 
+  suppress_msg({
   out <- dplyr::right_join(taxa_tbl(authority = authority,
-                                   schema = "hierarchy",
+                                   schema = "dwc",
                                    db = db),
-                          null_tibble(id, species),
-                          copy = TRUE)
+                          null_tibble(id, scientificName = species),
+                          copy = TRUE,
+                          by = "scientificName")
+  })
 
   if(collect && inherits(out, "tbl_lazy")){
     ## Return an in-memory object

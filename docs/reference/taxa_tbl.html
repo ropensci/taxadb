@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">taxadb</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
 
@@ -95,13 +95,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/articles/crosswalk.html">Crosswalking The Authorities</a>
-    </li>
-    <li>
       <a href="../articles/articles/schema.html">Database schema for taxadb</a>
-    </li>
-    <li>
-      <a href="../articles/articles/taxald.html">taxadb overview</a>
     </li>
     <li>
       <a href="../articles/intro.html">Quickstart for taxadb</a>
@@ -140,9 +134,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>taxa_tbl</span>(<span class='kw'>authority</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>, <span class='st'>"slb"</span>,
-  <span class='st'>"wd"</span>), <span class='kw'>schema</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"hierarchy"</span>, <span class='st'>"taxonid"</span>, <span class='st'>"synonyms"</span>, <span class='st'>"common"</span>,
-  <span class='st'>"long"</span>), <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
+    <pre class="usage"><span class='fu'>taxa_tbl</span>(<span class='kw'>authority</span> <span class='kw'>=</span> <span class='no'>KNOWN_AUTHORITIES</span>, <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"dwc"</span>,
+  <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,7 +169,7 @@ attempt to connect automatically.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Carl Boettiger, Kari Norman.</p>
+  <p>Developed by Carl Boettiger, Kari Norman, Jorrit Poelen, Scott Chamberlain.</p>
 </div>
 
 <div class="pkgdown">

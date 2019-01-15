@@ -1,3 +1,28 @@
+globalVariables(c("taxonomicStatus", "scientificName", "taxonID",
+                  "taxonRank", "acceptedNameUsageID"))
+## A mapping in which synonym and accepted names are listed in the same row
+
+#' @importFrom dplyr full_join filter select
+syn_table <- function(taxon, accepted = "accepted"){
+
+  suppress_msg({
+  synonyms <- dplyr::full_join(
+    taxon %>%
+      dplyr::filter(taxonomicStatus != accepted) %>%
+      dplyr::select(synonym = scientificName,
+             synonym_id = taxonID,
+             taxonomicStatus,
+             acceptedNameUsageID),
+    taxon %>%
+      dplyr::filter(taxonomicStatus == accepted) %>%
+      dplyr::select(acceptedNameUsage = scientificName,
+             acceptedNameUsageID,
+             taxonRank,
+             taxonomicStatus))
+  })
+
+}
+
 
 #' synonyms
 #'
@@ -8,24 +33,7 @@ synonyms <- function(name = NULL,
                      authority = KNOWN_AUTHORITIES,
                      collect = TRUE,
                      db = td_connect()){
-
-  syn_ids <- taxa_tbl(authority = authority,
-                     schema = "synonyms",
-                     db = db)
-
-  out <- dplyr::right_join(syn_ids,
-                           tibble::tibble(name),
-                           by = "name",
-                           copy = TRUE)
-
-
-  ## ITIS seems to map synonyms that are obviously species names into higher ranks??
-
-  if (collect && inherits(out, "tbl_lazy")) {
-    ## Return an in-memory object
-    out <- dplyr::collect(out)
-  }
-
-  out
+  ids(name, authority, collect, db) %>%
+    syn_table()
 
 }

@@ -39,7 +39,7 @@
 #'
 #' }
 td_create <- function(authorities = "itis",
-                      schema = c("hierarchy", "taxonid", "synonyms"),
+                      schema = c("dwc"),
                       overwrite = FALSE,
                       lines = 1e6,
                       dbdir =  rappdirs::user_data_dir("taxadb"),
@@ -47,16 +47,13 @@ td_create <- function(authorities = "itis",
                       ){
 
   recognized_authorities = KNOWN_AUTHORITIES
-  recognized_schema = c("hierarchy", "taxonid", "synonyms")
   if (authorities == "all") {
     authorities <- recognized_authorities
   }
   stopifnot(all(authorities %in% recognized_authorities))
-  stopifnot(all(schema %in% recognized_schema))
 
   ## supports vectorized schema and authorities lists.
-  files <- unlist(lapply(schema, function(s)
-                    paste0(authorities, "_", s, ".tsv.bz2")))
+  files <- paste0(authorities, ".tsv.bz2")
   dest <- file.path(dbdir, files)
 
   new_dest <- dest
@@ -71,8 +68,8 @@ td_create <- function(authorities = "itis",
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
     urls <- paste0("https://github.com/cboettig/taxadb/",
-                   "releases/download/v1.0.0/",
-                   "data", ".2f", new_files)
+                   "releases/download/dwc/",
+                   "dwc", ".2f", new_files)
 
     ## Gabor recommends we drop-in curl::download_file instead here!
     ## or something fancier with curl_fetch_multi
@@ -87,12 +84,15 @@ td_create <- function(authorities = "itis",
   progress <- getOption("readr.show_progress")
   options(readr.show_progress = FALSE)
 
+  ## silence MonetDBLite complaints about reserved SQL characters
+  suppress_msg({ # unfortunately silences all arkdb messages too!
   arkdb::unark(dest,
                db_con = db,
                lines = 1e6,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
                col_types = readr::cols(.default = "c"))
+  })
 
   # reset readr progress bar.
   options(readr.show_progress = progress)
@@ -104,9 +104,4 @@ td_create <- function(authorities = "itis",
 
   invisible(dbdir)
 }
-
-
-#R.utils::bzip2("taxa.sqlite", remove = FALSE)
-## Set up database connection from compressed file
-#R.utils::bunzip2("taxa.sqlite.bz2", remove = FALSE)
 

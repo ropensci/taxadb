@@ -1,6 +1,7 @@
 library(rfishbase) # 3.0
 library(tidyverse)
-souce("data-raw/helper-routines.R")
+library(stringi)
+source("data-raw/helper-routines.R")
 
 #### Fishbase
 fb <- as_tibble(rfishbase::load_taxa())
@@ -15,18 +16,15 @@ fb_wide <- fb %>%
           superclass = SuperClass) %>%
   mutate(phylum = "Chorodata",
          kingdom = "Animalia",
-         id = paste0("FB:", id))
-
-write_tsv(fb_wide, "data/fb_hierarchy.tsv.bz2")
+         id = stri_paste("FB:", id))
 
 accepted <- fb_wide %>% select(id, species) %>% gather(rank, name, -id)
-
 species <- rfishbase:::fb_species()
 synonym_table <- rfishbase::synonyms(NULL) %>%
   left_join(species) %>%
   rename(id = SpecCode)  %>%
-  mutate(id = paste0("FB:", id),
-         SynCode = paste0("FB:", SynCode),
+  mutate(id = stri_paste("FB:", id),
+         SynCode = stri_paste("FB:", SynCode),
          TaxonLevel = tolower(TaxonLevel)) %>%
   select(id,
          accepted_name = Species,
@@ -43,9 +41,6 @@ synonyms <- synonym_table %>%
   rename(name = "accepted_name", accepted_name = "name") %>%
   bind_rows(synonym_table %>% filter(type != "accepted name"))
 
-
-write_tsv(synonyms, "data/fb_synonyms.tsv.bz2")
-
 ## Merge taxon_id and synonym id
 fb_taxonid <- synonyms %>%
   rename(accepted_id = id, id = synonym_id) %>%
@@ -53,7 +48,29 @@ fb_taxonid <- synonyms %>%
   bind_rows(mutate(accepted, accepted_id = id, name_type = "accepted")) %>%
   distinct()  %>% de_duplicate()
 
-write_tsv(fb_taxonid, "data/fb_taxonid.tsv.bz2")
+## Rename things to Darwin Core
+dwc <- fb_taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(fb_wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+                     #infraspecificEpithet
+                     ),
+  by = "taxonID")
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+
+
+write_tsv(dwc, "dwc/fb.tsv.bz2")
+
 
 
 ########
@@ -66,11 +83,12 @@ common <- rfishbase:::fb_tbl("comnames")  %>%
          species = Species,
          synonym = ComName,
          language = Language) %>%
-  mutate(type = "common")
+  mutate(type = "common",
+         id = stri_paste("FB:", id))
 
 
 unescape_html <- function(str){
-  xml2::xml_text(xml2::read_html(paste0("<x>", str, "</x>")))
+  xml2::xml_text(xml2::read_html(stri_paste("<x>", str, "</x>")))
 }
 
 
@@ -95,10 +113,7 @@ slb_wide <- slb %>%
           class = Class,
           phylum = Phylum,
           kingdom = Kingdom) %>%
-  mutate(id = paste0("SLB:", id))
-
-write_tsv(slb_wide, "data/slb_hierarchy.tsv.bz2")
-
+  mutate(id = stri_paste("SLB:", id))
 
 slb_accepted <- slb_wide %>% select(id, species) %>% gather(rank, name, -id)
 
@@ -110,8 +125,8 @@ syn <- rfishbase::synonyms(NULL, server = "sealifebase")
 slb_synonyms <- syn %>%
   left_join(species) %>%
   rename(id = SpecCode)  %>%
-  mutate(id = paste0("SLB:", id),
-         SynCode = paste0("SLB:", SynCode),
+  mutate(id = stri_paste("SLB:", id),
+         SynCode = stri_paste("SLB:", SynCode),
          TaxonLevel = tolower(TaxonLevel)) %>%
   select(id,
          accepted_name = Species,
@@ -120,16 +135,35 @@ slb_synonyms <- syn %>%
          synonym_id = SynCode,
          rank = TaxonLevel)
 
-write_tsv(slb_synonyms, "data/slb_synonyms.tsv.bz2")
-
-
 slb_taxonid <- slb_synonyms %>%
   rename(accepted_id = id, id = synonym_id) %>%
   select(id, name, rank, accepted_id, name_type = type) %>%
   bind_rows(mutate(slb_accepted, accepted_id = id, name_type = "accepted")) %>%
   distinct() %>% de_duplicate()
 
-write_tsv(slb_taxonid, "data/slb_taxonid.tsv.bz2")
+
+
+## Rename things to Darwin Core
+dwc <- slb_taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(slb_wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+                     #infraspecificEpithet
+              ),
+            by = "taxonID")
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+
+write_tsv(slb, "dwc/slb.tsv.bz2")
 
 
 

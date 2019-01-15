@@ -11,12 +11,11 @@ KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
 #' @export
 taxa_tbl <- function(
   authority = KNOWN_AUTHORITIES,
-  schema = c("hierarchy", "taxonid", "synonyms", "common", "long"),
+  schema = "dwc",
   db = td_connect()){
 
   authority <- match.arg(authority)
-  schema <- match.arg(schema)
-  tbl_name <- paste(authority, schema, sep = "_")
+  tbl_name <- authority
   if (is.null(db)) return(quick_db(tbl_name))
   if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
 
@@ -37,7 +36,7 @@ quick_db <- memoise::memoise(
     tmp <- tempfile(fileext = ".tsv.bz2")
     download.file(
       paste0("https://github.com/cboettig/taxadb/",
-             "releases/download/v1.0.0/data.2f",
+             "releases/download/dwc/dwc", ".2f",
              tbl_name, ".tsv.bz2"),
              tmp)
     ## Wow, utils is hella slow!  ~ 60 s

@@ -5,8 +5,7 @@
 \title{Get all members (descendants) of a given rank level}
 \usage{
 descendants(name = NULL, rank = NULL, id = NULL,
-  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect(),
-  schema = "hierarchy")
+  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
 }
 \arguments{
 \item{name}{taxonomic name (e.g. "Aves")}
@@ -26,8 +25,6 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
 \item{db}{a connection to the taxadb database. See details.}
-
-\item{schema}{table schema to use (WIP)}
 }
 \value{
 a data.frame with id and name of all matching species

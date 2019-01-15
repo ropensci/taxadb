@@ -105,6 +105,47 @@ write_tsv(wd_wide, bzfile("data/wd_hierarchy.tsv.bz2", compression=9))
 
 
 
+##### Rename things to Darwin Core ########
+library(taxadb)
+library(tidyverse)
+source("data-raw/helper-routines.R")
+
+taxonid <-
+  collect(taxa_tbl("wd", "taxonid")) %>%
+  distinct() %>%
+  de_duplicate()
+
+wide <- collect(taxa_tbl("wd", "hierarchy")) %>% distinct()
+dwc <- taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank) %>%
+  mutate(taxonomicStatus = "accepted",
+         acceptedNameUsageID = taxonID) %>%
+  left_join(wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+              ),
+            by = c("acceptedNameUsageID" =  "taxonID"))
+
+species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
+dwc$specificEpithet <- species[,2]
+dwc$infraspecificEpithet <- species[,3]
+
+
+write_tsv(dwc, "dwc/wd.tsv.bz2")
+
+
+
+
+
+
+
+
+
+
+
 ## Debug info: use this to up the duplicated ranks.
 has_duplicate_rank <- pre_spread %>%
   group_by(id, path_rank) %>%
@@ -115,27 +156,5 @@ dups <- pre_spread %>%
 
 dups
 
-#write_tsv(wd_wide, "data/wd_hierarchy.tsv.bz2")
-
-
-id_map <- wd_taxon %>%
-  select(id, same_as) %>%
-  tidyr::separate(same_as, letters, sep="\\|")
-
-## Show object sizes
-# pryr::object_size(wd_links) # 1.12 GB
-# pryr::object_size(wd_taxon) # 580 MB
-# pryr::object_size(wd_long) # 1.22 GB
-
-# lapply(ls(), function(x) pryr::object_size(get(x)))
-
-wd_long <- read_tsv("data/wd_long.tsv.bz2")
-wd_long %>%
-  select(id, name, rank) %>%
-  distinct() %>% write_tsv("data/wd_taxonid.tsv.bz2")
-
-
-dummy_synonyms <- tibble(id = NA, accepted_name = NA, name = NA, type = NA, synonym_id = NA, rank = NA)
-write_tsv(dummy_synonyms, "data/wd_synonyms.tsv.bz2")
 
 

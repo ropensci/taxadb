@@ -11,8 +11,7 @@ test_that("we can set up a db and call basic functions", {
   skip_on_travis()
   skip_on_cran()
 
-  schema <- c("hierarchy", "taxonid", "synonyms")
-  schema2 <- c("hierarchy", "taxonid")
+
   overwrite = TRUE
   td_create(authorities = "itis")
   td_create(authorities = "ncbi")
@@ -28,7 +27,7 @@ test_that("we can set up a db and call basic functions", {
 
 
 
-  df <- taxa_tbl(authority = "col", schema = "hierarchy")
+  df <- taxa_tbl(authority = "col")
   chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()
 
   df <- descendants(name = "Aves", rank = "class")

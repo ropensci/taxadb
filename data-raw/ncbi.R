@@ -140,3 +140,44 @@ ncbi_taxonid %>%
 write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
 write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
 
+
+##### Rename things to Darwin Core
+library(taxadb)
+source("data-raw/helper-routines.R")
+
+taxonid <-
+  collect(taxa_tbl("ncbi", "taxonid")) %>%
+  distinct() %>%
+  de_duplicate()
+
+## FIXME Also include full hierarchy as pipe-string?
+## FIXME Also include parentNameUsageID
+wide <- collect(taxa_tbl("ncbi", "hierarchy")) %>% distinct()
+
+dwc <- taxonid %>%
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id) %>%
+  left_join(wide %>%
+              select(taxonID = id,
+                     kingdom, phylum, class, order, family, genus,
+                     specificEpithet = species
+              ),
+            by = c("acceptedNameUsageID" =  "taxonID"))
+
+species <- dwc %>% filter(taxonRank == "species")
+other <- dwc%>% filter(taxonRank != "species") %>% mutate(infraspecificEpithet = NA)
+splitname <- stringi::stri_extract_all_words(species$scientificName, simplify = TRUE)
+species$specificEpithet <- splitname[,2]
+species$infraspecificEpithet <- splitname[,3]
+
+dwc <- bind_rows(species, other)
+
+write_tsv(dwc, "dwc/ncbi.tsv.bz2")
+
+
+
+
+

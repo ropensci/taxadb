@@ -6,6 +6,10 @@ de_duplicate <- function(species){
   # duplicates <- species %>% count(name) %>%
   #   inner_join(species, by ="name") %>% arrange(desc(n))
 
+  ## Note: based on old convention:
+  ## - name : scientificName
+  ## - name_type : taxonomicStatus
+
   if("name_type" %in% colnames(species)){
     ## A common reason for duplicates is that the same name matches
     name_type <- quo(name_type)
@@ -20,3 +24,5 @@ de_duplicate <- function(species){
   }
   species
 }
+
+
