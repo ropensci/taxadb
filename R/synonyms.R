@@ -1,18 +1,21 @@
-
+globalVariables(c("taxonomicStatus", "scientificName", "taxonID",
+                  "taxonRank", "acceptedNameUsageID"))
 ## A mapping in which synonym and accepted names are listed in the same row
+
+#' @importFrom dplyr full_join filter select
 syn_table <- function(taxon, accepted = "accepted"){
 
   suppress_msg({
-  synonyms <- full_join(
+  synonyms <- dplyr::full_join(
     taxon %>%
-      filter(taxonomicStatus != accepted) %>%
-      select(synonym = scientificName,
+      dplyr::filter(taxonomicStatus != accepted) %>%
+      dplyr::select(synonym = scientificName,
              synonym_id = taxonID,
              taxonomicStatus,
              acceptedNameUsageID),
     taxon %>%
-      filter(taxonomicStatus == accepted) %>%
-      select(acceptedNameUsage = scientificName,
+      dplyr::filter(taxonomicStatus == accepted) %>%
+      dplyr::select(acceptedNameUsage = scientificName,
              acceptedNameUsageID,
              taxonRank,
              taxonomicStatus))
