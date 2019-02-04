@@ -1,3 +1,5 @@
+library(plyr)
+library(dplyr)
 library(tidyverse)
 library(stringi)
 library(piggyback)
@@ -80,10 +82,17 @@ col <- col_taxonid %>% left_join(hierarchy)
 write_tsv(col, "dwc/col.tsv.bz2")
 
 
+## Add Common Names
 
-
-
-
+comm_name <- read_tsv("taxizedb/col/common_name.tsv.bz2") %>%
+  left_join(read_tsv("taxizedb/col/common_name_element.tsv.bz2"), by = c("common_name_element_id" = "id")) %>%
+  filter(language_iso == "eng") %>%
+  select(taxonID = taxon_id, commonID = common_name_element_id, vernacularName = name) %>%
+  arrange(vernacularName) %>%
+  group_by(taxonID) %%
+  dplyr::summarize(n = n())
+  top_n(1)
+  
 
 
 

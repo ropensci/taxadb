@@ -76,11 +76,19 @@ rm(recursive_ncbi_ids)
 expand <- ncbi %>%
   select(path_id = id, path = name, path_rank = rank, path_type = name_type)
 
+## Get common names for each entry
+ncbi_common <- ncbi %>%
+  filter(name_type == "common name") %>%
+  group_by(id) %>%
+  top_n(1, name) %>%
+  select(-rank, -name_type)
+
 ncbi_long <- ncbi %>%
   filter(name_type == "scientific name") %>%
   select(-name_type) %>%
   inner_join(long_hierarchy) %>%
-  inner_join(expand)
+  inner_join(expand) %>%
+  left_join(rename(ncbi_common, common_name = name))
 
 ## Example query: how many species of fishes do we know?
 #fishes <- ncbi_long %>%
