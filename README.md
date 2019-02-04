@@ -48,9 +48,7 @@ location instead using `dbdir` argument.)
 ``` r
 library(taxadb)
 td_create()
-#> not overwriting itis_hierarchy
-#> not overwriting itis_taxonid
-#> not overwriting itis_synonyms
+#> not overwriting itis
 ```
 
 The default behavior installs only the ITIS database. You can also
@@ -64,25 +62,22 @@ Here’s a list of all the birds species known to ITIS:
 
 ``` r
 descendants(name = "Aves", rank = "class")
-#> # A tibble: 10,401 x 26
-#>    id    class family genus infraclass infrakingdom infraorder infraphylum
-#>    <chr> <chr> <chr>  <chr> <chr>      <chr>        <chr>      <chr>      
-#>  1 ITIS… Aves  Strut… Stru… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  2 ITIS… Aves  Rheid… Rhea  <NA>       Deuterostom… <NA>       Gnathostom…
-#>  3 ITIS… Aves  Droma… Drom… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  4 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  5 ITIS… Aves  Casua… Casu… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  6 ITIS… Aves  Apter… Apte… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  7 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  8 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#>  9 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> 10 ITIS… Aves  Tinam… Tina… <NA>       Deuterostom… <NA>       Gnathostom…
-#> # ... with 10,391 more rows, and 18 more variables: kingdom <chr>,
-#> #   order <chr>, phylum <chr>, section <chr>, species <chr>,
-#> #   subclass <chr>, subfamily <chr>, subgenus <chr>, subkingdom <chr>,
-#> #   suborder <chr>, subphylum <chr>, subsection <chr>, subtribe <chr>,
-#> #   superclass <chr>, superfamily <chr>, superorder <chr>,
-#> #   superphylum <chr>, tribe <chr>
+#> # A tibble: 12,614 x 14
+#>    taxonID acceptedNameUsa… update_date scientificName taxonRank
+#>    <chr>   <chr>            <chr>       <chr>          <chr>    
+#>  1 ITIS:1… ITIS:562791      2016-04-29  Rollandia mic… species  
+#>  2 ITIS:1… ITIS:176409      2016-04-29  Ardea helias   species  
+#>  3 ITIS:1… ITIS:707807      2016-04-29  Mesites varie… species  
+#>  4 ITIS:1… ITIS:561100      2016-04-29  Mesites unico… species  
+#>  5 ITIS:1… ITIS:561100      2016-04-29  Mesoenas unic… species  
+#>  6 ITIS:1… ITIS:707807      2016-04-29  Mesoenas vari… species  
+#>  7 ITIS:1… ITIS:562791      2016-04-29  Podiceps micr… species  
+#>  8 ITIS:1… ITIS:563259      2016-04-29  Colymbus rufi… species  
+#>  9 ITIS:1… ITIS:824133      2016-04-29  Podiceps tric… species  
+#> 10 ITIS:1… ITIS:174508      2016-04-29  Colymbus domi… species  
+#> # … with 12,604 more rows, and 9 more variables: taxonomicStatus <chr>,
+#> #   kingdom <chr>, phylum <chr>, class <chr>, order <chr>, family <chr>,
+#> #   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>
 ```
 
 ## Learn More
