@@ -1,0 +1,52 @@
+
+```{r}
+library(tidyverse)
+library(taxadb)
+```
+
+
+
+
+Populate the `taxadb` database (only required right after installing `taxadb`, otherwise this will just note the previously installed tables).
+
+```{r}
+td_create("all")
+```
+
+
+
+I'm using names given for Red, Green, and Brown Algae from [Guiry (2012)](https://doi.org/10.1111/j.1529-8817.2012.01222.x):
+
+Open Tree Taxonomy (OTT) has 32,347 names recognized as belonging to one the three phyla:
+
+```{r}
+ott_phyla <- bind_rows(
+  descendants(name = "Cyanobacteria", rank = "phylum", authority = "ott"),
+  descendants(name = "Rhodophyta", rank = "phylum", authority = "ott"),
+  descendants(name = "Phaeophyceae", rank = "phylum", authority = "ott")
+)
+
+ott_phyla
+```
+
+
+GBIF has 7,412 recognized names 
+
+```{r}
+gbif_phyla <- bind_rows(
+  descendants(name = "Cyanobacteria", rank = "phylum", authority = "gbif"),
+  descendants(name = "Rhodophyta", rank = "phylum", authority = "gbif"),
+  descendants(name = "Phaeophyceae", rank = "phylum", authority = "gbif")
+)
+
+gbif_phyla
+```
+
+
+How many GBIF names also match the names given in OTT? Looks like only 2,923 exact matches.
+
+```{r}
+gbif_in_ott <- gbif_phyla %>% 
+  select(gbif_id = taxonID, scientificName, taxonRank) %>%
+  inner_join(ott_phyla)
+```
