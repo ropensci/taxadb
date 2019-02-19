@@ -1,0 +1,179 @@
+
+Load libraries and data to get started
+
+```{r}
+library(tidyverse)
+library(taxadb)
+```
+
+```{r}
+taxadb::td_create() # only needed once.
+algae <- read_csv("~/projects/algae-names/algae_uncleanednames_NAdropped.csv")
+```
+
+Before we begin, let's take a look around the data to get a sense of what we have:
+
+
+- `r dim(algae)[[1]]` rows, `r names(algae)` columns.
+
+```{r}
+dim(algae)[[1]] # 57,700 rows. 
+names(algae) # cols are: source, family, species, is_source_herbaria
+```
+
+```{r}
+algae %>% count(family) %>% arrange(desc(n))  # 1,126 families (uncleaned)
+```
+
+```{r}
+# 25 sources, including MACROALGAE, iDigBio, GBIF, OBIS, ...
+algae %>% count(source) %>% arrange(desc(n))
+```
+
+lots of duplicate names across & sources: only 37,505 unique species.
+
+```{r}
+algae %>% count(species) %>% arrange(desc(n))
+```
+
+However, note that some of these duplicated names have different families though:
+
+```{r}
+unique_sp_family <- algae %>% count(species, family) %>% arrange(desc(n))
+unique_sp_family  # 42,242 rows
+```
+
+We can see this is sometimes due to missing data or differences in capitalization, but also see cases where the same species name is assigned to different families:  
+
+```{r}
+species_multiple_families <- 
+  unique_sp_family %>% 
+  filter(species != "sp.", species != "Indet. sp.") %>%
+  select(species) %>% 
+  count(species) %>% 
+  arrange(desc(n)) %>%
+  left_join(unique_sp_family %>% select(-n))
+species_multiple_families %>%  arrange(desc(n))
+```
+
+We will assume these differences correspond to changes in taxonomic group assignment at the family level, and not to two distinct species with the same scientific name (genus+specific epithet) belonging to different families.  
+
+So we'll begin by focusing on resolving the unique species names:
+
+```{r}
+names <- unique(algae$species) # 37,505
+```
+
+Okay, without futher ado, let's start matching names.  We'll resolve against the Open Tree Taxonomy (OTT) first, because it is a assembly that already includes names from WORMS, GBIF, and others.  
+
+```{r}
+ott_ids <- names %>% ids("ott")
+```
+
+The resulting data frame has at least one row per name provided, though possibily all NA.  
+
+This database includes synonyms, which do not have their own OTT identifiers in `taxonID`, but can be resolved to accepted names with accepted identifiers.  Thus, we want to look at `acceptedNameUsageID` column to see who matched and who didn't.  (This nomenclature for column names probably feels clumsy, but it comes from the Darwin Core standard and thus lets us be explicitly consistent with how these terms are used elsewhere.)
+
+The `ids` function also automatically normalizes all strings to lowercase before matching against the (lowercased) scientificNames in the database.  `ids` returns these strings in the `input` column.  Standardizing between upper and lowercase reveals that many of the 37,505 names are still duplicates:
+
+```{r}
+length(ott$input)
+length(unique(ott$input))
+```
+
+The `sort` column indicates the position of the original input data. Without this column, input names that are identical after correcting for capitalization result in identical rows.  We can drop these by filtering for only the distinct columns:
+
+```{r}
+clean_ott_ids <- ott_ids %>% select(-sort) %>% distinct()
+clean_ott_ids # 29,878 rows
+```
+
+
+We can now check how many unique names were matched:
+
+
+```{r}
+matched <- clean_ott_ids %>% filter(!is.na(acceptedNameUsageID))
+length(unique(matched$input)) # 18,568
+length(unique(matched$acceptedNameUsageID)) #17,766
+
+matched %>% filter(taxonomicStatus != "accepted") # 1,766
+```
+
+We matched 18,568 unique names (out of `r length(unique(clean_ott_ids$input))`), which resolved to 17,766 unique IDs in OTT, since 1,766 names were recognized synonyms to OTT.  Meanwhile, in the unmatched names set, this leaves us with:
+
+```{r}
+unmatched <- clean_ott_ids %>% filter(is.na(acceptedNameUsageID)) %>% pull(input)
+length(unique(unmatched))
+```
+
+So 10,911 unmatched names still to resolve (a little more than one third of the unique names).  
+
+```{r}
+wordcount <- 
+  data.frame(input = unmatched) %>% 
+  mutate(n = stringi::stri_count_regex(input, "\\s")) %>% 
+  arrange(desc(n))
+
+wordcount
+```
+
+Wow, so some of our entries have a whole lot more words than a species name: the top 6 entries have dozens of words:
+
+```{r}
+head(wordcount$input)
+```
+
+many more (1,551) have 4 words (three spaces), indicating subspecies and varities:
+
+```{r}
+wordcount %>% filter(n==3)
+```
+
+If we restrict ourselves to matching on the first two-word names, we have a reasonable chance of resolving names to the genus or species level.  `clean_names` does up to three transformations: we drop missing specific epithet indication `sp`, leaving only the genus name, we resolve the first two names, and we standardize delimiters between names.  
+
+
+```{r}
+clean_unmatched <- unmatched %>% clean_names() %>% unique()
+length(clean_unmatched)
+```
+This gives us 9303 unmatched names to resolve.  
+
+```{r}
+ott_ids2 <- clean_unmatched %>% ids("ott")
+unmatched2 <- ott_ids2 %>% filter(is.na(acceptedNameUsageID)) %>% pull(input)
+```
+
+We can bind the new matches to our existing matched names table:
+
+```{r}
+matched2 <- ott_ids2 %>% filter(!is.na(acceptedNameUsageID)) %>% bind_rows(matched)
+```
+
+With these clean names, another 1,927 can be matched to OTT ids, leaving 7,526 unmatched:  
+
+
+```{r}
+length(unmatched2)
+head(unmatched2, 10)
+```
+
+We can find at least some matches for these remaining names in most of the other databases:
+
+```{r}
+unmatched2 %>% ids("slb") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("col") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("gbif") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("itis") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("ncbi") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("wd") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("iucn") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+unmatched2 %>% ids("tpl") %>% summarise(matched = sum(!is.na(acceptedNameUsageID)))
+
+```
+GBIF does the best among these, resolving another 1614 names exactly.  
+
+```{r}
+```
+
+

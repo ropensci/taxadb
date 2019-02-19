@@ -42,13 +42,15 @@ ids <- function(name = NULL,
   ## Filtering joins are much much faster than filtering, particularly
   ## for large numbers of input names, when we use MonetDB(Lite)
   input_table <- dplyr::tibble(
-    input = tolower(name),
+    ## base::tolower() fails on certain non UTF8
+    input = stringi::stri_trans_tolower(name),
     sort = 1:length(name))
 
   ## Could be pre-computed to avoid the performance hit here.
   db_table <-
     taxa_tbl(authority, "dwc", db) %>%
   ## Could consider other cleaning
+  ## when run in backend DB, uses the DB's built-in lowercase SQL command:
     mutate(input = tolower(scientificName))
 
   ## Use right_join, so unmatched names are kept, with NA
@@ -61,8 +63,10 @@ ids <- function(name = NULL,
       input_table,
       by = "input",
       copy = TRUE) %>%
-    dplyr::arrange(sort) %>% # enforce original order
-    select(-sort) # should we drop the input column? maybe it is helpful
+    dplyr::arrange(sort) # enforce original order
+    ## maintain the 'sort' and input columns, as they can be useful,
+    ## even though these are not dwc columns.
+    # select(-sort, input)
   })
   ## A known synonym can match two different valid names!
   ## 'Trochalopteron henrici gucenense' is a synonym for:
