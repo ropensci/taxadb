@@ -39,7 +39,6 @@ Suggests:
     spelling,
     testthat,
     covr,
-    tictoc,
     knitr,
     rmarkdown,
     purrr
