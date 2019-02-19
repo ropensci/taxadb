@@ -24,7 +24,7 @@
 #'
 #'
 #' @importFrom stringi stri_replace_all_regex stri_extract_all_words
-#' @importFrom stringi stri_trim stri_split_regex
+#' @importFrom stringi stri_trim stri_split_regex stri_trans_general
 #' @export
 #' @examples
 #' clean_names(c("Homo sapiens sapiens", "Homo.sapiens", "Homo sp."))
@@ -35,7 +35,7 @@ clean_names <-
            remove_sp = TRUE,
            ascii_only = TRUE){
     if(ascii_only)
-      names <- stri_trans_general(names,"latin-ascii")
+      names <- stringi::stri_trans_general(names,"latin-ascii")
     if(fix_delim)
       names <- set_space_delim(names)
     if(binomial_only)
@@ -67,20 +67,5 @@ drop_author_year <- function(x){
   stringi::stri_replace_all_regex(x, "\\(.+)", "")
 }
 
-## Function to strip ascii characters
-find_non_ascii <- function(string){
-  grep("I_WAS_NOT_ASCII",
-       iconv(string, "latin1", "ASCII", sub="I_WAS_NOT_ASCII"))
-
-}
-replace_non_ascii <-function(string){
-  i <- find_non_ascii(string)
-  non_ascii <- "áéíóúÁÉÍÓÚñÑüÜ’åôö"
-  ascii <- "aeiouAEIOUnNuU'aoo"
-  translated <- sapply(string[i], function(x)
-    chartr(non_ascii, ascii, x))
-  string[i] <- unname(translated)
-  string
-}
 
 
