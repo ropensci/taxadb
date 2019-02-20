@@ -150,10 +150,40 @@ With these clean names, another `r length(clean_unmatched) - length(umatched2)` 
 ```{r}
 length(unmatched2)
 head(unmatched2, 10)
-
-ott <- taxa_tbl("ott") %>% collect()
-ott_mash <- ott %>% mutate(input = clean_names(scientificName))
 ```
+
+Working from the names directly:
+
+```{r}
+ott <- taxa_tbl("ott") %>% 
+  mutate(name1 = splitpart(tolower(scientificName), " ", 1L),
+         name2 = splitpart(tolower(scientificName), " ", 2L)
+         )
+ott
+```
+
+
+```{r}
+x <- unmatched2 %>% stringi::stri_extract_all_words(simplify = TRUE) 
+colnames(x) <- c("name1", "name2")
+x <- as.data.frame(x)
+x$sort <- 1:length(x$name1)
+
+sp <-  x %>% filter(name2 != "")
+genus_only <- x %>% filter(name2 == "") %>% select(name1, sort)
+```
+
+```{r}
+match_genus <- right_join(ott, genus_only, copy=TRUE, by = "name1") %>% arrange(sort)
+match_genus %>% filter(!is.na(acceptedNameUsageID))
+```
+
+
+```{r}
+match_binomial <- right_join(ott, sp, copy=TRUE, by = c("name1", "name2")) %>% arrange(sort)
+match_binomial %>% filter(!is.na(acceptedNameUsageID))
+```
+
 
 We can find at least some matches for these remaining names in most of the other databases:
 
