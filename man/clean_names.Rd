@@ -22,7 +22,7 @@ becomes \code{Homo sapiens}. logical, default \link{TRUE}.}
 e.g. \code{Homo sp.} becomes \code{Homo} (thus only matching against genus level ids).
 logical, default \link{TRUE}.}
 
-\item{ascii_only}{should we coerce strings to ascii characters? (see \code{\link[string:stri_trans_general]{string::stri_trans_general()}})}
+\item{ascii_only}{should we coerce strings to ascii characters? (see \code{\link[stringi:stri_trans_general]{stringi::stri_trans_general()}})}
 }
 \description{
 A utility to sanitize taxonomic names to increase probability of resolving names.
