@@ -112,3 +112,19 @@ accepted_name <- function(id = NULL,
   out
 }
 
+
+clean_db_names <- function(db = td_connect()){
+## Could be pre-computed to avoid the performance hit here.
+db_table <-
+  taxa_tbl(authority, "dwc", db) %>%
+  mutate(input = tolower(scientificName),
+         name1 = splitpart(input, " ", 1L),
+         name2 = splitpart(input, " ", 2L))
+)
+
+}
+
+
+
+
+
