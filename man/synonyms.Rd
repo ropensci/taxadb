@@ -4,7 +4,7 @@
 \alias{synonyms}
 \title{synonyms}
 \usage{
-synonyms(name = NULL, authority = KNOWN_AUTHORITIES, collect = TRUE,
+synonyms(name = NULL, provider = KNOWN_AUTHORITIES, collect = TRUE,
   db = td_connect())
 }
 \arguments{
@@ -12,7 +12,7 @@ synonyms(name = NULL, authority = KNOWN_AUTHORITIES, collect = TRUE,
 (Most but not all authorities can also return ids for higher-level
 taxonomic names).}
 
-\item{authority}{from which authority should the hierachy be returned?
+\item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory

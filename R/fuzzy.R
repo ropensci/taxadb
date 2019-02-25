@@ -2,23 +2,23 @@
 
 
 search <- function(name = NULL,
-                   authority = KNOWN_AUTHORITIES,
+                   provider = KNOWN_AUTHORITIES,
                    match = c("exact", "starts_with", "contains"),
                    format = c("bare", "prefix", "uri"),
                    db = td_connect()){
   match <- match.arg(match)
   switch(match,
          exact = get_ids(names = name,
-                         authority = authority,
+                         provider = provider,
                          format = format,
                          db = db),
          starts_with = fuzzy_ids(name = name,
-                                 authority = authority,
+                                 provider = provider,
                                  match = match,
                                  format = format,
                                  db = db),
          contains = fuzzy_ids(name = name,
-                              authority = authority,
+                              provider = provider,
                               match = match,
                               format = format,
                               db = db),
@@ -29,7 +29,7 @@ search <- function(name = NULL,
 
 #' @importFrom dplyr bind_rows filter collect mutate
 fuzzy_ids <- function(name = NULL,
-                      authority = KNOWN_AUTHORITIES,
+                      provider = KNOWN_AUTHORITIES,
                       match = c("starts_with", "contains"),
                       format = c("bare", "prefix", "uri"),
                       db = td_connect()){
@@ -44,7 +44,7 @@ fuzzy_ids <- function(name = NULL,
     lapply(name_pattern,
           function(pattern){
 
-            taxa_tbl(authority, "dwc", db) %>%
+            taxa_tbl(provider, "dwc", db) %>%
             dplyr::filter(name %like% pattern) %>%
             dplyr::collect() %>%
             dplyr::mutate(input_name = gsub("%", "", pattern))

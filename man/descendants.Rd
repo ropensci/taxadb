@@ -5,7 +5,7 @@
 \title{Get all members (descendants) of a given rank level}
 \usage{
 descendants(name = NULL, rank = NULL, id = NULL,
-  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
+  provider = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
 }
 \arguments{
 \item{name}{taxonomic name (e.g. "Aves")}
@@ -13,10 +13,10 @@ descendants(name = NULL, rank = NULL, id = NULL,
 \item{rank}{taxonomic rank name.}
 
 \item{id}{alternately users can provide a vector of species ids.
-IDs must be prefixed matching the requested authority.  See \code{id}
+IDs must be prefixed matching the requested provider.  See \code{id}
 column returned by most \code{taxadb} functions for examples.}
 
-\item{authority}{from which authority should the hierachy be returned?
+\item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory

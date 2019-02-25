@@ -30,10 +30,10 @@ syn_table <- function(taxon, accepted = "accepted"){
 #' @inheritParams ids
 #' @export
 synonyms <- function(name = NULL,
-                     authority = KNOWN_AUTHORITIES,
+                     provider = KNOWN_AUTHORITIES,
                      collect = TRUE,
                      db = td_connect()){
-  ids(name, authority, collect, db) %>%
+  ids(name, provider, collect, db) %>%
     syn_table()
 
 }

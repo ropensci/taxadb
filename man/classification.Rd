@@ -5,17 +5,17 @@
 \title{Return the full classification hierarchy for requested species or ids}
 \usage{
 classification(species = NULL, id = NULL,
-  authority = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
+  provider = KNOWN_AUTHORITIES, collect = TRUE, db = td_connect())
 }
 \arguments{
 \item{species}{a character vector of species names, typically
 specified as (\code{Genus species} or \code{Genus species epithet})}
 
 \item{id}{alternately users can provide a vector of species ids.
-IDs must be prefixed matching the requested authority.  See \code{id}
+IDs must be prefixed matching the requested provider.  See \code{id}
 column returned by most \code{taxadb} functions for examples.}
 
-\item{authority}{from which authority should the hierachy be returned?
+\item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
