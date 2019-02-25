@@ -32,8 +32,26 @@ ids <- function(name = NULL,
                 provider = KNOWN_AUTHORITIES,
                 collect = TRUE,
                 db = td_connect()){
-  sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(scientificName = name, sort = 1:length(name))
+
+  # Dummy vars for NSE
+  sort <- TRUE #
+  input <- ""
+
+  ## Create the input table.
+  ## We will (temporarily) copy this to disk to join against the database
+  ## Filtering joins are much much faster than filtering, particularly
+  ## for large numbers of input names, when we use MonetDB(Lite)
+  input_table <- dplyr::tibble(
+    ## base::tolower() fails on certain non UTF8
+    input = stringi::stri_trans_tolower(name),
+    sort = 1:length(name))
+
+  ## Could be pre-computed to avoid the performance hit here.
+  db_table <-
+    taxa_tbl(provider, "dwc", db) %>%
+  ## Could consider other cleaning
+  ## when run in backend DB, uses the DB's built-in lowercase SQL command:
+    mutate(input = tolower(scientificName))
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Using right join, names appear in order of provider!
@@ -41,12 +59,14 @@ ids <- function(name = NULL,
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
   out <-
     dplyr::right_join(
-      taxa_tbl(provider, "dwc", db),
+      db_table,
       input_table,
-      by = "scientificName",
+      by = "input",
       copy = TRUE) %>%
-    dplyr::arrange(sort) %>% # enforce original order
-    select(-sort)
+    dplyr::arrange(sort) # enforce original order
+    ## maintain the 'sort' and input columns, as they can be useful,
+    ## even though these are not dwc columns.
+    # select(-sort, input)
   })
   ## A known synonym can match two different valid names!
   ## 'Trochalopteron henrici gucenense' is a synonym for:
