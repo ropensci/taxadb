@@ -4,7 +4,7 @@
 #' @param name a character vector of species names, e.g. "Homo sapiens"
 #' (Most but not all authorities can also return ids for higher-level
 #'  taxonomic names).
-#' @param authority from which authority should the hierachy be returned?
+#' @param provider from which provider should the hierachy be returned?
 #'  Default is 'itis'.
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
@@ -29,19 +29,19 @@
 #' @importFrom rlang !!
 #' @importFrom magrittr %>%
 ids <- function(name = NULL,
-                authority = KNOWN_AUTHORITIES,
+                provider = KNOWN_AUTHORITIES,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
   input_table <- dplyr::tibble(scientificName = name, sort = 1:length(name))
 
   ## Use right_join, so unmatched names are kept, with NA
-  ## Using right join, names appear in order of authority!
+  ## Using right join, names appear in order of provider!
 
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "dwc", db),
+      taxa_tbl(provider, "dwc", db),
       input_table,
       by = "scientificName",
       copy = TRUE) %>%
@@ -66,18 +66,18 @@ ids <- function(name = NULL,
 
 ## FIXME abstract this to filter on id / name / generic column?
 accepted_name <- function(id = NULL,
-                authority = KNOWN_AUTHORITIES,
+                provider = KNOWN_AUTHORITIES,
                 collect = TRUE,
                 db = td_connect()){
   sort <- TRUE # dummy name
   input_table <- dplyr::tibble(taxonID = id, sort = 1:length(id))
 
   ## Use right_join, so unmatched names are kept, with NA
-  ## Means names appear in order of authority, so we must arrange
+  ## Means names appear in order of provider, so we must arrange
   ## after-the-fact to match the query order
   out <-
     dplyr::right_join(
-      taxa_tbl(authority, "dwc", db),
+      taxa_tbl(provider, "dwc", db),
       input_table,
       by = "taxonID",
       copy = TRUE) %>%

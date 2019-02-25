@@ -12,7 +12,7 @@
 descendants <- function(name = NULL,
                         rank = NULL,
                         id = NULL,
-                        authority = KNOWN_AUTHORITIES,
+                        provider = KNOWN_AUTHORITIES,
                         collect = TRUE,
                         db = td_connect()){
 
@@ -22,7 +22,7 @@ descendants <- function(name = NULL,
     df <- data.frame(setNames(list(name), rank), stringsAsFactors = FALSE)
     df$id <- id
 
-    taxa <- taxa_tbl(authority = authority,
+    taxa <- taxa_tbl(provider = provider,
                      schema = "dwc",
                      db = db)
 

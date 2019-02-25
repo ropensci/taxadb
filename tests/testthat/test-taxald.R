@@ -12,7 +12,7 @@ test_that("we can set up a db and call basic functions", {
   td_create(dbdir = test_db)
   db <- td_connect(test_db)
 
-  df <- taxa_tbl(authority = "itis",
+  df <- taxa_tbl(provider = "itis",
                  db = db)
 
   chameleons <- df %>%

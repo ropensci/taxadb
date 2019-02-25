@@ -11,7 +11,7 @@ get_ids(names, db = KNOWN_AUTHORITIES, format = c("bare", "prefix",
 \item{names}{a list of scientific names (which may
 include higher-order ranks in most authorities).}
 
-\item{db}{abbreviation code for the authority.  See details.}
+\item{db}{abbreviation code for the provider.  See details.}
 
 \item{format}{Format for the returned: bare identifier, one of
 \itemize{
@@ -35,7 +35,7 @@ taxadb recognizes several authorities not known to \code{[taxize::get_ids()]}.
 Both include \code{itis}, \code{ncbi}, \code{col}, and \code{gbif}.
 
 Like all taxadb functions, this function will run
-fastest if a local copy of the authority is installed in advance
+fastest if a local copy of the provider is installed in advance
 using \code{[td_create()]}.
 }
 \examples{

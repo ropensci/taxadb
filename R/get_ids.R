@@ -5,7 +5,7 @@
 #' A drop-in replacement for `[taxize::get_ids()]`
 #' @param names a list of scientific names (which may
 #'   include higher-order ranks in most authorities).
-#' @param db abbreviation code for the authority.  See details.
+#' @param db abbreviation code for the provider.  See details.
 #' @param format Format for the returned: bare identifier, one of
 #'   - `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
 #'   - `prefix` (e.g. `NCBI:9606`), or
@@ -19,7 +19,7 @@
 #' Both include `itis`, `ncbi`, `col`, and `gbif`.
 #'
 #' Like all taxadb functions, this function will run
-#' fastest if a local copy of the authority is installed in advance
+#' fastest if a local copy of the provider is installed in advance
 #' using `[td_create()]`.
 #' @examples \dontrun{
 #' get_ids("Homo sapiens")
@@ -38,7 +38,7 @@ get_ids <- function(names,
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
   df <- ids(name = names,
-             authority = db,
+             provider = db,
              collect = TRUE,
              db = taxadb_db)
 

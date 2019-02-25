@@ -4,11 +4,11 @@
 \alias{taxa_tbl}
 \title{Return a reference to a given table in the taxadb database}
 \usage{
-taxa_tbl(authority = KNOWN_AUTHORITIES, schema = "dwc",
+taxa_tbl(provider = KNOWN_AUTHORITIES, schema = "dwc",
   db = td_connect())
 }
 \arguments{
-\item{authority}{from which authority should the hierachy be returned?
+\item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
 
 \item{schema}{the table schema on which we want to run the query}

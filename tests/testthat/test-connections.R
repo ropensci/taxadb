@@ -28,7 +28,7 @@ test_that("we can use alternative DBs, such as SQLite", {
 
   ## and here we go.
   td_create(schema = "hierarchy", db = db)
-  itis <- taxa_tbl(authority = "itis",
+  itis <- taxa_tbl(provider = "itis",
                    schema = "hierarchy",
                    db = db)
   DBI::dbDisconnect(db)

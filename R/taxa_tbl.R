@@ -10,12 +10,12 @@ KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
 #' @inheritParams classification
 #' @export
 taxa_tbl <- function(
-  authority = KNOWN_AUTHORITIES,
+  provider = KNOWN_AUTHORITIES,
   schema = "dwc",
   db = td_connect()){
 
-  authority <- match.arg(authority)
-  tbl_name <- authority
+  provider <- match.arg(provider)
+  tbl_name <- provider
   if (is.null(db)) return(quick_db(tbl_name))
   if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
 

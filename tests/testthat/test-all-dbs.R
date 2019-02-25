@@ -27,7 +27,7 @@ test_that("we can set up a db and call basic functions", {
 
 
 
-  df <- taxa_tbl(authority = "col")
+  df <- taxa_tbl(provider = "col")
   chameleons <- df %>% filter(family == "Chamaeleonidae") %>% collect()
 
   df <- descendants(name = "Aves", rank = "class")

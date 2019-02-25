@@ -52,7 +52,7 @@ td_create()
 ```
 
 The default behavior installs only the ITIS database. You can also
-specify a list of authorities to install, or install every authority
+specify a list of authorities to install, or install every provider
 using `td_create("all")`.
 
 ## Test drive
