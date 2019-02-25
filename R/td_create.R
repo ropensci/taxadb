@@ -46,6 +46,9 @@ td_create <- function(authorities = "itis",
                       db = td_connect(dbdir)
                       ){
 
+  if(!dir.exists(dbdir))
+    dir.create(dbdir, FALSE, TRUE)
+
   recognized_authorities = KNOWN_AUTHORITIES
   if (authorities == "all") {
     authorities <- recognized_authorities
