@@ -5,7 +5,7 @@
 #' @param species a character vector of species names, typically
 #'  specified as (`Genus species` or `Genus species epithet`)
 #' @param id alternately users can provide a vector of species ids.
-#'  IDs must be prefixed matching the requested authority.  See `id`
+#'  IDs must be prefixed matching the requested provider.  See `id`
 #'  column returned by most `taxadb` functions for examples.
 #' @inheritParams ids
 #' @return a data.frame with one row for each requested species,
@@ -26,12 +26,12 @@
 #'
 classification <- function(species = NULL,
                            id = NULL,
-                           authority = KNOWN_AUTHORITIES,
+                           provider = KNOWN_AUTHORITIES,
                            collect = TRUE,
                            db = td_connect()){
 
   suppress_msg({
-  out <- dplyr::right_join(taxa_tbl(authority = authority,
+  out <- dplyr::right_join(taxa_tbl(provider = provider,
                                    schema = "dwc",
                                    db = db),
                           null_tibble(id, scientificName = species),

@@ -7,7 +7,7 @@ library(dplyr)
 
 test_that("setup-free calls to basic functions", {
 
-  df <- taxa_tbl(authority = "itis", db = NULL)
+  df <- taxa_tbl(provider = "itis", db = NULL)
   chameleons <- filter(df, family == "Chamaeleonidae")
 
   df <- descendants(name = "Aves", rank = "class", db = NULL)
