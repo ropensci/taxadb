@@ -170,6 +170,24 @@ taxonid <-
   distinct() %>%
   de_duplicate()
 
+# get common names #
+vern <- read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
+  filter(language == c('English', 'unspecified')) %>%
+  mutate(taxonID = stri_paste("ITIS:", tsn)) %>%
+  select(-tsn)
+
+#first the ones with accepted common names
+acc_common <- vern %>%
+  filter(approved_ind == "Y")
+
+#then the rest
+com_names <-  vern %>%
+  filter(!taxonID %in% acc_common$taxonID) %>%
+  group_by(taxonID) %>%
+  top_n(n = 1, wt = vernacular_name) %>%
+  bind_rows(acc_common) %>%
+  distinct(taxonID, .keep_all = TRUE)
+
 wide <- collect(taxa_tbl("itis", "hierarchy")) %>% distinct()
 dwc <- taxonid %>%
   rename(taxonID = id,
@@ -184,22 +202,9 @@ dwc <- taxonid %>%
                      #infraspecificEpithet
               ),
             by = c("acceptedNameUsageID" =  "taxonID")) %>%
-  left_join(read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
-              filter(language == c('English', 'unspecified')) %>%
-              #there are multiple common names for each scientificName ID
-              #currently just picking the top one after ordering alphabetically
-              group_by(tsn) %>%
-              top_n(1, vernacular_name)) %>%
+  left_join(com_names %>% select(vernacularName = vernacular_name, taxonID), by = "taxonID") %>%
   distinct()
 
-#read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
-vern_ex <- vern %>% 
-  filter(language == c('English', 'unspecified')) %>%
-  group_by(tsn) %>%
-  top_n(1, vernacular_name)
-  
-  
-  
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
