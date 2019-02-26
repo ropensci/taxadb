@@ -61,7 +61,10 @@ binomial_names <- function(x){
   s <-
     stringi::stri_split_regex(x, "/", simplify = TRUE)[,1] %>%
     stringi::stri_extract_all_words(simplify = TRUE)
-  stringi::stri_trim(paste(s[,1], s[,2]))
+  if(dim(s)[2] > 1)
+    stringi::stri_trim(paste(s[,1], s[,2]))
+  else
+    stringi::stri_trim(s[,1])
 }
 drop_author_year <- function(x){
   stringi::stri_replace_all_regex(x, "\\(.+)", "")

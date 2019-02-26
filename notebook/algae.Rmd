@@ -155,6 +155,18 @@ head(unmatched2, 10)
 Working from the names directly:
 
 ```{r}
+
+df <- db_mutate(r_fn = clean_names,
+          tbl = "ott",
+          db = td_connect(),
+          col = "scientificName",
+          new_column = "input")
+
+```
+
+
+
+```{r}
 ott <- taxa_tbl("ott") %>% 
   mutate(name1 = splitpart(tolower(scientificName), " ", 1L),
          name2 = splitpart(tolower(scientificName), " ", 2L)

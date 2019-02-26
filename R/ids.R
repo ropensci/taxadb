@@ -120,7 +120,6 @@ db_table <-
   mutate(input = tolower(scientificName),
          name1 = splitpart(input, " ", 1L),
          name2 = splitpart(input, " ", 2L))
-)
 
 }
 
