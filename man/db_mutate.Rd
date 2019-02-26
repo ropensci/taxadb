@@ -4,7 +4,7 @@
 \alias{db_mutate}
 \title{Add new variables to a database}
 \usage{
-db_mutate(db, tbl, r_fn, col, new_column, n = 50000L)
+db_mutate(db, tbl, r_fn, col, new_column, n = 5000L)
 }
 \arguments{
 \item{db}{a database connection, \code{\link[DBI:DBIConnection]{DBI::DBIConnection()}}}
