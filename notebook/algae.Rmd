@@ -14,8 +14,11 @@ taxadb::td_create("all") # only needed once.
 algae <- read_csv("~/projects/algae-names/algae_uncleanednames_NAdropped.csv")
 ```
 
-Before we begin, let's take a look around the data to get a sense of what we have:
 
+
+## Summarizing the data
+
+Before we begin, let's take a look around the data to get a sense of what we have:
 
 - `r dim(algae)[[1]]` rows, `r names(algae)` columns.
 
@@ -60,6 +63,10 @@ species_multiple_families %>%  arrange(desc(n))
 ```
 
 We will assume these differences correspond to changes in taxonomic group assignment at the family level, and not to two distinct species with the same scientific name (genus+specific epithet) belonging to different families.  
+
+----------
+
+## Resolving names to IDs
 
 So we'll begin by focusing on resolving the unique species names:
 
@@ -172,8 +179,10 @@ df <- db_mutate(r_fn = clean_names,
 ```{r}
 sp <- tibble(input = unmatched2)
 
-match_binomial <- right_join(df, sp, copy=TRUE, by = "input") 
-match_binomial %>% filter(!is.na(acceptedNameUsageID))
+match_binomial <- right_join(df, sp, copy=TRUE, by = "input")  %>% collect()
+match_binomial %>% filter(is.na(acceptedNameUsageID)) %>% distinct()
+
+dim(match_binomial)
 ```
 
 

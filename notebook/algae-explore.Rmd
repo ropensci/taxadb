@@ -4,14 +4,49 @@ library(tidyverse)
 library(taxadb)
 ```
 
-
-
-
 Populate the `taxadb` database (only required right after installing `taxadb`, otherwise this will just note the previously installed tables).
 
 ```{r}
 td_create("all")
 ```
+
+
+```{r}
+algae <- read_csv("~/projects/algae-names/algae_uncleanednames_NAdropped.csv")
+```
+
+
+```{r}
+## Input table with clean names
+algae <- algae %>% mutate(input = clean_names(species), sort = 1:length(input))
+
+## Let's get some matches
+taxa <- taxa_tbl("ott") %>% 
+        mutate_db(clean_names, "scientificName", "input") %>%
+        right_join(algae, copy=TRUE, by="input") %>% 
+        arrange(sort)  %>% 
+        collect()
+
+## lots of duplicate matches, pick the first one for now:
+matched <- taxa %>% select(acceptedNameUsageID, sort) %>% distinct() %>% 
+  group_by(sort) %>% top_n(1, acceptedNameUsageID)
+
+
+# 46,045 / 57,700 have been matched!
+
+## Who is unmatched? (sort id is in algae table but not in the matched table)
+unmatched <- anti_join(algae, matched, by="sort")
+
+# 11,655 are still unmatched.  Many appear to be known synonyms to Algaebase...
+unmatched %>% count(source) %>% arrange(desc(n))
+
+```
+
+
+
+
+-------
+
 
 
 

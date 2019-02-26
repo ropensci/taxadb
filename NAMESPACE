@@ -2,10 +2,10 @@
 
 export(classification)
 export(clean_names)
-export(db_mutate)
 export(descendants)
 export(get_ids)
 export(ids)
+export(mutate_db)
 export(synonyms)
 export(taxa_tbl)
 export(td_connect)

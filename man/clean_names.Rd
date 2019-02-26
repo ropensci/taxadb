@@ -5,7 +5,7 @@
 \title{Clean taxonomic names}
 \usage{
 clean_names(names, fix_delim = TRUE, binomial_only = TRUE,
-  remove_sp = TRUE, ascii_only = TRUE)
+  remove_sp = TRUE, ascii_only = TRUE, lowercase = TRUE)
 }
 \arguments{
 \item{names}{a character vector of taxonomic names (usually species names)}
