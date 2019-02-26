@@ -7,7 +7,7 @@
 db_mutate(db, tbl, r_fn, col, new_column, n = 5000L)
 }
 \arguments{
-\item{db}{a database connection, \code{\link[DBI:DBIConnection]{DBI::DBIConnection()}}}
+\item{db}{a database connection, \link[DBI:DBIConnection-class]{DBI::DBIConnection}}
 
 \item{tbl}{the name of a table}
 
