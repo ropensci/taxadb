@@ -172,7 +172,6 @@ taxonid <-
 
 # get common names #
 vern <- read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
-  filter(language == c('English', 'unspecified')) %>%
   mutate(taxonID = stri_paste("ITIS:", tsn)) %>%
   select(-tsn)
 
@@ -180,7 +179,14 @@ vern <- read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
 acc_common <- vern %>%
   filter(approved_ind == "Y")
 
-#then the rest
+#of those left grab the english name if there is one
+acc_common <- vern %>%
+  filter(!taxonID %in% acc_common$taxonID, language == "English") %>%
+  group_by(taxonID) %>%
+  top_n(n = 1, wt = vernacular_name) %>%
+  bind_rows(acc_common)
+
+#then the rest just grab the first alphabetically
 com_names <-  vern %>%
   filter(!taxonID %in% acc_common$taxonID) %>%
   group_by(taxonID) %>%
