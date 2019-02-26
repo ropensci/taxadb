@@ -8,6 +8,9 @@ library(taxadb)
 
 ```{r}
 taxadb::td_create("all") # only needed once.
+```
+
+```{r}
 algae <- read_csv("~/projects/algae-names/algae_uncleanednames_NAdropped.csv")
 ```
 
@@ -160,39 +163,16 @@ df <- db_mutate(r_fn = clean_names,
           tbl = "ott",
           db = td_connect(),
           col = "scientificName",
-          new_column = "input")
+          new_column = "input") 
+
 
 ```
 
 
-
 ```{r}
-ott <- taxa_tbl("ott") %>% 
-  mutate(name1 = splitpart(tolower(scientificName), " ", 1L),
-         name2 = splitpart(tolower(scientificName), " ", 2L)
-         )
-ott
-```
+sp <- tibble(input = unmatched2)
 
-
-```{r}
-x <- unmatched2 %>% stringi::stri_extract_all_words(simplify = TRUE) 
-colnames(x) <- c("name1", "name2")
-x <- as.data.frame(x)
-x$sort <- 1:length(x$name1)
-
-sp <-  x %>% filter(name2 != "")
-genus_only <- x %>% filter(name2 == "") %>% select(name1, sort)
-```
-
-```{r}
-match_genus <- right_join(ott, genus_only, copy=TRUE, by = "name1") %>% arrange(sort)
-match_genus %>% filter(!is.na(acceptedNameUsageID))
-```
-
-
-```{r}
-match_binomial <- right_join(ott, sp, copy=TRUE, by = c("name1", "name2")) %>% arrange(sort)
+match_binomial <- right_join(df, sp, copy=TRUE, by = "input") 
 match_binomial %>% filter(!is.na(acceptedNameUsageID))
 ```
 

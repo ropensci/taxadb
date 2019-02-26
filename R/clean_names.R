@@ -33,7 +33,10 @@ clean_names <-
            fix_delim = TRUE,
            binomial_only = TRUE,
            remove_sp = TRUE,
-           ascii_only = TRUE){
+           ascii_only = TRUE,
+           lowercase = TRUE){
+    if(lowercase)
+      names <- stringi::stri_trans_tolower(names)
     if(ascii_only)
       names <- stringi::stri_trans_general(names,"latin-ascii")
     if(fix_delim)
