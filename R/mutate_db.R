@@ -4,7 +4,7 @@
 #' This function provides a way to work around this, by querying the data in chunks
 #' and applying the function to each chunk, which is then appended back out to a
 #' temporary table.
-#' @param .data A [dplyr::tbl] that uses a database connection, a [dplyr::tbl_dbi].
+#' @param .data A [dplyr::tbl] that uses a database connection, `tbl_dbi` class.
 #' @param r_fn any R function that can be called on a vector (column) of the table
 #' @param col the name of the column to which the R function is applied.
 #' (Note, [dplyr::mutate()] can operate on an arbitrary list of columns, this function

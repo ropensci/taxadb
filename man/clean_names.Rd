@@ -23,6 +23,8 @@ e.g. \code{Homo sp.} becomes \code{Homo} (thus only matching against genus level
 logical, default \link{TRUE}.}
 
 \item{ascii_only}{should we coerce strings to ascii characters? (see \code{\link[stringi:stri_trans_general]{stringi::stri_trans_general()}})}
+
+\item{lowercase}{should names be coerced to lower-case to provide case-insentive matching?}
 }
 \description{
 A utility to sanitize taxonomic names to increase probability of resolving names.

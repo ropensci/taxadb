@@ -7,7 +7,7 @@
 mutate_db(.data, r_fn, col, new_column, n = 5000L)
 }
 \arguments{
-\item{.data}{A \link[dplyr:tbl]{dplyr::tbl} that uses a database connection, a \link[dplyr:tbl_dbi]{dplyr::tbl_dbi}.}
+\item{.data}{A \link[dplyr:tbl]{dplyr::tbl} that uses a database connection, \code{tbl_dbi} class.}
 
 \item{r_fn}{any R function that can be called on a vector (column) of the table}
 
