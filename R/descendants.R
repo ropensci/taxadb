@@ -10,7 +10,7 @@
 # @importFrom magrittr %>%
 #' @importFrom dplyr semi_join select filter distinct
 descendants <- function(name = NULL,
-                        rank = NULL,
+                        rank = "scientificName",
                         id = NULL,
                         provider = known_providers,
                         collect = TRUE,
@@ -19,18 +19,22 @@ descendants <- function(name = NULL,
   ## technically could guess rank from name most but not all time
   ## could still do this as join rather than a filter with appropriate table construction
 
+    if (!is.null(id)){ # Join by ids instead of names, if IDs are given
+      rank <- "taxonID"
+      name <- id
+    }
     df <- data.frame(setNames(list(name), rank), stringsAsFactors = FALSE)
-    df$id <- id
 
     taxa <- taxa_tbl(provider = provider,
                      schema = "dwc",
                      db = db)
 
+    suppress_msg({
     out <- dplyr::semi_join(taxa,
                             df,
                             copy = TRUE,
                             by = rank)
-
+    })
 
   if(collect && inherits(out, "tbl_lazy")){
     ## Return an in-memory object
