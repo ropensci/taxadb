@@ -45,14 +45,3 @@ td_disconnect <- function(env = taxadb_cache){
 taxadb_cache <- new.env()
 reg.finalizer(taxadb_cache, td_disconnect, onexit = TRUE)
 
-
-## dyplr automatially drops temporary table on disconnect
-## Only need this to purge tables sooner.
-td_clean <- function(db = td_connect()){
-  tables <- DBI::dbListTables(db)
-  drop <- tables[ !grepl("_", tables) ]
-  lapply(drop, function(x) DBI::dbRemoveTable(db, x))
-  invisible(TRUE)
-}
-
-

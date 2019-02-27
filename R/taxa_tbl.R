@@ -1,4 +1,4 @@
-KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
+known_providers <- c("itis", "ncbi", "col", "tpl",
                        "gbif", "fb", "slb", "wd", "ott",
                        "iucn")
 #' Return a reference to a given table in the taxadb database
@@ -10,7 +10,7 @@ KNOWN_AUTHORITIES <- c("itis", "ncbi", "col", "tpl",
 #' @inheritParams classification
 #' @export
 taxa_tbl <- function(
-  provider = KNOWN_AUTHORITIES,
+  provider = known_providers,
   schema = "dwc",
   db = td_connect()){
 
