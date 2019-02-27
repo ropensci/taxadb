@@ -15,6 +15,7 @@ test_that("we can detect locked connections", {
 test_that("we can use alternative DBs, such as SQLite", {
 
   skip_on_cran()
+  skip_on_appveyor()
   skip_on_travis() #hmMMM?
 
   ## NOTE: SQLite joins are waaaay slower than MonetDBLite

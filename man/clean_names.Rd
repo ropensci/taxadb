@@ -5,7 +5,7 @@
 \title{Clean taxonomic names}
 \usage{
 clean_names(names, fix_delim = TRUE, binomial_only = TRUE,
-  remove_sp = TRUE, ascii_only = TRUE)
+  remove_sp = TRUE, ascii_only = TRUE, lowercase = TRUE)
 }
 \arguments{
 \item{names}{a character vector of taxonomic names (usually species names)}
@@ -23,6 +23,8 @@ e.g. \code{Homo sp.} becomes \code{Homo} (thus only matching against genus level
 logical, default \link{TRUE}.}
 
 \item{ascii_only}{should we coerce strings to ascii characters? (see \code{\link[stringi:stri_trans_general]{stringi::stri_trans_general()}})}
+
+\item{lowercase}{should names be coerced to lower-case to provide case-insensitive matching?}
 }
 \description{
 A utility to sanitize taxonomic names to increase probability of resolving names.
@@ -33,7 +35,7 @@ Additional extensions may be added later. A goal of the \code{clean_names} funct
 is that any modification rule of the name strings be precise, atomic, and
 toggle-able, rather than relying on clever but more opaque rules and
 arbitrary scores. This utility should always be used with care, as
-indiscriminant modification of names may result in successful but inaccurate
+indiscriminate modification of names may result in successful but inaccurate
 name matching. A good pattern is to only apply this function to the subset
 of names that cannot be directly matched.
 }

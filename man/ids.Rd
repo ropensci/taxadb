@@ -4,8 +4,8 @@
 \alias{ids}
 \title{Return taxonomic identifiers from a given namespace}
 \usage{
-ids(name = NULL, provider = KNOWN_AUTHORITIES, collect = TRUE,
-  db = td_connect())
+ids(name = NULL, provider = known_providers, collect = TRUE,
+  db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{name}{a character vector of species names, e.g. "Homo sapiens"
@@ -21,6 +21,9 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
 \item{db}{a connection to the taxadb database. See details.}
+
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 }
 \value{
 a data.frame with columns of \code{id}, scientific

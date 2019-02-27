@@ -26,7 +26,7 @@
 #'
 classification <- function(species = NULL,
                            id = NULL,
-                           provider = KNOWN_AUTHORITIES,
+                           provider = known_providers,
                            collect = TRUE,
                            db = td_connect()){
 

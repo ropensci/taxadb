@@ -43,4 +43,11 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(hier)[1], 1)
   expect_gt(dim(chameleons)[1], 1)
 
+  species <- ids(df$scientificName,
+                 db = db,
+                 ignore_case = FALSE) %>%
+    filter(taxonomicStatus == "accepted")
+  expect_is(species, "data.frame")
+
+
 })

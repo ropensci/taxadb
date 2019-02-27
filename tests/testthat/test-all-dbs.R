@@ -10,6 +10,7 @@ test_that("we can set up a db and call basic functions", {
   skip_if(TRUE)
   skip_on_travis()
   skip_on_cran()
+  skip_on_appveyor()
 
 
   overwrite = TRUE

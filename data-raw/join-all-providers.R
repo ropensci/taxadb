@@ -81,7 +81,7 @@ all_ids <- function(name = NULL,
       by = "name",
       copy = TRUE) %>%
     dplyr::arrange(sort) %>%
-    select(-sort)
+    dplyr::select(-sort)
 
   if (collect && inherits(out, "tbl_lazy")) {
     ## Return an in-memory object

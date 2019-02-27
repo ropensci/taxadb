@@ -4,7 +4,7 @@
 \alias{taxa_tbl}
 \title{Return a reference to a given table in the taxadb database}
 \usage{
-taxa_tbl(provider = KNOWN_AUTHORITIES, schema = "dwc",
+taxa_tbl(provider = known_providers, schema = "dwc",
   db = td_connect())
 }
 \arguments{
