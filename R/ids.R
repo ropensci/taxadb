@@ -36,7 +36,8 @@ ids <- function(name = NULL,
                 db = td_connect(),
                 ignore_case = TRUE){
 
-  scientificName <- sort <- input <- NULL
+  scientificName <- NULL
+#  sort  <- NULL
 
   ## Create the input table.
   ## We will (temporarily) copy this to disk to join against the database
@@ -72,8 +73,7 @@ ids <- function(name = NULL,
       input_table,
       by = "input",
       copy = TRUE) %>%
-    dplyr::arrange(sort) %>%  # enforce original order
-    select(-input)
+    dplyr::arrange(sort)
 
   })
 

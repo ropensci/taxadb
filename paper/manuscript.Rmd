@@ -29,36 +29,44 @@ bibliography: refs.bib
 output: rticles::elsevier_article
 ---
 
+```{r include=FALSE}
+knitr::opts_chunk$set(message=FALSE)
+```
+
 The purpose and strengths of `taxadb` can be most easily seen through an introductory example.  
 
-```{r}
+```{r message=FALSE}
 library(tidyverse)
 library(taxadb)
 ```
 
-```{r}
+```{r message=FALSE}
 td_create("all")
 ```
 
 
-```{r}
+```{r message=FALSE}
 bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
 ```
 
 ```{r}
 dim(bbs)
+
+
 ```
 
 
 ```{r}
 bbs_ids <- 
-bbs %>% select(species) %>%
-  mutate(gbif = get_ids(species, "gbif", "prefix"),
+bbs %>% 
+  select(species) %>%
+  mutate(
+         gbif = get_ids(species, "gbif", "prefix"),
           col = get_ids(species, "col", "prefix"),
          itis = get_ids(species, "itis", "prefix"),
          ncbi = get_ids(species, "ncbi", "prefix"),
      wikidata = get_ids(species, "wd", "prefix"),
-  #       iucn = get_ids(species, "iucn", "prefix"),
+         iucn = get_ids(species, "iucn", "prefix"),
           ott = get_ids(species, "ott","prefix") 
   )
 
@@ -77,7 +85,48 @@ bbs_ids %>%
 In this example, applying this transformation on the unmatched names we can bring matches against OTT identifiers up from 665 to 740, missing only ten names:
 
 ```{r}
-bbs_ott <- bbs$species %>% get_ids("ott", "prefix")
+ott_ids <- bbs %>% 
+  mutate(names = clean_names(species)) %>% 
+  pull(names) %>% 
+  ids("ott")
+
+unmatched <- ott_ids %>% 
+  filter(is.na(acceptedNameUsageID)) %>% 
+  select(input, sort)
+```
+
+```{r}
+unmatched$input %>% ids("iucn") %>% 
+  select(scientificName, taxonomicStatus, input, taxonID, acceptedNameUsageID)
+
+syn <- taxa_tbl("iucn") %>% 
+  right_join(
+    unmatched$input %>% 
+    ids("iucn") %>% 
+    select(acceptedNameUsageID),
+    copy = TRUE) %>%
+  select(scientificName, acceptedNameUsageID, taxonomicStatus) %>%
+  collect()
+
+
+
+## Some names have multiple synonyms, do not do this as a spread...    
+syn %>% mutate(n = 1:length(scientificName)) %>% spread(taxonomicStatus, scientificName)
+```
+
+
+
+```{r}
+
+## a name that resolves to multiple possible IDs is not considered a match by `get_ids()`
+ott_ids <- bbs %>% 
+  mutate(names = clean_names(species)) %>%
+  pull(names) %>% 
+  get_ids("ott", "prefix")
+
+
+
+length(!is.na(ott_ids))
 ```
 
 ```{r}
