@@ -47,12 +47,7 @@ td_create("all")
 
 ```{r message=FALSE}
 bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
-```
-
-```{r}
 dim(bbs)
-
-
 ```
 
 
@@ -94,6 +89,11 @@ unmatched <- ott_ids %>%
   filter(is.na(acceptedNameUsageID)) %>% 
   select(input, sort)
 ```
+
+```{r}
+unmatched$input %>% synonyms("iucn")
+```
+
 
 ```{r}
 unmatched$input %>% ids("iucn") %>% 
