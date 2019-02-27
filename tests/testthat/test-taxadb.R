@@ -48,6 +48,13 @@ test_that("we can set up a db and call basic functions", {
                  ignore_case = FALSE) %>%
     filter(taxonomicStatus == "accepted")
   expect_is(species, "data.frame")
+  expect_gt(dim(species)[1], 1)
+
+
+  names <- descendants(id = df$taxonID,
+                 db = db)
+  expect_is(names, "data.frame")
+  expect_gt(dim(names)[1], 1)
 
 
 })
