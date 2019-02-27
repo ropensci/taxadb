@@ -43,6 +43,4 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(hier)[1], 1)
   expect_gt(dim(chameleons)[1], 1)
 
-  fuzzy <- taxadb:::search("Homo", "itis", "starts_with")
-
 })
