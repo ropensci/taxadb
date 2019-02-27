@@ -25,9 +25,11 @@ mutate_db <- function(.data,
     stop(paste("input must be a table from remote database connection"))
 
   db <- .data$src$con
+  tbl <- as.character(.data$ops$x)
+
   tmp_tbl <-
     dbi_mutate(db = db,
-               tbl = as.character(.data$ops$x),
+               tbl = tbl,
                r_fn = r_fn, col = col, new_column = new_column,
                n = 5000L, tmp_tbl = tmp_tablename())
   dplyr::tbl(db, tmp_tbl)
