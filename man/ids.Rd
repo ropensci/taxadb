@@ -4,8 +4,8 @@
 \alias{ids}
 \title{Return taxonomic identifiers from a given namespace}
 \usage{
-ids(name = NULL, provider = KNOWN_AUTHORITIES, collect = TRUE,
-  db = td_connect())
+ids(name = NULL, provider = known_providers, collect = TRUE,
+  db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{name}{a character vector of species names, e.g. "Homo sapiens"

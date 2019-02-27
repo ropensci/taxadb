@@ -30,7 +30,7 @@
 #' @importFrom dplyr pull
 #' @importFrom tibble column_to_rownames
 get_ids <- function(names,
-                    db = KNOWN_AUTHORITIES,
+                    db = known_providers,
                     format = c("bare", "prefix", "uri"),
                     taxadb_db = td_connect(),
                     ...){

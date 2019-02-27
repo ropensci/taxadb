@@ -29,29 +29,36 @@
 #' @importFrom rlang !!
 #' @importFrom magrittr %>%
 ids <- function(name = NULL,
-                provider = KNOWN_AUTHORITIES,
+                provider = known_providers,
                 collect = TRUE,
-                db = td_connect()){
+                db = td_connect(),
+                ignore_case = TRUE){
 
-  # Dummy vars for NSE
-  sort <- TRUE #
-  input <- ""
+  scientificName <- sort <- input <- NULL
 
   ## Create the input table.
   ## We will (temporarily) copy this to disk to join against the database
   ## Filtering joins are much much faster than filtering, particularly
   ## for large numbers of input names, when we use MonetDB(Lite)
+
+  if(ignore_case){
   input_table <- dplyr::tibble(
-    ## base::tolower() fails on certain non UTF8
+    ## Note: base::tolower() can fail on certain non UTF-8
     input = stringi::stri_trans_tolower(name),
     sort = 1:length(name))
 
   ## Could be pre-computed to avoid the performance hit here.
   db_table <-
     taxa_tbl(provider, "dwc", db) %>%
-  ## Could consider other cleaning
-  ## when run in backend DB, uses the DB's built-in lowercase SQL command:
     mutate(input = tolower(scientificName))
+  } else {
+    input_table <- dplyr::tibble(
+      input = name,
+      sort = 1:length(name))
+    db_table <- taxa_tbl(provider, "dwc", db) %>%
+      rename(input = scientificName)
+  }
+
 
   ## Use right_join, so unmatched names are kept, with NA
   ## Using right join, names appear in order of provider!
@@ -63,12 +70,12 @@ ids <- function(name = NULL,
       input_table,
       by = "input",
       copy = TRUE) %>%
-    dplyr::arrange(sort) # enforce original order
-    ## maintain the 'sort' and input columns, as they can be useful,
-    ## even though these are not dwc columns.
-    # select(-sort, input)
+    dplyr::arrange(sort) %>%  # enforce original order
+    select(-input)
+
   })
-  ## A known synonym can match two different valid names!
+
+  ## Note: a known synonym can match two different valid names!
   ## 'Trochalopteron henrici gucenense' is a synonym for:
   ## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
   ## (according to ITIS)
@@ -81,37 +88,8 @@ ids <- function(name = NULL,
   out
 }
 
-
-
-
-## FIXME abstract this to filter on id / name / generic column?
-accepted_name <- function(id = NULL,
-                provider = KNOWN_AUTHORITIES,
-                collect = TRUE,
-                db = td_connect()){
-  sort <- TRUE # dummy name
-  input_table <- dplyr::tibble(taxonID = id, sort = 1:length(id))
-
-  ## Use right_join, so unmatched names are kept, with NA
-  ## Means names appear in order of provider, so we must arrange
-  ## after-the-fact to match the query order
-  out <-
-    dplyr::right_join(
-      taxa_tbl(provider, "dwc", db),
-      input_table,
-      by = "taxonID",
-      copy = TRUE) %>%
-    dplyr::arrange(sort) %>%
-    select(-sort)
-
-  if (collect && inherits(out, "tbl_lazy")) {
-    ## Return an in-memory object
-    return( dplyr::collect(out) )
-  }
-
-  out
-}
-
+# Dummy vars for NSE
+#globalVariables("scientificName", "sort", "input")
 
 #clean_db_names <- function(provider, db = td_connect()){
 ## Could be pre-computed to avoid the performance hit here.

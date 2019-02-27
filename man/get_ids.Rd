@@ -4,7 +4,7 @@
 \alias{get_ids}
 \title{get_ids}
 \usage{
-get_ids(names, db = KNOWN_AUTHORITIES, format = c("bare", "prefix",
+get_ids(names, db = known_providers, format = c("bare", "prefix",
   "uri"), taxadb_db = td_connect(), ...)
 }
 \arguments{

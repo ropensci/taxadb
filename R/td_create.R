@@ -49,7 +49,7 @@ td_create <- function(authorities = "itis",
   if(!dir.exists(dbdir))
     dir.create(dbdir, FALSE, TRUE)
 
-  recognized_authorities = KNOWN_AUTHORITIES
+  recognized_authorities = known_providers
   if (authorities == "all") {
     authorities <- recognized_authorities
   }
