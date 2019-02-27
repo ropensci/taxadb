@@ -4,7 +4,7 @@
 \alias{descendants}
 \title{Get all members (descendants) of a given rank level}
 \usage{
-descendants(name = NULL, rank = NULL, id = NULL,
+descendants(name = NULL, rank = "scientificName", id = NULL,
   provider = known_providers, collect = TRUE, db = td_connect())
 }
 \arguments{
