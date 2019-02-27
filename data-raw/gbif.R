@@ -43,14 +43,32 @@ gbif <- taxon %>%
 accepted <- filter(gbif, taxonomicStatus == "accepted") %>% mutate(acceptedNameUsageID = taxonID)
 rest <- filter(gbif, taxonomicStatus != "accepted") %>% filter(!is.na(acceptedNameUsageID))
 
+## Get common names
+vern <- read_tsv("taxizedb/gbif/vernacular.tsv.bz2")
+#first english names,
+##why doesn't this return a unique list of taxonID without distinct()??
+comm_eng <- vern %>%
+  filter(language == "en") %>%
+  group_by(taxonID) %>%
+  top_n(1, vernacularName) %>%
+  distinct(taxonID, .keep_all = TRUE)
+#get the rest
+comm_names <- vern %>%
+  filter(!taxonID %in% comm_eng$taxonID) %>%
+  group_by(taxonID) %>%
+  top_n(1, vernacularName) %>%
+  distinct(taxonID, .keep_all = TRUE) %>%
+  bind_rows(comm_eng)
+
 ## stri_paste respects NAs, avoids "GBIF:NA"
 ## de-duplicate avoids cases where an accepted name is also listed as a synonym.
 dwc_gbif <-
   bind_rows(accepted, rest) %>%
   de_duplicate() %>%
+  left_join(comm_names %>% select(taxonID, vernacularName), by = "taxonID") %>%
   mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
 write_tsv(dwc_gbif, "dwc/gbif.tsv.bz2")
 
-piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="cboettig/taxadb", tag="v1.0.0")
+piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="cboettig/taxadb", tag="common_names")
