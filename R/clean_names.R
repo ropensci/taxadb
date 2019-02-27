@@ -13,13 +13,13 @@
 #' e.g. `Homo sp.` becomes `Homo` (thus only matching against genus level ids).
 #' logical, default [TRUE].
 #' @param ascii_only should we coerce strings to ascii characters? (see [stringi::stri_trans_general()])
-#' @param lowercase should names be coerced to lower-case to provide case-insentive matching?
+#' @param lowercase should names be coerced to lower-case to provide case-insensitive matching?
 #' @details Current implementation is limited to handling a few common cases.
 #' Additional extensions may be added later. A goal of the `clean_names` function
 #' is that any modification rule of the name strings be precise, atomic, and
 #' toggle-able, rather than relying on clever but more opaque rules and
 #' arbitrary scores. This utility should always be used with care, as
-#' indiscriminant modification of names may result in successful but inaccurate
+#' indiscriminate modification of names may result in successful but inaccurate
 #' name matching. A good pattern is to only apply this function to the subset
 #' of names that cannot be directly matched.
 #'
