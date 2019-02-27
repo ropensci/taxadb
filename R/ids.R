@@ -11,6 +11,8 @@
 #' lazy-eval table on disk (useful for very large tables on which we may
 #' first perform subsequent filtering operations.)
 #' @param db a connection to the taxadb database. See details.
+#' @param ignore_case should we ignore case (capitalization) in matching names?
+#' default is `TRUE`.
 #' @return a data.frame with columns of `id`, scientific
 #' `name`, and `rank`, and `accepted_id` (if data includes synonyms)
 #'  and a row for each species name queried.
@@ -50,13 +52,13 @@ ids <- function(name = NULL,
   ## Could be pre-computed to avoid the performance hit here.
   db_table <-
     taxa_tbl(provider, "dwc", db) %>%
-    mutate(input = tolower(scientificName))
+    dplyr::mutate(input = tolower(scientificName))
   } else {
     input_table <- dplyr::tibble(
       input = name,
       sort = 1:length(name))
     db_table <- taxa_tbl(provider, "dwc", db) %>%
-      rename(input = scientificName)
+      dplyr::rename(input = scientificName)
   }
 
 
