@@ -29,6 +29,16 @@ bibliography: refs.bib
 output: rticles::elsevier_article
 ---
 
+1. A problem already solved  including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
+
+
+2. Performance.  A fundamental challenge of most existing services is the use of internet-based Application Programming Interfaces, (web API)s to resolve individual names.  The motivation for an API-based approach is reasonable: (1) Web APIs are a ubiquitous standard of data exchange (2) make very minimal assumptions about the language, software, or hardware avaialable to the user, (3) users access a single centrally managed database that is maintained and upgraded by the provider, and (4) the provider can easily control access to the data, measure usage statistics, and enforce rate limits.  Many existing tools provide bindings of these APIs as functions to a specific language [@chamberlain2013; @taxize; @itis; @rotl; @worrms; @wikitaxa]
+
+Instead of binding existing web APIs, `taxadb` is built around a set compressed text files following a simple and consistent schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  By default `taxadb` uses MonetDBLite [@monetdblite], a columnar-oriented relational database requiring no additional installation and providing persistent disk-based storage which can be orders of magnitude faster than traditional database servers such as Postgres [@monetdblite]
+
+3. Consistency 
+
+
 ```{r include=FALSE}
 knitr::opts_chunk$set(message=FALSE)
 ```
@@ -90,103 +100,49 @@ unmatched <- ott_ids %>%
   select(input, sort)
 ```
 
+Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  Let us attempt to resolve these five before we consider the cases of common names and family names.  
 
+Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
+
+```{r}
+unmatched %>% mutate(iucn = get_ids(input, "iucn", "prefix"))
+```
+
+By consulting the synonyms table, we can see what other names these species might be known by:
 
 ```{r}
 syn <- unmatched$input %>% synonyms("iucn")
-syn
 ```
 
-Three of these synonyms are considered accepted names in OTT:
+```{r}
+x <- syn %>% 
+  mutate(ott_id = get_ids(synonym, "ott", "prefix")) %>% 
+  select(input, ott_id) %>%
+  na.omit()
 
+syn$synonym %>% get_ids("ott", "prefix")
+
+descendants(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomicStatus, acceptedNameUsageID)
+```
+
+
+Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
 
 ```{r}
 syn$synonym %>% na.omit() %>% ids("ott")
 ```
 
 
-```{r}
-syn$synonym %>% na.omit() %>% get_ids("ott")
-syn %>% na.omit() %>% mutate(
-  #ott = get_ids(synonym, "ott"),
-                             col = get_ids(synonym, "col"),
-                             itis = get_ids(synonym, "itis"),
-                             gbif = get_ids(synonym, "gbif"))
-```
-
-
-
-
-
-
-
-
+We can confirm the family names can be resolved:
 
 ```{r}
-
-syns <- unmatched$input %>% ids("iucn") %>%
-        dplyr::filter(taxonomicStatus != "accepted") %>%
-        dplyr::select(synonym = scientificName,
-                      synonym_id = taxonID,
-                      taxonomicStatus,
-                      acceptedNameUsageID)
-accepted
-
-
-syn <- unmatched$input %>% synonyms("iucn")
-syn
+c("Trochilidae",  "Ardeidae") %>% ids("ott")
 ```
 
-```{r}
-
-## a name that resolves to multiple possible IDs is not considered a match by `get_ids()`
-ott_ids <- bbs %>% 
-  mutate(names = clean_names(species)) %>%
-  pull(names) %>% 
-  get_ids("ott", "prefix")
-
-
-
-length(!is.na(ott_ids))
-```
-
-```{r}
-cleaned <- 
-  bbs$species[is.na(bbs_ott)] %>% 
-  clean_names() %>% 
-  get_ids("ott", "prefix")
-
-## use ID from cleaned name only if no exact match.
-bbs_ott[is.na(bbs_ott)] <- cleaned
-```
-
-We are still missing 10 species: 
-
-```{r}
-still_missing <- bbs$species[is.na(bbs_ott)]
-still_missing
-```
-
-Three of these are recognizably common names, which we can resolve against the common names table: 
-
-
-
-
-```{r}
-clean_names(still_missing) %>% ids("gbif")
-```
+We can use the common names table to resolve common names:
 
 
 
 (GBIF lists *Antigone canadensis* as a synonym for *Grus canadensis*; this appears backwards as the Sandhill Crane was moved out of *Grus* after molecular analyses showed it made that taxon polyphyletic; https://en.wikipedia.org/wiki/Sandhill_crane). 
 
-
-1. A problem already solved  including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
-
-
-2. Performance.  A fundamental challenge of most existing services is the use of internet-based Application Programming Interfaces, (web API)s to resolve individual names.  The motivation for an API-based approach is reasonable: (1) Web APIs are a ubiquitous standard of data exchange (2) make very minimal assumptions about the language, software, or hardware avaialable to the user, (3) users access a single centrally managed database that is maintained and upgraded by the provider, and (4) the provider can easily control access to the data, measure usage statistics, and enforce rate limits.  Many existing tools provide bindings of these APIs as functions to a specific language [@chamberlain2013; @taxize; @itis; @rotl; @worrms; @wikitaxa]
-
-Instead of binding existing web APIs, `taxadb` is built around a set compressed text files following a simple and consistent schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  By default `taxadb` uses MonetDBLite [@monetdblite], a columnar-oriented relational database requiring no additional installation and providing persistent disk-based storage which can be orders of magnitude faster than traditional database servers such as Postgres [@monetdblite]
-
-3. Consistency 
 

@@ -30,9 +30,9 @@ synonyms <- function(name = NULL,
   out <- the_id_table %>%
     dplyr::select(input, sort, acceptedNameUsageID) %>%
     dplyr::left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
-    # reorder
+    distinct() %>%
     dplyr::select("input", "acceptedNameUsage", "synonym",
-           "acceptedNameUsageID","taxonRank", "sort")
+           "acceptedNameUsageID","taxonRank", "sort")   # reorder
 
   if (collect && inherits(out, "tbl_lazy")) {
     return( dplyr::collect(out) )
