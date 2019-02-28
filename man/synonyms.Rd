@@ -4,7 +4,7 @@
 \alias{synonyms}
 \title{synonyms}
 \usage{
-synonyms(name = NULL, provider = KNOWN_AUTHORITIES, collect = TRUE,
+synonyms(name = NULL, provider = known_providers, collect = TRUE,
   db = td_connect())
 }
 \arguments{
