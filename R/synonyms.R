@@ -14,7 +14,7 @@ synonyms <- function(name = NULL,
   the_id_table <- ids(name, provider = provider, db = db)
 
   ## Get both accepted names & synonyms for anything with an acceptedNameUsageID
-  taxadb:::suppress_msg({
+  suppress_msg({
     syn <-
       taxa_tbl(provider = provider, db = db) %>%
       dplyr::right_join(the_id_table %>%
@@ -50,7 +50,7 @@ globalVariables(c("taxonomicStatus", "scientificName", "taxonID",
 #' @importFrom dplyr full_join filter select
 syn_table <- function(taxon, accepted = "accepted"){
 
-  taxadb:::suppress_msg({
+  suppress_msg({
 
     dplyr::full_join(
       taxon %>%
