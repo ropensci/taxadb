@@ -30,6 +30,7 @@ synonyms <- function(name = NULL,
   out <- the_id_table %>%
     dplyr::select(input, sort, acceptedNameUsageID) %>%
     dplyr::left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
+    distinct() %>%
     # reorder
     dplyr::select("input", "acceptedNameUsage", "synonym",
            "acceptedNameUsageID","taxonRank", "sort")

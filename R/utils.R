@@ -32,5 +32,6 @@ duplicate_as_unresolved <- function(df){
 
   dplyr::select(df, scientificName) %>%
     distinct() %>%
-    dplyr::left_join(no_dups, by="scientificName")
+    dplyr::left_join(no_dups, by="scientificName") %>%
+    arrange(sort)
 }
