@@ -14,6 +14,10 @@ duplicate_as_unresolved <- function(df){
   scientificName <- "scientificName"
   n <- "n"
 
+
+  ## FIXME duplicate scientificName not necessarily a problem!
+  ## Problem is only when we have a given sciname resolving to
+  ## more than one acceptedNameUsageID...
   ## and here we go:
   dups <- df %>%
     dplyr::count(scientificName) %>%
