@@ -3,6 +3,7 @@
 #'
 #' Resolve provided list of names against all known synonyms
 #' @inheritParams ids
+#' @importFrom dplyr left_join
 #' @export
 synonyms <- function(name = NULL,
                      provider = known_providers,
@@ -16,21 +17,21 @@ synonyms <- function(name = NULL,
   taxadb:::suppress_msg({
     syn <-
       taxa_tbl(provider = provider, db = db) %>%
-      right_join(the_id_table %>%
+      dplyr::right_join(the_id_table %>%
                    select(acceptedNameUsageID),
                  by = "acceptedNameUsageID",
                  copy = TRUE) %>%
-      select(scientificName, acceptedNameUsageID,
+      dplyr::select(scientificName, acceptedNameUsageID,
              taxonomicStatus, taxonRank) %>%
       syn_table()
 
   })
   ## Join that back onto the id table
   out <- the_id_table %>%
-    select(input, sort, acceptedNameUsageID) %>%
-    left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
+    dplyr::select(input, sort, acceptedNameUsageID) %>%
+    dplyr::left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
     # reorder
-    select("input", "acceptedNameUsage", "synonym",
+    dplyr::select("input", "acceptedNameUsage", "synonym",
            "acceptedNameUsageID","taxonRank", "sort")
 
   if (collect && inherits(out, "tbl_lazy")) {
