@@ -39,8 +39,6 @@ Instead of binding existing web APIs, `taxadb` is built around a set compressed 
 3. Consistency 
 
 
-
-
 ```{r include=FALSE}
 knitr::opts_chunk$set(message=FALSE)
 ```
@@ -127,31 +125,12 @@ syn$synonym %>% get_ids("ott", "prefix")
 descendants(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomicStatus, acceptedNameUsageID)
 ```
 
-```{r}
-x
-```
 
 Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
-
 
 ```{r}
 syn$synonym %>% na.omit() %>% ids("ott")
 ```
-
-We can look for these synonyms in other tables too. ITIS recognizes some of these unmatched names as synonyms and some as accepted names. 
-
-```{r}
-unmatched$input %>% synonyms("itis")
-
-unmatched$input %>% ids("itis")
-
-## 
-syn$synonym %>% na.omit() %>% unique() %>% synonyms("itis") 
-
-```
-
-
-
 
 
 We can confirm the family names can be resolved:
@@ -161,52 +140,6 @@ c("Trochilidae",  "Ardeidae") %>% ids("ott")
 ```
 
 We can use the common names table to resolve common names:
-
-
-
-
-
-
-
-
-```{r}
-
-## a name that resolves to multiple possible IDs is not considered a match by `get_ids()`
-ott_ids <- bbs %>% 
-  mutate(names = clean_names(species)) %>%
-  pull(names) %>% 
-  get_ids("ott", "prefix")
-
-
-
-length(!is.na(ott_ids))
-```
-
-```{r}
-cleaned <- 
-  bbs$species[is.na(bbs_ott)] %>% 
-  clean_names() %>% 
-  get_ids("ott", "prefix")
-
-## use ID from cleaned name only if no exact match.
-bbs_ott[is.na(bbs_ott)] <- cleaned
-```
-
-We are still missing 10 species: 
-
-```{r}
-still_missing <- bbs$species[is.na(bbs_ott)]
-still_missing
-```
-
-Three of these are recognizably common names, which we can resolve against the common names table: 
-
-
-
-
-```{r}
-clean_names(still_missing) %>% ids("gbif")
-```
 
 
 
