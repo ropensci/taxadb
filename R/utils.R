@@ -13,18 +13,20 @@ duplicate_as_unresolved <- function(df){
   # avoid warnings due to NSE
   scientificName <- "scientificName"
   n <- "n"
+  sort <- "sort"
 
+  ## A name can create a duplicate entry when:
+  ## - it is a synonym that resolves to two different accepted names (IUCN, "Melanitta fusca")
+  ## - it is both a synonym and and accepted name (IUCN, "Megaceryle torquata")
 
-  ## FIXME duplicate scientificName not necessarily a problem!
-  ## Problem is only when we have a given sciname resolving to
-  ## more than one acceptedNameUsageID...
   ## and here we go:
   dups <- df %>%
+    select(-sort) %>%
+    distinct() %>%
     dplyr::count(scientificName) %>%
     dplyr::filter(n > 1) %>%
     dplyr::select(scientificName) %>%
-    stats::na.omit() # NAs are not duplicates
-
+    stats::na.omit()
   no_dups <- df %>%
     dplyr::anti_join(dups, by="scientificName")
 
