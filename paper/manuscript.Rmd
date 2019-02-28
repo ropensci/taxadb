@@ -57,12 +57,12 @@ bbs %>%
   select(species) %>%
   mutate(
          gbif = get_ids(species, "gbif", "prefix"),
-          col = get_ids(species, "col", "prefix"),
+          col = get_ids(species, "col",  "prefix"),
          itis = get_ids(species, "itis", "prefix"),
          ncbi = get_ids(species, "ncbi", "prefix"),
-     wikidata = get_ids(species, "wd", "prefix"),
+     wikidata = get_ids(species, "wd",   "prefix"),
          iucn = get_ids(species, "iucn", "prefix"),
-          ott = get_ids(species, "ott","prefix") 
+          ott = get_ids(species, "ott",  "prefix") 
   )
 
 ```
@@ -90,31 +90,52 @@ unmatched <- ott_ids %>%
   select(input, sort)
 ```
 
+
+
 ```{r}
-unmatched$input %>% synonyms("iucn")
+syn <- unmatched$input %>% synonyms("iucn")
+syn
+```
+
+Three of these synonyms are considered accepted names in OTT:
+
+
+```{r}
+syn$synonym %>% na.omit() %>% ids("ott")
 ```
 
 
 ```{r}
-unmatched$input %>% ids("iucn") %>% 
-  select(scientificName, taxonomicStatus, input, taxonID, acceptedNameUsageID)
-
-syn <- taxa_tbl("iucn") %>% 
-  right_join(
-    unmatched$input %>% 
-    ids("iucn") %>% 
-    select(acceptedNameUsageID),
-    copy = TRUE) %>%
-  select(scientificName, acceptedNameUsageID, taxonomicStatus) %>%
-  collect()
-
-
-
-## Some names have multiple synonyms, do not do this as a spread...    
-syn %>% mutate(n = 1:length(scientificName)) %>% spread(taxonomicStatus, scientificName)
+syn$synonym %>% na.omit() %>% get_ids("ott")
+syn %>% na.omit() %>% mutate(
+  #ott = get_ids(synonym, "ott"),
+                             col = get_ids(synonym, "col"),
+                             itis = get_ids(synonym, "itis"),
+                             gbif = get_ids(synonym, "gbif"))
 ```
 
 
+
+
+
+
+
+
+
+```{r}
+
+syns <- unmatched$input %>% ids("iucn") %>%
+        dplyr::filter(taxonomicStatus != "accepted") %>%
+        dplyr::select(synonym = scientificName,
+                      synonym_id = taxonID,
+                      taxonomicStatus,
+                      acceptedNameUsageID)
+accepted
+
+
+syn <- unmatched$input %>% synonyms("iucn")
+syn
+```
 
 ```{r}
 

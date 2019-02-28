@@ -43,6 +43,7 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(hier)[1], 1)
   expect_gt(dim(chameleons)[1], 1)
 
+  ## we can opt out of ignore_case on ids():
   species <- ids(df$scientificName,
                  db = db,
                  ignore_case = FALSE) %>%
@@ -51,6 +52,7 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(species)[1], 1)
 
 
+  ## descendants() can take ids instead of names:
   names <- descendants(id = df$taxonID,
                  db = db)
   expect_is(names, "data.frame")

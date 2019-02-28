@@ -1,0 +1,68 @@
+
+#' synonyms
+#'
+#' Resolve provided list of names against all known synonyms
+#' @inheritParams ids
+#' @export
+synonyms <- function(name = NULL,
+                     provider = KNOWN_AUTHORITIES,
+                     collect = TRUE,
+                     db = td_connect()){
+
+
+  the_id_table <- ids(name, provider = provider, db = db)
+
+  ## Get both accepted names & synonyms for anything with an acceptedNameUsageID
+  taxadb:::suppress_msg({
+    syn <-
+      taxa_tbl(provider = provider, db = db) %>%
+      right_join(the_id_table %>%
+                   select(acceptedNameUsageID),
+                 by = "acceptedNameUsageID",
+                 copy = TRUE) %>%
+      select(scientificName, acceptedNameUsageID,
+             taxonomicStatus, taxonRank) %>%
+      syn_table()
+
+  })
+  ## Join that back onto the id table
+  out <- the_ids_table %>%
+    select(input, sort, acceptedNameUsageID) %>%
+    left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
+    # reorder
+    select("input", "acceptedNameUsage", "synonym",
+           "acceptedNameUsageID","taxonRank", "sort")
+
+  if (collect && inherits(out, "tbl_lazy")) {
+    return( dplyr::collect(out) )
+  }
+
+  out
+
+}
+
+
+globalVariables(c("taxonomicStatus", "scientificName", "taxonID",
+                  "taxonRank", "acceptedNameUsageID", "synonym", "input"))
+## A mapping in which synonym and accepted names are listed in the same row
+
+#' @importFrom dplyr full_join filter select
+syn_table <- function(taxon, accepted = "accepted"){
+
+  taxadb:::suppress_msg({
+
+    dplyr::full_join(
+      taxon %>%
+        dplyr::filter(taxonomicStatus != "accepted") %>%
+        dplyr::select(synonym = scientificName,
+                      acceptedNameUsageID),
+      taxon %>%
+        dplyr::filter(taxonomicStatus == "accepted") %>%
+        dplyr::select(acceptedNameUsage = scientificName,
+                      acceptedNameUsageID,
+                      taxonRank),
+      by = "acceptedNameUsageID")
+  })
+
+}
+
