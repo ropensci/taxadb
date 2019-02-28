@@ -1,5 +1,10 @@
 ## Drop in replacements for taxize functions
 
+
+## FIXME get_ids objects to having duplicated names.
+##  ( duplicate_as_unresolved() drops the duplicates?
+## duplicated names should be okay!
+
 #' get_ids
 #'
 #' A drop-in replacement for `[taxize::get_ids()]`
