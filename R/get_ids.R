@@ -35,8 +35,10 @@ get_ids <- function(names,
                     taxadb_db = td_connect(),
                     ...){
   format <- match.arg(format)
+
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
+
   df <- ids(name = names,
              provider = db,
              collect = TRUE,
