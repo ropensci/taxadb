@@ -5,7 +5,7 @@
 #' @inheritParams ids
 #' @export
 synonyms <- function(name = NULL,
-                     provider = KNOWN_AUTHORITIES,
+                     provider = known_providers,
                      collect = TRUE,
                      db = td_connect()){
 
@@ -26,7 +26,7 @@ synonyms <- function(name = NULL,
 
   })
   ## Join that back onto the id table
-  out <- the_ids_table %>%
+  out <- the_id_table %>%
     select(input, sort, acceptedNameUsageID) %>%
     left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
     # reorder

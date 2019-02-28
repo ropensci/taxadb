@@ -58,5 +58,12 @@ test_that("we can set up a db and call basic functions", {
   expect_is(names, "data.frame")
   expect_gt(dim(names)[1], 1)
 
+  ## Test synonyms: We can
+  ## get synonyms for the accepted names:
+  syns <- synonyms(df$scientificName,
+                 db = db)
+  expect_is(syns, "data.frame")
+  expect_gt(dim(syns)[1], 1)
+
 
 })
