@@ -48,6 +48,9 @@ fb_taxonid <- synonyms %>%
   bind_rows(mutate(accepted, accepted_id = id, name_type = "accepted")) %>%
   distinct()  %>% de_duplicate()
 
+## Get common names
+fb_common <- common_names()
+
 ## Rename things to Darwin Core
 dwc <- fb_taxonid %>%
   rename(taxonID = id,

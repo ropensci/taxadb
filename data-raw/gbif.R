@@ -49,15 +49,12 @@ vern <- read_tsv("taxizedb/gbif/vernacular.tsv.bz2")
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
   filter(language == "en") %>%
-  group_by(taxonID) %>%
-  top_n(1, vernacularName) %>%
-  distinct(taxonID, .keep_all = TRUE)
+  n_in_group(group_var = "taxonID", n = 1, wt = vernacularName)
+
 #get the rest
 comm_names <- vern %>%
   filter(!taxonID %in% comm_eng$taxonID) %>%
-  group_by(taxonID) %>%
-  top_n(1, vernacularName) %>%
-  distinct(taxonID, .keep_all = TRUE) %>%
+  n_in_group(group_var = "taxonID", n = 1, wt = vernacularName) %>%
   bind_rows(comm_eng)
 
 ## stri_paste respects NAs, avoids "GBIF:NA"

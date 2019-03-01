@@ -25,4 +25,9 @@ de_duplicate <- function(species){
   species
 }
 
-
+n_in_group <- function(data, group_var, ...){
+  data %>%
+    group_by_(group_var) %>%
+    top_n(...) %>%
+    distinct_(group_var, .keep_all = TRUE)
+}

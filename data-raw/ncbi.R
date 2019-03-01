@@ -137,8 +137,7 @@ ncbi_taxonid %>%
 ## Get common names for each entry
 ncbi_common <- ncbi %>%
   filter(name_type == "common name") %>%
-  group_by(id) %>%
-  top_n(1, name) %>%
+  n_in_group(group_var = "id", n = 1, wt = name)
   select(-rank, -name_type)
 
 #write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
