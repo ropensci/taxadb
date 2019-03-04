@@ -182,8 +182,7 @@ acc_common <- vern %>%
 #of those left grab the english name if there is one
 acc_common <- vern %>%
   filter(!taxonID %in% acc_common$taxonID, language == "English") %>%
-  group_by(taxonID) %>%
-  top_n(n = 1, wt = vernacular_name) %>%
+  n_in_group(group_var = "taxonID", n = 1, wt = vernacular_name) %>%
   bind_rows(acc_common)
 
 #then the rest just grab the first alphabetically

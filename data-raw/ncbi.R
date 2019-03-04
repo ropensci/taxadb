@@ -76,19 +76,11 @@ rm(recursive_ncbi_ids)
 expand <- ncbi %>%
   select(path_id = id, path = name, path_rank = rank, path_type = name_type)
 
-## Get common names for each entry
-ncbi_common <- ncbi %>%
-  filter(name_type == "common name") %>%
-  group_by(id) %>%
-  top_n(1, name) %>%
-  select(-rank, -name_type)
-
 ncbi_long <- ncbi %>%
   filter(name_type == "scientific name") %>%
   select(-name_type) %>%
   inner_join(long_hierarchy) %>%
-  inner_join(expand) %>%
-  left_join(rename(ncbi_common, common_name = name))
+  inner_join(expand)
 
 ## Example query: how many species of fishes do we know?
 #fishes <- ncbi_long %>%
@@ -141,13 +133,20 @@ ncbi_taxonid %>%
   select(id, name, rank, accepted_id, name_type) %>%
   de_duplicate()
 
+
+## Get common names for each entry
+ncbi_common <- ncbi %>%
+  filter(name_type == "common name") %>%
+  n_in_group(group_var = "id", n = 1, wt = name)
+  select(-rank, -name_type)
+
 #write_tsv(ncbi_long,"data/ncbi_long.tsv.bz2")
 #write_tsv(ncbi_wide, "data/ncbi_hierarchy.tsv.bz2")
 
 
 write_tsv(ncbi_synonyms, "data/ncbi_synonyms.tsv.bz2")
 write_tsv(ncbi_taxonid, "data/ncbi_taxonid.tsv.bz2")
-
+write_tsv(ncbi_common, "data/ncbi_common.tsv.bz2")
 
 ##### Rename things to Darwin Core
 library(taxadb)
@@ -173,7 +172,8 @@ dwc <- taxonid %>%
                      kingdom, phylum, class, order, family, genus,
                      specificEpithet = species
               ),
-            by = c("acceptedNameUsageID" =  "taxonID"))
+            by = c("acceptedNameUsageID" =  "taxonID")) %>%
+  left_join(ncbi_common %>% select(id, vernacularName = name), by = c("taxonID" = "id"))
 
 species <- dwc %>% filter(taxonRank == "species")
 other <- dwc%>% filter(taxonRank != "species") %>% mutate(infraspecificEpithet = NA)

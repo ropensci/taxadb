@@ -113,6 +113,12 @@ write_tsv(common, "data/iucn_common.tsv.bz2")
 
 ##### Rename things to Darwin Core
 library(taxadb)
+
+#get accepted common names
+common <- read_tsv("data/iucn_common.tsv.bz2") %>%
+  filter(!is.na(commonname), primary == TRUE) %>%
+  n_in_group(group_var = "id", n = 1, wt = commonname)
+
 taxonid <-
   collect(taxa_tbl("iucn", "taxonid")) %>%
   distinct() %>%
@@ -133,7 +139,11 @@ dwc <- taxonid %>%
                      specificEpithet = species
                      #infraspecificEpithet
               ),
-            by = "taxonID")
+            by = "taxonID") %>%
+  left_join(read_tsv("data/iucn_common.tsv.bz2") %>%
+              filter(!is.na(commonname), primary == TRUE) %>%
+              n_in_group(group_var = "id", n = 1, wt = commonname) %>%
+              select(taxonID = id, vernacularName = commonname), by = "taxonID")
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
