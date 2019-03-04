@@ -29,7 +29,7 @@ bibliography: refs.bib
 output: rticles::elsevier_article
 ---
 
-1. A problem already solved  including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
+1. A problem already "solved" including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
 
 
 2. Performance.  A fundamental challenge of most existing services is the use of internet-based Application Programming Interfaces, (web API)s to resolve individual names.  The motivation for an API-based approach is reasonable: (1) Web APIs are a ubiquitous standard of data exchange (2) make very minimal assumptions about the language, software, or hardware avaialable to the user, (3) users access a single centrally managed database that is maintained and upgraded by the provider, and (4) the provider can easily control access to the data, measure usage statistics, and enforce rate limits.  Many existing tools provide bindings of these APIs as functions to a specific language [@chamberlain2013; @taxize; @itis; @rotl; @worrms; @wikitaxa]
@@ -60,6 +60,9 @@ bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
 dim(bbs)
 ```
 
+Outline strategy for name resolution. 
+
+ID resolution including synonym mapping.
 
 ```{r}
 bbs_ids <- 
@@ -85,19 +88,51 @@ bbs_ids %>%
   purrr::map_dbl(function(x) sum(!is.na(x)))
 ```
 
-`get_ids` by default looks only for exact matches.  We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care, and only once as many untransformed names as possible have already been matched. 
+`get_ids` looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) 
 
-In this example, applying this transformation on the unmatched names we can bring matches against OTT identifiers up from 665 to 740, missing only ten names:
+
+We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
+
+Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers
 
 ```{r}
-ott_ids <- bbs %>% 
-  mutate(names = clean_names(species)) %>% 
-  pull(names) %>% 
-  ids("ott")
+bbs_cleaned_ids <- 
+  bbs_ids %>% 
+  select(species, ott) %>% 
+  mutate(ids_post_clean = 
+           get_ids(clean_names(species, binomial_only = TRUE), 
+                   "ott", "prefix"))
+bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)
+x <- bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)  
 
+x
+descendants(id = x$ids_post_clean, provider = "ott")
+```
+
+```{r}
+bbs_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
+```
+
+
+```{r}
+pick <- function(A, B){ A[is.na(A)] <- B[is.na(A)]; A }
+
+ott_ids <- bbs_cleaned_ids %>% mutate(ids = pick(ott, ids_post_clean))
+```
+
+
+
+
+
+
+```{r}
 unmatched <- ott_ids %>% 
-  filter(is.na(acceptedNameUsageID)) %>% 
-  select(input, sort)
+  filter(is.na(ids)) %>% 
+  select(species, ids) %>%
+  mutate(species = clean_names(species))
+
+
+unmatched
 ```
 
 Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  Let us attempt to resolve these five before we consider the cases of common names and family names.  
@@ -105,23 +140,32 @@ Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpeck
 Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
 
 ```{r}
-unmatched %>% mutate(iucn = get_ids(input, "iucn", "prefix"))
+
+unmatched %>% mutate(iucn = get_ids(species, "iucn", "prefix"))
 ```
 
 By consulting the synonyms table, we can see what other names these species might be known by:
 
 ```{r}
-syn <- unmatched$input %>% synonyms("iucn")
+syn <- unmatched$species %>% synonyms("iucn")
+syn
 ```
+
+
 
 ```{r}
 x <- syn %>% 
   mutate(ott_id = get_ids(synonym, "ott", "prefix")) %>% 
   select(input, ott_id) %>%
   na.omit()
+x
+```
 
+```{r}
 syn$synonym %>% get_ids("ott", "prefix")
+```
 
+```{r}
 descendants(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomicStatus, acceptedNameUsageID)
 ```
 
@@ -129,7 +173,7 @@ descendants(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomi
 Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
 
 ```{r}
-syn$synonym %>% na.omit() %>% ids("ott")
+syn$synonym %>% na.omit() %>% ids("ott") %>% select(input, scientificName, acceptedNameUsageID, taxonomicStatus)
 ```
 
 
