@@ -10,28 +10,24 @@ withCallingHandlers(expr,
 #' @importFrom dplyr count filter select right_join anti_join
 #' @importFrom stats na.omit
 duplicate_as_unresolved <- function(df){
-  # avoid warnings due to NSE
-  scientificName <- "scientificName"
-  n <- "n"
+
+  ## Requires a column called sort that has 1 id for each input.
+
   sort <- "sort"
-
-  ## A name can create a duplicate entry when:
-  ## - it is a synonym that resolves to two different accepted names (IUCN, "Melanitta fusca")
-  ## - it is both a synonym and and accepted name (IUCN, "Megaceryle torquata")
-
-  ## and here we go:
-  dups <- df %>%
-    select(-sort) %>%
-    distinct() %>%
-    dplyr::count(scientificName) %>%
+  multi_match <- df %>%
+    dplyr::count(sort, sort = TRUE) %>%
     dplyr::filter(n > 1) %>%
-    dplyr::select(scientificName) %>%
-    stats::na.omit()
-  no_dups <- df %>%
-    dplyr::anti_join(dups, by="scientificName")
+    dplyr::select("sort")
 
-  dplyr::select(df, scientificName) %>%
-    distinct() %>%
-    dplyr::left_join(no_dups, by="scientificName") %>%
+  input_id <- df %>% select("sort") %>% distinct()
+
+  ##alternately, resolve multi-match with top_n?
+
+  ## Drop multi-match
+  anti_join(df, multi_match, by = "sort") %>%
+  ## And replace as NA
+    right_join(input_id, by = "sort") %>%
     arrange(sort)
+
+
 }

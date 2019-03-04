@@ -41,6 +41,8 @@ get_ids <- function(names,
                     ...){
   format <- match.arg(format)
 
+  n_names <- length(names)
+
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
@@ -50,6 +52,13 @@ get_ids <- function(names,
              db = taxadb_db)
 
   df <- duplicate_as_unresolved(df)
+
+  if(dim(df)[1] != n_names){
+    stop(paste("Error in resolving possible duplicate names.",
+               "Try the ids() function instead."),
+         .call = FALSE)
+  }
+
 
   if("acceptedNameUsageID" %in% names(df)){
     out <- pull(df, "acceptedNameUsageID")
