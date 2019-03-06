@@ -29,6 +29,15 @@ bibliography: refs.bib
 output: rticles::elsevier_article
 ---
 
+
+
+Synonyms vs accepted names. How many species of chameleons are described?
+
+Inconsistencies: errors or disputes? Taxon concepts.
+
+
+-----
+
 1. A problem already "solved" including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
 
 
@@ -110,7 +119,7 @@ descendants(id = x$ids_post_clean, provider = "ott")
 ```
 
 ```{r}
-bbs_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
+bbs_cleaned_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
 ```
 
 
@@ -151,6 +160,14 @@ syn <- unmatched$species %>% synonyms("iucn")
 syn
 ```
 
+
+Alternately, sticking with the standard `dwc` schema:
+
+```{r}
+iucn_ids <- unmatched$species %>% ids("iucn") %>% select(acceptedNameUsageID) %>% distinct()
+right_join(taxa_tbl("iucn"), iucn_ids, copy=TRUE, by ="acceptedNameUsageID") %>% 
+  select(scientificName, taxonomicStatus, acceptedNameUsageID, taxonRank, taxonID)
+```
 
 
 ```{r}

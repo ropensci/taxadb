@@ -12,8 +12,10 @@
 #' @param remove_sp Should we drop unspecified species epithet designations?
 #' e.g. `Homo sp.` becomes `Homo` (thus only matching against genus level ids).
 #' logical, default [TRUE].
-#' @param ascii_only should we coerce strings to ascii characters? (see [stringi::stri_trans_general()])
-#' @param lowercase should names be coerced to lower-case to provide case-insensitive matching?
+#' @param ascii_only should we coerce strings to ascii characters?
+#' (see [stringi::stri_trans_general()])
+#' @param lowercase should names be coerced to lower-case to provide
+#'  case-insensitive matching?
 #' @details Current implementation is limited to handling a few common cases.
 #' Additional extensions may be added later. A goal of the `clean_names` function
 #' is that any modification rule of the name strings be precise, atomic, and
