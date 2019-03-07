@@ -4,7 +4,7 @@ test_that("we can use get_ids options", {
 
   db <- td_connect(test_db)
 
-  bare <- get_ids("Homo sapiens", taxadb_db = db)
+  bare <- get_ids("Homo sapiens", taxadb_db = db, format="bare")
   expect_identical(bare, "180092")
 
   some_ids <- get_ids(c("Homo sapiens", "Mammalia"),
@@ -21,7 +21,7 @@ test_that("we can get ids without a DB", {
 
   db <- td_connect(test_db)
 
-  bare <- get_ids("Homo sapiens", taxadb_db = NULL)
+  bare <- get_ids("Homo sapiens", taxadb_db = NULL, format = "bare")
   expect_identical(bare, "180092")
 
 })

@@ -8,6 +8,8 @@ get_names(id, db = known_providers, format = c("guess", "prefix",
   "bare", "uri"), taxadb_db = td_connect(), ...)
 }
 \arguments{
+\item{id}{a list of taxonomic identifiers.}
+
 \item{db}{abbreviation code for the provider.  See details.}
 
 \item{format}{Format for the input identifier, one of
@@ -22,8 +24,6 @@ slower than if you specify this in advance!
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
 \item{...}{additional arguments passed to \code{ids()}}
-
-\item{ids}{a list of taxonomic identifiers.}
 }
 \description{
 Translate identifiers into scientific names

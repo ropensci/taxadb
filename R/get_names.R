@@ -8,7 +8,7 @@
 #' get_names
 #'
 #' Translate identifiers into scientific names
-#' @param ids a list of taxonomic identifiers.
+#' @param id a list of taxonomic identifiers.
 #' @param db abbreviation code for the provider.  See details.
 #' @param format Format for the input identifier, one of
 #'   - `guess` Will determine the prefix automatically, but will be
@@ -77,7 +77,7 @@ get_names <- function(id,
 }
 
 as_prefix <- function(x, provider){
-  vapply(x, id_to_prefix, character(1L), provider)
+  unname(vapply(x, id_to_prefix, character(1L), provider))
 }
 
 id_to_prefix <- function(x, provider){
