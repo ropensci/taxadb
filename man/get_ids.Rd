@@ -4,7 +4,7 @@
 \alias{get_ids}
 \title{get_ids}
 \usage{
-get_ids(names, db = known_providers, format = c("bare", "prefix",
+get_ids(names, db = known_providers, format = c("prefix", "bare",
   "uri"), taxadb_db = td_connect(), ...)
 }
 \arguments{
@@ -13,10 +13,10 @@ include higher-order ranks in most authorities).}
 
 \item{db}{abbreviation code for the provider.  See details.}
 
-\item{format}{Format for the returned: bare identifier, one of
+\item{format}{Format for the returned identifier, one of
 \itemize{
-\item \code{bare} (e.g. \code{9606}, default, matching \code{taxize::get_ids()}),
-\item \code{prefix} (e.g. \code{NCBI:9606}), or
+\item \code{prefix} (e.g. \code{NCBI:9606}, the default), or
+\item \code{bare} (e.g. \code{9606}, used in \code{taxize::get_ids()}),
 \item \code{uri} (e.g.
 \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
@@ -39,7 +39,7 @@ fastest if a local copy of the provider is installed in advance
 using \code{[td_create()]}.
 }
 \examples{
-\dontrun{
+\donttest{
 get_ids("Homo sapiens")
 get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
 get_ids("Homo sapiens", db= "ncbi", format = "uri")
