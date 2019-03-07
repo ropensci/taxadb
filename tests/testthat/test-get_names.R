@@ -46,8 +46,13 @@ test_that("we can handle more intensive comparisons", {
   ## some names will have no known accepted ID.
 
   col_accepted_id <-  taxa_tbl("col") %>% pull(acceptedNameUsageID)
-  #col_accepted_name <- get_names(col_accepted_id, "col", format="prefix")
+  col_accepted_name <- get_names(col_accepted_id, "col", format="prefix")
 
   col_id <- taxa_tbl("col") %>% pull(taxonID)
-  #col_name <- get_names(col_id, "col", format = "prefix")
+  col_name <- get_names(col_id, "col", format = "prefix")
+
+  expect_equal(sum(is.na(col_name)), 0)
+  expect_equal(length(col_name), length(col_id))
+
+
 })
