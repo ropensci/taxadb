@@ -26,8 +26,10 @@ duplicate_as_unresolved <- function(df){
 }
 
 
-#' @importFrom dplyr count filter select right_join anti_join arrange
+#' @importFrom dplyr count mutate select arrange
+#' @importFrom dplyr pull top_n group_by ungroup
 #' @importFrom stats na.omit
+#' @importFrom utils head
 take_first_duplicate <- function(df){
 
 
@@ -35,12 +37,13 @@ take_first_duplicate <- function(df){
   scientificName <- "scientificName"
   sort <- "sort"
   row_num = "row_num"
+  n <- "n"
 
   ## Skip this if sort index is never duplicated
   max_repeated <- df %>%
-    count(sort, sort=T) %>%
-    head(1) %>%
-    pull(n)
+    dplyr::count(sort, sort=T) %>%
+    utils::head(1) %>%
+    dplyr::pull(n)
   if(max_repeated == 1) return(df)
 
 ## adding row_number avoids top_n()
