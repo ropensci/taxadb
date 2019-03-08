@@ -45,14 +45,15 @@ test_that("we can handle more intensive comparisons", {
   ## This need not be true of acceptedNameUsage and acceptedNameUsageID --
   ## some names will have no known accepted ID.
 
-  col_accepted_id <-  taxa_tbl("col") %>% pull(acceptedNameUsageID)
-  col_accepted_name <- get_names(col_accepted_id, "col", format="prefix")
+  ### Tested on oher dbs too, but slow so skip for now
+#  gbif_accepted_id <-  taxa_tbl("gbif") %>% pull(acceptedNameUsageID)
+#  gbif_accepted_name <- get_names(gbif_accepted_id, "gbif", format="prefix")
 
-  col_id <- taxa_tbl("col") %>% pull(taxonID)
-  col_name <- get_names(col_id, "col", format = "prefix")
+#  gbif_id <- taxa_tbl("gbif") %>% pull(taxonID)
+#  gbif_name <- get_names(gbif_id, "gbif", format = "prefix")
 
-  expect_equal(sum(is.na(col_name)), 0)
-  expect_equal(length(col_name), length(col_id))
+#  expect_equal(sum(is.na(gbif_name)), 0)
+#  expect_equal(length(gbif_name), length(gbif_id))
 
 
 })
