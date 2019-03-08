@@ -78,7 +78,7 @@ get_names <- function(id,
   if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",
                "Try the ids() function instead."),
-         .call = FALSE)
+         call. = FALSE)
   }
   df[["scientificName"]]
 }

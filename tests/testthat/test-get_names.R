@@ -33,10 +33,14 @@ test_that("we can convert id vectors to prefixes", {
 
 test_that("we can handle more intensive comparisons", {
   library(dplyr)
+
+  db <- td_connect(test_db)
+
   itis_id <- taxa_tbl("itis") %>% pull(taxonID)
-  itis_accepted_id <-  taxa_tbl("itis") %>% pull(acceptedNameUsageID)
-  itis_accepted_name <- get_names(itis_accepted_id, "itis", format="prefix")
-  itis_name <- get_names(itis_id, "itis", format = "prefix")
+  itis_accepted_id <-  taxa_tbl("itis", db = db) %>% pull(acceptedNameUsageID)
+  itis_accepted_name <- get_names(itis_accepted_id, "itis",
+                                  format="prefix", taxadb_db = db)
+  itis_name <- get_names(itis_id, "itis", format = "prefix", taxadb_db = db)
 
   ## In ITIS: All IDs should resolve to one unique name
   expect_equal(sum(is.na(itis_name)), 0)
