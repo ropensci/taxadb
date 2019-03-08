@@ -22,9 +22,11 @@ becomes \code{Homo sapiens}. logical, default \link{TRUE}.}
 e.g. \code{Homo sp.} becomes \code{Homo} (thus only matching against genus level ids).
 logical, default \link{TRUE}.}
 
-\item{ascii_only}{should we coerce strings to ascii characters? (see \code{\link[stringi:stri_trans_general]{stringi::stri_trans_general()}})}
+\item{ascii_only}{should we coerce strings to ascii characters?
+(see \code{\link[stringi:stri_trans_general]{stringi::stri_trans_general()}})}
 
-\item{lowercase}{should names be coerced to lower-case to provide case-insensitive matching?}
+\item{lowercase}{should names be coerced to lower-case to provide
+case-insensitive matching?}
 }
 \description{
 A utility to sanitize taxonomic names to increase probability of resolving names.
@@ -41,4 +43,5 @@ of names that cannot be directly matched.
 }
 \examples{
 clean_names(c("Homo sapiens sapiens", "Homo.sapiens", "Homo sp."))
+
 }

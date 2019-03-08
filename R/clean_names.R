@@ -25,12 +25,13 @@
 #' name matching. A good pattern is to only apply this function to the subset
 #' of names that cannot be directly matched.
 #'
-#'
 #' @importFrom stringi stri_replace_all_regex stri_extract_all_words
 #' @importFrom stringi stri_trim stri_split_regex stri_trans_general
 #' @export
+#'
 #' @examples
 #' clean_names(c("Homo sapiens sapiens", "Homo.sapiens", "Homo sp."))
+#'
 clean_names <-
   function(names,
            fix_delim = TRUE,

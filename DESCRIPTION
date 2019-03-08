@@ -33,7 +33,8 @@ Imports:
     rlang,
     magrittr,
     stringi,
-    progress
+    progress,
+    utils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests:

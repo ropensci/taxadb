@@ -11,9 +11,9 @@
 #' @param names a list of scientific names (which may
 #'   include higher-order ranks in most authorities).
 #' @param db abbreviation code for the provider.  See details.
-#' @param format Format for the returned: bare identifier, one of
-#'   - `bare` (e.g. `9606`, default, matching `taxize::get_ids()`),
-#'   - `prefix` (e.g. `NCBI:9606`), or
+#' @param format Format for the returned identifier, one of
+#'   - `prefix` (e.g. `NCBI:9606`, the default), or
+#'   - `bare` (e.g. `9606`, used in `taxize::get_ids()`),
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
@@ -26,7 +26,7 @@
 #' Like all taxadb functions, this function will run
 #' fastest if a local copy of the provider is installed in advance
 #' using `[td_create()]`.
-#' @examples \dontrun{
+#' @examples \donttest{
 #' get_ids("Homo sapiens")
 #' get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
 #' get_ids("Homo sapiens", db= "ncbi", format = "uri")
@@ -36,7 +36,7 @@
 #' @importFrom tibble column_to_rownames
 get_ids <- function(names,
                     db = known_providers,
-                    format = c("bare", "prefix", "uri"),
+                    format = c("prefix", "bare", "uri"),
                     taxadb_db = td_connect(),
                     ...){
   format <- match.arg(format)
