@@ -28,15 +28,29 @@ duplicate_as_unresolved <- function(df){
 
 #' @importFrom dplyr count filter select right_join anti_join arrange
 #' @importFrom stats na.omit
-duplicate_as_first <- function(df){
+take_first_duplicate <- function(df){
+
 
   # avoid complaints about NSE terms
   scientificName <- "scientificName"
   sort <- "sort"
+  row_num = "row_num"
 
+  ## Skip this if sort index is never duplicated
+  max_repeated <- df %>%
+    count(sort, sort=T) %>%
+    head(1) %>%
+    pull(n)
+  if(max_repeated == 1) return(df)
+
+## adding row_number avoids top_n()
+## collapsing repeated scentificNames
+## when sort is already unique.
   df %>%
+    dplyr::arrange(scientificName) %>%
+    dplyr::mutate(row_num = dplyr::row_number()) %>%
     dplyr::group_by(sort) %>%
-    dplyr::top_n(1, scientificName) %>%
+    dplyr::top_n(1, row_num) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(sort)
 

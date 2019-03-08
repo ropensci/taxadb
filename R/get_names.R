@@ -65,14 +65,7 @@ get_names <- function(id,
   ## taxonID, scientificName pair is still unique.
 
   ## However, some databases (e.g. COL) list multiple accepted names:
-  sort <- "sort"
-  scientificName <- "scientificName"
-  df <-  out %>%
-    dplyr::group_by(sort) %>%
-    dplyr::top_n(1, scientificName) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange(sort) %>%
-    dplyr::collect(df)
+  df <- take_first_duplicate(out) %>% collect()
 
 
   if(dim(df)[1] != n){
