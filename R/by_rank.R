@@ -9,7 +9,7 @@
 # @importFrom rlang !! := UQ quo enquo
 # @importFrom magrittr %>%
 #' @importFrom dplyr semi_join select filter distinct
-descendants <- function(name = NULL,
+by_rank <- function(name = NULL,
                         rank = "scientificName",
                         id = NULL,
                         provider = known_providers,

@@ -26,10 +26,11 @@
 #' is accepted, this id is the same as the accepted id.  NCBI does not issue ids
 #' for known synonyms, so the id is missing for synonym names in this case.
 #'
+#' @export
 #' @importFrom dplyr quo tibble filter right_join
 #' @importFrom rlang !!
 #' @importFrom magrittr %>%
-ids <- function(name = NULL,
+by_name <- function(name = NULL,
                 provider = known_providers,
                 collect = TRUE,
                 db = td_connect(),

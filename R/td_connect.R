@@ -13,7 +13,7 @@
 #' db <- connect_db()
 #'
 #' }
-td_connect <- function(dbdir = rappdirs::user_data_dir("taxadb")){
+td_connect <- function(dbdir = taxadb_dir()){
 
   dbname <- file.path(dbdir, "monetdblite")
 
@@ -45,3 +45,7 @@ td_disconnect <- function(env = taxadb_cache){
 taxadb_cache <- new.env()
 reg.finalizer(taxadb_cache, td_disconnect, onexit = TRUE)
 
+
+taxadb_dir <- function(){
+  Sys.getenv("TAXADB_HOME",  rappdirs::user_data_dir("taxadb"))
+}
