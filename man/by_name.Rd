@@ -2,15 +2,14 @@
 % Please edit documentation in R/by_name.R
 \name{by_name}
 \alias{by_name}
-\title{Return taxonomic identifiers from a given namespace}
+\title{Look up taxonomic information by scientific name}
 \usage{
-by_name(name = NULL, provider = known_providers, collect = TRUE,
-  db = td_connect(), ignore_case = TRUE)
+by_name(name = NULL, provider = c("itis", "ncbi", "col", "tpl", "gbif",
+  "fb", "slb", "wd", "ott", "iucn"), collect = TRUE, db = td_connect(),
+  ignore_case = TRUE)
 }
 \arguments{
-\item{name}{a character vector of species names, e.g. "Homo sapiens"
-(Most but not all authorities can also return ids for higher-level
-taxonomic names).}
+\item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
 
 \item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
@@ -26,19 +25,39 @@ first perform subsequent filtering operations.)}
 default is \code{TRUE}.}
 }
 \value{
-a data.frame with columns of \code{id}, scientific
-\code{name}, and \code{rank}, and \code{accepted_id} (if data includes synonyms)
-and a row for each species name queried.
+a data.frame in the Darwin Core tabular format containing the
+matching taxonomic entities.
 }
 \description{
-Return taxonomic identifiers from a given namespace
+Look up taxonomic information by scientific name
 }
 \details{
-Some authorities (ITIS, COL, FB/SLB, NCBI) provide synonyms as well.  These
-are included in the name list search.  The data.frame returned will then
-include an \code{accepted_id} column, providing the synonym for the requested table.
-In this case, the \code{id} column corresponds to the id for either the name column --
-that is, if the name is a synonym, this is the id for the synonym; if the name
-is accepted, this id is the same as the accepted id.  NCBI does not issue ids
-for known synonyms, so the id is missing for synonym names in this case.
+Most but not all authorities can match against both speices level and
+higher-level (or lower, e.g. subspecies or varities) taxonomic names.
+The rank level is indicated by \code{taxonRank} column.
+
+Most authorities include both known synonyms and accepted names in the
+\code{scientificName} column, (with the status indicated by \code{taxonomicStatus}).
+This is convenient, as users will typically not know if the names they
+have are synonyms or accepted names, but will want to get the match to the
+accepted name and accepted ID in either case.
 }
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+sp <- c("Trochalopteron henrici gucenense",
+        "Trochalopteron elliotii")
+by_name(sp)
+
+}
+
+}
+\seealso{
+Other filter_by: \code{\link{by_id}},
+  \code{\link{by_rank}}, \code{\link{filter_by}}
+}
+\concept{filter_by}

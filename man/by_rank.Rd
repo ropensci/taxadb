@@ -4,17 +4,13 @@
 \alias{by_rank}
 \title{Get all members (descendants) of a given rank level}
 \usage{
-by_rank(name = NULL, rank = "scientificName", id = NULL,
-  provider = known_providers, collect = TRUE, db = td_connect())
+by_rank(name, rank, provider = known_providers, collect = TRUE,
+  ignore_case = ignore_case, db = td_connect())
 }
 \arguments{
-\item{name}{taxonomic name (e.g. "Aves")}
+\item{name}{taxonomic scientific name (e.g. "Aves")}
 
-\item{rank}{taxonomic rank name.}
-
-\item{id}{alternately users can provide a vector of species ids.
-IDs must be prefixed matching the requested provider.  See \code{id}
-column returned by most \code{taxadb} functions for examples.}
+\item{rank}{taxonomic rank name. (e.g. "class")}
 
 \item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
@@ -24,11 +20,20 @@ data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
+
 \item{db}{a connection to the taxadb database. See details.}
 }
 \value{
-a data.frame with id and name of all matching species
+a data.frame in the Darwin Core tabular format containing the
+matching taxonomic entities.
 }
 \description{
 Get all members (descendants) of a given rank level
 }
+\seealso{
+Other filter_by: \code{\link{by_id}},
+  \code{\link{by_name}}, \code{\link{filter_by}}
+}
+\concept{filter_by}

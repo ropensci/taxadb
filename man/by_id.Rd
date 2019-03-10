@@ -2,10 +2,11 @@
 % Please edit documentation in R/by_id.R
 \name{by_id}
 \alias{by_id}
-\title{Get all members (descendants) of a given rank level}
+\title{Return a taxonomic table matching the requested ids}
 \usage{
 by_id(id, provider = known_providers, type = c("taxonID",
-  "acceptedNameUsageID"), collect = TRUE, db = td_connect())
+  "acceptedNameUsageID"), collect = TRUE, db = td_connect(),
+  ignore_case = ignore_case)
 }
 \arguments{
 \item{id}{taxonomic id, in prefix format}
@@ -13,16 +14,8 @@ by_id(id, provider = known_providers, type = c("taxonID",
 \item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
 
-\item{type}{id type.  Can be taxonID or \code{acceptedNameUsageID}. Use \code{acceptedNameUsageID}
-to return all rows for which this ID is the accepted ID, including both synonyms and
-and accepted names (since both all synonyms of a name share the same \code{acceptedNameUsageID}.)
-Use taxonID (default) to only return those rows for which the Scientific name
-corresponds to the taxonID.
-
-Some providers (e.g. ITIS) assign taxonIDs to synonyms, most others only assign IDs to
-accepted names.  In the latter case, this means requesting \code{taxonID} will only match
-accepted names, while requesting matches to the \code{acceptedNameUsageID} will also return
-any known synonyms.  See examples.}
+\item{type}{id type.  Can be \code{taxonID} or \code{acceptedNameUsageID},
+see details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -30,12 +23,28 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
 \item{db}{a connection to the taxadb database. See details.}
+
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 }
 \value{
 a data.frame with id and name of all matching species
 }
 \description{
-Get all members (descendants) of a given rank level
+Return a taxonomic table matching the requested ids
+}
+\details{
+Use \code{type="acceptedNameUsageID"} to return all rows
+for which this ID is the accepted ID, including both synonyms and
+and accepted names (since both all synonyms of a name share the
+same \code{acceptedNameUsageID}.) Use \code{taxonID} (default) to only return
+those rows for which the Scientific name corresponds to the \code{taxonID.}
+
+Some providers (e.g. ITIS) assign taxonIDs to synonyms, most others
+only assign IDs to accepted names.  In the latter case, this means
+requesting \code{taxonID} will only match accepted names, while requesting
+matches to the \code{acceptedNameUsageID} will also return any known synonyms.
+See examples.
 }
 \examples{
 \donttest{
@@ -49,3 +58,8 @@ by_id("ITIS:1077358", type="acceptedNameUsageID")
 
 }
 }
+\seealso{
+Other filter_by: \code{\link{by_name}},
+  \code{\link{by_rank}}, \code{\link{filter_by}}
+}
+\concept{filter_by}

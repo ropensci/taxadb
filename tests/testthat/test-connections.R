@@ -28,9 +28,8 @@ test_that("we can use alternative DBs, such as SQLite", {
   setOldClass(c("spec_tbl_df", "data.frame"))
 
   ## and here we go.
-  td_create(schema = "hierarchy", db = db)
+  td_create(db = db)
   itis <- taxa_tbl(provider = "itis",
-                   schema = "hierarchy",
                    db = db)
   DBI::dbDisconnect(db)
   unlink(dbname)

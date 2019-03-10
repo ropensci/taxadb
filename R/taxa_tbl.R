@@ -1,16 +1,16 @@
-known_providers <- c("itis", "ncbi", "col", "tpl",
-                       "gbif", "fb", "slb", "wd", "ott",
-                       "iucn")
+
 #' Return a reference to a given table in the taxadb database
 #'
 #' @param db a connection to the taxadb database. Default will
 #' attempt to connect automatically.
 #' @param schema the table schema on which we want to run the query
 #' @importFrom dplyr tbl
-#' @inheritParams classification
+#' @inheritParams filter_by
 #' @export
 taxa_tbl <- function(
-  provider = known_providers,
+  provider = c("itis", "ncbi", "col", "tpl",
+               "gbif", "fb", "slb", "wd", "ott",
+               "iucn"),
   schema = "dwc",
   db = td_connect()){
 

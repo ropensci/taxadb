@@ -8,9 +8,7 @@ synonyms(name = NULL, provider = known_providers, collect = TRUE,
   db = td_connect())
 }
 \arguments{
-\item{name}{a character vector of species names, e.g. "Homo sapiens"
-(Most but not all authorities can also return ids for higher-level
-taxonomic names).}
+\item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
 
 \item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}

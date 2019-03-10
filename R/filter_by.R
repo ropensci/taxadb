@@ -1,0 +1,116 @@
+#' Creates a data frame with column name given by `by`, and values given
+#' by the vector `x`, and then uses this table to do a filtering join,
+#' joining on the `by` column to return all rows matching the `x` values
+#' (scientificNames, taxonIDs, etc).
+#'
+#'
+#' @param x a vector of values to filter on
+#' @param by a column name in the taxa_tbl (following Darwin Core Schema terms).
+#'   The filtering join is executed with this column as the joining variable.
+#' @param provider from which provider should the hierachy be returned?
+#'  Default is 'itis'.
+#' @param collect logical, default `TRUE`. Should we return an in-memory
+#' data.frame (default, usually the most convenient), or a reference to
+#' lazy-eval table on disk (useful for very large tables on which we may
+#' first perform subsequent filtering operations.)
+#' @param db a connection to the taxadb database. See details.
+#' @param ignore_case should we ignore case (capitalization) in matching names?
+#' default is `TRUE`.
+#' @return a data.frame in the Darwin Core tabular format containing the
+#' matching taxonomic entities.
+#' @family filter_by
+#' @importFrom dplyr quo filter right_join
+#' @importFrom rlang !! set_names
+#' @importFrom tibble as_tibble tibble
+#' @importFrom magrittr %>%
+#' @export
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'
+#' sp <- c("Trochalopteron henrici gucenense",
+#'         "Trochalopteron elliotii")
+#' filter_by(sp, "scientificName")
+#'
+#' filter_by(c("ITIS:1077358", "ITIS:175089"), "taxonID")
+#'
+#' filter_by("Aves", "class")
+#'
+#' }
+#'
+filter_by <- function(x,
+                      by,
+                      provider = c("itis", "ncbi", "col", "tpl",
+                                   "gbif", "fb", "slb", "wd", "ott",
+                                   "iucn"),
+                      collect = TRUE,
+                      db = td_connect(),
+                      ignore_case = TRUE){
+
+  provider <- match.arg(provider)
+  db_table <- taxa_tbl(provider, "dwc", db)
+
+  if(ignore_case){
+    x <- stringi::stri_trans_tolower(x)
+    db_table <- lowercase_col(db_table, by)
+  }
+
+  input_table <- tibble::as_tibble(rlang::set_names(list(x), by)) %>%
+    dplyr::mutate(sort = 1:length(x))
+
+  out <- td_filter(db_table, input_table, by)
+
+  if (collect) return( dplyr::collect(out) )
+
+  out
+}
+
+## A Filtering Join to filter external DB by a local table.
+## We actually use right_join instead of semi_join, so unmatched names are kept, with NA
+## Note that using right join, names appear in order of remote table, which we
+## fix by arrange.
+td_filter <- function(x,y, by){
+  sort <- "sort"   # avoid complaint about NSE. We could do sym("sort") but this is cleaner.
+  suppress_msg({   # bc MonetDBLite whines about upper-case characters
+    dplyr::right_join(x, y,
+                      by = by,
+                      copy = TRUE) %>%
+      dplyr::arrange(sort)
+  })
+}
+
+# Thanks https://stackoverflow.com/questions/55083084
+#' @importFrom rlang sym !! :=
+lowercase_col <- function(df, col) {
+  dplyr::mutate(df, !!rlang::sym(col) := tolower(!!rlang::sym(col)))
+}
+
+
+
+
+
+# Dummy vars for NSE
+#globalVariables("scientificName", "sort", "input")
+
+#clean_db_names <- function(provider, db = td_connect()){
+## Could be pre-computed to avoid the performance hit here.
+#db_table <-
+#  taxa_tbl(provider, "dwc", db) %>%
+#  mutate(input = tolower(scientificName),
+#         name1 = splitpart(input, " ", 1L),
+#         name2 = splitpart(input, " ", 2L))
+
+#}
+
+
+
+
+
+## Note: a known synonym can match two different valid names!
+## 'Trochalopteron henrici gucenense' is a synonym for:
+## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
+## (according to ITIS)
+

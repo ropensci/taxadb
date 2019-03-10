@@ -1,47 +1,38 @@
 
 #' Get all members (descendants) of a given rank level
-#' @inheritParams classification
-#' @param rank taxonomic rank name.
-#' @param name taxonomic name (e.g. "Aves")
-#' @return a data.frame with id and name of all matching species
+#'
+#' @param name taxonomic scientific name (e.g. "Aves")
+#' @param rank taxonomic rank name. (e.g. "class")
+#' @inheritParams filter_by
+#' @return a data.frame in the Darwin Core tabular format containing the
+#' matching taxonomic entities.
+#' @family filter_by
 #' @export
-#' @importFrom stats setNames
-# @importFrom rlang !! := UQ quo enquo
-# @importFrom magrittr %>%
-#' @importFrom dplyr semi_join select filter distinct
-by_rank <- function(name = NULL,
-                        rank = "scientificName",
-                        id = NULL,
-                        provider = known_providers,
-                        collect = TRUE,
-                        db = td_connect()){
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'
+#' by_rank("Aves", "class")
+#'
+#' }
+#'
+by_rank <- function(name,
+                    rank,
+                    provider = c("itis", "ncbi", "col", "tpl",
+                                 "gbif", "fb", "slb", "wd", "ott",
+                                 "iucn"),
+                    collect = TRUE,
+                    ignore_case = TRUE,
+                    db = td_connect()){
 
-  ## technically could guess rank from name most but not all time
-  ## could still do this as join rather than a filter with appropriate table construction
-
-    if (!is.null(id)){ # Join by ids instead of names, if IDs are given
-      rank <- "taxonID"
-      name <- id
-    }
-    df <- data.frame(setNames(list(name), rank), stringsAsFactors = FALSE)
-
-    taxa <- taxa_tbl(provider = provider,
-                     schema = "dwc",
-                     db = db)
-
-    suppress_msg({
-    out <- dplyr::semi_join(taxa,
-                            df,
-                            copy = TRUE,
-                            by = rank)
-    })
-
-  if(collect && inherits(out, "tbl_lazy")){
-    ## Return an in-memory object
-    out <- dplyr::collect(out)
-  }
-
-  out
+  filter_by(x = name,
+            by = rank,
+            provider = match.arg(provider),
+            collect = collect,
+            db = db,
+            ignore_case = ignore_case)
 
 }
-

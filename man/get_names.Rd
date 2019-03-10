@@ -23,7 +23,11 @@ slower than if you specify this in advance!
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
-\item{...}{additional arguments passed to \code{ids()}}
+\item{...}{additional arguments passed to \code{filter_by()}}
+}
+\value{
+a vector of names, of the same length as the input ids. Any
+unmatched IDs will return as \link{NA}s.
 }
 \description{
 Translate identifiers into scientific names
@@ -40,3 +44,7 @@ get_names(c("ITIS:180092", "ITIS:179913"))
 get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
 }
 }
+\seealso{
+Other get: \code{\link{get_ids}}
+}
+\concept{get}

@@ -1,8 +1,10 @@
+## FIXME consider renaming to get_synonyms?
+
 
 #' synonyms
 #'
 #' Resolve provided list of names against all known synonyms
-#' @inheritParams ids
+#' @inheritParams by_name
 #' @importFrom dplyr left_join
 #' @export
 synonyms <- function(name = NULL,
@@ -11,7 +13,7 @@ synonyms <- function(name = NULL,
                      db = td_connect()){
 
 
-  the_id_table <- ids(name, provider = provider, db = db)
+  the_id_table <- by_name(name, provider = provider, db = db)
 
   ## Get both accepted names & synonyms for anything with an acceptedNameUsageID
   suppress_msg({

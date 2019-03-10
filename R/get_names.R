@@ -17,7 +17,10 @@
 #'   - `bare` (e.g. `9606`), (But must mach provider `db`!)
 #'   - `uri` (e.g. `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
-#' @param ... additional arguments passed to `ids()`
+#' @param ... additional arguments passed to `filter_by()`
+#' @family get
+#' @return a vector of names, of the same length as the input ids. Any
+#' unmatched IDs will return as [NA]s.
 #' @details
 #' Like all taxadb functions, this function will run
 #' fastest if a local copy of the provider is installed in advance
@@ -29,7 +32,6 @@
 #' }
 #' @export
 #' @importFrom dplyr pull
-#' @importFrom tibble column_to_rownames
 get_names <- function(id,
                       db = known_providers,
                       format = c("guess", "prefix", "bare", "uri"),
@@ -39,15 +41,19 @@ get_names <- function(id,
   db <- match.arg(db)
   n <- length(id)
 
+  ## FIXME call:
+  # by_id(prefix_ids) %>% select("scientificName", "taxonID", "sort") %>% distinct() %>% take_first_duplicate() %>% collect()
+
   prefix_ids <- switch(format,
                        prefix = id,
                        as_prefix(id, db)
                        )
-  input_table <- tibble("taxonID" = prefix_ids,
-                        sort = 1:n)
-    # tibble(acceptedNameUsageID)
 
-  # be compatible with common space delimiters
+
+
+  input_table <- tibble::tibble("taxonID" = prefix_ids,
+                        sort = 1:n)
+
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
     out <-
       dplyr::right_join(
@@ -55,8 +61,8 @@ get_names <- function(id,
         input_table,
         by = "taxonID",
         copy = TRUE) %>%
-      select("scientificName", "taxonID", "sort") %>%
-      distinct() %>%
+      dplyr::select("scientificName", "taxonID", "sort") %>%
+      dplyr::distinct() %>%
       dplyr::arrange(sort)
   })
 

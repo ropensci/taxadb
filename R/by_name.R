@@ -1,109 +1,50 @@
 
-#' Return taxonomic identifiers from a given namespace
+#' Look up taxonomic information by scientific name
 #'
-#' @param name a character vector of species names, e.g. "Homo sapiens"
-#' (Most but not all authorities can also return ids for higher-level
-#'  taxonomic names).
-#' @param provider from which provider should the hierachy be returned?
-#'  Default is 'itis'.
-#' @param collect logical, default `TRUE`. Should we return an in-memory
-#' data.frame (default, usually the most convenient), or a reference to
-#' lazy-eval table on disk (useful for very large tables on which we may
-#' first perform subsequent filtering operations.)
-#' @param db a connection to the taxadb database. See details.
-#' @param ignore_case should we ignore case (capitalization) in matching names?
-#' default is `TRUE`.
-#' @return a data.frame with columns of `id`, scientific
-#' `name`, and `rank`, and `accepted_id` (if data includes synonyms)
-#'  and a row for each species name queried.
+#' @param name a character vector of scientific names, e.g. "Homo sapiens"
+
+#' @inheritParams filter_by
+#' @return a data.frame in the Darwin Core tabular format containing the
+#' matching taxonomic entities.
 #'
 #' @details
-#' Some authorities (ITIS, COL, FB/SLB, NCBI) provide synonyms as well.  These
-#' are included in the name list search.  The data.frame returned will then
-#' include an `accepted_id` column, providing the synonym for the requested table.
-#' In this case, the `id` column corresponds to the id for either the name column --
-#' that is, if the name is a synonym, this is the id for the synonym; if the name
-#' is accepted, this id is the same as the accepted id.  NCBI does not issue ids
-#' for known synonyms, so the id is missing for synonym names in this case.
+#' Most but not all authorities can match against both speices level and
+#' higher-level (or lower, e.g. subspecies or varities) taxonomic names.
+#' The rank level is indicated by `taxonRank` column.
 #'
+#' Most authorities include both known synonyms and accepted names in the
+#' `scientificName` column, (with the status indicated by `taxonomicStatus`).
+#' This is convenient, as users will typically not know if the names they
+#' have are synonyms or accepted names, but will want to get the match to the
+#' accepted name and accepted ID in either case.
+#' @family filter_by
 #' @export
-#' @importFrom dplyr quo tibble filter right_join
-#' @importFrom rlang !!
-#' @importFrom magrittr %>%
-by_name <- function(name = NULL,
-                provider = known_providers,
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'
+#' sp <- c("Trochalopteron henrici gucenense",
+#'         "Trochalopteron elliotii")
+#' by_name(sp)
+#'
+#' }
+#'
+by_name <- function(name,
+                provider =c("itis", "ncbi", "col", "tpl",
+                            "gbif", "fb", "slb", "wd", "ott",
+                            "iucn"),
                 collect = TRUE,
-                db = td_connect(),
-                ignore_case = TRUE){
+                ignore_case = TRUE,
+                db = td_connect()){
 
-  scientificName <- NULL
-#  sort  <- NULL
-
-  ## Create the input table.
-  ## We will (temporarily) copy this to disk to join against the database
-  ## Filtering joins are much much faster than filtering, particularly
-  ## for large numbers of input names, when we use MonetDB(Lite)
-
-  if(ignore_case){
-  input_table <- dplyr::tibble(
-    ## Note: base::tolower() can fail on certain non UTF-8
-    input = stringi::stri_trans_tolower(name),
-    sort = 1:length(name))
-
-  ## Could be pre-computed to avoid the performance hit here.
-  db_table <-
-    taxa_tbl(provider, "dwc", db) %>%
-    dplyr::mutate(input = tolower(scientificName))
-  } else {
-    input_table <- dplyr::tibble(
-      input = name,
-      sort = 1:length(name))
-    db_table <- taxa_tbl(provider, "dwc", db) %>%
-      dplyr::rename(input = scientificName)
-  }
-
-
-  ## Use right_join, so unmatched names are kept, with NA
-  ## Using right join, names appear in order of provider!
-
-  suppress_msg({   # bc MonetDBLite whines about upper-case characters
-  out <-
-    dplyr::right_join(
-      db_table,
-      input_table,
-      by = "input",
-      copy = TRUE) %>%
-    dplyr::arrange(sort)
-
-  })
-
-  ## Note: a known synonym can match two different valid names!
-  ## 'Trochalopteron henrici gucenense' is a synonym for:
-  ## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
-  ## (according to ITIS)
-
-  if (collect && inherits(out, "tbl_lazy")) {
-    ## Return an in-memory object
-    return( dplyr::collect(out) )
-  }
-
-  out
+  filter_by(x = name,
+            by = "scientificName",
+            provider = match.arg(provider),
+            collect = collect,
+            db = db,
+            ignore_case = ignore_case)
 }
-
-# Dummy vars for NSE
-#globalVariables("scientificName", "sort", "input")
-
-#clean_db_names <- function(provider, db = td_connect()){
-## Could be pre-computed to avoid the performance hit here.
-#db_table <-
-#  taxa_tbl(provider, "dwc", db) %>%
-#  mutate(input = tolower(scientificName),
-#         name1 = splitpart(input, " ", 1L),
-#         name2 = splitpart(input, " ", 2L))
-
-#}
-
-
-
-
 
