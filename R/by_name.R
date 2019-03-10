@@ -2,7 +2,6 @@
 #' Look up taxonomic information by scientific name
 #'
 #' @param name a character vector of scientific names, e.g. "Homo sapiens"
-
 #' @inheritParams filter_by
 #' @return a data.frame in the Darwin Core tabular format containing the
 #' matching taxonomic entities.

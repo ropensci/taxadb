@@ -1,9 +1,3 @@
-## Drop in replacements for taxize functions
-
-
-## FIXME get_ids objects to having duplicated names.
-##  ( duplicate_as_unresolved() drops the duplicates?
-## duplicated names should be okay!
 
 #' get_names
 #'
@@ -31,48 +25,34 @@
 #' get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
 #' }
 #' @export
-#' @importFrom dplyr pull
+#' @importFrom dplyr pull select collect distinct
 get_names <- function(id,
-                      db = known_providers,
+                      db = c("itis", "ncbi", "col", "tpl",
+                             "gbif", "fb", "slb", "wd", "ott",
+                             "iucn"),
                       format = c("guess", "prefix", "bare", "uri"),
+                      ignore_case = TRUE,
                       taxadb_db = td_connect(),
                       ...){
   format <- match.arg(format)
   db <- match.arg(db)
   n <- length(id)
 
-  ## FIXME call:
-  # by_id(prefix_ids) %>% select("scientificName", "taxonID", "sort") %>% distinct() %>% take_first_duplicate() %>% collect()
 
   prefix_ids <- switch(format,
                        prefix = id,
                        as_prefix(id, db)
                        )
-
-
-
-  input_table <- tibble::tibble("taxonID" = prefix_ids,
-                        sort = 1:n)
-
-  suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    out <-
-      dplyr::right_join(
-        taxa_tbl(db, db = taxadb_db),
-        input_table,
-        by = "taxonID",
-        copy = TRUE) %>%
-      dplyr::select("scientificName", "taxonID", "sort") %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(sort)
-  })
-
-  ## A taxonID may appear in multple rows when the scientificName
-  ## it corresponds is a synonym of multiple taxa.  But the
-  ## taxonID, scientificName pair is still unique.
-
-  ## However, some databases (e.g. COL) list multiple accepted names:
-  df <- take_first_duplicate(out) %>% collect()
-
+  df <-
+    by_id(prefix_ids,
+          provider = db,
+          collect = FALSE,
+          ignore_case = ignore_case,
+          db = taxadb_db) %>%
+    dplyr::select("scientificName", "taxonID", "sort") %>%
+    dplyr::distinct() %>%
+    take_first_duplicate() %>%
+    dplyr::collect()
 
   if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",

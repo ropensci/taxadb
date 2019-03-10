@@ -19,7 +19,7 @@
 #' @return a data.frame in the Darwin Core tabular format containing the
 #' matching taxonomic entities.
 #' @family filter_by
-#' @importFrom dplyr quo filter right_join
+#' @importFrom dplyr mutate mutate_at collect
 #' @importFrom rlang !! sym
 #' @importFrom tibble as_tibble tibble
 #' @importFrom magrittr %>%
@@ -51,15 +51,15 @@ filter_by <- function(x,
                       ignore_case = TRUE){
 
   provider <- match.arg(provider)
-  db_table <- mutate(taxa_tbl(provider, "dwc", db), input = !!sym(by))
+  db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", db), input = !!sym(by))
 
   if(ignore_case){
     x <- stringi::stri_trans_tolower(x)
-    db_table <- dplyr::mutate_at(db_table, .var = "input", .fun = tolower)
+    db_tbl <- dplyr::mutate_at(db_tbl, .var = "input", .fun = tolower)
   }
 
-  input_table <- tibble(input = x, sort = 1:length(x))
-  out <- td_filter(db_table, input_table, "input")
+  input_tbl <- tibble::tibble(input = x, sort = 1:length(x))
+  out <- td_filter(db_tbl, input_tbl, "input")
 
   if (collect) return( dplyr::collect(out) )
 
@@ -70,6 +70,7 @@ filter_by <- function(x,
 ## We actually use right_join instead of semi_join, so unmatched names are kept, with NA
 ## Note that using right join, names appear in order of remote table, which we
 ## fix by arrange.
+#' @importFrom dplyr right_join arrange
 td_filter <- function(x,y, by){
   sort <- "sort"   # avoid complaint about NSE. We could do sym("sort") but this is cleaner.
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
@@ -81,34 +82,11 @@ td_filter <- function(x,y, by){
 }
 
 # Thanks https://stackoverflow.com/questions/55083084
-#' @importFrom rlang sym !! :=
-lowercase_col <- function(df, col) {
-  dplyr::mutate(df, !!rlang::sym(col) := tolower(!!rlang::sym(col)))
-}
+# @importFrom rlang sym !! :=
+#lowercase_col <- function(df, col) {
+#  dplyr::mutate(df, !!rlang::sym(col) := tolower(!!rlang::sym(col)))
+#}
 # input_table <- tibble::as_tibble(rlang::set_names(list(x), by)) %>%
 # dplyr::mutate(sort = 1:length(x))
 
-
-
-# Dummy vars for NSE
-#globalVariables("scientificName", "sort", "input")
-
-#clean_db_names <- function(provider, db = td_connect()){
-## Could be pre-computed to avoid the performance hit here.
-#db_table <-
-#  taxa_tbl(provider, "dwc", db) %>%
-#  mutate(input = tolower(scientificName),
-#         name1 = splitpart(input, " ", 1L),
-#         name2 = splitpart(input, " ", 2L))
-
-#}
-
-
-
-
-
-## Note: a known synonym can match two different valid names!
-## 'Trochalopteron henrici gucenense' is a synonym for:
-## 'Trochalopteron elliotii'  and also for  'Trochalopteron henrici'
-## (according to ITIS)
 
