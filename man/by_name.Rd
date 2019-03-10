@@ -57,7 +57,8 @@ by_name(sp)
 
 }
 \seealso{
-Other filter_by: \code{\link{by_id}},
-  \code{\link{by_rank}}, \code{\link{filter_by}}
+Other filter_by: \code{\link{by_common}},
+  \code{\link{by_id}}, \code{\link{by_rank}},
+  \code{\link{filter_by}}
 }
 \concept{filter_by}
