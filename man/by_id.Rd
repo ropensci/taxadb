@@ -4,9 +4,9 @@
 \alias{by_id}
 \title{Return a taxonomic table matching the requested ids}
 \usage{
-by_id(id, provider = known_providers, type = c("taxonID",
-  "acceptedNameUsageID"), collect = TRUE, db = td_connect(),
-  ignore_case = ignore_case)
+by_id(id, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
+  "wd", "ott", "iucn"), type = c("taxonID", "acceptedNameUsageID"),
+  collect = TRUE, ignore_case = TRUE, db = td_connect())
 }
 \arguments{
 \item{id}{taxonomic id, in prefix format}
@@ -22,10 +22,10 @@ data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
-\item{db}{a connection to the taxadb database. See details.}
-
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
 default is \code{TRUE}.}
+
+\item{db}{a connection to the taxadb database. See details.}
 }
 \value{
 a data.frame with id and name of all matching species

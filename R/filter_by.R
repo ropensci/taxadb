@@ -55,7 +55,7 @@ filter_by <- function(x,
 
   if(ignore_case){
     x <- stringi::stri_trans_tolower(x)
-    db_table <- mutate(db_table, input = tolower(!!sym("input")))
+    db_table <- dplyr::mutate_at(db_table, .var = "input", .fun = tolower)
   }
 
   input_table <- tibble(input = x, sort = 1:length(x))

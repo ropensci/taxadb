@@ -4,9 +4,9 @@
 \alias{by_name}
 \title{Look up taxonomic information by scientific name}
 \usage{
-by_name(name = NULL, provider = c("itis", "ncbi", "col", "tpl", "gbif",
-  "fb", "slb", "wd", "ott", "iucn"), collect = TRUE, db = td_connect(),
-  ignore_case = TRUE)
+by_name(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
+  "slb", "wd", "ott", "iucn"), collect = TRUE, ignore_case = TRUE,
+  db = td_connect())
 }
 \arguments{
 \item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
@@ -19,10 +19,10 @@ data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
-\item{db}{a connection to the taxadb database. See details.}
-
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
 default is \code{TRUE}.}
+
+\item{db}{a connection to the taxadb database. See details.}
 }
 \value{
 a data.frame in the Darwin Core tabular format containing the

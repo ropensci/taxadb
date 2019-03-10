@@ -40,6 +40,24 @@ by the vector \code{x}, and then uses this table to do a filtering join,
 joining on the \code{by} column to return all rows matching the \code{x} values
 (scientificNames, taxonIDs, etc).
 }
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+sp <- c("Trochalopteron henrici gucenense",
+        "Trochalopteron elliotii")
+filter_by(sp, "scientificName")
+
+filter_by(c("ITIS:1077358", "ITIS:175089"), "taxonID")
+
+filter_by("Aves", "class")
+
+}
+
+}
 \seealso{
 Other filter_by: \code{\link{by_id}},
   \code{\link{by_name}}, \code{\link{by_rank}}

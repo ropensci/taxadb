@@ -4,8 +4,9 @@
 \alias{by_rank}
 \title{Get all members (descendants) of a given rank level}
 \usage{
-by_rank(name, rank, provider = known_providers, collect = TRUE,
-  ignore_case = ignore_case, db = td_connect())
+by_rank(name, rank, provider = c("itis", "ncbi", "col", "tpl", "gbif",
+  "fb", "slb", "wd", "ott", "iucn"), collect = TRUE,
+  ignore_case = TRUE, db = td_connect())
 }
 \arguments{
 \item{name}{taxonomic scientific name (e.g. "Aves")}
@@ -31,6 +32,18 @@ matching taxonomic entities.
 }
 \description{
 Get all members (descendants) of a given rank level
+}
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+by_rank("Aves", "class")
+
+}
+
 }
 \seealso{
 Other filter_by: \code{\link{by_id}},
