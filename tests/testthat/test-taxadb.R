@@ -7,8 +7,6 @@ library(dplyr)
 
 test_that("we can set up a db and call basic functions", {
 
-
-
   td_create(dbdir = test_db)
   db <- td_connect(test_db)
 

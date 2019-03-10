@@ -20,7 +20,7 @@
 #' matching taxonomic entities.
 #' @family filter_by
 #' @importFrom dplyr quo filter right_join
-#' @importFrom rlang !! set_names
+#' @importFrom rlang !! sym
 #' @importFrom tibble as_tibble tibble
 #' @importFrom magrittr %>%
 #' @export
@@ -51,17 +51,15 @@ filter_by <- function(x,
                       ignore_case = TRUE){
 
   provider <- match.arg(provider)
-  db_table <- taxa_tbl(provider, "dwc", db)
+  db_table <- mutate(taxa_tbl(provider, "dwc", db), input = !!sym(by))
 
   if(ignore_case){
     x <- stringi::stri_trans_tolower(x)
-    db_table <- lowercase_col(db_table, by)
+    db_table <- mutate(db_table, input = tolower(!!sym("input")))
   }
 
-  input_table <- tibble::as_tibble(rlang::set_names(list(x), by)) %>%
-    dplyr::mutate(sort = 1:length(x))
-
-  out <- td_filter(db_table, input_table, by)
+  input_table <- tibble(input = x, sort = 1:length(x))
+  out <- td_filter(db_table, input_table, "input")
 
   if (collect) return( dplyr::collect(out) )
 
@@ -87,8 +85,8 @@ td_filter <- function(x,y, by){
 lowercase_col <- function(df, col) {
   dplyr::mutate(df, !!rlang::sym(col) := tolower(!!rlang::sym(col)))
 }
-
-
+# input_table <- tibble::as_tibble(rlang::set_names(list(x), by)) %>%
+# dplyr::mutate(sort = 1:length(x))
 
 
 

@@ -38,7 +38,9 @@ td_connect <- function(dbdir = taxadb_dir()){
 td_disconnect <- function(env = taxadb_cache){
   db <- mget("td_db", envir = env, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
+    suppressWarnings(
     DBI::dbDisconnect(db)
+    )
   }
 }
 
