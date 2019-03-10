@@ -1,5 +1,3 @@
-## Drop in replacements for taxize functions
-
 
 ## FIXME get_ids objects to having duplicated names.
 ##  ( duplicate_as_unresolved() drops the duplicates?
@@ -17,7 +15,13 @@
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
-#' @param ... additional arguments passed to `ids()`
+#' @param ... additional arguments (currently ignored)
+#' @return a vector of IDs, of the same length as the input names Any
+#' unmatched names or multiply-matched names will return as [NA]s.
+#' To resolve multi-matched names, use [by_name()] instead to return
+#' a table with a separate row for each separate match of the input name.
+#' @seealso by_name
+#' @family get
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
 #' are not recognized by taxadb and will throw an error here. Meanwhile,
 #' taxadb recognizes several authorities not known to `[taxize::get_ids()]`.
@@ -40,32 +44,32 @@ get_ids <- function(names,
                     taxadb_db = td_connect(),
                     ...){
   format <- match.arg(format)
-
-  n_names <- length(names)
+  n <- length(names)
 
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
-  df <- ids(name = names,
-             provider = db,
-             collect = TRUE,
-             db = taxadb_db)
+  df <- by_name(name = names,
+                provider = db,
+                collect = TRUE,
+                db = taxadb_db)
 
   df <- duplicate_as_unresolved(df)
 
-  if(dim(df)[1] != n_names){
+  if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",
-               "Try the ids() function instead."),
+               "Try the by_name() function instead."),
          .call = FALSE)
   }
 
-
+  ##
   if("acceptedNameUsageID" %in% names(df)){
-    out <- pull(df, "acceptedNameUsageID")
+    out <- dplyr::pull(df, "acceptedNameUsageID")
   } else {
-    #out <- df[names, "taxonID"]
-    out <- pull(df, "taxonID")
+    out <- dplyr::pull(df, "taxonID")
   }
+
+  ## Format ID as requested
   switch(format,
          "uri" = prefix_to_uri(out),
          "prefix" = out,

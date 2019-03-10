@@ -7,8 +7,6 @@ library(dplyr)
 
 test_that("we can set up a db and call basic functions", {
 
-
-
   td_create(dbdir = test_db)
   db <- td_connect(test_db)
 
@@ -19,32 +17,28 @@ test_that("we can set up a db and call basic functions", {
     filter(family == "Chamaeleonidae") %>%
     collect()
 
-  df <- descendants(name = "Aves",
+  df <- by_rank(name = "Aves",
                     rank = "class",
                     db = db)  %>%
     filter(taxonomicStatus == "accepted")
 
 
-  species <- ids(df$scientificName,
+  species <- by_name(df$scientificName,
                  db = db) %>%
     filter(taxonomicStatus == "accepted")
 
   ## confirm order did not change
   expect_identical(df$scientificName, species$scientificName)
 
-  hier <- classification(df$scientificName,
-                         db = db)
 
   expect_is(df, "data.frame")
   expect_is(species, "data.frame")
-  expect_is(hier, "data.frame")
   expect_is(chameleons, "data.frame")
   expect_gt(dim(df)[1], 1)
-  expect_gt(dim(hier)[1], 1)
   expect_gt(dim(chameleons)[1], 1)
 
   ## we can opt out of ignore_case on ids():
-  species <- ids(df$scientificName,
+  species <- by_name(df$scientificName,
                  db = db,
                  ignore_case = FALSE) %>%
     filter(taxonomicStatus == "accepted")
@@ -52,8 +46,8 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(species)[1], 1)
 
 
-  ## descendants() can take ids instead of names:
-  names <- descendants(id = df$taxonID,
+  ## by_id() takes IDs instead of names:
+  names <- by_id(id = df$taxonID,
                  db = db)
   expect_is(names, "data.frame")
   expect_gt(dim(names)[1], 1)

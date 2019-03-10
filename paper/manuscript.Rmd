@@ -164,7 +164,7 @@ syn
 Alternately, sticking with the standard `dwc` schema:
 
 ```{r}
-iucn_ids <- unmatched$species %>% ids("iucn") %>% select(acceptedNameUsageID) %>% distinct()
+iucn_ids <- unmatched$species %>% by_name("iucn") %>% select(acceptedNameUsageID) %>% distinct()
 right_join(taxa_tbl("iucn"), iucn_ids, copy=TRUE, by ="acceptedNameUsageID") %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsageID, taxonRank, taxonID)
 ```
@@ -183,21 +183,21 @@ syn$synonym %>% get_ids("ott", "prefix")
 ```
 
 ```{r}
-descendants(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomicStatus, acceptedNameUsageID)
+by_id(id = x$ott_id, provider = "ott") %>% select(scientificName, taxonomicStatus, acceptedNameUsageID)
 ```
 
 
 Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
 
 ```{r}
-syn$synonym %>% na.omit() %>% ids("ott") %>% select(input, scientificName, acceptedNameUsageID, taxonomicStatus)
+syn$synonym %>% na.omit() %>% by_name("ott") %>% select(input, scientificName, acceptedNameUsageID, taxonomicStatus)
 ```
 
 
 We can confirm the family names can be resolved:
 
 ```{r}
-c("Trochilidae",  "Ardeidae") %>% ids("ott")
+c("Trochilidae",  "Ardeidae") %>% by_name("ott")
 ```
 
 We can use the common names table to resolve common names:

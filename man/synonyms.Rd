@@ -4,13 +4,11 @@
 \alias{synonyms}
 \title{synonyms}
 \usage{
-synonyms(name = NULL, provider = known_providers, collect = TRUE,
-  db = td_connect())
+synonyms(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
+  "slb", "wd", "ott", "iucn"), collect = TRUE, db = td_connect())
 }
 \arguments{
-\item{name}{a character vector of species names, e.g. "Homo sapiens"
-(Most but not all authorities can also return ids for higher-level
-taxonomic names).}
+\item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
 
 \item{provider}{from which provider should the hierachy be returned?
 Default is 'itis'.}
@@ -24,4 +22,18 @@ first perform subsequent filtering operations.)}
 }
 \description{
 Resolve provided list of names against all known synonyms
+}
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+sp <- c("Trochalopteron henrici gucenense",
+        "Trochalopteron elliotii")
+synonyms(sp)
+
+}
+
 }

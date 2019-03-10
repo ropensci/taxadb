@@ -108,5 +108,10 @@ test_that("we can handle more intensive comparisons: COL", {
   expect_equal(sum(is.na(col_name)), 0)
   expect_equal(length(col_name), length(col_id))
 
+})
 
+test_that("if_to_prefix handles NAs", {
+
+  x <- id_to_prefix(NA, "itis")
+  expect_true(is.na(x))
 })

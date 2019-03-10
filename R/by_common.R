@@ -1,0 +1,36 @@
+
+#' Look up taxonomic information by common name
+#'
+#' @param name a character vector of common (vernacular English) names, e.g. "Humans"
+#' @inheritParams filter_by
+#' @return a data.frame in the Darwin Core tabular format containing the
+#' matching taxonomic entities.
+#' @family filter_by
+#' @export
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'
+#' by_common("Angolan Giraffe")
+#'
+#' }
+#'
+by_common <- function(name,
+                provider =c("itis", "ncbi", "col", "tpl",
+                            "gbif", "fb", "slb", "wd", "ott",
+                            "iucn"),
+                collect = TRUE,
+                ignore_case = TRUE,
+                db = td_connect()){
+
+  filter_by(x = name,
+            by = "vernacularName",
+            provider = match.arg(provider),
+            collect = collect,
+            db = db,
+            ignore_case = ignore_case)
+}
+

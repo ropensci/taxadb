@@ -4,8 +4,9 @@
 \alias{get_names}
 \title{get_names}
 \usage{
-get_names(id, db = known_providers, format = c("guess", "prefix",
-  "bare", "uri"), taxadb_db = td_connect(), ...)
+get_names(id, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
+  "wd", "ott", "iucn"), format = c("guess", "prefix", "bare", "uri"),
+  ignore_case = TRUE, taxadb_db = td_connect())
 }
 \arguments{
 \item{id}{a list of taxonomic identifiers.}
@@ -21,9 +22,14 @@ slower than if you specify this in advance!
 \item \code{uri} (e.g. \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 
-\item{...}{additional arguments passed to \code{ids()}}
+\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
+}
+\value{
+a vector of names, of the same length as the input ids. Any
+unmatched IDs will return as \link{NA}s.
 }
 \description{
 Translate identifiers into scientific names
@@ -40,3 +46,7 @@ get_names(c("ITIS:180092", "ITIS:179913"))
 get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
 }
 }
+\seealso{
+Other get: \code{\link{get_ids}}
+}
+\concept{get}

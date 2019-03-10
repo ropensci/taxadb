@@ -1,9 +1,3 @@
-## Drop in replacements for taxize functions
-
-
-## FIXME get_ids objects to having duplicated names.
-##  ( duplicate_as_unresolved() drops the duplicates?
-## duplicated names should be okay!
 
 #' get_names
 #'
@@ -17,7 +11,11 @@
 #'   - `bare` (e.g. `9606`), (But must mach provider `db`!)
 #'   - `uri` (e.g. `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
-#' @param ... additional arguments passed to `ids()`
+#' @param ignore_case should we ignore case (capitalization) in matching names?
+#' default is `TRUE`.
+#' @family get
+#' @return a vector of names, of the same length as the input ids. Any
+#' unmatched IDs will return as [NA]s.
 #' @details
 #' Like all taxadb functions, this function will run
 #' fastest if a local copy of the provider is installed in advance
@@ -28,45 +26,34 @@
 #' get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
 #' }
 #' @export
-#' @importFrom dplyr pull
-#' @importFrom tibble column_to_rownames
+#' @importFrom dplyr pull select collect distinct
 get_names <- function(id,
-                      db = known_providers,
+                      db = c("itis", "ncbi", "col", "tpl",
+                             "gbif", "fb", "slb", "wd", "ott",
+                             "iucn"),
                       format = c("guess", "prefix", "bare", "uri"),
-                      taxadb_db = td_connect(),
-                      ...){
+                      ignore_case = TRUE,
+                      taxadb_db = td_connect()
+                     ){
   format <- match.arg(format)
   db <- match.arg(db)
   n <- length(id)
+
 
   prefix_ids <- switch(format,
                        prefix = id,
                        as_prefix(id, db)
                        )
-  input_table <- tibble("taxonID" = prefix_ids,
-                        sort = 1:n)
-    # tibble(acceptedNameUsageID)
-
-  # be compatible with common space delimiters
-  suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    out <-
-      dplyr::right_join(
-        taxa_tbl(db, db = taxadb_db),
-        input_table,
-        by = "taxonID",
-        copy = TRUE) %>%
-      select("scientificName", "taxonID", "sort") %>%
-      distinct() %>%
-      dplyr::arrange(sort)
-  })
-
-  ## A taxonID may appear in multple rows when the scientificName
-  ## it corresponds is a synonym of multiple taxa.  But the
-  ## taxonID, scientificName pair is still unique.
-
-  ## However, some databases (e.g. COL) list multiple accepted names:
-  df <- take_first_duplicate(out) %>% collect()
-
+  df <-
+    by_id(prefix_ids,
+          provider = db,
+          collect = FALSE,
+          ignore_case = ignore_case,
+          db = taxadb_db) %>%
+    dplyr::select("scientificName", "taxonID", "sort") %>%
+    dplyr::distinct() %>%
+    take_first_duplicate() %>%
+    dplyr::collect()
 
   if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",

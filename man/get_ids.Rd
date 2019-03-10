@@ -23,7 +23,13 @@ include higher-order ranks in most authorities).}
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
-\item{...}{additional arguments passed to \code{ids()}}
+\item{...}{additional arguments (currently ignored)}
+}
+\value{
+a vector of IDs, of the same length as the input names Any
+unmatched names or multiply-matched names will return as \link{NA}s.
+To resolve multi-matched names, use \code{\link[=by_name]{by_name()}} instead to return
+a table with a separate row for each separate match of the input name.
 }
 \description{
 A drop-in replacement for \code{[taxize::get_ids()]}
@@ -45,3 +51,9 @@ get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
 get_ids("Homo sapiens", db= "ncbi", format = "uri")
 }
 }
+\seealso{
+by_name
+
+Other get: \code{\link{get_names}}
+}
+\concept{get}
