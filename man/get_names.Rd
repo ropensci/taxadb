@@ -6,7 +6,7 @@
 \usage{
 get_names(id, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd", "ott", "iucn"), format = c("guess", "prefix", "bare", "uri"),
-  ignore_case = TRUE, taxadb_db = td_connect(), ...)
+  ignore_case = TRUE, taxadb_db = td_connect())
 }
 \arguments{
 \item{id}{a list of taxonomic identifiers.}

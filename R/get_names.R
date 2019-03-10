@@ -33,8 +33,8 @@ get_names <- function(id,
                              "iucn"),
                       format = c("guess", "prefix", "bare", "uri"),
                       ignore_case = TRUE,
-                      taxadb_db = td_connect(),
-                      ...){
+                      taxadb_db = td_connect()
+                     ){
   format <- match.arg(format)
   db <- match.arg(db)
   n <- length(id)
