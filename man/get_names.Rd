@@ -22,9 +22,10 @@ slower than if you specify this in advance!
 \item \code{uri} (e.g. \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 
-\item{...}{additional arguments passed to \code{filter_by()}}
+\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 }
 \value{
 a vector of names, of the same length as the input ids. Any

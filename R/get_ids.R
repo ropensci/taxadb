@@ -15,7 +15,7 @@
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
-#' @param ... additional arguments passed to `filter_by()`
+#' @param ... additional arguments (currently ignored)
 #' @return a vector of IDs, of the same length as the input names Any
 #' unmatched names or multiply-matched names will return as [NA]s.
 #' To resolve multi-matched names, use [by_name()] instead to return

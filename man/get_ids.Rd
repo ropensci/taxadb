@@ -23,7 +23,7 @@ include higher-order ranks in most authorities).}
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 
-\item{...}{additional arguments passed to \code{filter_by()}}
+\item{...}{additional arguments (currently ignored)}
 }
 \value{
 a vector of IDs, of the same length as the input names Any

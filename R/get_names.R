@@ -11,7 +11,8 @@
 #'   - `bare` (e.g. `9606`), (But must mach provider `db`!)
 #'   - `uri` (e.g. `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
-#' @param ... additional arguments passed to `filter_by()`
+#' @param ignore_case should we ignore case (capitalization) in matching names?
+#' default is `TRUE`.
 #' @family get
 #' @return a vector of names, of the same length as the input ids. Any
 #' unmatched IDs will return as [NA]s.
