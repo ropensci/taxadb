@@ -62,7 +62,7 @@ td_connect <- function(dbdir = taxadb_dir()){
              call. = FALSE)
       else stop(e)
     },
-    finally = return(NULL)
+    finally = NULL
   )
 
 
