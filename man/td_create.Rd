@@ -4,13 +4,13 @@
 \alias{td_create}
 \title{create a local taxonomic database}
 \usage{
-td_create(authorities = "itis", schema = c("dwc"), overwrite = FALSE,
+td_create(provider = "itis", schema = c("dwc"), overwrite = FALSE,
   lines = 1e+06, dbdir = taxadb_dir(), db = td_connect(dbdir))
 }
 \arguments{
-\item{authorities}{a list (character vector) of authorities to be included in the
+\item{provider}{a list (character vector) of provider to be included in the
 database. By default, will install \code{itis}.  See details for a list of recognized
-authorities. Use \code{authorities="all"} to install all available authorities automatically.}
+provider. Use \code{provider="all"} to install all available provider automatically.}
 
 \item{schema}{format of the database to import.}
 
@@ -48,9 +48,16 @@ Authorities recognized by taxadb are:
 }
 }
 \examples{
-\dontrun{
-  # tmp <- tempdir()
-  # create_db(authorities = "itis", dbdir = tmp)
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+  ## Install the ITIS database
+  create_db("itis")
+
+  ## force re-install:
+  create_db("itis", overwrite = TRUE)
 
 }
 }
