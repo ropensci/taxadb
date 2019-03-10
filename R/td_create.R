@@ -42,7 +42,7 @@ td_create <- function(authorities = "itis",
                       schema = c("dwc"),
                       overwrite = FALSE,
                       lines = 1e6,
-                      dbdir =  rappdirs::user_data_dir("taxadb"),
+                      dbdir =  taxadb_dir(),
                       db = td_connect(dbdir)
                       ){
 
@@ -70,9 +70,7 @@ td_create <- function(authorities = "itis",
 
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
-    urls <- paste0("https://github.com/boettiger-lab/taxadb-cache/",
-                   "releases/download/dwc/",
-                   "dwc", ".2f", new_files)
+    urls <- providers_download_url(new_files)
 
     ## Gabor recommends we drop-in curl::download_file instead here!
     ## or something fancier with curl_fetch_multi
@@ -107,4 +105,11 @@ td_create <- function(authorities = "itis",
 
   invisible(dbdir)
 }
+
+providers_download_url <- function(files){
+  paste0("https://github.com/boettiger-lab/taxadb-cache/",
+         "releases/download/dwc/",
+         "dwc", ".2f", files)
+}
+
 

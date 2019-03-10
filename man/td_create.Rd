@@ -5,8 +5,7 @@
 \title{create a local taxonomic database}
 \usage{
 td_create(authorities = "itis", schema = c("dwc"), overwrite = FALSE,
-  lines = 1e+06, dbdir = rappdirs::user_data_dir("taxadb"),
-  db = td_connect(dbdir))
+  lines = 1e+06, dbdir = taxadb_dir(), db = td_connect(dbdir))
 }
 \arguments{
 \item{authorities}{a list (character vector) of authorities to be included in the

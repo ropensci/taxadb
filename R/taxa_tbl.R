@@ -35,22 +35,16 @@ quick_db <- memoise::memoise(
     # FIXME -- use the same rappdirs location, not tmpfile!
     tmp <- tempfile(fileext = ".tsv.bz2")
     download.file(
-      paste0("https://github.com/cboettig/taxadb/",
-             "releases/download/dwc/dwc", ".2f",
-             tbl_name, ".tsv.bz2"),
+      paste0(providers_download_url(tbl_name), ".tsv.bz2"),
              tmp)
-    ## Wow, utils is hella slow!  ~ 60 s
-    # utils::read.table(bzfile(tmp), header = TRUE, sep = "\t",
-    #                   quote = "", stringsAsFactors = F)
-    ## much better ~ 8 sec
     suppressWarnings(suppressMessages(
       readr::read_tsv(tmp,
       col_types = readr::cols(.default = readr::col_character()))
     ))
-  } #, cache = memoise::cache_filesystem(Sys.getenv("TAXALD_HOME"))
+  } #, cache = memoise::cache_filesystem(Sys.getenv("TAXADB_HOME"))
 )
 
-
+## Memoized on install, so cache location must already exist.
 
 
 # tibble doesn't like null arguments
