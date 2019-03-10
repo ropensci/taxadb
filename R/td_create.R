@@ -70,7 +70,7 @@ td_create <- function(authorities = "itis",
 
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
-    urls <- paste0("https://github.com/cboettig/taxadb/",
+    urls <- paste0("https://github.com/boettiger-lab/taxadb-cache/",
                    "releases/download/dwc/",
                    "dwc", ".2f", new_files)
 
