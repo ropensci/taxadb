@@ -25,3 +25,12 @@ test_that("we can get ids without a DB", {
   expect_identical(bare, "180092")
 
 })
+
+
+test_that("NA handling", {
+
+  x <- i_or_na(character(0L), 1)
+  expect_true(is.na(x))
+
+})
+

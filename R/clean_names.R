@@ -73,8 +73,8 @@ binomial_names <- function(x){
   else
     stringi::stri_trim(s[,1])
 }
-drop_author_year <- function(x){
-  stringi::stri_replace_all_regex(x, "\\(.+)", "")
+drop_parentheticals <- function(x){
+  stringi::stri_replace_all_regex(x, "\\(.+\\)", "")
 }
 
 
