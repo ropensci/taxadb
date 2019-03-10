@@ -2,9 +2,9 @@
 #' create a local taxonomic database
 #'
 
-#' @param authorities a list (character vector) of authorities to be included in the
+#' @param provider a list (character vector) of provider to be included in the
 #'  database. By default, will install `itis`.  See details for a list of recognized
-#'  authorities. Use `authorities="all"` to install all available authorities automatically.
+#'  provider. Use `provider="all"` to install all available provider automatically.
 #' @param schema format of the database to import.
 #' @param lines number of lines that can be safely read in to memory at once. Leave
 #' at default or increase for faster importing if you have plenty of spare RAM.
@@ -33,12 +33,20 @@
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom MonetDBLite MonetDBLite
 #' @importFrom readr cols
-#' @examples \dontrun{
-#'   # tmp <- tempdir()
-#'   # create_db(authorities = "itis", dbdir = tmp)
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'   ## Install the ITIS database
+#'   create_db("itis")
+#'
+#'   ## force re-install:
+#'   create_db("itis", overwrite = TRUE)
 #'
 #' }
-td_create <- function(authorities = "itis",
+td_create <- function(provider = "itis",
                       schema = c("dwc"),
                       overwrite = FALSE,
                       lines = 1e6,
@@ -49,14 +57,16 @@ td_create <- function(authorities = "itis",
   if(!dir.exists(dbdir))
     dir.create(dbdir, FALSE, TRUE)
 
-  recognized_authorities = known_providers
-  if (authorities == "all") {
-    authorities <- recognized_authorities
+  recognized_provider <- c("itis", "ncbi", "col", "tpl",
+                           "gbif", "fb", "slb", "wd", "ott",
+                           "iucn")
+  if (provider == "all") {
+    provider <- recognized_provider
   }
-  stopifnot(all(authorities %in% recognized_authorities))
+  stopifnot(all(provider %in% recognized_provider))
 
-  ## supports vectorized schema and authorities lists.
-  files <- paste0(authorities, ".tsv.bz2")
+  ## supports vectorized schema and provider lists.
+  files <- paste0(provider, ".tsv.bz2")
   dest <- file.path(dbdir, files)
 
   new_dest <- dest

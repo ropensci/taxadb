@@ -10,19 +10,44 @@ td_connect(dbdir = taxadb_dir())
 \item{dbdir}{Path to the database.}
 }
 \value{
-Returns a \code{src_dbi} connection to the database
+Returns a \code{src_dbi} connection to the default MonetDBLite database
 }
 \description{
 Connect to the taxadb database
 }
 \details{
-Primarily useful when a lower-level interface to the
-database is required.  Most \code{taxadb} functions will connect
-automatically without the user needing to call this function.
+This function provides a MonetDBLite database connection for
+\code{taxadb}. Note that \code{taxadb} functions provide drop-in support for most
+relational database connections as an alternative to the MonetDBLite
+option -- simply supply a different \code{src_dbi} connection in place of
+the one returned by \code{td_connect()}.
+
+The MonetDBLite connection provided by this function is set as the default
+option because it can be automatically installed as an embedded database
+from R, much like SQLite, without requiring a seperate server instance.
+MonetDBLite is much faster (particularly for joins) and more feature-rich
+than SQLite (e.g. supporting windowing functions). One drawback of the
+embeded database is the inability to support concurrent connections from
+multiple R sessions.  Either limit access to the local database to a
+single R session at a time, or provide an alternative TAXADB_HOME path
+to start a second session with a separate database.  Alternatively,
+some users may prefer a free-standing server connection to support concurrent
+connections.  We recommend MonetDB (server version) for this for the
+best performance. \code{taxadb} will work with other database connections such
+as Postgres or MariaDB, but queries (filtering joins) will be much slower
+on these non-columnar databases.
+
+For performance reasons, this function will also cache and restore the
+existing database connection, making repeated calls to \code{td_connect()} much
+faster and more failsafe than repeated calls to \link[DBI:dbConnect]{DBI::dbConnect}
 }
 \examples{
-\dontrun{
+\donttest{
+## OPTIONAL: you can first set an alternative home location,
+## such as a temporary directory:
+Sys.setenv(TAXADB_HOME=tempdir())
 
+## Connect to the database:
 db <- connect_db()
 
 }
