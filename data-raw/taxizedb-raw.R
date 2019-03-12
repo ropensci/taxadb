@@ -1,56 +1,45 @@
-## Use taxizedb to download all data from original sources and establish in native database formats
-## Then, use arkdb to extract all tables as tsv.bz2 files
-
-## This script requires a postgres database and mariadb database be already set up
-## and available using the user name, password, and connection addresses given below.
-
-## Instead of running this code, cached copies of the extracted databases are avialable
-## as a piggyback from the github repo.  Simply run:
-##     piggyback::pb_download(repo = "cboettig/taxadb")
-
-
-## Also need:
-## apt-get -y install mariadb-client postgresql-client
 library(readr)
 library(arkdb)
-library(taxizedb)
 library(magrittr)
 
-#### ITIS ###########
-itis_store <- db_download_itis()
-#db_load_itis(itis_store, user = "postgres", pwd = "password", host = "postgres") # locale issues
-itis_db <- src_itis(user = "postgres", password = "password", host = "postgres")
-ark(itis_db, fs::dir_create("taxizedb/itis"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
 
-#### TPL ##############
-tpl <- db_download_tpl()
-db_load_tpl(tpl, user = "postgres", pwd = "password", host = "postgres")
-tpl_db <- src_tpl(user = "postgres", password = "password", host = "postgres")
-ark(tpl_db, fs::dir_create("taxizedb/tpl"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
-
-##### NCBI ################
-ncbi_store <- db_download_ncbi()
-db_load_ncbi() ## not needed for ncbi
-ncbi_db <- src_ncbi(ncbi_store)
-ark(ncbi_db, fs::dir_create("taxizedb/ncbi"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
+#### ITIS DIRECT:
+dir.create("taxizedb/itis", FALSE, TRUE)
+download.file("https://www.itis.gov/downloads/itisSqlite.zip", "taxizedb/itis/itisSqlite.zip")
+unzip("taxizedb/itis/itisSqlite.zip", exdir="taxizedb/itis")
+dbname <- list.files(list.dirs("taxizedb/itis", recursive=FALSE), pattern="[.]sqlite", full.names = TRUE)
+db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
+arkdb::ark(db, "taxizedb/itis", arkdb::streamable_readr_tsv(), lines = 1e6L)
 
 
-### COL ###################
-col <- db_download_col()
-#db_load_col(col, host="mariadb", user="root", pwd="password")  ## Slow to rerun
-col_db <- src_col(host="mariadb", user="root", password="password")
-ark(col_db, fs::dir_create("taxizedb/col"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
+dir.create("taxizedb/tpl", FALSE, TRUE)
+download.file("https://github.com/cboettig/taxadb/releases/download/data/taxizedb.2ftpl.2fplantlist.tsv.bz2",
+              "taxizedb/tpl/plantlist.tsv.bz2")
+
+### NCBI Direct:
+dir.create("taxizedb/ncbi", FALSE, TRUE)
+download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip", "taxizedb/ncbi/taxdmp.zip")
+unzip("taxizedb/ncbi/taxdmp.zip", exdir="taxizedb/ncbi")
 
 
-#### GBIF ############
-#gbif <- db_download_gbif()
-#db_load_gbif()## not needed
-#gbif_db <- src_gbif(gbif)
-#ark(gbif_db, fs::dir_create("taxizedb/gbif"), streamable_table = streamable_readr_tsv(), lines = 1e5L)
+### COL DIRECT ###
+# All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
+dir.create("taxizedb/col", FALSE, TRUE)
+download.file("http://www.catalogueoflife.org/DCA_Export/zip-fixed/2018-annual.zip",
+              "taxizedb/col/2018-annual.zip")
+unzip("taxizedb/col/2018-annual.zip", exdir="taxizedb/col")
+taxon <- read_tsv("taxizedb/col/taxa.txt", col_types = cols(.default = col_character()), quote = "")
+vernacular <- read_tsv("taxizedb/col/vernacular.txt", col_types = cols(.default = col_character()), quote = "")
+reference <- read_tsv("taxizedb/col/reference.txt", col_types = cols(.default = col_character()), quote = "")
+
+## Not useful to us, also not very complete:
+## distribution <- read_tsv("taxizedb/col/distribution.txt", col_types = cols(.default = col_character()), quote = "")     # occurrance, but sparse & coarse
+## speciesprofile <- read_tsv("taxizedb/col/speciesprofile.txt", col_types = cols(.default = col_character()), quote = "") # habitat
+# description <- read_tsv("taxizedb/col/description.txt", col_types = cols(.default = col_character()), quote = "") ## occurance countries
+
 
 
 ## GBIF DIRECT ###
-
 ## extracted from: https://doi.org/10.15468/39omei
 download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
               "taxizedb/gbif/backbone.zip")
@@ -63,9 +52,9 @@ write_tsv(taxon, "taxizedb/gbif/taxon.tsv.bz2")
 write_tsv(common, "taxizedb/gbif/vernacular.tsv.bz2")
 
 
-library(fs)
-library(magrittr)
-library(piggyback)
+## Optional: cache compressed extracted files
+#library(fs)
+#library(piggyback)
 ## ENSURE GitHub PAT is available for uploading -- developers only.
-fs::dir_ls("taxizedb", type = "file", recursive = TRUE) %>%
-  piggyback::pb_upload()
+#fs::dir_ls("taxizedb", type = "file", recursive = TRUE) %>%
+#  piggyback::pb_upload(repo = "boettiger-lab/taxadb-cache", tag = "2019-03")
