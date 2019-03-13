@@ -1,5 +1,6 @@
 library(dplyr)
 library(readr)
+library(stringi)
 source("data-raw/helper-routines.R")
 
 # All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
@@ -14,16 +15,25 @@ taxon <- read_tsv("taxizedb/col/taxa.txt", col_types = char, quote = "")
 vern <- read_tsv("taxizedb/col/vernacular.txt", col_types = char, quote = "")
 #reference <- read_tsv("taxizedb/col/reference.txt", col_types = char, quote = "")
 
+## scientificNameAuthorship tagged on to scientificName, and in inconsistent format. trim it off.
 taxa <- taxon %>%
-  select(taxonID, genericName, acceptedNameUsageID, taxonomicStatus, taxonRank,
+  mutate(taxonomicStatus = forcats::fct_recode(taxonomicStatus, "accepted" = "accepted name")) %>%
+  select(taxonID, scientificName, acceptedNameUsageID, taxonomicStatus, taxonRank,
          kingdom, phylum, class, order, family, genus, specificEpithet, infraspecificEpithet,
-         taxonConceptID, isExtinct, nameAccordingTo, namePublishedIn) %>%
-  rename(scientificName = genericName) %>%
-  mutate(taxonomicStatus = forcats::fct_recode(taxonomicStatus, "accepted" = "accepted name"))
+         taxonConceptID, isExtinct, nameAccordingTo, namePublishedIn, scientificNameAuthorship)
 
-## acceptedNameUsageID should match taxonID for an accepted name
+taxa <- bind_rows(
+  taxa %>%
+    filter(!is.na(scientificNameAuthorship)) %>%
+    mutate(scientificName =
+           stri_trim(stri_replace_first_fixed(scientificName, scientificNameAuthorship, ""))),
+  taxa %>%
+    filter(is.na(scientificNameAuthorship))
+)
 
-## acceptedNameUsageID should be included on all accepted names.
+
+
+## For accepted names, set acceptedNameUsageID to match taxonID, rather NA
 accepted <-
   filter(taxa, taxonomicStatus == "accepted") %>%
   mutate(acceptedNameUsageID = taxonID)
