@@ -1,9 +1,13 @@
-
-library(tidyverse)
+library(dplyr)
+library(stringi)
+library(readr)
 source("data-raw/helper-routines.R")
 
-## Minimal pre-processing into static files is done in taxizedb-raw.R
-piggyback::pb_download(repo="cboettig/taxadb", tag = "data") # raw data cache
+dir.create("taxizedb/gbif", FALSE, TRUE)
+download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
+              "taxizedb/gbif/backbone.zip")
+unzip("taxizedb/gbif/backbone.zip", exdir="taxizedb/gbif")
+
 coltypes <- cols(
   .default = col_character(),
   taxonID = col_double(),
@@ -13,7 +17,11 @@ coltypes <- cols(
   nameAccordingTo = col_character(),
   nomenclaturalStatus = col_character()
 )
-taxon <- read_tsv("taxizedb/gbif/taxon.tsv.bz2", col_types = coltypes)
+taxon <- read_tsv("taxizedb/gbif/Taxon.tsv", col_types = coltypes)
+
+# refs <- vroom::vroom("taxizedb/gbif/Reference.tsv")
+
+
 ## canonicalName appears to be: Genus + specificEpithet + infraspecificEpithet
 ## i.e. SpecificEpithet ~ a name at the "species" rank
 ## Scientific name is ~ canonical name + citation parenthetical
@@ -27,7 +35,8 @@ taxon <- read_tsv("taxizedb/gbif/taxon.tsv.bz2", col_types = coltypes)
 ## amount of variation that is difficult to resolve against, and best treated as a separate field.
 
 ## genericName and canonicalName are not Darwin Core Taxon properties
-## Note that even within GBIF, formatting of scientificNameAuthorship is highly non-standard (parens, abbrv, initials, etc)
+## Note that even within GBIF, formatting of scientificNameAuthorship
+## is highly non-standard (parens, abbrv, initials, etc)
 gbif <- taxon %>%
   select(taxonID,
          scientificName = canonicalName,
@@ -44,7 +53,7 @@ accepted <- filter(gbif, taxonomicStatus == "accepted") %>% mutate(acceptedNameU
 rest <- filter(gbif, taxonomicStatus != "accepted") %>% filter(!is.na(acceptedNameUsageID))
 
 ## Get common names
-vern <- read_tsv("taxizedb/gbif/vernacular.tsv.bz2")
+vern <- read_tsv("taxizedb/gbif/VernacularName.tsv")
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
@@ -61,11 +70,10 @@ comm_names <- vern %>%
 ## de-duplicate avoids cases where an accepted name is also listed as a synonym.
 dwc_gbif <-
   bind_rows(accepted, rest) %>%
-  de_duplicate() %>%
   left_join(comm_names %>% select(taxonID, vernacularName), by = "taxonID") %>%
   mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
 write_tsv(dwc_gbif, "dwc/gbif.tsv.bz2")
 
-piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="cboettig/taxadb", tag="common_names")
+#piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="dwc")

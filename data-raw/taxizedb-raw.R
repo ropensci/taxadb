@@ -41,6 +41,7 @@ reference <- read_tsv("taxizedb/col/reference.txt", col_types = cols(.default = 
 
 ## GBIF DIRECT ###
 ## extracted from: https://doi.org/10.15468/39omei
+dir.create("taxizedb/gbif", FALSE, TRUE)
 download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
               "taxizedb/gbif/backbone.zip")
 unzip("taxizedb/gbif/backbone.zip", exdir="taxizedb/gbif")

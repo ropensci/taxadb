@@ -57,7 +57,6 @@ comm_names <- vern %>%
 ## de-duplicate avoids cases where an accepted name is also listed as a synonym.
 dwc_col <-
   bind_rows(accepted, rest) %>%
-  de_duplicate() %>%
   left_join(comm_names %>% select(taxonID, vernacularName), by = "taxonID") %>%
   mutate(taxonID = stringi::stri_paste("COL:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
