@@ -69,7 +69,7 @@ as_prefix <- function(x, provider){
 
 id_to_prefix <- function(x, provider){
   ## NAs
-  if(is.na(x)) return(NA)
+  if(is.na(x)) return(as.character(NA))
   ## Already prefix format
   if(grepl(paste0("^", toupper(provider), ":"),  x)) return(x)
   ## bare ids
