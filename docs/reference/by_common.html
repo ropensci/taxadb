@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>synonyms — synonyms • taxadb</title>
+<title>Look up taxonomic information by common name — by_common • taxadb</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="synonyms — synonyms" />
+<meta property="og:title" content="Look up taxonomic information by common name — by_common" />
 
-<meta property="og:description" content="Resolve provided list of names against all known synonyms" />
+<meta property="og:description" content="Look up taxonomic information by common name" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -123,26 +123,27 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>synonyms</h1>
-    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/synonyms.R'><code>R/synonyms.R</code></a></small>
-    <div class="hidden name"><code>synonyms.Rd</code></div>
+    <h1>Look up taxonomic information by common name</h1>
+    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/by_common.R'><code>R/by_common.R</code></a></small>
+    <div class="hidden name"><code>by_common.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Resolve provided list of names against all known synonyms</p>
+    <p>Look up taxonomic information by common name</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>synonyms</span>(<span class='no'>name</span>, <span class='kw'>provider</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>,
-  <span class='st'>"slb"</span>, <span class='st'>"wd"</span>, <span class='st'>"ott"</span>, <span class='st'>"iucn"</span>), <span class='kw'>collect</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
+    <pre class="usage"><span class='fu'>by_common</span>(<span class='no'>name</span>, <span class='kw'>provider</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>,
+  <span class='st'>"slb"</span>, <span class='st'>"wd"</span>, <span class='st'>"ott"</span>, <span class='st'>"iucn"</span>), <span class='kw'>collect</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>ignore_case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>name</th>
-      <td><p>a character vector of scientific names, e.g. "Homo sapiens"</p></td>
+      <td><p>a character vector of common (vernacular English) names, e.g. "Humans"</p></td>
     </tr>
     <tr>
       <th>provider</th>
@@ -157,10 +158,26 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)</p></td>
     </tr>
     <tr>
+      <th>ignore_case</th>
+      <td><p>should we ignore case (capitalization) in matching names?
+default is <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
       <th>db</th>
       <td><p>a connection to the taxadb database. See details.</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a data.frame in the Darwin Core tabular format containing the
+matching taxonomic entities.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other filter_by: <code><a href='by_id.html'>by_id</a></code>,
+  <code><a href='by_name.html'>by_name</a></code>, <code><a href='by_rank.html'>by_rank</a></code>,
+  <code><a href='filter_by.html'>filter_by</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -168,18 +185,14 @@ first perform subsequent filtering operations.)</p></td>
    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.setenv'>Sys.setenv</a></span>(<span class='kw'>TAXADB_HOME</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/tempfile'>tempdir</a></span>())
 
 
-<span class='no'>sp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trochalopteron henrici gucenense"</span>,
-        <span class='st'>"Trochalopteron elliotii"</span>)
-<span class='fu'>synonyms</span>(<span class='no'>sp</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 7 x 3</span><span>
-#&gt;   acceptedNameUsage       synonym                          taxonRank
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                            </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    
-#&gt; </span><span style='color: #555555;'>1</span><span> Trochalopteron elliotii Garrulax elliotii                species  
-#&gt; </span><span style='color: #555555;'>2</span><span> Trochalopteron elliotii Trochalopteron henrici gucenense species  
-#&gt; </span><span style='color: #555555;'>3</span><span> Trochalopteron henrici  Garrulax henrici                 species  
-#&gt; </span><span style='color: #555555;'>4</span><span> Trochalopteron henrici  Trochalopteron henrici henrici   species  
-#&gt; </span><span style='color: #555555;'>5</span><span> Trochalopteron henrici  Trochalopteron henrici gucenense species  
-#&gt; </span><span style='color: #555555;'>6</span><span> Trochalopteron elliotii Garrulax elliotii                species  
-#&gt; </span><span style='color: #555555;'>7</span><span> Trochalopteron elliotii Trochalopteron henrici gucenense species  </div><div class='input'>
+<span class='fu'>by_common</span>(<span class='st'>"Angolan Giraffe"</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 2 x 17</span><span>
+#&gt;   taxonID acceptedNameUsa… update_date scientificName taxonRank taxonomicStatus
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>            </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>          
+#&gt; </span><span style='color: #555555;'>1</span><span> ITIS:1… ITIS:1012250     2016-09-27  Giraffa camel… subspeci… synonym        
+#&gt; </span><span style='color: #555555;'>2</span><span> ITIS:1… ITIS:1012250     2016-09-27  Giraffa giraf… subspeci… accepted       
+#&gt; </span><span style='color: #555555;'># … with 11 more variables: kingdom </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, phylum </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,
+#&gt; #   order </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, family </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, genus </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, specificEpithet </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,
+#&gt; #   vernacularName </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, infraspecificEpithet </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, input </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, sort </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span></div><div class='input'>
 </div></span><div class='input'>
 </div></pre>
   </div>
@@ -187,7 +200,11 @@ first perform subsequent filtering operations.)</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

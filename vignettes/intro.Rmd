@@ -1,5 +1,5 @@
 ---
-title: "Quickstart for taxadb"
+title: "Tutorial for taxadb"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
+taxadb:::td_disconnect()
+MonetDBLite::monetdblite_shutdown()
 ```
 
 Here we illustrate the use of `taxadb` to resolve names in the Breeding Bird Survey species list more completely.

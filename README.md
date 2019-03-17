@@ -307,3 +307,12 @@ most_synonyms %>%
 #>   <chr>                              
 #> 1 Mentha longifolia subsp. longifolia
 ```
+
+## Learn more
+
+See richer examples, including name cleaning and background on the
+schema in the
+    vignettes:
+
+  - [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html)
+  - [Schema](https://cboettig.github.io/taxadb/articles/articles/schema.html)

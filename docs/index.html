@@ -64,7 +64,7 @@
       <a href="articles/articles/schema.html">Database schema for taxadb</a>
     </li>
     <li>
-      <a href="articles/intro.html">Quickstart for taxadb</a>
+      <a href="articles/intro.html">Tutorial for taxadb</a>
     </li>
   </ul>
 </li>
@@ -97,57 +97,204 @@
 <a href="#taxadb" class="anchor"></a>taxadb <img src="reference/figures/logo.svg" align="right" alt="" width="120">
 </h1></div>
 
-<p>The goal of <code>taxadb</code> is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records.</p>
+<p>The goal of <code>taxadb</code> is to provide <em>fast</em>, <em>consistent</em> access to taxonomic data, supporting commont tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records.</p>
 <p>Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines. Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. <code>taxadb</code> creates a <em>local</em> database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.</p>
 <div id="install-and-initial-setup" class="section level2">
 <h2 class="hasAnchor">
 <a href="#install-and-initial-setup" class="anchor"></a>Install and initial setup</h2>
 <p>To get started, install the development version directly from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"cboettig/taxadb"</span>)</a></code></pre></div>
-<p>Before we can use most <code>taxadb</code> functions, we need to do a one-time installation of the database <code>taxadb</code> uses for almost all commands. This can take a while to run, but needs only be done once. The database is installed on your local hard-disk and will persist between R sessions. By default, the database will be installed in your user’s application data directory, as detected by the <code>rappdirs</code> package. (Set a custom location instead using <code>dbdir</code> argument.)</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/td_create.html">td_create</a></span>()</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; not overwriting itis</span></a></code></pre></div>
-<p>The default behavior installs only the ITIS database. You can also specify a list of authorities to install, or install every authority using <code><a href="reference/td_create.html">td_create("all")</a></code>.</p>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; Attaching package: 'dplyr'</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; The following objects are masked from 'package:stats':</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;     filter, lag</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; The following objects are masked from 'package:base':</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt;     intersect, setdiff, setequal, union</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(readr)</a></code></pre></div>
+<p>Create a local copy of the Catalogue of Life (2018) database:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="reference/td_create.html">td_create</a></span>(<span class="st">"col"</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; not overwriting col</span></a></code></pre></div>
+<p>Read in the species list used by the Breeding Bird Survey:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">bbs_species_list &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata/bbs.tsv"</span>, <span class="dt">package=</span><span class="st">"taxadb"</span>)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">bbs &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(bbs_species_list)</a></code></pre></div>
 </div>
-<div id="test-drive" class="section level2">
+<div id="getting-names-and-ids" class="section level2">
 <h2 class="hasAnchor">
-<a href="#test-drive" class="anchor"></a>Test drive</h2>
-<p>Once the databases have been set up, we’re ready to explore.<br>
-Here’s a list of all the birds species known to ITIS:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="reference/descendants.html">descendants</a></span>(<span class="dt">name =</span> <span class="st">"Aves"</span>, <span class="dt">rank =</span> <span class="st">"class"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; # A tibble: 12,614 x 14</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt;    taxonID acceptedNameUsa… update_date scientificName taxonRank</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;    </span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;  1 ITIS:1… ITIS:562791      2016-04-29  Rollandia mic… species  </span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;  2 ITIS:1… ITIS:176409      2016-04-29  Ardea helias   species  </span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;  3 ITIS:1… ITIS:707807      2016-04-29  Mesites varie… species  </span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;  4 ITIS:1… ITIS:561100      2016-04-29  Mesites unico… species  </span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  5 ITIS:1… ITIS:561100      2016-04-29  Mesoenas unic… species  </span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  6 ITIS:1… ITIS:707807      2016-04-29  Mesoenas vari… species  </span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  7 ITIS:1… ITIS:562791      2016-04-29  Podiceps micr… species  </span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  8 ITIS:1… ITIS:563259      2016-04-29  Colymbus rufi… species  </span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  9 ITIS:1… ITIS:824133      2016-04-29  Podiceps tric… species  </span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; 10 ITIS:1… ITIS:174508      2016-04-29  Colymbus domi… species  </span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; # … with 12,604 more rows, and 9 more variables: taxonomicStatus &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; #   kingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;,</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; #   genus &lt;chr&gt;, specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;</span></a></code></pre></div>
+<a href="#getting-names-and-ids" class="anchor"></a>Getting names and ids</h2>
+<p>Two core functions are <code><a href="reference/get_ids.html">get_ids()</a></code> and <code><a href="reference/get_names.html">get_names()</a></code>. These functions take a vector of names or ids (respectively), and return a vector of ids or names (respectively). For instance, we can use this to attempt to resolve all the bird names in the Breeding Bird Survey against the Catalogue of Life:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">birds &lt;-<span class="st"> </span>bbs <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">id =</span> <span class="kw"><a href="reference/get_ids.html">get_ids</a></span>(species, <span class="st">"col"</span>))</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(birds, <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; # A tibble: 10 x 2</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt;    species                       id          </span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt;    &lt;chr&gt;                         &lt;chr&gt;       </span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;  1 Dendrocygna autumnalis        &lt;NA&gt;        </span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt;  2 Dendrocygna bicolor           COL:35517332</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co">#&gt;  3 Anser canagicus               COL:35517329</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co">#&gt;  4 Anser caerulescens            COL:35517325</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt;  5 Chen caerulescens (blue form) &lt;NA&gt;        </span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt;  6 Anser rossii                  COL:35517328</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co">#&gt;  7 Anser albifrons               &lt;NA&gt;        </span></a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="co">#&gt;  8 Branta bernicla               COL:35517301</span></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="co">#&gt;  9 Branta bernicla nigricans     COL:35537100</span></a>
+<a class="sourceLine" id="cb5-18" data-line-number="18"><span class="co">#&gt; 10 Branta hutchinsii             COL:35536445</span></a></code></pre></div>
+<p>Note that some names cannot be resolved to an identifier. This can occur because of mis-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider. Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return <code>NA</code>. The <code>by_name</code> filtering functions can help us resolve this last case (see below).</p>
+<p><code><a href="reference/get_ids.html">get_ids()</a></code> returns the IDs of accepted names, that is <code>dwc:AcceptedNameUsageID</code>s. We can resolve the IDs into accepted names:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">birds <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">accepted_name =</span> <span class="kw"><a href="reference/get_names.html">get_names</a></span>(id, <span class="st">"col"</span>))</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; # A tibble: 750 x 3</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt;    species                       id           accepted_name            </span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt;                         &lt;chr&gt;        &lt;chr&gt;                    </span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt;  1 Dendrocygna autumnalis        &lt;NA&gt;         &lt;NA&gt;                     </span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt;  2 Dendrocygna bicolor           COL:35517332 Dendrocygna bicolor      </span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt;  3 Anser canagicus               COL:35517329 Chen canagica            </span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt;  4 Anser caerulescens            COL:35517325 Chen caerulescens        </span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt;  5 Chen caerulescens (blue form) &lt;NA&gt;         &lt;NA&gt;                     </span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt;  6 Anser rossii                  COL:35517328 Chen rossii              </span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;  7 Anser albifrons               &lt;NA&gt;         &lt;NA&gt;                     </span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt;  8 Branta bernicla               COL:35517301 Branta bernicla          </span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt;  9 Branta bernicla nigricans     COL:35537100 Branta bernicla nigricans</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; 10 Branta hutchinsii             COL:35536445 Branta hutchinsii        </span></a>
+<a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; # … with 740 more rows</span></a></code></pre></div>
+<p>This illustrates that some of our names, e.g. <em>Dendrocygna bicolor</em> are accepted in the Catalogue of Life, while others, <em>Anser canagicus</em> are <strong>known synonyms</strong> of a different accepted name: <strong>Chen canagica</strong>. Resolving synonyms and accepted names to identifiers helps us avoid the possible miss-matches we could have when the same species is known by two different names.</p>
+</div>
+<div id="taxonomic-data-tables" class="section level2">
+<h2 class="hasAnchor">
+<a href="#taxonomic-data-tables" class="anchor"></a>Taxonomic Data Tables</h2>
+<p>Local access to taxonomic data tables lets us do much more than look up names and ids. A family of <code>by_*</code> functions in <code>taxadb</code> help us work directly with subsets of the taxonomic data. As we noted above, this can be useful in resolving certain ambiguous names.</p>
+<p>For instance, <em>Trochalopteron henrici gucenense</em> does not resolve to an identifier in ITIS:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="reference/get_ids.html">get_ids</a></span>(<span class="st">"Trochalopteron henrici gucenense"</span>) </a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; [1] NA</span></a></code></pre></div>
+<p>Using <code><a href="reference/by_name.html">by_name()</a></code>, we find this is because the name resolves not to zero matches, but to more than one match:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="reference/by_name.html">by_name</a></span>(<span class="st">"Trochalopteron henrici gucenense"</span>) </a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt; # A tibble: 2 x 17</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#&gt;   taxonID acceptedNameUsa… update_date scientificName taxonRank</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; 1 ITIS:9… ITIS:916116      2013-11-04  Trochaloptero… subspeci…</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt; 2 ITIS:9… ITIS:916117      2013-11-04  Trochaloptero… subspeci…</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; # … with 12 more variables: taxonomicStatus &lt;chr&gt;, kingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt; #   phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt; #   specificEpithet &lt;chr&gt;, vernacularName &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt; #   infraspecificEpithet &lt;chr&gt;, input &lt;chr&gt;, sort &lt;int&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="reference/by_name.html">by_name</a></span>(<span class="st">"Trochalopteron henrici gucenense"</span>)  <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">acceptedNameUsage =</span> <span class="kw"><a href="reference/get_names.html">get_names</a></span>(acceptedNameUsageID)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt; # A tibble: 2 x 4</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt;   scientificName       taxonomicStatus acceptedNameUsage   acceptedNameUsa…</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;                &lt;chr&gt;           &lt;chr&gt;               &lt;chr&gt;           </span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; 1 Trochalopteron henr… synonym         Trochalopteron ell… ITIS:916116     </span></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt; 2 Trochalopteron henr… synonym         Trochalopteron hen… ITIS:916117</span></a></code></pre></div>
+<p>Similar functions <code>by_id</code>, <code>by_rank</code>, and <code>by_common</code> take IDs, scientific ranks, or common names, respectively. Here, we can get taxonomic data on all bird names in the Catalogue of Life:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="reference/by_rank.html">by_rank</a></span>(<span class="dt">name =</span> <span class="st">"Aves"</span>, <span class="dt">rank =</span> <span class="st">"class"</span>, <span class="dt">provider =</span> <span class="st">"col"</span>)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; # A tibble: 32,327 x 21</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">#&gt;    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;          &lt;chr&gt;            &lt;chr&gt;           &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;  1 COL:35… Struthio came… COL:35516814     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt;  2 COL:35… Rhea americana COL:35516815     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt;  3 COL:35… Dromaius nova… COL:35516817     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co">#&gt;  4 COL:35… Casuarius ben… COL:35516818     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co">#&gt;  5 COL:35… Casuarius una… COL:35516819     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#&gt;  6 COL:35… Apteryx austr… COL:35516820     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co">#&gt;  7 COL:35… Tinamus gutta… COL:35516823     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co">#&gt;  8 COL:35… Tinamus major  COL:35516824     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co">#&gt;  9 COL:35… Tinamus osgoo… COL:35516825     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co">#&gt; 10 COL:35… Tinamus solit… COL:35516826     accepted        species  </span></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15"><span class="co">#&gt; # … with 32,317 more rows, and 16 more variables: kingdom &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-16" data-line-number="16"><span class="co">#&gt; #   phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-17" data-line-number="17"><span class="co">#&gt; #   specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="co">#&gt; #   taxonConceptID &lt;chr&gt;, isExtinct &lt;chr&gt;, nameAccordingTo &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-19" data-line-number="19"><span class="co">#&gt; #   namePublishedIn &lt;chr&gt;, scientificNameAuthorship &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-20" data-line-number="20"><span class="co">#&gt; #   vernacularName &lt;chr&gt;, input &lt;chr&gt;, sort &lt;int&gt;</span></a></code></pre></div>
+<p>Combining these with <code>dplyr</code> functions can make it easy to explore this data: for instance, which families have the most species?</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="reference/by_rank.html">by_rank</a></span>(<span class="dt">name =</span> <span class="st">"Aves"</span>, <span class="dt">rank =</span> <span class="st">"class"</span>, <span class="dt">provider =</span> <span class="st">"col"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(taxonomicStatus <span class="op">==</span><span class="st"> "accepted"</span>, taxonRank<span class="op">==</span><span class="st">"species"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(family) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>(<span class="dt">sort =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>()</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt; # A tibble: 6 x 2</span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co">#&gt; # Groups:   family [6]</span></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co">#&gt;   family           n</span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co">#&gt;   &lt;chr&gt;        &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co">#&gt; 1 Tyrannidae     402</span></a>
+<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="co">#&gt; 2 Psittacidae    377</span></a>
+<a class="sourceLine" id="cb11-12" data-line-number="12"><span class="co">#&gt; 3 Thraupidae     374</span></a>
+<a class="sourceLine" id="cb11-13" data-line-number="13"><span class="co">#&gt; 4 Trochilidae    339</span></a>
+<a class="sourceLine" id="cb11-14" data-line-number="14"><span class="co">#&gt; 5 Columbidae     323</span></a>
+<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="co">#&gt; 6 Muscicapidae   317</span></a></code></pre></div>
+</div>
+<div id="using-the-database-connection-directly" class="section level2">
+<h2 class="hasAnchor">
+<a href="#using-the-database-connection-directly" class="anchor"></a>Using the database connection directly</h2>
+<p><code>by_*</code> functions by default return in-memory data frames. Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider. Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The <code><a href="reference/taxa_tbl.html">taxa_tbl()</a></code> function provides this connection:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; # Source:   table&lt;col&gt; [?? x 19]</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; # Database: MonetDBEmbeddedConnection</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt;    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;          &lt;chr&gt;            &lt;chr&gt;           &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;  1 COL:31… Limacoccus br… COL:316423       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt;  2 COL:31… Coccus bromel… COL:316424       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt;  3 COL:31… Apiomorpha po… COL:316425       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">#&gt;  4 COL:31… Eriococcus ch… COL:316441       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt;  5 COL:31… Eriococcus ch… COL:316442       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt;  6 COL:31… Eriococcus ch… COL:316443       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co">#&gt;  7 COL:31… Eriococcus ci… COL:316444       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co">#&gt;  8 COL:31… Eriococcus ci… COL:316445       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">#&gt;  9 COL:31… Eriococcus bu… COL:316447       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">#&gt; 10 COL:31… Eriococcus au… COL:316450       accepted        species  </span></a>
+<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co">#&gt; # … with more rows, and 14 more variables: kingdom &lt;chr&gt;, phylum &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co">#&gt; #   class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt; #   specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co">#&gt; #   taxonConceptID &lt;chr&gt;, isExtinct &lt;chr&gt;, nameAccordingTo &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co">#&gt; #   namePublishedIn &lt;chr&gt;, scientificNameAuthorship &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co">#&gt; #   vernacularName &lt;chr&gt;</span></a></code></pre></div>
+<p>We can still use most familiar <code>dplyr</code> verbs to perform common tasks. For instance: which species has the most known synonyms?</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">most_synonyms &lt;-<span class="st"> </span><span class="kw"><a href="reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(acceptedNameUsageID) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>(<span class="dt">sort=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">most_synonyms</a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt; # Source:     lazy query [?? x 2]</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt; # Database:   MonetDBEmbeddedConnection</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt; # Groups:     acceptedNameUsageID</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt; # Ordered by: desc(n)</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;    acceptedNameUsageID     n</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt;    &lt;chr&gt;               &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt;  1 COL:43082445          456</span></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt;  2 COL:43081989          373</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt;  3 COL:43124375          329</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt;  4 COL:43353659          328</span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt;  5 COL:43223150          322</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt;  6 COL:43337824          307</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="co">#&gt;  7 COL:43124158          302</span></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">#&gt;  8 COL:43081973          296</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19"><span class="co">#&gt;  9 COL:43333057          253</span></a>
+<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="co">#&gt; 10 COL:23162697          252</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="co">#&gt; # … with more rows</span></a></code></pre></div>
+<p>However, unlike the <code>by_*</code> functions which return convienent in-memory tables, this is still a remote connection. This means that direct access using the <code><a href="reference/taxa_tbl.html">taxa_tbl()</a></code> function (or directly accessing the database connection using <code><a href="reference/td_connect.html">td_connect()</a></code>) is more low-level and requires greater care. For instance, we cannot just add a <code>%&gt;% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))</code> to the above, becuase <code>get_names</code> does not work on a remote collection. Instead, we would first need to use a <code><a href="https://dplyr.tidyverse.org/reference/compute.html">collect()</a></code> to pull the summary table into memory. Users familiar with remote databases in <code>dplyr</code> will find using <code><a href="reference/taxa_tbl.html">taxa_tbl()</a></code> directly to be convenient and fast, while other users may find the <code>by_*</code> approach to be more intuitive.</p>
+<p>So which species had those 456 names?</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">most_synonyms <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(acceptedNameUsageID) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="reference/by_id.html">by_id</a></span>(<span class="st">"col"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(scientificName)</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # A tibble: 1 x 1</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt;   scientificName                     </span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;                              </span></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt; 1 Mentha longifolia subsp. longifolia</span></a></code></pre></div>
 </div>
 <div id="learn-more" class="section level2">
 <h2 class="hasAnchor">
-<a href="#learn-more" class="anchor"></a>Learn More</h2>
-<div id="an-introduction-to-taxadb" class="section level3">
-<h3 class="hasAnchor">
-<a href="#an-introduction-to-taxadb" class="anchor"></a><a href="https://cboettig.github.io/taxadb/articles/articles/taxadb.html">An introduction to taxadb</a>
-</h3>
-<p>The <a href="https://cboettig.github.io/taxadb/articles/articles/taxadb.html">taxadb introduction</a> provides an overview showing how <code>taxadb</code> functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.</p>
-</div>
-<div id="taxadb-schemas" class="section level3">
-<h3 class="hasAnchor">
-<a href="#taxadb-schemas" class="anchor"></a><a href="https://cboettig.github.io/taxadb/articles/articles/schema.html">taxadb schemas</a>
-</h3>
-<p>See the <a href="https://cboettig.github.io/taxadb/articles/articles/schema.html">schemas</a> vignette for an overview of the underlying tables used by <code>taxadb</code> functions, and more about the different authorities accessed by taxadb.</p>
-</div>
+<a href="#learn-more" class="anchor"></a>Learn more</h2>
+<p>See richer examples, including name cleaning and background on the schema in the vignettes:</p>
+<ul>
+<li><a href="https://cboettig.github.io/taxadb/articles/intro.html">Tutorial</a></li>
+<li><a href="https://cboettig.github.io/taxadb/articles/articles/schema.html">Schema</a></li>
+</ul>
 </div>
 </div>
   </div>
@@ -200,7 +347,7 @@ Here’s a list of all the birds species known to ITIS:</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
       </footer>
 </div>

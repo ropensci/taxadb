@@ -98,7 +98,7 @@
       <a href="../articles/articles/schema.html">Database schema for taxadb</a>
     </li>
     <li>
-      <a href="../articles/intro.html">Quickstart for taxadb</a>
+      <a href="../articles/intro.html">Tutorial for taxadb</a>
     </li>
   </ul>
 </li>
@@ -134,7 +134,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>get_ids</span>(<span class='no'>names</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='no'>KNOWN_AUTHORITIES</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"bare"</span>, <span class='st'>"prefix"</span>,
+    <pre class="usage"><span class='fu'>get_ids</span>(<span class='no'>names</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='no'>known_providers</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"prefix"</span>, <span class='st'>"bare"</span>,
   <span class='st'>"uri"</span>), <span class='kw'>taxadb_db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>(), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -147,13 +147,13 @@ include higher-order ranks in most authorities).</p></td>
     </tr>
     <tr>
       <th>db</th>
-      <td><p>abbreviation code for the authority.  See details.</p></td>
+      <td><p>abbreviation code for the provider.  See details.</p></td>
     </tr>
     <tr>
       <th>format</th>
-      <td><p>Format for the returned: bare identifier, one of</p><ul>
-<li><p><code>bare</code> (e.g. <code>9606</code>, default, matching <code><a href='https://www.rdocumentation.org/packages/taxize/topics/get_ids'>taxize::get_ids()</a></code>),</p></li>
-<li><p><code>prefix</code> (e.g. <code>NCBI:9606</code>), or</p></li>
+      <td><p>Format for the returned identifier, one of</p><ul>
+<li><p><code>prefix</code> (e.g. <code>NCBI:9606</code>, the default), or</p></li>
+<li><p><code>bare</code> (e.g. <code>9606</code>, used in <code><a href='https://www.rdocumentation.org/packages/taxize/topics/get_ids'>taxize::get_ids()</a></code>),</p></li>
 <li><p><code>uri</code> (e.g.
 <code>http://ncbi.nlm.nih.gov/taxonomy/9606</code>).</p></li>
 </ul></td>
@@ -164,9 +164,16 @@ include higher-order ranks in most authorities).</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments passed to <code><a href='ids.html'>ids()</a></code></p></td>
+      <td><p>additional arguments (currently ignored)</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a vector of IDs, of the same length as the input names Any
+unmatched names or multiply-matched names will return as <a href='https://www.rdocumentation.org/packages/base/topics/NA'>NA</a>s.
+To resolve multi-matched names, use <code><a href='by_name.html'>by_name()</a></code> instead to return
+a table with a separate row for each separate match of the input name.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -175,23 +182,28 @@ are not recognized by taxadb and will throw an error here. Meanwhile,
 taxadb recognizes several authorities not known to <code>[taxize::get_ids()]</code>.
 Both include <code>itis</code>, <code>ncbi</code>, <code>col</code>, and <code>gbif</code>.</p>
 <p>Like all taxadb functions, this function will run
-fastest if a local copy of the authority is installed in advance
+fastest if a local copy of the provider is installed in advance
 using <code>[td_create()]</code>.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>by_name</p>
+<p>Other get: <code><a href='get_names.html'>get_names</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='fu'>get_ids</span>(<span class='st'>"Homo sapiens"</span>)
-<span class='fu'>get_ids</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Homo sapiens"</span>, <span class='st'>"Mammalia"</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"prefix"</span>)
-<span class='fu'>get_ids</span>(<span class='st'>"Homo sapiens"</span>, <span class='kw'>db</span><span class='kw'>=</span> <span class='st'>"ncbi"</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"uri"</span>)
-<span class='co'># }</span></pre>
+    <pre class="examples"><div class='input'><span class='fu'>get_ids</span>(<span class='st'>"Homo sapiens"</span>)</div><div class='output co'>#&gt; [1] "ITIS:180092"</div><div class='input'><span class='fu'>get_ids</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Homo sapiens"</span>, <span class='st'>"Mammalia"</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"prefix"</span>)</div><div class='output co'>#&gt; [1] "ITIS:180092" "ITIS:179913"</div><div class='input'><span class='fu'>get_ids</span>(<span class='st'>"Homo sapiens"</span>, <span class='kw'>db</span><span class='kw'>=</span> <span class='st'>"ncbi"</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"uri"</span>)</div><div class='output co'>#&gt; [1] "http://ncbi.nlm.nih.gov/taxonomy/9606"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#value">Value</a></li>
+
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -205,7 +217,7 @@ using <code>[td_create()]</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
       </footer>
    </div>
