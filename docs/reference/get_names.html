@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • taxadb</title>
+<title>get_names — get_names • taxadb</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,7 +37,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="get_names — get_names" />
+
+<meta property="og:description" content="Translate identifiers into scientific names" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -57,7 +59,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -119,117 +121,88 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>get_names</h1>
+    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/get_names.R'><code>R/get_names.R</code></a></small>
+    <div class="hidden name"><code>get_names.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    
+    <p>Translate identifiers into scientific names</p>
+    
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
-
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="by_common.html">by_common()</a></code> </p>
-        </td>
-        <td><p>Look up taxonomic information by common name</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="by_id.html">by_id()</a></code> </p>
-        </td>
-        <td><p>Return a taxonomic table matching the requested ids</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="by_name.html">by_name()</a></code> </p>
-        </td>
-        <td><p>Look up taxonomic information by scientific name</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="by_rank.html">by_rank()</a></code> </p>
-        </td>
-        <td><p>Get all members (descendants) of a given rank level</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="clean_names.html">clean_names()</a></code> </p>
-        </td>
-        <td><p>Clean taxonomic names</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="filter_by.html">filter_by()</a></code> </p>
-        </td>
-        <td><p>Creates a data frame with column name given by <code>by</code>, and values given
-by the vector <code>x</code>, and then uses this table to do a filtering join,
-joining on the <code>by</code> column to return all rows matching the <code>x</code> values
-(scientificNames, taxonIDs, etc).</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_ids.html">get_ids()</a></code> </p>
-        </td>
-        <td><p>get_ids</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_names.html">get_names()</a></code> </p>
-        </td>
-        <td><p>get_names</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mutate_db.html">mutate_db()</a></code> </p>
-        </td>
-        <td><p>Add new variables to a database</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="synonyms.html">synonyms()</a></code> </p>
-        </td>
-        <td><p>synonyms</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="taxa_tbl.html">taxa_tbl()</a></code> </p>
-        </td>
-        <td><p>Return a reference to a given table in the taxadb database</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="td_connect.html">td_connect()</a></code> </p>
-        </td>
-        <td><p>Connect to the taxadb database</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="td_create.html">td_create()</a></code> </p>
-        </td>
-        <td><p>create a local taxonomic database</p></td>
-      </tr>
-    </tbody>
+    <pre class="usage"><span class='fu'>get_names</span>(<span class='no'>id</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>, <span class='st'>"slb"</span>,
+  <span class='st'>"wd"</span>, <span class='st'>"ott"</span>, <span class='st'>"iucn"</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"guess"</span>, <span class='st'>"prefix"</span>, <span class='st'>"bare"</span>, <span class='st'>"uri"</span>),
+  <span class='kw'>ignore_case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>taxadb_db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>id</th>
+      <td><p>a list of taxonomic identifiers.</p></td>
+    </tr>
+    <tr>
+      <th>db</th>
+      <td><p>abbreviation code for the provider.  See details.</p></td>
+    </tr>
+    <tr>
+      <th>format</th>
+      <td><p>Format for the input identifier, one of</p><ul>
+<li><p><code>guess</code> Will determine the prefix automatically, but will be
+slower than if you specify this in advance!</p></li>
+<li><p><code>prefix</code> (e.g. <code>NCBI:9606</code>), Preferred (fastest) format.</p></li>
+<li><p><code>bare</code> (e.g. <code>9606</code>), (But must mach provider <code>db</code>!)</p></li>
+<li><p><code>uri</code> (e.g. <code>http://ncbi.nlm.nih.gov/taxonomy/9606</code>).</p></li>
+</ul></td>
+    </tr>
+    <tr>
+      <th>ignore_case</th>
+      <td><p>should we ignore case (capitalization) in matching names?
+default is <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>taxadb_db</th>
+      <td><p>Connection to from <code>[td_connect]()</code>.</p></td>
+    </tr>
     </table>
-  </div>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>a vector of names, of the same length as the input ids. Any
+unmatched IDs will return as <a href='https://www.rdocumentation.org/packages/base/topics/NA'>NA</a>s.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Like all taxadb functions, this function will run
+fastest if a local copy of the provider is installed in advance
+using <code>[td_create()]</code>.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other get: <code><a href='get_ids.html'>get_ids</a></code></p></div>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>get_names</span>(<span class='fl'>180092</span>)</div><div class='output co'>#&gt; [1] "Homo sapiens"</div><div class='input'><span class='fu'>get_names</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ITIS:180092"</span>, <span class='st'>"ITIS:179913"</span>))</div><div class='output co'>#&gt; [1] "Homo sapiens" "Mammalia"    </div><div class='input'><span class='fu'>get_names</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ITIS:180092"</span>, <span class='st'>"ITIS:179913"</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"prefix"</span>)</div><div class='output co'>#&gt; [1] "Homo sapiens" "Mammalia"    </div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 

@@ -98,7 +98,7 @@
       <a href="../articles/articles/schema.html">Database schema for taxadb</a>
     </li>
     <li>
-      <a href="../articles/intro.html">Quickstart for taxadb</a>
+      <a href="../articles/intro.html">Tutorial for taxadb</a>
     </li>
   </ul>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Clean taxonomic names</h1>
-    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/fuzzy.R'><code>R/fuzzy.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/clean_names.R'><code>R/clean_names.R</code></a></small>
     <div class="hidden name"><code>clean_names.Rd</code></div>
     </div>
 
@@ -135,7 +135,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>clean_names</span>(<span class='no'>names</span>, <span class='kw'>fix_delim</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>binomial_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>remove_sp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>remove_sp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>ascii_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lowercase</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,13 +154,23 @@ logical, default TRUE.</p></td>
       <th>binomial_only</th>
       <td><p>Attempt to prune name to a binomial name, e.g.
 Genus and species (specific epithet), e.g. <code>Homo sapiens sapiens</code>
-becomes <code>Homo sapiens</code>. logical, default TRUE.</p></td>
+becomes <code>Homo sapiens</code>. logical, default <a href='https://www.rdocumentation.org/packages/base/topics/logical'>TRUE</a>.</p></td>
     </tr>
     <tr>
       <th>remove_sp</th>
       <td><p>Should we drop unspecified species epithet designations?
 e.g. <code>Homo sp.</code> becomes <code>Homo</code> (thus only matching against genus level ids).
-logical, default TRUE.</p></td>
+logical, default <a href='https://www.rdocumentation.org/packages/base/topics/logical'>TRUE</a>.</p></td>
+    </tr>
+    <tr>
+      <th>ascii_only</th>
+      <td><p>should we coerce strings to ascii characters?
+(see <code><a href='https://www.rdocumentation.org/packages/stringi/topics/stri_trans_general'>stringi::stri_trans_general()</a></code>)</p></td>
+    </tr>
+    <tr>
+      <th>lowercase</th>
+      <td><p>should names be coerced to lower-case to provide
+case-insensitive matching?</p></td>
     </tr>
     </table>
     
@@ -171,13 +181,14 @@ Additional extensions may be added later. A goal of the <code>clean_names</code>
 is that any modification rule of the name strings be precise, atomic, and
 toggle-able, rather than relying on clever but more opaque rules and
 arbitrary scores. This utility should always be used with care, as
-indiscriminant modification of names may result in successful but inaccurate
+indiscriminate modification of names may result in successful but inaccurate
 name matching. A good pattern is to only apply this function to the subset
 of names that cannot be directly matched.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>clean_names</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Homo sapiens sapiens"</span>, <span class='st'>"Homo.sapiens"</span>, <span class='st'>"Homo sp."</span>))</div><div class='output co'>#&gt; [1] "Homo sapiens" "Homo sapiens" "Homo"        </div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>clean_names</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Homo sapiens sapiens"</span>, <span class='st'>"Homo.sapiens"</span>, <span class='st'>"Homo sp."</span>))</div><div class='output co'>#&gt; [1] "homo sapiens" "homo sapiens" "homo"        </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -198,7 +209,7 @@ of names that cannot be directly matched.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
       </footer>
    </div>

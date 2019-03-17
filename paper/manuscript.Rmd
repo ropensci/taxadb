@@ -35,8 +35,12 @@ library(tidyverse)
 
 
 
-As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species, we face a continual challenge of reconciling taxonomic names. How many species are in the combined data? Do the studies use the same names for the same species, or do they use different synonyms for the same species? Failing to correct for such differences can lead to significant inflation of species counts and miss-aligned  datasets (Figure 1).  These challenges have become particularly acute as it becomes increasingly common for researchers to work across larger number and diversity of species in any given analysis, which may preclude the resources or substantative taxonomic expertise all clades needed to resolve scientific names.
-While these issues have long been recognized in the literature [], and a growing number of databases and tools have emerged and grown over the past few decades [e.g. @itis; @ncbi; @col], it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner. Here, we present an R package, `taxadb`, which seeks to address this gap.
+As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species, we face a continual challenge of reconciling taxonomic names.
+How many species are in the combined data? Do the studies use the same names for the same species, or do they use different synonyms for the same species?
+Failing to correct for such differences can lead to significant inflation of species counts and miss-aligned  datasets (Figure 1).
+These challenges have become particularly acute as it becomes increasingly common for researchers to work across larger number and diversity of species in any given analysis, which may preclude the resources or substantative taxonomic expertise all clades needed to resolve scientific names [@Patterson2010].
+While these issues have long been recognized in the literature [], and a growing number of databases and tools have emerged and grown over the past few decades [e.g. @itis; @ncbi; @col], it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
+Here, we present an R package, `taxadb`, which seeks to address this gap.
 
 Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank, hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
 The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2012] has become a popular way R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
@@ -53,6 +57,9 @@ After installing the `taxadb` R package, users can create local copies of data f
 
 ```{r}
 library(taxadb)
+```
+
+```{r eval=FALSE, message=FALSE}
 td_create("all")
 ```
 
@@ -71,7 +78,11 @@ Functions in `taxadb` are organized into several families:
 
 ## Returning IDs
 
-Resolving names to IDs 
+Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers area also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
+
+To illustrate this, we consider the following ten species names of different birds:
+
+<!-- Would this example be more compelling if we were joining two tables of data?  -->
 
 ```{r}
 birds <- data.frame(species = c(
@@ -88,35 +99,61 @@ birds <- data.frame(species = c(
 ), stringsAsFactors = FALSE)
 ```
 
+The `get_ids()` function in `taxadb` can quickly resolve thousands of species names to unique identifiers. Here, we see that resolving names to identifiers in ITIS reveals that we have only 5 unique ids, as many of our names were known synonyms:
 
-Resolving names to identifiers (using the default provider, ITIS) reveals that we have only 5 unique ids, as many of our names were known synonyms:
+--- 
+
+Box: `get_ids()` returns the `acceptedNameUsageID`, the identifier associated with the *accepted* name.  Some naming providers, such as ITIS and NCBI, provide taxonomic identifiers to both synonyms and accepted names.  Other providers, such as COL and GBIF, only provide identifiers for accepted names.  
+Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` only for names which are synonyms, and otherwise to provide a `taxonID`.  For accepted names, the `acceptedNameUsageID` is then given as missing (`NA`), while for synonyms, the `taxonID` may be missing (`NA`).  In contrast, `taxadb` lists the `acceptedNameUsageID` for accepted names (where it matches the `taxonID`), as well as known synonyms.  This is semantically identical, but also more convenient for database interfaces, since it allows a name to mapped to it's accepted identifier (or an identifier to map to it's accepted name usage) without the additional logic.  For consistency, we will use the term "identifier" to mean the `acceptedNameUsageID` rather than the more ambiguous `taxonID` (which is undefined for synonyms listed by many providers), unless explicitly stated otherwise.
+
+---
 
 ```{r}
-birds %>% mutate(id = get_ids(species)) %>% arrange(id)
+birds <- birds %>% mutate(id = get_ids(species, "itis")) %>% arrange(id)
+birds
 ```
+
+
 This step has also revealed one name that could not be resolved.  This could be a synonym not known to ITIS, or a species not known to ITIS, but often indicates a misspelling. A peek at other members of this genus starting with `"e"` might help us spot the issue:
 
 ```{r}
 by_rank("Myadestes", "genus") %>% filter(grepl("^e", specificEpithet))
 ```
  
+Here we see that  `"Myadestes elizabeth"` was likely a miss-spelling of the ITIS-accepted name `"Myadestes elisabeth"`.  
+
+```{r}
+get_ids("Myadestes elisabeth", provider = "itis", format = "uri")
+```
  
- 
- 
+
+
+It is equally important to be able to resolve scientific names from these identifiers.   
+
+
 ```{r}
 ids <- birds$species %>% get_ids() %>% unique() 
 data.frame(ids, species = get_names(ids))
 ```
 
+
+
+We can get a richer picture of the our matched names by using the table-functions such as `by_id` to return a table of taxonomic information about each identifier.  For instance, with this information we can quickly verify that no name has been mistakenly matched to a taxon outside of the target group (*Aves*): 
+ 
+ <!-- show multiple-matched cases -->
+ 
 ```{r}
-birds %>%
-  mutate(id = get_ids(species), 
-         accepted = get_names(id)) %>%
-  select(id, accepted) %>%
-  distinct()
-   
+df <- by_id(birds$id, "itis") 
+df 
 ```
 
+The column headings (though not necessarily the order) are consistent across `taxadb`, with all column names using terms defined by the Darwin Core ontology, [@dwc].  Some of these (`acceptedNameUsageID`, `taxonRank`, `taxonomicStatus`) may be cumbersome, but are at least consistent and unambiguous.  `taxadb` promises a core set of these columns are provided for (see Table 3)
+
+
+```{r}
+df %>% filter(class != "Aves")
+```
+ 
 
 
 
@@ -124,17 +161,17 @@ birds %>%
 
 
 ```{r}
-by_name()
+by_name(birds$species)
 ```
 
 
 ```{r}
-by_rank()
+by_rank("Aves", rank="class")
 ```
 
 
 ```{r}
-by_id()
+by_id(birds$id)
 ```
 
 

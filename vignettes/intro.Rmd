@@ -1,5 +1,5 @@
 ---
-title: "Quickstart for taxadb"
+title: "Tutorial for taxadb"
 author: "Carl Boettiger"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -12,64 +12,153 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval=FALSE
+  comment = "#>"
 )
-
-
 taxadb:::td_disconnect()
 MonetDBLite::monetdblite_shutdown()
 ```
 
+Here we illustrate the use of `taxadb` to resolve names in the Breeding Bird Survey species list more completely.
 
-The goal of `taxadb` is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
-
-Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
-
-
-## Install and initial setup
-
-To get started, install the development version directly from GitHub:
-
-```{r eval=FALSE}
-devtools::install_github("cboettig/taxadb")
-```
-
-
-Before we can use most `taxadb` functions, we need to do a one-time installation of the database `taxadb` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local hard-disk and will persist between R sessions.  By default, the database will be installed in your user's application data directory, as detected by the `rappdirs` package.  (Set a custom location instead using `dbdir` argument.)
-
-```{r }
+```{r message=FALSE}
+library(dplyr)
+library(readr)
 library(taxadb)
-td_create()
 ```
 
-The default behavior installs only the ITIS database.  You can also specify a list of authorities to install, or install every provider using `td_create("all")`.  
+```{r message=FALSE}
+td_create("all")
+```
 
 
-## Test drive
+```{r message=FALSE}
+bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
+dim(bbs)
+```
 
-Once the databases have been set up, we're ready to explore.  
-Here's a list of all the birds species known to ITIS:
+Outline strategy for name resolution. 
+
+ID resolution including synonym mapping.
 
 ```{r}
-descendants(name = "Aves", rank = "class")
+bbs_ids <- 
+bbs %>% 
+  select(species) %>%
+  mutate(
+         gbif = get_ids(species, "gbif"),
+          col = get_ids(species, "col" ),
+         itis = get_ids(species, "itis"),
+         ncbi = get_ids(species, "ncbi"),
+           wd = get_ids(species, "wd"  ),
+         iucn = get_ids(species, "iucn"),
+          ott = get_ids(species, "ott" ) 
+  )
+
 ```
 
 
-## Learn More
 
-### [An introduction to taxadb](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
-
-The [taxadb introduction](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
-provides an overview showing how `taxadb` functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.  
-
-### [taxadb schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html)
-
-See the [schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxadb` functions, and more about the different authorities accessed by taxadb.  
-
-
-```{r include=FALSE}
-taxadb:::td_disconnect()
-MonetDBLite::monetdblite_shutdown()
+```{r}
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
 ```
+
+`get_ids` looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) 
+
+
+We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
+
+Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:
+
+```{r}
+bbs_cleaned_ids <- 
+  bbs_ids %>% 
+  select(species, ott) %>% 
+  mutate(ids_post_clean = 
+           get_ids(clean_names(species, binomial_only = TRUE), 
+                   "ott", "prefix"))
+bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)
+x <- bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)  
+
+x
+by_id(x$ids_post_clean, provider = "ott")
+```
+
+```{r}
+bbs_cleaned_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
+```
+
+
+```{r}
+pick <- function(A, B){ A[is.na(A)] <- B[is.na(A)]; A }
+
+ott_ids <- bbs_cleaned_ids %>% mutate(ids = pick(ott, ids_post_clean))
+```
+
+
+
+
+
+
+```{r}
+unmatched <- ott_ids %>% 
+  filter(is.na(ids)) %>% 
+  select(species, ids) %>%
+  mutate(species = clean_names(species))
+
+
+unmatched
+```
+
+Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  
+
+
+We can confirm that the two family names can be resolved:
+
+```{r}
+c("Trochilidae",  "Ardeidae") %>% by_name("ott")
+```
+
+We can also use the `vernacularName` field available in some naming providers to resolve common names:
+
+```{r}
+by_rank("Aves", "class", "col") %>% 
+  filter(grepl("Woodpecker", vernacularName)) %>%
+  select(vernacularName, scientificName, acceptedNameUsageID)
+
+#by_common(c("Woodpecker"), "col")
+```
+
+Let us attempt to resolve the remaining five names.  
+
+Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
+
+```{r}
+unmatched %>%
+  filter(grepl(" ", species)) %>%
+  mutate(iucn = get_ids(species, "iucn", "prefix"))
+```
+
+
+By consulting the synonyms table, we can quickly see what other names these species might be known by:
+
+```{r}
+syn <- unmatched$species %>% 
+  synonyms("iucn") %>% distinct()
+syn
+```
+
+Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
+
+```{r}
+syn %>% 
+  rename(IUCN_name = acceptedNameUsage,
+         OTT_name = synonym) %>%
+  mutate(ott_id =  get_ids(OTT_name, "ott"),
+         iucn_id = get_ids(IUCN_name, "iucn"))
+```
+
+We cannot simply assume that we can crosswalk synonyms between different providers, as providers may be operating on different taxonomic concepts.  In this example, IUCN recognizes four distinct taxa
+while OTT recognizes only thee.
 
