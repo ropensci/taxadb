@@ -22,7 +22,7 @@ MonetDBLite::monetdblite_shutdown()
 [![CRAN status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 
-The goal of `taxadb` is to provide fast access to taxonomic data and manipulations, such as resolving taxonomic names to ids, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
+The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting commont tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
 
 Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
 
@@ -36,39 +36,131 @@ devtools::install_github("cboettig/taxadb")
 ```
 
 
-Before we can use most `taxadb` functions, we need to do a one-time installation of the database `taxadb` uses for almost all commands.  This can take a while to run, but needs only be done once.  The database is installed on your local hard-disk and will persist between R sessions.  By default, the database will be installed in your user's application data directory, as detected by the `rappdirs` package.  (Set a custom location instead using `dbdir` argument.)
+```{r}
+library(taxadb)
+library(dplyr)
+library(readr)
+```
+
+Create a local copy of the Catalogue of Life (2018) database: 
 
 ```{r }
-library(taxadb)
-td_create()
+td_create("col")
 ```
 
-The default behavior installs only the ITIS database.  You can also specify a list of authorities to install, or install every provider using `td_create("all")`.  
 
+Read in the species list used by the Breeding Bird Survey:
 
-## Test drive
+```{r, message = FALSE}
+bbs_species_list <- system.file("extdata/bbs.tsv", package="taxadb")
+bbs <- read_tsv(bbs_species_list)
+```
 
-Once the databases have been set up, we're ready to explore.  
-Here's a list of all the birds species known to ITIS:
+## Getting names and ids
+
+Two core functions are `get_ids()` and `get_names()`.  These functions take a vector of names or ids (respectively), and return a vector of ids or names (respectively).  For instance, we can use this to attempt to resolve all the bird names in the Breeding Bird Survey against the Catalogue of Life:
+
 
 ```{r}
-descendants(name = "Aves", rank = "class")
+birds <- bbs %>% 
+  select(species) %>% 
+  mutate(id = get_ids(species, "col"))
+
+head(birds, 10)
+```
+
+Note that some names cannot be resolved to an identifier.  This can occur because of mis-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `by_name` filtering functions can help us resolve this last case (see below).
+
+`get_ids()` returns the IDs of accepted names, that is `dwc:AcceptedNameUsageID`s.  We can resolve the IDs into accepted names:
+
+
+```{r}
+birds %>% 
+  mutate(accepted_name = get_names(id, "col"))
+```
+
+This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted in the Catalogue of Life, while others, *Anser canagicus* are **known synonyms** of a different accepted name: **Chen canagica**.  Resolving synonyms and accepted names to identifiers helps us avoid the possible miss-matches we could have when the same species is known by two different names.
+
+
+## Taxonomic Data Tables
+
+Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `by_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
+
+For instance, *Trochalopteron henrici gucenense* does not resolve to an identifier in ITIS:
+
+```{r}
+get_ids("Trochalopteron henrici gucenense") 
+```
+
+Using `by_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
+
+```{r}
+by_name("Trochalopteron henrici gucenense") 
 ```
 
 
-## Learn More
+```{r}
+by_name("Trochalopteron henrici gucenense")  %>%
+  mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
+  select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
+```
 
-### [An introduction to taxadb](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
 
-The [taxadb introduction](https://cboettig.github.io/taxadb/articles/articles/taxadb.html) 
-provides an overview showing how `taxadb` functions can help us synthesize data across a given list of species by resolving synonyms and identifiers.  
+Similar functions `by_id`, `by_rank`, and `by_common` take IDs, scientific ranks, or common names, respectively.  Here, we can get taxonomic data on all bird names in the Catalogue of Life:
 
-### [taxadb schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html)
 
-See the [schemas](https://cboettig.github.io/taxadb/articles/articles/schema.html) vignette for an overview of the underlying tables used by `taxadb` functions, and more about the different authorities accessed by taxadb.  
+```{r}
+by_rank(name = "Aves", rank = "class", provider = "col")
+```
+
+Combining these with `dplyr` functions can make it easy to explore this data: for instance, which families have the most species?
+
+
+```{r}
+by_rank(name = "Aves", rank = "class", provider = "col") %>%
+  filter(taxonomicStatus == "accepted", taxonRank=="species") %>% 
+  group_by(family) %>%
+  count(sort = TRUE) %>% 
+  head()
+```
+
+## Using the database connection directly
+
+`by_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The `taxa_tbl()` function provides this connection:
+
+```{r}
+taxa_tbl("col")
+```
+
+We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
+
+```{r}
+most_synonyms <- taxa_tbl("col") %>% 
+  group_by(acceptedNameUsageID) %>% 
+  count(sort=TRUE)
+most_synonyms
+```
+However, unlike the `by_*` functions which return convienent in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, becuase `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `by_*` approach to be more intuitive.
+
+
+So which species had those 456 names?
+
+```{r}
+most_synonyms %>% 
+  head(1) %>% 
+  pull(acceptedNameUsageID) %>% 
+  by_id("col") %>%
+  select(scientificName)
+```
+
+
+
+
 
 
 ```{r include=FALSE}
 taxadb:::td_disconnect()
 MonetDBLite::monetdblite_shutdown()
+
+if(require(codemetar)) codemetar::write_codemeta()
 ```
