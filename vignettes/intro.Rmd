@@ -20,7 +20,8 @@ knitr::opts_chunk$set(
 Here we illustrate the use of `taxadb` to resolve names in the Breeding Bird Survey species list more completely.
 
 ```{r message=FALSE}
-library(tidyverse)
+library(dplyr)
+library(readr)
 library(taxadb)
 ```
 
