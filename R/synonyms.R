@@ -35,7 +35,7 @@ synonyms <- function(name,
     syn <-
       taxa_tbl(provider = provider, db = db) %>%
       dplyr::right_join(the_id_table %>%
-                   select(acceptedNameUsageID),
+                   select("acceptedNameUsageID"),
                  by = "acceptedNameUsageID",
                  copy = TRUE) %>%
       dplyr::select("scientificName", "acceptedNameUsageID",
@@ -47,8 +47,8 @@ synonyms <- function(name,
   out <- the_id_table %>%
     dplyr::select("scientificName", "sort", "acceptedNameUsageID") %>%
     dplyr::left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
-    distinct() %>%
-    dplyr::select("acceptedNameUsage", "synonym", "taxonRank")   # reorder
+    dplyr::select("acceptedNameUsage", "synonym", "taxonRank", "acceptedNameUsageID") %>%
+    dplyr::distinct()
 
   if (collect && inherits(out, "tbl_lazy")) {
     return( dplyr::collect(out) )

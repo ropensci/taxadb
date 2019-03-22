@@ -30,7 +30,7 @@ output: rticles::elsevier_article
 ---
 
 ```{r message=FALSE, include = FALSE}
-library(tidyverse)
+pkgconfig::set_config("dplyr::na_matches" = "never")
 ```
 
 
@@ -80,26 +80,48 @@ Functions in `taxadb` are organized into several families:
 
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers area also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
-To illustrate this, we consider the following ten species names of different birds:
 
-<!-- Would this example be more compelling if we were joining two tables of data?  -->
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@IUCN] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example consise enough for for visual presentation we will focus on a subset involving just 10 species:
 
 ```{r}
-birds <- data.frame(species = c(
-"Leucocarbo colensoi",
-"Saxicola macrorhynchus",
-"Peneothello sigillata",
-"Ichthyaetus melanocephalus",
-"Phalacrocorax colensoi",
-"Saxicola macrorhyncha",
-"Peneothello sigillatus",
-"Poospiza lateralis lateralis",
-"Larus melanocephalus",
-"Myadestes elizabeth"
-), stringsAsFactors = FALSE)
+trait_data <- read_tsv(system.file("extdata", "trait_data.tsv"))
+status_data <- read_tsv(system.file("extdata", "status_data.tsv"))
 ```
 
-The `get_ids()` function in `taxadb` can quickly resolve thousands of species names to unique identifiers. Here, we see that resolving names to identifiers in ITIS reveals that we have only 5 unique ids, as many of our names were known synonyms:
+```{r}
+status_data
+```
+
+```{r}
+trait_data
+```
+
+
+If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved:
+
+```{r}
+full_join(trait_data, status_data, by = c("name_A" = "name_B"))
+```
+
+
+If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.
+
+```{r}
+
+traits <- trait_data %>% mutate(id = get_ids(name_A, "col"))
+status <- status_data %>% mutate(id = get_ids(name_B, "col"))
+
+full_join(traits, status, by = "id") %>% 
+  select(id, name_A, mass, category, name_B) # just reordering
+
+```
+
+
+
+The `get_ids()` function in `taxadb` can quickly resolve thousands of species names to unique identifiers. 
+
+
+
 
 --- 
 
@@ -108,94 +130,86 @@ Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` o
 
 ---
 
-```{r}
-birds <- birds %>% mutate(id = get_ids(species, "itis")) %>% arrange(id)
-birds
-```
 
 
-This step has also revealed one name that could not be resolved.  This could be a synonym not known to ITIS, or a species not known to ITIS, but often indicates a misspelling. A peek at other members of this genus starting with `"e"` might help us spot the issue:
+Notice that one species name could not be resolved to a COL identifier.  Perhaps we can resolve this name against a different authority?  As it has an IUCN classification already, the IUCN naming provider seems a natural place to start.  We can use the `synonyms()` table to attempt to identify any other scientific names by which this species is known:
 
 ```{r}
-by_rank("Myadestes", "genus") %>% filter(grepl("^e", specificEpithet))
+synonyms("Scleroptila gutturalis", "iucn")
 ```
- 
-Here we see that  `"Myadestes elizabeth"` was likely a miss-spelling of the ITIS-accepted name `"Myadestes elisabeth"`.  
+
+Note that one of these synonyms is recognized in COL, and in fact matches a COL identifier of *Francolinus levalliantoides*, 376.69 grams, in our data set.  
 
 ```{r}
-get_ids("Myadestes elisabeth", provider = "itis", format = "uri")
+synonyms("Scleroptila gutturalis", "iucn") %>% 
+  pull(synonym) %>% 
+  get_ids("col")
 ```
- 
+
+Walking synonyms between providers should be done with care.  Synonyms 
 
 
-It is equally important to be able to resolve scientific names from these identifiers.   
 
+
+An accepted name can have many synonyms:
 
 ```{r}
-ids <- birds$species %>% get_ids() %>% unique() 
-data.frame(ids, species = get_names(ids))
+most_synonyms <- taxa_tbl("col") %>% count(acceptedNameUsageID, sort = TRUE)
+most_synonyms
 ```
 
+Here we see that some accepted identifiers, such as `COL:43082445`, are known by as many as 456 different synonyms!  `get_ids()` function seamlessly handles the resolution of all synonyms to their accepted name usage identifier, since we can unambiguously map from many-to-one. 
 
-
-We can get a richer picture of the our matched names by using the table-functions such as `by_id` to return a table of taxonomic information about each identifier.  For instance, with this information we can quickly verify that no name has been mistakenly matched to a taxon outside of the target group (*Aves*): 
- 
- <!-- show multiple-matched cases -->
- 
-```{r}
-df <- by_id(birds$id, "itis") 
-df 
-```
-
-The column headings (though not necessarily the order) are consistent across `taxadb`, with all column names using terms defined by the Darwin Core ontology, [@dwc].  Some of these (`acceptedNameUsageID`, `taxonRank`, `taxonomicStatus`) may be cumbersome, but are at least consistent and unambiguous.  `taxadb` promises a core set of these columns are provided for (see Table 3)
-
+This query uses the `taxa_tbl()` function to directly access the full taxonomic record in the MonetDBLite database.  This approach is fast and powerful, but note that we are restricted to using `dplyr` functions, which can be directly translated into SQL, for such queries to work successfully.  Though the result looks like a data frame, most base R operations will not work as expected:
 
 ```{r}
-df %>% filter(class != "Aves")
+most_synonyms$n
 ```
- 
+Such queries are also not possible through the API or web interface to Catalogue of Life. To use custom R functions or functions from other packages we must first call the `dplyr` function `collect()` to return the table into R's memory.  This should be done with care as an unfiltered table may require several gigabytes of memory to load. 
 
 
 
-## Filtering operations
+Some synonyms may also be associated with more than one unique identifier.  This situation is more difficult, as it is impossible to know which accepted name should be used for such synonyms without more context.  The `get_ids()` function will thus return `NA` for any name that matches more than one identifier, just as it will return `NA` for a name that does not match any identifier at all.  Other functions in `taxadb` allow us to explore these names further.  We have already seen this strategy above
+
+Having access to a local database makes it easy to explore such issues as "identify all synonyms that resolve to more than one accepted scientific name ID", like so: 
+
 
 
 ```{r}
-by_name(birds$species)
+most_ambiguous <-
+taxa_tbl("col") %>% 
+  filter(taxonomicStatus != "accepted") %>% 
+  select(scientificName, acceptedNameUsageID) %>% 
+  distinct() %>% 
+  count(scientificName, sort=TRUE) %>%
+  filter(n > 1)
+most_ambiguous
 ```
+Here we see the name *Mabuya bistriata* is a synonym which may be associated with no fewer than 32 different accepted scientific names!
+
+
+
+For many applications, it is easier to work with the `by_*` class of functions, that first perform the relevant filtering join in the MonetDBLite database before returning the table in memory.  This means that the `data.frame` objects returned by these functions behave as familiar objects. For instance, we can take the top 5 ambiguous names and see all the taxa to which those names may refer:
 
 
 ```{r}
-by_rank("Aves", rank="class")
+top_5 <- most_ambiguous %>% 
+  head(5) %>% 
+  pull(scientificName)
+
+
+by_name(top_5, "col") %>%
+  select(scientificName, acceptedNameUsageID) %>% 
+  distinct() %>% 
+  mutate(acceptedNameUsage = get_names(acceptedNameUsageID, "col"))
 ```
+
+
+
 
 
 ```{r}
-by_id(birds$id)
-```
-
-
-## Database operations
-
-The `taxa_tbl()` function is the low-level interface at the heart of most `taxadb` functions, returning a connection to a single table in the database.  
-
-## Subsetting the database
-
-Working directly with `taxa_tbl()` requires some familarity with `dplyr` and the way in which it operates when using remote connections.  For many users this would create a significant hurdle: for instance, while typical operations like `select()`, `group_by()`, `summarise()` and `filter()` work in the same way on remote connections and in-memory data, operations that rely on specific R functions that `dplyr` cannot translate to SQL, such as 
-
-"Which bird families starting with the letter 'B'?"
-
-```r
-taxa_tbl("itis") %>% filter(class=="Aves", grepl("B.*", family)) %>% count(family)
-```
-
-will result in an error, becuase `grepl` is an R-specific function.  Using the `by_*` functions, which `collect()` results into memory by default, will avoid this:
-
-
-```{r}
-by_rank("Aves", "class") %>% 
-  filter(grepl("B.*", family)) %>% 
-  count(family, sort = TRUE)
+by_rank("Aves", rank="class", provider = "col")
 ```
 
 
@@ -214,10 +228,17 @@ Darwin Core schema.
 
 
 
+- the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
+- the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi]
+- Catalogue of Life annual Species list
+
 <!--
 comment that taxonomic backbones aren't really the same thing:
 In addition to these projects, large biodiversity informatics efforts such as the Global Biodiversity Information Facility [GBIF; @gbif], publish the 'taxonomic backbone' -->
 
+
+
+## Discussion
 
 - Resolve names to identifiers
 - Resolve synonyms to accepted names
@@ -226,32 +247,23 @@ In addition to these projects, large biodiversity informatics efforts such as th
 discuss use Scientific names vs identifiers.  taxonConcepts?
 
 
-several major ongoing efforts seek to address this problem, including:
 
-- the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
-- the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi]
-- Catalogue of Life annual Species list
-
-
-
-
-- `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. Instead, it fills an important gap between existing tools and typical research patterns.  
-
-In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
+- `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. Instead, it fills an important gap between existing tools and typical research patterns.  In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
 
 - `taxadb` works from versioned snapshots of the data providers. 
 
 - All `taxadb` functions are specific to a provider, while operating consistently across different providers.  
+
 - `taxadb` does not attempt to present any unified taxonomic backbone or synthesis from existing naming providers, or make any assertions, numerical scores or other inferences about the data or matches to the data -- it is merely a tool for accessing this infromation.  This contrasts from other approaches such as the Global Names Resolver, which 
 
-Many taxonomic name providers are explicitly based on other existing naming assembeges.  
+
 
 
 There is an important objection to this approach that must also be addressed.  
 
 @Franz2018 
 
->  no self-respecting biodiversity researcher would or should trust aggregated data blindly, that indeed careful data cleaning is almost always necessary and expected to render the downloaded data fit for purpose, and that therefore aggregator services need to be understood mainly or merely as data discovery tools.
+>>  no self-respecting biodiversity researcher would or should trust aggregated data blindly, that indeed careful data cleaning is almost always necessary and expected to render the downloaded data fit for purpose, and that therefore aggregator services need to be understood mainly or merely as data discovery tools.
 
 > We reject this deflationary view for four reasons. For one, aggregators frequently blur the lines between advertizing their services just as a data discovery tool or as a more powerful data signal tool. Second, the biases inherent in using unitary backbones remain in place even if users are only interested in discovering all relevant data for their research purpose. If the backbone-based data record modulations are not easily retrievable through primary on-line interfaces, then users are significantly constrained in their ability to design search queries with high rates of precision and recall (81). Third, let us assume that labor-intensive off-line data quality review and correction efforts are indeed the norm, prior to publishing. Then why must the fruits of these efforts remain outside of the aggregator’s environment? Why can they not immediately flow back into the same aggregation domain, while recording the provenance of expert changes? In other words, if the workflow of rendering data fit for purpose flows only in one direction, i.e. from the on-line aggregate to the off-line quality review and publication, then our criticism of the design stands.
 
@@ -269,189 +281,27 @@ How many species of Chameleons are known? There are over
 taxa_tbl("col") %>% count(taxonomicStatus, sort = TRUE)
 ```
 
-```{r}
-taxa_tbl("col") %>% count(acceptedNameUsageID, sort=TRUE) %>% head()
-```
+----
+
+The extent of mismatch between providers can be startling.  Catalogue of Life uses ITIS data as one of it's many input sources, and yet we can quickly calculate how many of the (2018) ITIS accepted species names are not in the Catalogue of Life records:
+
 
 ```{r}
-taxa_tbl("iucn") %>% count()
-
+itis_col <-
 taxa_tbl("itis") %>%
-  filter(taxonomicStatus == "accepted") %>%
-  count()
-```
-
-131,042 of the 580,304 of *accepted names* in ITIS are not recognized by the Catalogue of Life as either accepted names or known synonyms. 27,507 names in the IUCN Redlist are not in the 2018 Catalogue of Life.
-
-```{r}
-taxa_tbl("iucn") %>%
+  filter(taxonomicStatus == "accepted", taxonRank == "species") %>%
   select(scientificName) %>% 
-  left_join(taxa_tbl("col")) %>% 
+  left_join(taxa_tbl("col"), by="scientificName") %>% 
   filter(is.na(acceptedNameUsageID)) %>% 
-  count()
+  count() %>%
+  pull(n)
 
+
+itis_accepted <- taxa_tbl("itis") %>%
+  filter(taxonomicStatus == "accepted", taxonRank == "species") %>% 
+  count() %>% pull(n)
 ```
+`r itis_col` of the `r itis_accepted` of *accepted names* in ITIS (`r itis_col / itis_accepted * 100`%) are not recognized by the (2018) Catalogue of Life as either accepted names or known synonyms. 
 
-
-
-```{r}
-most_synonyms <- taxa_tbl("col") %>% count(acceptedNameUsageID, sort=TRUE) %>% head() %>% collect()
-by_id(most_synonyms$acceptedNameUsageID, "col")
-most_synonyms %>% mutate(accepted = get_names(acceptedNameUsageID, "col"))
-
-synonyms("Mentha longifolia subsp. longifolia", "col")
-```
-
-
-1. A problem already "solved" including ITIS, NCBI, CoL, GBIF, WikiData, FishBase, and The Plant List
-
-
-3. Consistency 
-
-
-```{r include=FALSE}
-knitr::opts_chunk$set(message=FALSE)
-```
-
-The purpose and strengths of `taxadb` can be most easily seen through an introductory example.  
-
-```{r message=FALSE}
-library(tidyverse)
-library(taxadb)
-```
-
-```{r message=FALSE}
-td_create("all")
-```
-
-
-```{r message=FALSE}
-bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
-dim(bbs)
-```
-
-Outline strategy for name resolution. 
-
-ID resolution including synonym mapping.
-
-```{r}
-bbs_ids <- 
-bbs %>% 
-  select(species) %>%
-  mutate(
-         gbif = get_ids(species, "gbif"),
-          col = get_ids(species, "col" ),
-         itis = get_ids(species, "itis"),
-         ncbi = get_ids(species, "ncbi"),
-           wd = get_ids(species, "wd"  ),
-         iucn = get_ids(species, "iucn"),
-          ott = get_ids(species, "ott" ) 
-  )
-
-```
-
-
-
-```{r}
-bbs_ids %>% 
-  select(-species) %>% 
-  purrr::map_dbl(function(x) sum(!is.na(x)))
-```
-
-`get_ids` looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) 
-
-
-We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
-
-Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers
-
-```{r}
-bbs_cleaned_ids <- 
-  bbs_ids %>% 
-  select(species, ott) %>% 
-  mutate(ids_post_clean = 
-           get_ids(clean_names(species, binomial_only = TRUE), 
-                   "ott", "prefix"))
-bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)
-x <- bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)  
-
-x
-by_id(x$ids_post_clean, provider = "ott")
-```
-
-```{r}
-bbs_cleaned_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
-```
-
-
-```{r}
-pick <- function(A, B){ A[is.na(A)] <- B[is.na(A)]; A }
-
-ott_ids <- bbs_cleaned_ids %>% mutate(ids = pick(ott, ids_post_clean))
-```
-
-
-
-
-
-
-```{r}
-unmatched <- ott_ids %>% 
-  filter(is.na(ids)) %>% 
-  select(species, ids) %>%
-  mutate(species = clean_names(species))
-
-
-unmatched
-```
-
-Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  Let us attempt to resolve these five before we consider the cases of common names and family names.  
-
-Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
-
-```{r}
-
-unmatched %>% mutate(iucn = get_ids(species, "iucn", "prefix"))
-```
-
-By consulting the synonyms table, we can see what other names these species might be known by:
-
-```{r}
-syn <- unmatched$species %>% synonyms("iucn")
-syn
-```
-
-
-Alternately, sticking with the standard `dwc` schema:
-
-```{r}
-iucn_ids <- unmatched$species %>% by_name("iucn") %>% select(acceptedNameUsageID) %>% distinct()
-right_join(taxa_tbl("iucn"), iucn_ids, copy=TRUE, by ="acceptedNameUsageID") %>% 
-  select(scientificName, taxonomicStatus, acceptedNameUsageID, taxonRank, taxonID)
-```
-
-
-```{r}
-syn$synonym %>% get_ids("ott", "prefix")
-```
-
-Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
-
-```{r}
-syn$synonym %>% na.omit() %>% by_name("ott") %>% select(input, scientificName, acceptedNameUsageID, taxonomicStatus)
-```
-
-
-We can confirm the family names can be resolved:
-
-```{r}
-c("Trochilidae",  "Ardeidae") %>% by_name("ott")
-```
-
-We can use the common names table to resolve common names:
-
-
-
-(GBIF lists *Antigone canadensis* as a synonym for *Grus canadensis*; this appears backwards as the Sandhill Crane was moved out of *Grus* after molecular analyses showed it made that taxon polyphyletic; https://en.wikipedia.org/wiki/Sandhill_crane). 
 
 
