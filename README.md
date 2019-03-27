@@ -14,7 +14,7 @@ status](https://codecov.io/gh/cboettig/taxadb/branch/master/graph/badge.svg)](ht
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
-taxonomic data, supporting common tasks such as resolving taxonomic
+taxonomic data, supporting commont tasks such as resolving taxonomic
 names to identifiers, looking up higher classification ranks of given
 species, or returning a list of all species below a given rank. These
 tasks are particularly common when synthesizing data across large
@@ -41,14 +41,6 @@ devtools::install_github("cboettig/taxadb")
 ``` r
 library(taxadb)
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 library(readr)
 ```
 

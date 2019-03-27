@@ -90,7 +90,7 @@
       <h1>Tutorial for taxadb</h1>
                         <h4 class="author">Carl Boettiger</h4>
             
-            <h4 class="date">2019-03-17</h4>
+            <h4 class="date">2019-03-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/cboettig/taxadb/blob/master/vignettes/intro.Rmd"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -99,34 +99,53 @@
 
     
     
-<p>Here we illustrate the use of <code>taxadb</code> to resolve names in the Breeding Bird Survey species list more completely.</p>
+<p>Here we illustrate the use of <code>taxadb</code> to resolve names in the Breeding Bird Survey species list more completely. To get started, we load the necessary libraries and create the local copy of the <code>taxadb</code> database for all naming providers, if we have not already done so:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(readr)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(taxadb)</a></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../reference/td_create.html">td_create</a></span>(<span class="st">"all"</span>)</a></code></pre></div>
+<p>Note that by default, <code><a href="../reference/td_create.html">td_create()</a></code> will not attempt to overwrite any providers which we have already installed. This means we can freely include <code><a href="../reference/td_create.html">td_create()</a></code> at the beginning of scripts and analysis for reproducibility without concern that it will keep re-downloading and slowing things down. With this in place, we are ready to load in the species list from the Breeding Bird Survey <span class="citation">[@bbs]</span>, taken from <a href="ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt" class="uri">ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt</a>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">bbs &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata/bbs.tsv"</span>, <span class="dt">package=</span><span class="st">"taxadb"</span>))</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(bbs)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1] 750   9</span></a></code></pre></div>
-<p>Outline strategy for name resolution.</p>
-<p>ID resolution including synonym mapping.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">bbs_ids &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">bbs <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">         <span class="dt">gbif =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"gbif"</span>),</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">          <span class="dt">col =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"col"</span> ),</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">         <span class="dt">itis =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"itis"</span>),</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">         <span class="dt">ncbi =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"ncbi"</span>),</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">           <span class="dt">wd =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"wd"</span>  ),</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">         <span class="dt">iucn =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"iucn"</span>),</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">          <span class="dt">ott =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"ott"</span> ) </a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">  )</a></code></pre></div>
+<a class="sourceLine" id="cb3-2" data-line-number="2">bbs</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; # A tibble: 750 x 9</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;      Seq AOU   English_Common_… French_Common_N… Spanish_Common_… order</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;  1     6 01770 Black-bellied W… "Dendrocygne \x… Dendrocygna aut… Anse…</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;  2     7 01780 Fulvous Whistli… Dendrocygne fau… Dendrocygna bic… Anse…</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;  3     8 01760 Emperor Goose    Oie empereur     Anser canagicus  Anse…</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  4     9 01690 Snow Goose       Oie des neiges   Anser caerulesc… Anse…</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  5    10 01691 (Blue Goose) Sn… Oie des neiges … Chen caerulesce… Anse…</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  6    11 01700 Ross's Goose     Oie de Ross      Anser rossii     Anse…</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  7    13 01710 Greater White-f… Oie rieuse       Anser albifrons  Anse…</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  8    18 01730 Brant            Bernache cravant Branta bernicla  Anse…</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;  9    19 01740 (Black Brant) B… Bernache cravan… Branta bernicla… Anse…</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; 10    21 01725 Cackling Goose   Bernache de Hut… Branta hutchins… Anse…</span></a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; # … with 740 more rows, and 3 more variables: family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; #   species &lt;chr&gt;</span></a></code></pre></div>
+<p>We see that the resulting table has 750 unqiue rows of names. If we wish to combine data from the BBS with other data on these same species, such as trait data, we need to be able to resolve the species names to unique identifiers. We could then likewise resolve the species names used in the trait data or any other data we wish to combine against the same naming provider, giving us a consistent set of identifiers. Mixing identifiers from different naming providers is not ideal, as it not only gives us unmatched identifiers for the same species (e.g. ITIS:180092 and NCBI:9606 are both identifiers for <em>Homo sapiens</em>), but can also raise deeper challenges when different providers work from different taxonomic concepts.</p>
+<p>Despite the BBS being a widely used and long established data set, a quick look (~30s to check against nearly 15 million names) with taxadb confirms that none of the providers includes all the species names used in the BBS.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>({</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">bbs_ids &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">bbs <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">         <span class="dt">gbif =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"gbif"</span>),</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">          <span class="dt">col =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"col"</span> ),</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">         <span class="dt">itis =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"itis"</span>),</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">         <span class="dt">ncbi =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"ncbi"</span>),</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">           <span class="dt">wd =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"wd"</span>  ),</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">         <span class="dt">iucn =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"iucn"</span>),</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">          <span class="dt">ott =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"ott"</span> ) </a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">  )</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">})</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt;    user  system elapsed </span></a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt;  20.626   6.186  19.023</span></a></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">bbs_ids <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="https://purrr.tidyverse.org/reference/map.html">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(x)))</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; gbif  col itis ncbi   wd iucn  ott </span></a>
 <a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;  306  587  656  184  630  643  665</span></a></code></pre></div>
-<p><code>get_ids</code> looks only for exact matches. Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.)</p>
+<p>The <code><a href="../reference/get_ids.html">get_ids()</a></code> function looks only for exact matches. Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) OTT identifies the most, at 665 out of 750 names.</p>
 <p>We can get more matches by cleaning the names first. The <code><a href="../reference/clean_names.html">clean_names()</a></code> function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as <code>Accipiter sp.</code> drop the <code>sp.</code>, allowing matches against Genus names, and intraspecific epithets such as <code>Colaptes auratus cafer</code> are dropped to binomial names, <code>Colaptes auratus</code>. These transformations may not be appropriate for certain use cases, and should be used with care.</p>
 <p>Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">bbs_cleaned_ids &lt;-<span class="st"> </span></a>
@@ -256,34 +275,78 @@
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">syn &lt;-<span class="st"> </span>unmatched<span class="op">$</span>species <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/synonyms.html">synonyms</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span>()</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3">syn</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; # A tibble: 6 x 3</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;   acceptedNameUsage     synonym               taxonRank</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;    </span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt; 1 Spatula cyanoptera    Anas cyanoptera       species  </span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt; 2 Antrostomus vociferus Caprimulgus vociferus species  </span></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt; 3 Antrostomus arizonae  Caprimulgus vociferus species  </span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt; 4 Antrostomus arizonae  Caprimulgus arizonae  species  </span></a>
-<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt; 5 &lt;NA&gt;                  &lt;NA&gt;                  &lt;NA&gt;     </span></a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt; 6 Antigone canadensis   Grus canadensis       species</span></a></code></pre></div>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; # A tibble: 6 x 4</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;   acceptedNameUsage     synonym               taxonRank acceptedNameUsageID</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;              </span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt; 1 Spatula cyanoptera    Anas cyanoptera       species   IUCN:22680233      </span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt; 2 Antrostomus vociferus Caprimulgus vociferus species   IUCN:22736393      </span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt; 3 Antrostomus arizonae  Caprimulgus vociferus species   IUCN:22736398      </span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt; 4 Antrostomus arizonae  Caprimulgus arizonae  species   IUCN:22736398      </span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt; 5 &lt;NA&gt;                  &lt;NA&gt;                  &lt;NA&gt;      &lt;NA&gt;               </span></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt; 6 Antigone canadensis   Grus canadensis       species   IUCN:22692078</span></a></code></pre></div>
 <p>Note that three of the four synonyms given by IUCN are considered accepted names in OTT:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">syn <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">rename</a></span>(<span class="dt">IUCN_name =</span> acceptedNameUsage,</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3">         <span class="dt">OTT_name =</span> synonym) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb14-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">ott_id =</span>  <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(OTT_name, <span class="st">"ott"</span>),</a>
 <a class="sourceLine" id="cb14-5" data-line-number="5">         <span class="dt">iucn_id =</span> <span class="kw"><a href="../reference/get_ids.html">get_ids</a></span>(IUCN_name, <span class="st">"iucn"</span>))</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # A tibble: 6 x 5</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt;   IUCN_name           OTT_name            taxonRank ott_id     iucn_id     </span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;               &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;       </span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt; 1 Spatula cyanoptera  Anas cyanoptera     species   OTT:82411  IUCN:226802…</span></a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt; 2 Antrostomus vocife… Caprimulgus vocife… species   OTT:10395… IUCN:227363…</span></a>
-<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co">#&gt; 3 Antrostomus arizon… Caprimulgus vocife… species   OTT:10395… IUCN:227363…</span></a>
-<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co">#&gt; 4 Antrostomus arizon… Caprimulgus arizon… species   &lt;NA&gt;       IUCN:227363…</span></a>
-<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co">#&gt; 5 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;      &lt;NA&gt;       &lt;NA&gt;        </span></a>
-<a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co">#&gt; 6 Antigone canadensis Grus canadensis     species   OTT:257929 IUCN:226920…</span></a></code></pre></div>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # A tibble: 6 x 6</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt;   IUCN_name     OTT_name      taxonRank acceptedNameUsag… ott_id  iucn_id  </span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;   &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt; 1 Spatula cyan… Anas cyanopt… species   IUCN:22680233     OTT:82… IUCN:226…</span></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt; 2 Antrostomus … Caprimulgus … species   IUCN:22736393     OTT:10… IUCN:227…</span></a>
+<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co">#&gt; 3 Antrostomus … Caprimulgus … species   IUCN:22736398     OTT:10… IUCN:227…</span></a>
+<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co">#&gt; 4 Antrostomus … Caprimulgus … species   IUCN:22736398     &lt;NA&gt;    IUCN:227…</span></a>
+<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co">#&gt; 5 &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;     </span></a>
+<a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co">#&gt; 6 Antigone can… Grus canaden… species   IUCN:22692078     OTT:25… IUCN:226…</span></a></code></pre></div>
 <p>We cannot simply assume that we can crosswalk synonyms between different providers, as providers may be operating on different taxonomic concepts. In this example, IUCN recognizes four distinct taxa while OTT recognizes only thee.</p>
+<div id="differences-in-taxonomic-concepts" class="section level2">
+<h2 class="hasAnchor">
+<a href="#differences-in-taxonomic-concepts" class="anchor"></a>Differences in taxonomic concepts:</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">cranes &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Megalornis canadensis"</span>, <span class="st">"Antigone canadensis"</span>, <span class="st">"Grus canadensis"</span>)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw"><a href="../reference/synonyms.html">synonyms</a></span>(cranes, <span class="st">"gbif"</span>)</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt; # A tibble: 2 x 4</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co">#&gt;   acceptedNameUsage synonym               taxonRank acceptedNameUsageID</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;              </span></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; 1 Grus canadensis   Megalornis canadensis species   GBIF:2474953       </span></a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt; 2 Grus canadensis   Antigone canadensis   species   GBIF:2474953</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="../reference/synonyms.html">synonyms</a></span>(cranes, <span class="st">"iucn"</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#&gt; # A tibble: 2 x 4</span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">#&gt;   acceptedNameUsage   synonym         taxonRank acceptedNameUsageID</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;           &lt;chr&gt;     &lt;chr&gt;              </span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; 1 &lt;NA&gt;                &lt;NA&gt;            &lt;NA&gt;      &lt;NA&gt;               </span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">#&gt; 2 Antigone canadensis Grus canadensis species   IUCN:22692078</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="../reference/synonyms.html">synonyms</a></span>(cranes, <span class="st">"ott"</span>)</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co">#&gt; # A tibble: 2 x 4</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co">#&gt;   acceptedNameUsage synonym      taxonRank acceptedNameUsageID</span></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;              </span></a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="co">#&gt; 1 &lt;NA&gt;              &lt;NA&gt;         &lt;NA&gt;      &lt;NA&gt;               </span></a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="co">#&gt; 2 Grus canadensis   Grus proavus species   OTT:257929</span></a></code></pre></div>
+<p>(GBIF lists <em>Antigone canadensis</em> as a synonym for <em>Grus canadensis</em>; this appears backwards as the Sandhill Crane was moved out of <em>Grus</em> after molecular analyses showed it made that taxon polyphyletic; <a href="https://en.wikipedia.org/wiki/Sandhill_crane" class="uri">https://en.wikipedia.org/wiki/Sandhill_crane</a>).</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">totals &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">tibble</a></span>(</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">"itis"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">"ncbi"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ncbi"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="st">"col"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="st">"gbif"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"gbif"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="st">"ott"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ott"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="st">"wd"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"wd"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="st">"iucn"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="st">"fb"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"fb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="st">"slb"</span> =<span class="st"> </span><span class="kw"><a href="../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"slb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n)</a>
+<a class="sourceLine" id="cb18-11" data-line-number="11">)</a>
+<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(totals)</a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt; [1] 14893169</span></a></code></pre></div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#differences-in-taxonomic-concepts">Differences in taxonomic concepts:</a></li>
+      </ul>
+</div>
       </div>
 
 </div>
