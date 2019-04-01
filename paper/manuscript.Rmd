@@ -26,11 +26,21 @@ abstract: |
 journal: "Methods in Ecology & Evolution"
 date: "`r Sys.Date()`"
 bibliography: refs.bib
+layout: 3p
 output: rticles::elsevier_article
 ---
 
 ```{r message=FALSE, include = FALSE}
+
 pkgconfig::set_config("dplyr::na_matches" = "never")
+
+library(printr)
+knit_print.data.frame <- function(x, ...) {
+#  knitr::knit_print(DT::datatable(x), ...)
+  knitr::knit_print(kableExtra::kable(x, "latex"), ...)
+}
+
+knitr::opts_chunk$set(cache=FALSE)
 ```
 
 
@@ -43,7 +53,7 @@ While these issues have long been recognized in the literature [], and a growing
 Here, we present an R package, `taxadb`, which seeks to address this gap.
 
 Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank, hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
-The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2012] has become a popular way R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
+The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2013] has become a popular way R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
 
 - Queries require internet access at all times
 - Queries are slow and inefficient to implement and perform; frequently requiring separate API calls for each taxonomic name
@@ -55,7 +65,8 @@ Instead of binding existing web APIs, `taxadb` is built around a set compressed 
 
 After installing the `taxadb` R package, users can create local copies of data from any of the providers using the `td_create()` function and specifying the provider abbreviation (see Table 1), or `all` to install all available providers:
 
-```{r}
+```{r message = FALSE, warning=FALSE}
+library(tidyverse)
 library(taxadb)
 ```
 
@@ -84,11 +95,11 @@ Taxonomic identifiers provide a fundamental abstraction which lies at the heart 
 These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@IUCN] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example consise enough for for visual presentation we will focus on a subset involving just 10 species:
 
 ```{r}
-trait_data <- read_tsv(system.file("extdata", "trait_data.tsv"))
-status_data <- read_tsv(system.file("extdata", "status_data.tsv"))
+trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
+status_data <- read_tsv(system.file("extdata", "status_data.tsv", package="taxadb"))
 ```
 
-```{r}
+```{r }
 status_data
 ```
 
@@ -201,7 +212,8 @@ top_5 <- most_ambiguous %>%
 by_name(top_5, "col") %>%
   select(scientificName, acceptedNameUsageID) %>% 
   distinct() %>% 
-  mutate(acceptedNameUsage = get_names(acceptedNameUsageID, "col"))
+  mutate(acceptedNameUsage = get_names(acceptedNameUsageID, "col")) %>% 
+  head(5)
 ```
 
 
@@ -209,7 +221,7 @@ by_name(top_5, "col") %>%
 
 
 ```{r}
-by_rank("Aves", rank="class", provider = "col")
+by_rank("Aves", rank="class", provider = "col") %>% head(5)
 ```
 
 
@@ -301,7 +313,7 @@ itis_accepted <- taxa_tbl("itis") %>%
   filter(taxonomicStatus == "accepted", taxonRank == "species") %>% 
   count() %>% pull(n)
 ```
-`r itis_col` of the `r itis_accepted` of *accepted names* in ITIS (`r itis_col / itis_accepted * 100`%) are not recognized by the (2018) Catalogue of Life as either accepted names or known synonyms. 
+$`r itis_col`$ of the $`r itis_accepted`$ of *accepted names* in ITIS ($`r itis_col / itis_accepted * 100`$%) are not recognized by the (2018) Catalogue of Life as either accepted names or known synonyms. 
 
 
 
