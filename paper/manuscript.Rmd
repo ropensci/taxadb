@@ -40,7 +40,7 @@ knit_print.data.frame <- function(x, ...) {
   knitr::knit_print(kableExtra::kable(x, "latex"), ...)
 }
 
-knitr::opts_chunk$set(cache=FALSE)
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, warning=FALSE)
 ```
 
 
@@ -92,7 +92,7 @@ Functions in `taxadb` are organized into several families:
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers area also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
 
-These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@IUCN] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example consise enough for for visual presentation we will focus on a subset involving just 10 species:
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example consise enough for for visual presentation we will focus on a subset involving just 10 species:
 
 ```{r}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
