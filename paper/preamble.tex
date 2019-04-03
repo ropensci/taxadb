@@ -1,0 +1,16 @@
+
+
+%% support boxes
+%% https://tex.stackexchange.com/questions/232878
+\usepackage{tcolorbox}
+\usepackage{float}
+\usepackage{capt-of}
+\tcbset{colback=cyan!5!white,colframe=cyan!75!black,fonttitle=\bfseries}
+%\bibliography{refs.bib}
+
+% Allow markdown inside blocks
+% https://github.com/jgm/pandoc/issues/3145#issuecomment-302787889
+\newcommand\dummy[1]{#1}
+\let\Begin\begin
+\let\End\end
+
