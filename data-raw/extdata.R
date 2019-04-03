@@ -50,6 +50,8 @@ trait_data <-
   mutate(name_A = coalesce(name_A, elton_name)) %>% # replace NA with fallback name
   select(name_A, mass)
 
+trait_data <- trait_data %>% rename(elton_name = name_A)
+status_data <- status_data %>% rename(redlist_name = name_B)
 
 readr::write_tsv(trait_data,  "inst/extdata/trait_data.tsv")
 readr::write_tsv(status_data,  "inst/extdata/status_data.tsv")

@@ -27,20 +27,22 @@ journal: "Methods in Ecology & Evolution"
 date: "`r Sys.Date()`"
 bibliography: refs.bib
 layout: 3p
-output: rticles::elsevier_article
+output: 
+  rticles::springer_article:
+    includes:
+      in_header: preamble.tex
 ---
 
 ```{r message=FALSE, include = FALSE}
+library(kableExtra)
+library(magrittr)
+library(tidyverse)
+library(taxadb)
 
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
-library(printr)
-knit_print.data.frame <- function(x, ...) {
-#  knitr::knit_print(DT::datatable(x), ...)
-  knitr::knit_print(kableExtra::kable(x, "latex"), ...)
-}
 
-knitr::opts_chunk$set(cache=FALSE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(cache=TRUE, message=FALSE, warning=FALSE)
 ```
 
 
@@ -99,33 +101,53 @@ trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"
 status_data <- read_tsv(system.file("extdata", "status_data.tsv", package="taxadb"))
 ```
 
-```{r }
-status_data
+```{r echo=FALSE, cache = FALSE}
+status_data %>% kableExtra::kable("latex", booktabs=T) %>% 
+                      kable_styling(latex_options = "striped", full_width = F)
 ```
 
-```{r}
-trait_data
+```{r echo = FALSE, cache = FALSE }
+trait_data %>% kableExtra::kable("latex", booktabs=T) %>% 
+                      kable_styling(latex_options = "striped", full_width = F)
 ```
 
 
 If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved:
 
 ```{r}
-full_join(trait_data, status_data, by = c("name_A" = "name_B"))
+joined <- full_join(trait_data, status_data, by = c("elton_name" = "redlist_name"))
 ```
 
 
-If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.
+```{r echo = FALSE, cache = FALSE}
+joined %>% kableExtra::kable("latex", booktabs=T) %>% 
+                      kable_styling(latex_options = "striped", full_width = F)
+```
+
+If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.  First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
 
 ```{r}
 
-traits <- trait_data %>% mutate(id = get_ids(name_A, "col"))
-status <- status_data %>% mutate(id = get_ids(name_B, "col"))
-
-full_join(traits, status, by = "id") %>% 
-  select(id, name_A, mass, category, name_B) # just reordering
-
+traits <- trait_data %>% mutate(id = get_ids(elton_name, "col"))
+status <- status_data %>% mutate(id = get_ids(redlist_name, "col"))
 ```
+
+We can now join on the `id` column instead of names directly:
+
+```{r}
+joined <- full_join(traits, status, by = "id") 
+```
+
+```{r cache = FALSE, echo = FALSE}
+joined %>%  
+  select(elton_name, redlist_name, mass, category, id) %>%
+  kableExtra::kable("latex", booktabs=T) %>% 
+  kable_styling(latex_options = "striped", full_width = F)
+```
+
+
+
+
 
 
 
@@ -134,13 +156,12 @@ The `get_ids()` function in `taxadb` can quickly resolve thousands of species na
 
 
 
---- 
 
-Box: `get_ids()` returns the `acceptedNameUsageID`, the identifier associated with the *accepted* name.  Some naming providers, such as ITIS and NCBI, provide taxonomic identifiers to both synonyms and accepted names.  Other providers, such as COL and GBIF, only provide identifiers for accepted names.  
-Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` only for names which are synonyms, and otherwise to provide a `taxonID`.  For accepted names, the `acceptedNameUsageID` is then given as missing (`NA`), while for synonyms, the `taxonID` may be missing (`NA`).  In contrast, `taxadb` lists the `acceptedNameUsageID` for accepted names (where it matches the `taxonID`), as well as known synonyms.  This is semantically identical, but also more convenient for database interfaces, since it allows a name to mapped to it's accepted identifier (or an identifier to map to it's accepted name usage) without the additional logic.  For consistency, we will use the term "identifier" to mean the `acceptedNameUsageID` rather than the more ambiguous `taxonID` (which is undefined for synonyms listed by many providers), unless explicitly stated otherwise.
+\dummy{\Begin{tcolorbox}[title= Box 1: Taxonomic Identifiers and Synonyms, lower separated=false]}
 
----
+`get_ids()` returns the `acceptedNameUsageID`, the identifier associated with the *accepted* name.  Some naming providers, such as ITIS and NCBI, provide taxonomic identifiers to both synonyms and accepted names.  Other providers, such as COL and GBIF, only provide identifiers for accepted names.  Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` only for names which are synonyms, and otherwise to provide a `taxonID`.  For accepted names, the `acceptedNameUsageID` is then given as missing (`NA`), while for synonyms, the `taxonID` may be missing (`NA`).  In contrast, `taxadb` lists the `acceptedNameUsageID` for accepted names (where it matches the `taxonID`), as well as known synonyms.  This is semantically identical, but also more convenient for database interfaces, since it allows a name to mapped to it's accepted identifier (or an identifier to map to it's accepted name usage) without the additional logic.  For consistency, we will use the term "identifier" to mean the `acceptedNameUsageID` rather than the more ambiguous `taxonID` (which is undefined for synonyms listed by many providers), unless explicitly stated otherwise.
 
+\End{tcolorbox}
 
 
 Notice that one species name could not be resolved to a COL identifier.  Perhaps we can resolve this name against a different authority?  As it has an IUCN classification already, the IUCN naming provider seems a natural place to start.  We can use the `synonyms()` table to attempt to identify any other scientific names by which this species is known:
