@@ -21,5 +21,7 @@ taxadb
 inst/doc
 taxizedb
 *.spl
-*.tex
+manuscript.tex
 paper/manuscript.pdf
+manuscript.log
+manuscript_cache/
