@@ -157,12 +157,10 @@ synonyms("Scleroptila gutturalis", "iucn") %>%
   get_ids("col")
 ```
 
-Walking synonyms between providers should be done with care.  Synonyms 
 
+## Synonyms
 
-
-
-An accepted name can have many synonyms:
+Walking synonyms between providers should be done with care.  An accepted name can have many synonyms:
 
 ```{r}
 most_synonyms <- taxa_tbl("col") %>% count(acceptedNameUsageID, sort = TRUE)
