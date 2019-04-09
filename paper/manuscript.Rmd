@@ -38,7 +38,7 @@ library(kableExtra)
 library(magrittr)
 library(tidyverse)
 library(taxadb)
-
+library(printr)
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
 printtable <- function(df){
@@ -155,6 +155,9 @@ joined %>%
 This results in many more matches, as different scientific names are recognized by the naming provider (Catalog of Life 2018 in this case), as *synonyms* for the same species, and thus resolve to the same taxonomic identifier.  While we have focused on a small example for visual clarity here, the `get_ids()` function in `taxadb` can quickly resolve hundreds of thousands of species names to unique identifiers, thanks to the performance of fast joins in a local MonetDBLite database.
 
 
+
+
+
 \dummy{\Begin{tcolorbox}[title= Box 1: Taxonomic Identifiers and Synonyms, lower separated=false]}
 
 `get_ids()` returns the `acceptedNameUsageID`, the identifier associated with the *accepted* name.  Some naming providers, such as ITIS and NCBI, provide taxonomic identifiers to both synonyms and accepted names.  Other providers, such as COL and GBIF, only provide identifiers for accepted names.  Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` only for names which are synonyms, and otherwise to provide a `taxonID`.  For accepted names, the `acceptedNameUsageID` is then given as missing (`NA`), while for synonyms, the `taxonID` may be missing (`NA`).  In contrast, `taxadb` lists the `acceptedNameUsageID` for accepted names (where it matches the `taxonID`), as well as known synonyms.  This is semantically identical, but also more convenient for database interfaces, since it allows a name to mapped to it's accepted identifier (or an identifier to map to it's accepted name usage) without the additional logic.  For consistency, we will use the term "identifier" to mean the `acceptedNameUsageID` rather than the more ambiguous `taxonID` (which is undefined for synonyms listed by many providers), unless explicitly stated otherwise.
@@ -186,10 +189,21 @@ synonyms("Scleroptila gutturalis", "iucn") %>%
 
 
 ```{r}
-by_rank("Aves", rank="class", provider = "col") %>% head(5)
+by_rank("Aves", rank="class", provider = "col") %>%
+  ## some example columns
+  select(taxonID, taxonomicStatus, taxonRank, genus, specificEpithet) %>% 
+  head(5)
+
 ```
 
 
+We can inspect all columns: 
+
+```{r}
+by_rank("Aves", rank="class", provider = "col") %>% names()
+```
+
+Note that each of these terms are defined by 
 
 
 ## Caution using synonyms
