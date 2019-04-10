@@ -6,7 +6,7 @@
 \usage{
 by_id(id, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd", "ott", "iucn"), type = c("taxonID", "acceptedNameUsageID"),
-  collect = TRUE, ignore_case = TRUE, db = td_connect())
+  collect = TRUE, db = td_connect())
 }
 \arguments{
 \item{id}{taxonomic id, in prefix format}
@@ -21,9 +21,6 @@ see details.}
 data.frame (default, usually the most convenient), or a reference to
 lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
-
-\item{ignore_case}{should we ignore case (capitalization) in matching names?
-default is \code{TRUE}.}
 
 \item{db}{a connection to the taxadb database. See details.}
 }

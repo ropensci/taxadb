@@ -129,11 +129,10 @@ c("Trochilidae",  "Ardeidae") %>% by_name("ott")
 We can also use the `vernacularName` field available in some naming providers to resolve common names:
 
 ```{r}
-by_rank("Aves", "class", "col") %>% 
+by_rank("Aves", "class", "itis") %>% 
   filter(grepl("Woodpecker", vernacularName)) %>%
   select(vernacularName, scientificName, acceptedNameUsageID)
 
-#by_common(c("Woodpecker"), "col")
 ```
 
 Let us attempt to resolve the remaining five names.  

@@ -15,6 +15,8 @@
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
 #' @param taxadb_db Connection to from `[td_connect]()`.
+#' @param ignore_case should we ignore case (capitalization) in matching names?
+#' default is `TRUE`.
 #' @param ... additional arguments (currently ignored)
 #' @return a vector of IDs, of the same length as the input names Any
 #' unmatched names or multiply-matched names will return as [NA]s.
@@ -42,6 +44,7 @@ get_ids <- function(names,
                     db = known_providers,
                     format = c("prefix", "bare", "uri"),
                     taxadb_db = td_connect(),
+                    ignore_case = TRUE,
                     ...){
   format <- match.arg(format)
   n <- length(names)
@@ -52,6 +55,7 @@ get_ids <- function(names,
   df <- by_name(name = names,
                 provider = db,
                 collect = TRUE,
+                ignore_case = ignore_case,
                 db = taxadb_db)
 
   df <- duplicate_as_unresolved(df)

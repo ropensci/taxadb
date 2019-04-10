@@ -44,7 +44,6 @@ by_id <- function(id,
                                "iucn"),
                   type = c("taxonID", "acceptedNameUsageID"),
                   collect = TRUE,
-                  ignore_case = TRUE,
                   db = td_connect()){
 
     filter_by(x = id,
@@ -52,5 +51,5 @@ by_id <- function(id,
               provider = match.arg(provider),
               collect = collect,
               db = db,
-              ignore_case = ignore_case)
+              ignore_case = FALSE)
   }

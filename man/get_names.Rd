@@ -6,7 +6,7 @@
 \usage{
 get_names(id, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd", "ott", "iucn"), format = c("guess", "prefix", "bare", "uri"),
-  ignore_case = TRUE, taxadb_db = td_connect())
+  taxadb_db = td_connect())
 }
 \arguments{
 \item{id}{a list of taxonomic identifiers.}
@@ -21,9 +21,6 @@ slower than if you specify this in advance!
 \item \code{bare} (e.g. \code{9606}), (But must mach provider \code{db}!)
 \item \code{uri} (e.g. \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
-
-\item{ignore_case}{should we ignore case (capitalization) in matching names?
-default is \code{TRUE}.}
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
 }

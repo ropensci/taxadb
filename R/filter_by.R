@@ -54,12 +54,21 @@ filter_by <- function(x,
   db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", db), input = !!sym(by))
 
   if(ignore_case){
+    original <- tibble::tibble(input = x, sort = 1:length(x))
     x <- stringi::stri_trans_tolower(x)
     db_tbl <- dplyr::mutate_at(db_tbl, .var = "input", .fun = tolower)
   }
 
   input_tbl <- tibble::tibble(input = x, sort = 1:length(x))
   out <- td_filter(db_tbl, input_tbl, "input")
+
+  if(ignore_case){  # restore original input case
+    input <- "input"
+    suppress_msg({
+      out <- out %>% select(-input) %>%
+        dplyr::inner_join(original, by = "sort", copy = TRUE)
+    })
+  }
 
   if (collect) return( dplyr::collect(out) )
 
