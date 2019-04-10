@@ -22,7 +22,7 @@ MonetDBLite::monetdblite_shutdown()
 [![CRAN status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 
-The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting commont tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
+The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting common tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
 
 Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
 
@@ -69,7 +69,7 @@ birds <- bbs %>%
 head(birds, 10)
 ```
 
-Note that some names cannot be resolved to an identifier.  This can occur because of mis-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `by_name` filtering functions can help us resolve this last case (see below).
+Note that some names cannot be resolved to an identifier.  This can occur because of miss-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `by_name` filtering functions can help us resolve this last case (see below).
 
 `get_ids()` returns the IDs of accepted names, that is `dwc:AcceptedNameUsageID`s.  We can resolve the IDs into accepted names:
 
@@ -140,7 +140,7 @@ most_synonyms <- taxa_tbl("col") %>%
   count(sort=TRUE)
 most_synonyms
 ```
-However, unlike the `by_*` functions which return convienent in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, becuase `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `by_*` approach to be more intuitive.
+However, unlike the `by_*` functions which return convenient in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, because `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `by_*` approach to be more intuitive.
 
 
 So which species had those 456 names?

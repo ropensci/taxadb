@@ -14,7 +14,7 @@ status](https://codecov.io/gh/cboettig/taxadb/branch/master/graph/badge.svg)](ht
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
-taxonomic data, supporting commont tasks such as resolving taxonomic
+taxonomic data, supporting common tasks such as resolving taxonomic
 names to identifiers, looking up higher classification ranks of given
 species, or returning a list of all species below a given rank. These
 tasks are particularly common when synthesizing data across large
@@ -88,7 +88,7 @@ head(birds, 10)
 ```
 
 Note that some names cannot be resolved to an identifier. This can occur
-because of mis-spellings, non-standard formatting, or the use of a
+because of miss-spellings, non-standard formatting, or the use of a
 synonym not recognized by the naming provider. Names that cannot be
 uniquely resolved because they are known synonyms of multiple different
 species will also return `NA`. The `by_name` filtering functions can
@@ -151,7 +151,7 @@ by_name("Trochalopteron henrici gucenense")
 #> # … with 12 more variables: taxonomicStatus <chr>, kingdom <chr>,
 #> #   phylum <chr>, class <chr>, order <chr>, family <chr>, genus <chr>,
 #> #   specificEpithet <chr>, vernacularName <chr>,
-#> #   infraspecificEpithet <chr>, input <chr>, sort <int>
+#> #   infraspecificEpithet <chr>, sort <int>, input <chr>
 ```
 
 ``` r
@@ -189,7 +189,7 @@ by_rank(name = "Aves", rank = "class", provider = "col")
 #> #   specificEpithet <chr>, infraspecificEpithet <chr>,
 #> #   taxonConceptID <chr>, isExtinct <chr>, nameAccordingTo <chr>,
 #> #   namePublishedIn <chr>, scientificNameAuthorship <chr>,
-#> #   vernacularName <chr>, input <chr>, sort <int>
+#> #   vernacularName <chr>, sort <int>, input <chr>
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -274,12 +274,12 @@ most_synonyms
 #> # … with more rows
 ```
 
-However, unlike the `by_*` functions which return convienent in-memory
+However, unlike the `by_*` functions which return convenient in-memory
 tables, this is still a remote connection. This means that direct access
 using the `taxa_tbl()` function (or directly accessing the database
 connection using `td_connect()`) is more low-level and requires greater
 care. For instance, we cannot just add a `%>% mutate(acceptedNameUsage =
-get_names(acceptedNameUsageID))` to the above, becuase `get_names` does
+get_names(acceptedNameUsageID))` to the above, because `get_names` does
 not work on a remote collection. Instead, we would first need to use a
 `collect()` to pull the summary table into memory. Users familiar with
 remote databases in `dplyr` will find using `taxa_tbl()` directly to be

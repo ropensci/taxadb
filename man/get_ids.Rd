@@ -5,7 +5,7 @@
 \title{get_ids}
 \usage{
 get_ids(names, db = known_providers, format = c("prefix", "bare",
-  "uri"), taxadb_db = td_connect(), ...)
+  "uri"), taxadb_db = td_connect(), ignore_case = TRUE, ...)
 }
 \arguments{
 \item{names}{a list of scientific names (which may
@@ -22,6 +22,9 @@ include higher-order ranks in most authorities).}
 }}
 
 \item{taxadb_db}{Connection to from \code{[td_connect]()}.}
+
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 
 \item{...}{additional arguments (currently ignored)}
 }
