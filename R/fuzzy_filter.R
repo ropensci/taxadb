@@ -4,7 +4,7 @@
 #' @param match should we match by names starting with the term or containing
 #' the term anywhere in the name?
 #' @inheritParams filter_by
-#' @importFrom dplyr bind_rows filter collect mutate
+#' @importFrom dplyr union mutate_at mutate select
 #' @details Note that fuzzy filter will be fast with an single or small number
 #' of names, but will be slower if given a very large vector of names to match,
 #' as unlike other `by_` commands, fuzzy matching requires separate SQL calls for
@@ -57,21 +57,13 @@ fuzzy_filter <- function(name,
   pattern <- switch(match,
                          starts_with = paste0(name, "%"),
                          contains =  paste0("%", name, "%"))
-  ## Not fast, but 10x faster than alternatives, see notebook/fuzzy-matching.Rmd
 
-  out <- db_tbl %>%
-    dplyr::filter(input %like% pattern[[1]]) %>%
-    select(-input) %>%
-    dplyr::distinct()
+
+  out <- filter_like(db_tbl, input, pattern[[1]])
 
   if(length(pattern) > 1){
     for(p in pattern[-1]){
-      out <- dplyr::union(out,
-                   db_tbl %>%
-                     dplyr::filter(input %like% p) %>%
-                     select(-input) %>%
-                     dplyr::distinct()
-      )
+      out <- dplyr::union(out, filter_like(db_tbl, input, p))
     }
   }
 
@@ -79,7 +71,26 @@ fuzzy_filter <- function(name,
 
   out
 }
+
 globalVariables("%like%")
+
+filter_like <- function(db_tbl, input, pattern){
+
+  if(inherits(db_tbl, "tbl_dbi")){
+  out <- db_tbl %>%
+    dplyr::filter(input %like% pattern)
+  } else {
+    out <- db_tbl %>%
+      dplyr::filter(grepl(gsub(pattern, "%", ""), input))
+  }
+
+  out %>%
+    select(-input) %>%
+    dplyr::distinct()
+}
+
+
+
 
 
 ## Consider creating functions that are explicitly named to create more semantic

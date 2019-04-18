@@ -46,6 +46,6 @@ by_common("Angolan Giraffe")
 \seealso{
 Other filter_by: \code{\link{by_id}},
   \code{\link{by_name}}, \code{\link{by_rank}},
-  \code{\link{filter_by}}, \code{\link{name_contains}}
+  \code{\link{filter_by}}
 }
 \concept{filter_by}

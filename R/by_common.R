@@ -39,7 +39,7 @@ by_common <- function(name,
 
 assert_has_common <- function(provider, db){
   has_common <- "vernacularName" %in%
-    DBI::dbListFields(td_connect(), provider)
+    colnames(taxa_tbl(provider, db))
   if(has_common){
     return(TRUE)
   } else {
