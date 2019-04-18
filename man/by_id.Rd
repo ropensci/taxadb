@@ -58,6 +58,6 @@ by_id("ITIS:1077358", type="acceptedNameUsageID")
 \seealso{
 Other filter_by: \code{\link{by_common}},
   \code{\link{by_name}}, \code{\link{by_rank}},
-  \code{\link{filter_by}}
+  \code{\link{filter_by}}, \code{\link{name_contains}}
 }
 \concept{filter_by}
