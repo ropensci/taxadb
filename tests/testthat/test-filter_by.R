@@ -62,8 +62,9 @@ test_that("by_common", {
 
   by_common("man", "itis")
 
-  expect_warning(by_common("man", "wd"),
+  expect_warning(x <- by_common("man", "wd"),
                  "provider wd does not provide common names")
+  expect_null(x)
 
 })
 
