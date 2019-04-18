@@ -10,6 +10,8 @@ fuzzy_filter(name, by = c("scientificName", "vernacularName"),
   db = td_connect(), ignore_case = TRUE, collect = TRUE)
 }
 \arguments{
+\item{name}{vector of names (scientific or common, see \code{by}) to be matched against.}
+
 \item{by}{a column name in the taxa_tbl (following Darwin Core Schema terms).
 The filtering join is executed with this column as the joining variable.}
 

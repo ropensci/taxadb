@@ -1,6 +1,6 @@
 #' Match names that start or contain a specified text string
 #'
-#'
+#' @param name vector of names (scientific or common, see `by`) to be matched against.
 #' @param match should we match by names starting with the term or containing
 #' the term anywhere in the name?
 #' @inheritParams filter_by
