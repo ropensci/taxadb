@@ -67,7 +67,7 @@ The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `
 
 - Queries require internet access at all times
 - Queries are slow and inefficient to implement and perform; frequently requiring separate API calls for each taxonomic name
-- The type of query is highly limited by the API design. For instance, it is impossible usually impossible to make queries across the entire corpus of names, such as "which accepted name has the most known synonyms?"
+- The type of query is highly limited by the API design. For instance, it is usually impossible to make queries across the entire corpus of names, such as "which accepted name has the most known synonyms?"
 - Both query formats and responses differ substantially across different naming providers, making it difficult to apply a script designed for one provider to different provider.
 - Most queries are not reproducible, as the results depend on the state of the central server (and potentially the quality of the internet connection).  Many names providers update the server data either continuously or at regular intervals, including both revising existing names and adding new names.  <!-- For instance, @predicts2014 observes that 2013 Catalogue of Life includes the genus "Notiophilus" in two separate families, contrary to the rules of nomenclature.  This error does not occur in the 2018 edition. -->
 
@@ -91,18 +91,18 @@ All `taxadb` functions can also operate in one-time-use mode without first insta
 
 Functions in `taxadb` are organized into several families: 
 
-- database functions  `td_create()`, `td_connect()` and `taxa_tbl()`
 - queries that return vectors: `get_ids()` and it's complement, `get_names()`,
 - queries that filter the underlying taxonomic data frames: `by_name()`, `by_rank()`, `by_id()`, and `by_common()`,
+- database functions  `td_create()`, `td_connect()` and `taxa_tbl()`,
 - and helper utilities, such as `clean_names()`. 
 
 
 ## Taxonomic IDs
 
-Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers area also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
+Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
 
-These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example consise enough for for visual presentation we will focus on a subset involving just 10 species:
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species:
 
 ```{r}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
@@ -166,6 +166,8 @@ This results in many more matches, as different scientific names are recognized 
 
 ## Unresolved names
 
+KN: I don't know if this section needs to be in here, especially since `synonym()` doesn't fit cleanly in the four families of functions described at the beginning (maybe it's a helper function?). Can instead use the unresolved names discussion to segue into `by_` functions like in the tutorial. Something along the lines of "A name unresolved with `get_ids` could be due to misspelling, a missing synonym in the provider database OR a name resolving to multiple synonyms - 'by_' gives you access to all the synonym options." When it's laid out like that it also makes 'synonym()' seem less necessary.
+
 Notice that one species name could not be resolved to a COL identifier.  This could indicate a data entry problem such as a misspelling of a name, but failure to resolve properly specified scientific names is not uncommon, as even large scale efforts like the Catalogue of Life are far from a comprehensive list of all published scientific names.  
 
 
@@ -187,6 +189,12 @@ synonyms("Scleroptila gutturalis", "iucn") %>%
 
 ## Additional taxonomic information
 
+A name unresolved by 'get_ids' could also be the result of a name matching to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'by_' functions to filter underlying taxonomic tables for additional information. 
+
+```{r}
+#by_name() w/multiple matches example.
+```
+'by_' functions can also be used to filter by common name, rank, etc...
 
 ```{r}
 by_rank("Aves", rank="class", provider = "col") %>%
