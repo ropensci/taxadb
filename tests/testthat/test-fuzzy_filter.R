@@ -16,3 +16,22 @@ test_that("we can fuzzy match scientific and common names", {
 
 
 })
+
+test_that("we can fuzzy match scientific and common names", {
+
+  name <- c("woodpecker", "monkey")
+  df <- common_contains(name, "itis")
+  expect_is(df, "data.frame")
+  expect_gt(dim(df)[1], 1)
+  df <- common_starts_with(name, "itis")
+  expect_is(df, "data.frame")
+
+
+  df <- name_starts_with("Homo ", "itis",
+                     ignore_case = FALSE)
+  expect_is(df, "data.frame")
+  expect_gt(dim(df)[1], 1)
+
+
+
+})
