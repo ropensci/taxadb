@@ -17,7 +17,7 @@ filter_by(x, by, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
 \item{by}{a column name in the taxa_tbl (following Darwin Core Schema terms).
 The filtering join is executed with this column as the joining variable.}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
