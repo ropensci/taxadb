@@ -8,7 +8,7 @@ taxa_tbl(provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
   "wd", "ott", "iucn"), schema = "dwc", db = td_connect())
 }
 \arguments{
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{schema}{the table schema on which we want to run the query}

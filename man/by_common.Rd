@@ -11,7 +11,7 @@ by_common(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
 \arguments{
 \item{name}{a character vector of common (vernacular English) names, e.g. "Humans"}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
