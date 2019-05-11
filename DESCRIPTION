@@ -43,7 +43,8 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    purrr
+    purrr,
+    RSQLite
 Language: en-US
 VignetteBuilder: knitr
 URL: https://github.com/cboettig/taxadb
