@@ -10,7 +10,7 @@ common_contains(name, provider = "itis", db = td_connect(),
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by}) to be matched against.}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{db}{a connection to the taxadb database. See details.}

@@ -9,7 +9,7 @@ name_starts_with(name, provider, db = td_connect(), ignore_case = TRUE)
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by}) to be matched against.}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{db}{a connection to the taxadb database. See details.}
