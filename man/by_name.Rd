@@ -11,7 +11,7 @@ by_name(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
 \arguments{
 \item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
@@ -32,8 +32,8 @@ matching taxonomic entities.
 Look up taxonomic information by scientific name
 }
 \details{
-Most but not all authorities can match against both speices level and
-higher-level (or lower, e.g. subspecies or varities) taxonomic names.
+Most but not all authorities can match against both species level and
+higher-level (or lower, e.g. subspecies or variety) taxonomic names.
 The rank level is indicated by \code{taxonRank} column.
 
 Most authorities include both known synonyms and accepted names in the

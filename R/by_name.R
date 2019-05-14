@@ -7,8 +7,8 @@
 #' matching taxonomic entities.
 #'
 #' @details
-#' Most but not all authorities can match against both speices level and
-#' higher-level (or lower, e.g. subspecies or varities) taxonomic names.
+#' Most but not all authorities can match against both species level and
+#' higher-level (or lower, e.g. subspecies or variety) taxonomic names.
 #' The rank level is indicated by `taxonRank` column.
 #'
 #' Most authorities include both known synonyms and accepted names in the

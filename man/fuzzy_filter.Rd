@@ -15,7 +15,7 @@ fuzzy_filter(name, by = c("scientificName", "vernacularName"),
 \item{by}{a column name in the taxa_tbl (following Darwin Core Schema terms).
 The filtering join is executed with this column as the joining variable.}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{match}{should we match by names starting with the term or containing
