@@ -29,7 +29,7 @@
 #' @return path where database has been installed (invisibly)
 #' @export
 #' @importFrom utils download.file
-#' @importFrom DBI dbConnect dbDisconnect
+#' @importFrom DBI dbConnect dbDisconnect dbListTables
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom MonetDBLite MonetDBLite
 #' @importFrom readr cols

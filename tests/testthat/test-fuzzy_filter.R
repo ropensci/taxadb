@@ -31,7 +31,9 @@ test_that("we can fuzzy match scientific and common names", {
                      ignore_case = FALSE)
   expect_is(df, "data.frame")
   expect_gt(dim(df)[1], 1)
-
+  df <- name_contains("Homo", "itis")
+  expect_is(df, "data.frame")
+  expect_gt(dim(df)[1], 1)
 
 
 })

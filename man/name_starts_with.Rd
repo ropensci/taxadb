@@ -4,7 +4,18 @@
 \alias{name_starts_with}
 \title{scientific name starts with}
 \usage{
-name_starts_with(name, provider, db = td_connect, ignore_case = TRUE)
+name_starts_with(name, provider, db = td_connect(), ignore_case = TRUE)
+}
+\arguments{
+\item{name}{vector of names (scientific or common, see \code{by}) to be matched against.}
+
+\item{provider}{from which provider should the hierachy be returned?
+Default is 'itis'.}
+
+\item{db}{a connection to the taxadb database. See details.}
+
+\item{ignore_case}{should we ignore case (capitalization) in matching names?
+default is \code{TRUE}.}
 }
 \description{
 scientific name starts with
