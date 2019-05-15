@@ -1,8 +1,8 @@
-# FROM: Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph (Version 0.3.2) [Data set]. 
+# FROM: Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph (Version 0.3.2) [Data set].
 # Zenodo. http://doi.org/10.5281/zenodo.1250572
 
 library(tidyverse)
-
+library(MonetDBLite)
 expect_none <- function(df){ testthat::expect_equal(dim(df)[[1]], 0) }
 
 
@@ -32,8 +32,8 @@ if(test){
   #taxonCache %>% filter(!grepl(":", id)) %>% expect_none()
   ## Some tests
   #taxonCache %>% filter(grepl(":", path)) %>% expect_none()  ## some paths are ids
-  taxonCache %>% filter(grepl("\\s", id))  %>% expect_none()  
-    
+  taxonCache %>% filter(grepl("\\s", id))  %>% expect_none()
+
   pattern = "\\s*\\|\\s*"
   path_pipes <- taxonCache %>% purrr::transpose() %>%
     map_int( ~length(str_split(.x$path, pattern)[[1]]))
@@ -54,8 +54,8 @@ if(test){
 ## taxonCache <- taxonCache[-trouble,]
 
 
-longform <- function(row, pattern = "\\s*\\|\\s*"){ 
-  row_as_df <- 
+longform <- function(row, pattern = "\\s*\\|\\s*"){
+  row_as_df <-
     data_frame(id = row$id,
                name = row$name,
                rank = row$rank,
@@ -65,20 +65,20 @@ longform <- function(row, pattern = "\\s*\\|\\s*"){
                commonNames = row$commonNames,
                externalUrl = row$externalUrl,
                thumbnailUrl = row$thumbnailUrl)
-               
+
 }
 
 
 # 3052673 rows.  3,052,673
 
 system.time({
-taxa <- taxonCache %>% 
-  transpose() %>% 
-  map_dfr(longform) %>% 
-  distinct() 
+taxa <- taxonCache %>%
+  transpose() %>%
+  map_dfr(longform) %>%
+  distinct()
 })
 
-## FIXME 
+## FIXME
 ## - [ ] standardize case
 ## - [x] standardize rank names
 
@@ -87,35 +87,35 @@ taxon_rank_list <- read_tsv(paste0("https://raw.githubusercontent.com/",
   "globalbioticinteractions/nomer/master/nomer/src/main/resources/org/",
   "globalbioticinteractions/nomer/match/taxon_rank_links.tsv"))
 
-rank_mapper <- taxon_rank_list %>% 
-  select(pathNames = providedName, 
-         rank_level_id = resolvedId, 
+rank_mapper <- taxon_rank_list %>%
+  select(pathNames = providedName,
+         rank_level_id = resolvedId,
          rank_level = resolvedName)
 
-globi_long <- inner_join(taxa, 
-                    rank_mapper, 
-                    copy = TRUE) %>% 
+globi_long <- inner_join(taxa,
+                    rank_mapper,
+                    copy = TRUE) %>%
   arrange(id) %>%
   select(-pathNames) %>% # drop the uncorrected names
-  select(id, 
+  select(id,
          name,
          rank,
-         path, 
-         path_id = pathIds, 
-         path_rank = rank_level, 
-         path_rank_id = rank_level_id, 
-         common_names = commonNames, 
-         external_url = externalUrl, 
+         path,
+         path_id = pathIds,
+         path_rank = rank_level,
+         path_rank_id = rank_level_id,
+         common_names = commonNames,
+         external_url = externalUrl,
          thumbnail_url = thumbnailUrl)
 
-## serious compression ~ about the same.  
+## serious compression ~ about the same.
 write_tsv(globi_long, bzfile("data/globi_long.tsv.bz2", compression=9))
 
-pre_spread <- 
-  globi_long %>% 
+pre_spread <-
+  globi_long %>%
   filter(rank == "species") %>%
-  select(id, species = name, path, path_rank) %>% 
-  distinct() 
+  select(id, species = name, path, path_rank) %>%
+  distinct()
 
 ## see debug: OTT, WORMS, NCBI, NBN & INAT contain non-unique rank names
 pre_spread <- pre_spread %>% mutate(row = 1:n())
@@ -127,7 +127,7 @@ uniques <- left_join(tmp, pre_spread, by = c("row", "id"))
 uniques %>% pull(id) %>% duplicated() %>% any() %>% testthat::expect_false()
 
 
-globi_wide <- uniques %>% spread(path_rank, path) 
+globi_wide <- uniques %>% spread(path_rank, path)
 write_tsv(globi_wide, bzfile("data/globi_hierarchy.tsv.bz2", compression=9))
 
 
@@ -137,12 +137,12 @@ write_tsv(globi_wide, bzfile("data/globi_hierarchy.tsv.bz2", compression=9))
 
 
 ## Find all cases with duplicate identifiers!
-has_duplicate_rank <- pre_spread %>% 
-  group_by(id, path_rank) %>% 
-  summarise(l = length(path)) %>% 
+has_duplicate_rank <- pre_spread %>%
+  group_by(id, path_rank) %>%
+  summarise(l = length(path)) %>%
   filter(l>1)
 
-dups <- pre_spread %>% 
+dups <- pre_spread %>%
   semi_join(select(has_duplicate_rank, id, path_rank))
 
 dups

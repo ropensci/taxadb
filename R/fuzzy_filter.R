@@ -96,9 +96,22 @@ filter_like <- function(db_tbl, input, pattern){
 ## Consider creating functions that are explicitly named to create more semantic
 ## code, rather than relying on setting the behavior in the `by` and `match`
 ## arguments to `fuzzy_filter`, e.g. :
+
+#' return all taxa in which scientific name contains the text provided
+#'
+#' @export
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#' name_contains("Homo ")
+#' }
+#' @inheritParams fuzzy_filter
 name_contains <- function(name,
-                          provider,
-                          db = td_connect,
+                          provider = "itis",
+                          db = td_connect(),
                           ignore_case = TRUE){
 
   fuzzy_filter(name,
@@ -109,9 +122,22 @@ name_contains <- function(name,
                ignore_case = ignore_case)
 }
 
+
+#' scientific name starts with
+#'
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#' name_contains("Homo ")
+#' }
+#' @inheritParams fuzzy_filter
+#' @export
 name_starts_with <- function(name,
                              provider,
-                             db = td_connect,
+                             db = td_connect(),
                              ignore_case = TRUE){
 
   fuzzy_filter(name,
@@ -121,6 +147,63 @@ name_starts_with <- function(name,
                db = db,
                ignore_case = ignore_case)
 }
+
+
+
+#' common name starts with
+#'
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#' common_starts_with("monkey")
+#' }
+#' @inheritParams fuzzy_filter
+#' @export
+common_starts_with <- function(name,
+                             provider = "itis",
+                             db = td_connect(),
+                             ignore_case = TRUE){
+
+  fuzzy_filter(name,
+               by = "vernacularName",
+               provider = provider,
+               match = "starts_with",
+               db = db,
+               ignore_case = ignore_case)
+}
+
+
+#' common name starts with
+#'
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#' common_contains("monkey")
+#' }
+#' @inheritParams fuzzy_filter
+#' @export
+common_contains <- function(name,
+                            provider = "itis",
+                            db = td_connect(),
+                            ignore_case = TRUE){
+
+  fuzzy_filter(name,
+               by = "vernacularName",
+               provider = provider,
+               match = "contains",
+               db = db,
+               ignore_case = ignore_case)
+}
+
+
+
+
 
 
 
