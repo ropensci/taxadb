@@ -7,6 +7,9 @@ library(dplyr)
 
 test_that("setup-free calls to basic functions", {
 
+  skip_on_cran()
+  skip_if_offline()
+
   df <- taxa_tbl(provider = "itis", db = NULL)
   chameleons <- filter(df, family == "Chamaeleonidae")
 

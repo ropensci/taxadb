@@ -22,9 +22,8 @@ ByteCompile: true
 Depends: R (>= 2.10)
 Imports:
     dplyr,
-    dbplyr,
     DBI,
-    MonetDBLite,
+    duckdb,
     arkdb,
     tibble,
     memoise,

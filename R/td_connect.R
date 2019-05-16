@@ -1,17 +1,17 @@
 #' Connect to the taxadb database
 #'
 #' @param dbdir Path to the database.
-#' @return Returns a `src_dbi` connection to the default MonetDBLite database
-#' @details This function provides a MonetDBLite database connection for
+#' @return Returns a `src_dbi` connection to the default duckdb database
+#' @details This function provides a duckdb database connection for
 #' `taxadb`. Note that `taxadb` functions provide drop-in support for most
-#' relational database connections as an alternative to the MonetDBLite
+#' relational database connections as an alternative to the duckdb
 #' option -- simply supply a different `src_dbi` connection in place of
 #' the one returned by `td_connect()`.
 #'
-#' The MonetDBLite connection provided by this function is set as the default
+#' The duckdb connection provided by this function is set as the default
 #' option because it can be automatically installed as an embedded database
 #' from R, much like SQLite, without requiring a separate server instance.
-#' MonetDBLite is much faster (particularly for joins) and more feature-rich
+#' duckdb is much faster (particularly for joins) and more feature-rich
 #' than SQLite (e.g. supporting windowing functions). One drawback of the
 #' embedded database is the inability to support concurrent connections from
 #' multiple R sessions.  Either limit access to the local database to a
@@ -29,7 +29,8 @@
 #'
 #'
 #' @importFrom DBI dbConnect dbIsValid
-#' @importFrom MonetDBLite MonetDBLite
+#' @importFrom duckdb duckdb
+# @importFrom MonetDBLite MonetDBLite
 #' @export
 #' @examples \donttest{
 #' ## OPTIONAL: you can first set an alternative home location,
@@ -42,7 +43,7 @@
 #' }
 td_connect <- function(dbdir = taxadb_dir()){
 
-  dbname <- file.path(dbdir, "monetdblite")
+  dbname <- file.path(dbdir, "database")
   db <- mget("td_db", envir = taxadb_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
     if (DBI::dbIsValid(db)) {
@@ -52,21 +53,26 @@ td_connect <- function(dbdir = taxadb_dir()){
 
   dir.create(dbname, FALSE)
 
-  tryCatch(
-    db <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname),
+  db <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  #db <- monetdblite_connect(dbname)
+  assign("td_db", db, envir = taxadb_cache)
+  db
+}
+
+# Provide an error handler for connecting to monetdblite if locked by another session
+monetdblite_connect <- function(dbname){
+  db <- tryCatch(
+    DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname),
     error = function(e){
       if(grepl("Database lock", e))
         stop(paste("Local taxadb database is locked by another R session.\n",
-                 "Try closing that session first or set the TAXADB_HOME\n",
-                  "environmental variable to a new location.\n"),
+                   "Try closing that session first or set the TAXADB_HOME\n",
+                   "environmental variable to a new location.\n"),
              call. = FALSE)
       else stop(e)
     },
     finally = NULL
   )
-
-
-  assign("td_db", db, envir = taxadb_cache)
   db
 }
 

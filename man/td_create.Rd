@@ -25,7 +25,7 @@ at default or increase for faster importing if you have plenty of spare RAM.}
 Defaults to user data directory given by \url{rappdirs::user_data_dir}.}
 
 \item{db}{connection to a database.  By default, taxadb will set up its own
-fast \url{MonetDBLite::MonetDBLite} connection.}
+fast database connection.}
 }
 \value{
 path where database has been installed (invisibly)

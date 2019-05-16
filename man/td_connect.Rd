@@ -10,22 +10,22 @@ td_connect(dbdir = taxadb_dir())
 \item{dbdir}{Path to the database.}
 }
 \value{
-Returns a \code{src_dbi} connection to the default MonetDBLite database
+Returns a \code{src_dbi} connection to the default duckdb database
 }
 \description{
 Connect to the taxadb database
 }
 \details{
-This function provides a MonetDBLite database connection for
+This function provides a duckdb database connection for
 \code{taxadb}. Note that \code{taxadb} functions provide drop-in support for most
-relational database connections as an alternative to the MonetDBLite
+relational database connections as an alternative to the duckdb
 option -- simply supply a different \code{src_dbi} connection in place of
 the one returned by \code{td_connect()}.
 
-The MonetDBLite connection provided by this function is set as the default
+The duckdb connection provided by this function is set as the default
 option because it can be automatically installed as an embedded database
 from R, much like SQLite, without requiring a separate server instance.
-MonetDBLite is much faster (particularly for joins) and more feature-rich
+duckdb is much faster (particularly for joins) and more feature-rich
 than SQLite (e.g. supporting windowing functions). One drawback of the
 embedded database is the inability to support concurrent connections from
 multiple R sessions.  Either limit access to the local database to a
