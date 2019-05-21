@@ -20,7 +20,7 @@ duplicate_as_unresolved <- function(df){
   ## Drop multi-match
   dplyr::anti_join(df, multi_match, by = "sort") %>%
     ## And replace as NA
-    dplyr::right_join(input_id, by = "sort") %>%
+    safe_right_join(input_id, by = "sort") %>%
     dplyr::arrange(sort)
 
 }

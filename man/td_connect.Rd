@@ -4,10 +4,15 @@
 \alias{td_connect}
 \title{Connect to the taxadb database}
 \usage{
-td_connect(dbdir = taxadb_dir())
+td_connect(dbdir = taxadb_dir(), driver = Sys.getenv("TAXADB_DRIVER"))
 }
 \arguments{
 \item{dbdir}{Path to the database.}
+
+\item{driver}{Default driver, one of "duckdb", "MonetDBLite", "RSQLite".
+\code{taxadb} will select the first one of those it finds available if a
+driver is not set. This fallback can be overwritten either by explicit
+argument or by setting the environmental variable \code{TAXADB_DRIVER}.}
 }
 \value{
 Returns a \code{src_dbi} connection to the default duckdb database
@@ -16,25 +21,15 @@ Returns a \code{src_dbi} connection to the default duckdb database
 Connect to the taxadb database
 }
 \details{
-This function provides a duckdb database connection for
-\code{taxadb}. Note that \code{taxadb} functions provide drop-in support for most
-relational database connections as an alternative to the duckdb
-option -- simply supply a different \code{src_dbi} connection in place of
-the one returned by \code{td_connect()}.
+This function provides a default database connection for
+\code{taxadb}. Note that you can use \code{taxadb} with any DBI-compatible database
+connection  by passing the connection object directly to \code{taxadb}
+functions using the \code{db} argument. \code{td_connect()} exists only to provide
+reasonable automatic defaults based on what is available on your system.
 
-The duckdb connection provided by this function is set as the default
-option because it can be automatically installed as an embedded database
-from R, much like SQLite, without requiring a separate server instance.
-duckdb is much faster (particularly for joins) and more feature-rich
-than SQLite (e.g. supporting windowing functions). One drawback of the
-embedded database is the inability to support concurrent connections from
-multiple R sessions.  Either limit access to the local database to a
-single R session at a time, or provide an alternative TAXADB_HOME path
-to start a second session with a separate database.  Alternatively,
-some users may prefer a free-standing server connection to support concurrent
-connections.  We recommend MonetDB (server version) for this for the
-best performance. \code{taxadb} will work with other database connections such
-as Postgres or MariaDB, but queries (filtering joins) will be much slower
+\code{duckdb} or \code{MonetDBLite} will give the best performance, and regular users
+\code{taxadb} will work with the built-in \code{RSQlite}, and with other database connections
+such as Postgres or MariaDB, but queries (filtering joins) will be much slower
 on these non-columnar databases.
 
 For performance reasons, this function will also cache and restore the
