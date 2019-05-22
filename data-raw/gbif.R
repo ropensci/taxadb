@@ -59,10 +59,13 @@ vern <- read_tsv("taxizedb/gbif/VernacularName.tsv")
 
 #common name table
 comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
-  left_join(bind_rows(accepted, rest), by = "taxonID") 
+  left_join(bind_rows(accepted, rest), by = "taxonID") %>%
+  mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
+         acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID)) %>%
+  #drop names that don't have an accepted ID 
+  drop_na(acceptedNameUsageID)
 
 write_tsv(comm_table, "common/common_gbif.tsv.bz2")
-
 
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??

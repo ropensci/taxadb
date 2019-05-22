@@ -45,7 +45,10 @@ rest <-
 
 #common name table
 comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
-  left_join(bind_rows(accepted, rest), by = "taxonID") 
+  left_join(bind_rows(accepted, rest), by = "taxonID") %>%
+  mutate(taxonID = stringi::stri_paste("COL:", taxonID),
+         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) %>%
+  drop_na(acceptedNameUsageID)
 
 write_tsv(comm_table, "common/common_col.tsv.bz2")
 
