@@ -52,8 +52,18 @@ gbif <- taxon %>%
 accepted <- filter(gbif, taxonomicStatus == "accepted") %>% mutate(acceptedNameUsageID = taxonID)
 rest <- filter(gbif, taxonomicStatus != "accepted") %>% filter(!is.na(acceptedNameUsageID))
 
+
+##Common Names
 ## Get common names
 vern <- read_tsv("taxizedb/gbif/VernacularName.tsv")
+
+#common name table
+comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
+  left_join(bind_rows(accepted, rest), by = "taxonID") 
+
+write_tsv(comm_table, "common/common_gbif.tsv.bz2")
+
+
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
@@ -77,3 +87,4 @@ dir.create("dwc", FALSE)
 write_tsv(dwc_gbif, "dwc/gbif.tsv.bz2")
 
 #piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="dwc")
+#piggyback::pb_upload("common/common_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
