@@ -41,6 +41,17 @@ rest <-
   filter(taxa, taxonomicStatus != "accepted") %>%
   filter(!is.na(acceptedNameUsageID)) # We drop un-mapped synonyms, as they are not helpful
 
+##Common Names
+
+#common name table
+comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
+  left_join(bind_rows(accepted, rest) %>% 
+              select(taxonID, acceptedNameUsageID, scientificName, taxonomicStatus, taxonRank), 
+            by = "taxonID")
+
+write_tsv(comm_table, "common/common_col.tsv.bz2")
+
+#add a common name to the master dwc table
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
@@ -66,4 +77,4 @@ write_tsv(dwc_col, "dwc/col.tsv.bz2")
 
 #library(piggyback)
 #piggyback::pb_upload("dwc/col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
-
+#piggyback::pb_upload("common/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
