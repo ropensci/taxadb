@@ -37,7 +37,7 @@
 td_connect <- function(dbdir = taxadb_dir(),
                        driver = Sys.getenv("TAXADB_DRIVER")){
 
-  dbname <- file.path(dbdir, "database")
+  dbname <- file.path(dbdir, "database", driver)
   db <- mget("td_db", envir = taxadb_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
     if (DBI::dbIsValid(db)) {
@@ -60,8 +60,9 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
          duckdb = DBI::dbConnect(duckdb::duckdb(), dbname = dbname),
          MonetDBLite = monetdblite_connect(dbname),
          RSQLite = DBI::dbConnect(RSQLite::SQLite(), file.path(dbname, "taxadb.sqlite")),
-         NULL)
-  if(!is.null(db))
+         dplyr = NULL,
+         "")
+  if(!is.character(db))
     return(db)
 
   ## Otherwise, fall back based on what's available:
@@ -69,8 +70,11 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
     return(DBI::dbConnect(duckdb::duckdb(), dbname))
   if(require("MonetDBLite"))
     return(monetdblite_connect(dbname))
-  DBI::dbConnect(RSQLite::SQLite(),
-                 file.path(dbname, "taxadb.sqlite"))
+  if(require("RSQLite"))
+    return(DBI::dbConnect(RSQLite::SQLite(),
+                 file.path(dbname, "taxadb.sqlite")))
+  ## nope, src_df() lacks DBI syntax
+  #dplyr::src_df(env = taxadb_cache)
 }
 
 

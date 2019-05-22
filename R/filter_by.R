@@ -96,10 +96,12 @@ td_filter <- function(x,y, by){
 safe_right_join <- function(x, y, by = NULL, copy = FALSE, ...){
 
   if(copy){
-    tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
     con <- dbplyr::remote_con(x)
-    DBI::dbWriteTable(con, tmpname, y, temporary = TRUE)
-    y <- dplyr::tbl(con, tmpname)
+    if(!is.null(con)){ ## only attempt on remote tables!
+      tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
+      DBI::dbWriteTable(con, tmpname, y, temporary = TRUE)
+      y <- dplyr::tbl(con, tmpname)
+    }
   }
   dplyr::left_join(y, x, by = by, ...)
 }

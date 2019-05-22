@@ -17,13 +17,15 @@ taxa_tbl <- function(
   provider <- match.arg(provider)
   tbl_name <- provider
   if (is.null(db)) return(quick_db(tbl_name))
-  if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
-
+  if (!has_table(tbl_name, db)){
+    td_create(provider = tbl_name, db = db)
+    #return(quick_db(tbl_name))
+  }
   dplyr::tbl(db, tbl_name)
 }
 
 has_table <- function(table = NULL, db = td_connect()){
-  if(is.null(db)) return(FALSE)
+  if (is.null(db)) return(FALSE)
   else if (table %in% DBI::dbListTables(db)) return(TRUE)
   else FALSE
 }
@@ -32,7 +34,7 @@ has_table <- function(table = NULL, db = td_connect()){
 #' @importFrom readr read_tsv
 quick_db <- memoise::memoise(
   function(tbl_name){
-    # FIXME -- use the same rappdirs location, not tmpfile!
+    # FIXME -- Consider running td_create
     tmp <- tempfile(fileext = ".tsv.bz2")
     download.file(
       paste0(providers_download_url(tbl_name), ".tsv.bz2"),
@@ -44,7 +46,7 @@ quick_db <- memoise::memoise(
   } #, cache = memoise::cache_filesystem(Sys.getenv("TAXADB_HOME"))
 )
 
-## Memoized on install, so cache location must already exist.
+## Memoized on install, so any cache location must already exist.
 
 
 # tibble doesn't like null arguments

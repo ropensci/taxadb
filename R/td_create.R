@@ -98,7 +98,7 @@ td_create <- function(provider = "itis",
   suppress_msg({
   arkdb::unark(dest,
                db_con = db,
-               lines = 1e6,
+               lines = 1e7,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
                col_types = readr::cols(.default = "c"))
