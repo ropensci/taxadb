@@ -81,7 +81,7 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
 
 # Provide an error handler for connecting to monetdblite if locked by another session
-#' @importFrom MonetDBLite MonetDBLite
+# @importFrom MonetDBLite MonetDBLite
 monetdblite_connect <- function(dbname){
   db <- tryCatch(
     DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname = dbname),
