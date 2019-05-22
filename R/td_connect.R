@@ -23,7 +23,7 @@
 #'
 #'
 #' @importFrom DBI dbConnect dbIsValid
-#' @importFrom duckdb duckdb
+# @importFrom duckdb duckdb
 #' @export
 #' @examples \donttest{
 #' ## OPTIONAL: you can first set an alternative home location,
@@ -55,23 +55,30 @@ td_connect <- function(dbdir = taxadb_dir(),
 
 db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
-  ## If a specific driver is requested, use that
+  ## If a specific driver is requested, attempt to use that
+
+  if (requireNamespace("duckdb", quietly = TRUE))
+    duckdb <- getExportedValue("duckdb", "duckdb")
+  if (requireNamespace("RSQLite", quietly = TRUE))
+    SQLite <- getExportedValue("RSQLite", "SQLite")
+
   db <- switch(driver,
-         duckdb = DBI::dbConnect(duckdb::duckdb(), dbname = dbname),
+         duckdb = DBI::dbConnect(duckdb(), dbname = dbname),
          MonetDBLite = monetdblite_connect(dbname),
-         RSQLite = DBI::dbConnect(RSQLite::SQLite(), file.path(dbname, "taxadb.sqlite")),
+         RSQLite = DBI::dbConnect(SQLite(),
+                                  file.path(dbname, "taxadb.sqlite")),
          dplyr = NULL,
          "")
   if(!is.character(db))
     return(db)
 
   ## Otherwise, fall back based on what's available:
-  if(require("duckdb"))
-    return(DBI::dbConnect(duckdb::duckdb(), dbname))
-  if(require("MonetDBLite"))
+  if(requireNamespace("duckdb", quietly = TRUE))
+    return(DBI::dbConnect(duckdb(), dbname))
+  if(requireNamespace("MonetDBLite", quietly = TRUE))
     return(monetdblite_connect(dbname))
-  if(require("RSQLite"))
-    return(DBI::dbConnect(RSQLite::SQLite(),
+  if(requireNamespace("RSQLite", quietly = TRUE))
+    return(DBI::dbConnect(SQLite(),
                  file.path(dbname, "taxadb.sqlite")))
   ## nope, src_df() lacks DBI syntax
   #dplyr::src_df(env = taxadb_cache)
@@ -82,9 +89,16 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
 # Provide an error handler for connecting to monetdblite if locked by another session
 # @importFrom MonetDBLite MonetDBLite
-monetdblite_connect <- function(dbname){
-  db <- tryCatch(
-    DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname = dbname),
+monetdblite_connect <- function(dbname, ignore_lock = TRUE){
+
+
+  if (requireNamespace("MonetDBLite", quietly = TRUE))
+    MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
+
+  db <- tryCatch({
+    if (ignore_lock) unlink(file.path(dbname, ".gdk_lock"))
+    DBI::dbConnect(MonetDBLite(), dbname = dbname)
+    },
     error = function(e){
       if(grepl("Database lock", e))
         stop(paste("Local taxadb database is locked by another R session.\n",

@@ -23,7 +23,6 @@ Depends: R (>= 2.10)
 Imports:
     dplyr,
     DBI,
-    duckdb,
     arkdb,
     tibble,
     memoise,
@@ -44,7 +43,9 @@ Suggests:
     knitr,
     rmarkdown,
     purrr,
-    RSQLite
+    RSQLite,
+    duckdb,
+    MonetDBLite
 Language: en-US
 VignetteBuilder: knitr
 URL: https://github.com/cboettig/taxadb

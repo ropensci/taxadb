@@ -13,6 +13,7 @@ cladistic
 DataFiles
 Dendrocygna
 dplyr
+duckdb
 dwc
 DWC
 eval
@@ -30,7 +31,6 @@ IUCN
 lifecycle
 Mammalia
 md
-MonetDB
 MonetDBLite
 OpenTree
 OTT
@@ -40,6 +40,7 @@ pre
 RDF
 Redlist
 reproducibility
+RSQLite
 Sandhill
 Sarcopterygii
 schemas
