@@ -43,12 +43,20 @@ rest <-
 
 ##Common Names
 
+#get ID's that have no accepted sciname
+syn_names <- rest %>% 
+  filter(!acceptedNameUsageID %in% accepted$acceptedNameUsageID) %>%
+  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
+
+#turns out none of them join with a common name, so we don't have to deal with them (below returns an empty dataframe)
+# vern %>% select(taxonID, vernacularName, language) %>%
+#   inner_join(syn_names) %>% View()
+
 #common name table
 comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
-  left_join(bind_rows(accepted, rest), by = "taxonID") %>%
+  inner_join(bind_rows(accepted), by = "taxonID") %>%
   mutate(taxonID = stringi::stri_paste("COL:", taxonID),
-         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) %>%
-  drop_na(acceptedNameUsageID)
+         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) 
 
 write_tsv(comm_table, "common/common_col.tsv.bz2")
 
