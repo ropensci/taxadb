@@ -57,13 +57,18 @@ rest <- filter(gbif, taxonomicStatus != "accepted") %>% filter(!is.na(acceptedNa
 ## Get common names
 vern <- read_tsv("taxizedb/gbif/VernacularName.tsv")
 
-#common name table
-comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
-  left_join(bind_rows(accepted, rest), by = "taxonID") %>%
+#join common names with all sci name data
+common <- vern %>% select(taxonID, vernacularName, language) %>%
+  inner_join(bind_rows(accepted, rest), by = "taxonID")
+
+#just want one sci name per accepted name ID, first get accepted names, then pick a synonym for ID's that don't have an accepted name
+accepted_comm <- common %>% filter(taxonomicStatus == "accepted")
+rest_comm <- common %>% filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) %>%
+  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
+
+common_table <- bind_rows(accepted_comm, rest_comm) %>%
   mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
-         acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID)) %>%
-  #drop names that don't have an accepted ID 
-  drop_na(acceptedNameUsageID)
+         acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID)) 
 
 write_tsv(comm_table, "common/common_gbif.tsv.bz2")
 
