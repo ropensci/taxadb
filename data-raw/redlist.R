@@ -163,7 +163,7 @@ dwc_accepted <- dwc %>% filter(taxonomicStatus == "accepted")
 
 #then randomly pick a synonym sciname for the rest of the ID's
 dwc_rest <- dwc %>% 
-  filter(!acceptedNameUsageID %in% accepted$acceptedNameUsageID) %>%
+  filter(!acceptedNameUsageID %in% dwc_accepted$acceptedNameUsageID) %>%
   n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
   
 #then join with the common names
