@@ -37,7 +37,7 @@
 td_connect <- function(dbdir = taxadb_dir(),
                        driver = Sys.getenv("TAXADB_DRIVER")){
 
-  dbname <- file.path(dbdir, "database", driver)
+  dbname <- file.path(dbdir, "database")
   db <- mget("td_db", envir = taxadb_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
     if (DBI::dbIsValid(db)) {
@@ -63,8 +63,9 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
     SQLite <- getExportedValue("RSQLite", "SQLite")
 
   db <- switch(driver,
-         duckdb = DBI::dbConnect(duckdb(), dbname = dbname),
-         MonetDBLite = monetdblite_connect(dbname),
+         duckdb = DBI::dbConnect(duckdb(),
+                                 dbname = file.path(dbname,"duckdb")),
+         MonetDBLite = monetdblite_connect(file.path(dbname,"MonetDBLite")),
          RSQLite = DBI::dbConnect(SQLite(),
                                   file.path(dbname, "taxadb.sqlite")),
          dplyr = NULL,
@@ -74,14 +75,14 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
   ## Otherwise, fall back based on what's available:
   if(requireNamespace("duckdb", quietly = TRUE))
-    return(DBI::dbConnect(duckdb(), dbname))
+    return(DBI::dbConnect(duckdb(), file.path(dbname,"duckdb")))
   if(requireNamespace("MonetDBLite", quietly = TRUE))
-    return(monetdblite_connect(dbname))
+    return(monetdblite_connect(file.path(dbname,"MonetDBLite")))
   if(requireNamespace("RSQLite", quietly = TRUE))
     return(DBI::dbConnect(SQLite(),
                  file.path(dbname, "taxadb.sqlite")))
   ## nope, src_df() lacks DBI syntax
-  #dplyr::src_df(env = taxadb_cache)
+  NULL
 }
 
 

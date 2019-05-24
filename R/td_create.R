@@ -116,10 +116,9 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-providers_download_url <- function(files){
+providers_download_url <- function(files, tag = "dwc", dir = "dwc"){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
-         "releases/download/dwc/",
-         "dwc", ".2f", files)
+         "releases/download/", tag, "/", dir, ".2f", files)
 }
 
 
