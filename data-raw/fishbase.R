@@ -51,6 +51,19 @@ fb_taxonid <- synonyms %>%
 ## Get common names
 fb_common <- common_names()
 
+#first english names
+comm_eng <- fb_common %>%
+  filter(Language == "en") %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName)
+
+#get the rest
+comm_names <- fb_common %>%
+  filter(!SpecCode %in% comm_eng$SpecCode) %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName) %>%
+  bind_rows(comm_eng) %>%
+  mutate(id = stri_paste("FB:", SpecCode)) %>% 
+  ungroup(SpecCode)
+
 ## Rename things to Darwin Core
 dwc <- fb_taxonid %>%
   rename(taxonID = id,
@@ -64,7 +77,8 @@ dwc <- fb_taxonid %>%
                      specificEpithet = species
                      #infraspecificEpithet
                      ),
-  by = "taxonID")
+  by = "taxonID") %>%
+  left_join(comm_names %>% select(taxonID = id, verancularName = ComName)) 
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
@@ -73,6 +87,8 @@ dwc$infraspecificEpithet <- species[,3]
 
 
 write_tsv(dwc, "dwc/fb.tsv.bz2")
+
+## Common name table 
 
 
 
