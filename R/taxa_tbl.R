@@ -11,11 +11,12 @@ taxa_tbl <- function(
   provider = c("itis", "ncbi", "col", "tpl",
                "gbif", "fb", "slb", "wd", "ott",
                "iucn"),
-  schema = "dwc",
+  schema = c("dwc","common"),
   db = td_connect()){
 
   provider <- match.arg(provider)
-  tbl_name <- provider
+  schema <- match.arg(schema)
+  tbl_name <- paste0(schema, "_", provider)
   if (is.null(db)) return(quick_db(tbl_name))
   if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
 

@@ -29,6 +29,7 @@ by_common <- function(name,
   filter_by(x = name,
             by = "vernacularName",
             provider = match.arg(provider),
+            schema = "common",
             collect = collect,
             db = db,
             ignore_case = ignore_case)

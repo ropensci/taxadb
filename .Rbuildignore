@@ -20,3 +20,4 @@ pkgdown
 paper
 ^ISSUES\.md$
 drafts
+^manifest\.json$
