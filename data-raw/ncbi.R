@@ -183,7 +183,7 @@ species$infraspecificEpithet <- splitname[,3]
 
 dwc <- bind_rows(species, other)
 
-write_tsv(dwc, "dwc/ncbi.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_ncbi.tsv.bz2")
 
 #Common name table
 comm_table <- ncbi %>%
@@ -193,7 +193,7 @@ comm_table <- ncbi %>%
   #for this provider every acceptedNameUsageID has one accepted scientific name, so just filter for those
   filter(taxonomicStatus == "accepted")
 
-write_tsv(comm_table, "common/common_ncbi.tsv.bz2")
+write_tsv(comm_table, "dwc/common_ncbi.tsv.bz2")
 
 #library(piggyback)
 #piggyback::pb_upload("dwc/ncbi.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

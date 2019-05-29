@@ -134,7 +134,7 @@ dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
 
-write_tsv(dwc, "dwc/wd.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_wd.tsv.bz2")
 
 
 

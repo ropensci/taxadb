@@ -86,7 +86,7 @@ dwc$infraspecificEpithet <- species[,3]
 
 
 
-write_tsv(dwc, "dwc/fb.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_fb.tsv.bz2")
 #piggyback::pb_upload( "dwc/fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 ## Common name table 
@@ -110,7 +110,7 @@ common %>%
 
 comm_table <- bind_rows(accepted_comm, rest_comm)
 
-write_tsv(comm_table, "common/common_fb.tsv.bz2")
+write_tsv(comm_table, "dwc/common_fb.tsv.bz2")
 #piggyback::pb_upload("common/common_fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 ########
@@ -219,7 +219,7 @@ dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
 
-write_tsv(slb, "dwc/slb.tsv.bz2")
+write_tsv(slb, "dwc/dwc_slb.tsv.bz2")
 
 
 ## Common name table 
@@ -246,6 +246,6 @@ common %>%
 
 
 #just write original merge since we've already addressed possible duplicates
-write_tsv(common, "common/common_slb.tsv.bz2")
+write_tsv(common, "dwc/common_slb.tsv.bz2")
 #piggyback::pb_upload("common/common_slb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 

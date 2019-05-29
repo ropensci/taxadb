@@ -157,7 +157,7 @@ dwc <- dwc %>%
   mutate(taxonomicStatus = stringi::stri_replace_all(taxonomicStatus, "accepted",  fixed="accepted_name"))
 
 
-write_tsv(dwc, "dwc/ott.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_ott.tsv.bz2")
 
 
 ## testing

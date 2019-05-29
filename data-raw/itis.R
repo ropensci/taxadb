@@ -172,7 +172,7 @@ taxonid <-
 
 # get common names #
 vern <- read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
-  mutate(taxonID = stri_paste("ITIS:", tsn)) %>%
+  mutate(acceptedNameUsageID = stri_paste("ITIS:", tsn)) %>%
   select(-tsn)
 
 #first the ones with accepted common names
@@ -181,17 +181,17 @@ acc_common <- vern %>%
 
 #of those left grab the english name if there is one
 acc_common <- vern %>%
-  filter(!taxonID %in% acc_common$taxonID, language == "English") %>%
-  n_in_group(group_var = "taxonID", n = 1, wt = vernacular_name) %>%
+  filter(!acceptedNameUsageID %in% acc_common$acceptedNameUsageID, language == "English") %>%
+  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = vernacular_name) %>%
   bind_rows(acc_common)
 
 #then the rest just grab the first alphabetically
 com_names <-  vern %>%
-  filter(!taxonID %in% acc_common$taxonID) %>%
-  group_by(taxonID) %>%
+  filter(!acceptedNameUsageID %in% acc_common$acceptedNameUsageID) %>%
+  group_by(acceptedNameUsageID) %>%
   top_n(n = 1, wt = vernacular_name) %>%
   bind_rows(acc_common) %>%
-  distinct(taxonID, .keep_all = TRUE)
+  distinct(acceptedNameUsageID, .keep_all = TRUE)
 
 wide <- collect(taxa_tbl("itis", "hierarchy")) %>% distinct()
 dwc <- taxonid %>%
@@ -207,11 +207,13 @@ dwc <- taxonid %>%
                      #infraspecificEpithet
               ),
             by = c("acceptedNameUsageID" =  "taxonID")) %>%
-  left_join(com_names %>% select(vernacularName = vernacular_name, taxonID), by = "taxonID") %>%
+  left_join(com_names %>% select(vernacularName = vernacular_name, acceptedNameUsageID), by = "acceptedNameUsageID") %>%
   distinct()
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
-write_tsv(dwc, "dwc/itis.tsv.bz2")
+common <-  vern %>% 
+  inner_join(dwc %>% select())
+write_tsv(dwc, "dwc/dwc_itis.tsv.bz2")

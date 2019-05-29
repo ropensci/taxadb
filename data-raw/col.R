@@ -58,7 +58,7 @@ comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
   mutate(taxonID = stringi::stri_paste("COL:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) 
 
-write_tsv(comm_table, "common/common_col.tsv.bz2")
+write_tsv(comm_table, "dwc/common_col.tsv.bz2")
 
 #add a common name to the master dwc table
 #first english names,
@@ -81,7 +81,7 @@ dwc_col <-
   mutate(taxonID = stringi::stri_paste("COL:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
-write_tsv(dwc_col, "dwc/col.tsv.bz2")
+write_tsv(dwc_col, "dwc/dwc_col.tsv.bz2")
 
 
 #library(piggyback)

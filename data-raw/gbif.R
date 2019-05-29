@@ -71,7 +71,7 @@ common <- vern %>% select(taxonID, vernacularName, language) %>%
 # 
 # common_table <- bind_rows(accepted_comm, rest_comm) 
 
-write_tsv(common, "common/common_gbif.tsv.bz2")
+write_tsv(common, "dwc/common_gbif.tsv.bz2")
 
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
@@ -93,7 +93,7 @@ dwc_gbif <-
   mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
-write_tsv(dwc_gbif, "dwc/gbif.tsv.bz2")
+write_tsv(dwc_gbif, "dwc/dwc_gbif.tsv.bz2")
 
 #piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="dwc")
 #piggyback::pb_upload("common/common_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

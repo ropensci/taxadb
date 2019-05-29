@@ -150,7 +150,7 @@ dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 dwc$taxonID[dwc$taxonomicStatus != "accepted"] <- as.character(NA)
 
-write_tsv(dwc, "dwc/iucn.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_iucn.tsv.bz2")
 
 ##library(piggyback)
 ##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% piggyback::pb_upload(tag = "v1.0.0")
@@ -172,5 +172,5 @@ comm_table <- read_tsv("data/iucn_common.tsv.bz2") %>%
   select(acceptedNameUsageID = id, vernacularName = commonname, language) %>%
   inner_join(bind_rows(dwc_accepted, dwc_rest) %>% select(-vernacularName))
 
-write_tsv(comm_table, "common/common_iucn.tsv.bz2")
+write_tsv(comm_table, "dwc/common_iucn.tsv.bz2")
 #piggyback::pb_upload("common/common_iucn.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
