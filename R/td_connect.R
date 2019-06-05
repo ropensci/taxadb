@@ -10,10 +10,10 @@
 #'
 #' The MonetDBLite connection provided by this function is set as the default
 #' option because it can be automatically installed as an embedded database
-#' from R, much like SQLite, without requiring a seperate server instance.
+#' from R, much like SQLite, without requiring a separate server instance.
 #' MonetDBLite is much faster (particularly for joins) and more feature-rich
 #' than SQLite (e.g. supporting windowing functions). One drawback of the
-#' embeded database is the inability to support concurrent connections from
+#' embedded database is the inability to support concurrent connections from
 #' multiple R sessions.  Either limit access to the local database to a
 #' single R session at a time, or provide an alternative TAXADB_HOME path
 #' to start a second session with a separate database.  Alternatively,

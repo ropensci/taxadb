@@ -58,4 +58,15 @@ test_that("by_rank", {
   expect_gt(dim(ranks)[1], 1)
 })
 
+test_that("by_common", {
+
+  by_common("man", "itis")
+
+  expect_warning(x <- by_common("man", "wd"),
+                 "provider wd does not provide common names")
+  expect_null(x)
+
+})
+
+
 

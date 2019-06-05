@@ -11,7 +11,7 @@ by_id(id, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
 \arguments{
 \item{id}{taxonomic id, in prefix format}
 
-\item{provider}{from which provider should the hierachy be returned?
+\item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
 \item{type}{id type.  Can be \code{taxonID} or \code{acceptedNameUsageID},
