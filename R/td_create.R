@@ -69,7 +69,7 @@ td_create <- function(provider = "itis",
   files <- unlist(lapply(schema, function(s)
     paste0(s, "_", provider, ".tsv.bz2")))
   #remove common name tables for providers without common names
-  files <- files[!files %in% c("common_tpl.tsv.bz2", "common_wd.tsv.bz2", "common_ott.tsv.bz2", "common_itis.tsv.bz2")]
+  files <- files[!files %in% c("common_tpl.tsv.bz2", "common_wd.tsv.bz2", "common_ott.tsv.bz2")]
   dest <- file.path(dbdir, files)
 
   new_dest <- dest

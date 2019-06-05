@@ -214,6 +214,18 @@ species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
-common <-  vern %>% 
-  inner_join(dwc %>% select())
 write_tsv(dwc, "dwc/dwc_itis.tsv.bz2")
+
+
+## Common name table
+common <-  vern %>%
+  select(-approved_ind, -vern_id) %>%
+  inner_join(dwc %>% select(-vernacularName, -update_date)) %>%
+  rename(vernacularName = vernacular_name)
+
+write_tsv(common, "dwc/common_itis.tsv.bz2")
+
+#piggyback::pb_upload("dwc/dwc_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
+#piggyback::pb_upload("dwc/common_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
+
+
