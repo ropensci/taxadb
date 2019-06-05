@@ -111,7 +111,7 @@ common %>%
 comm_table <- bind_rows(accepted_comm, rest_comm)
 
 write_tsv(comm_table, "dwc/common_fb.tsv.bz2")
-#piggyback::pb_upload("common/common_fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#piggyback::pb_upload("dwc/common_fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 ########
 
@@ -247,5 +247,5 @@ common %>%
 
 #just write original merge since we've already addressed possible duplicates
 write_tsv(common, "dwc/common_slb.tsv.bz2")
-#piggyback::pb_upload("common/common_slb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#piggyback::pb_upload("dwc/common_slb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
