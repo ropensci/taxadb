@@ -4,8 +4,9 @@
 \alias{td_create}
 \title{create a local taxonomic database}
 \usage{
-td_create(provider = "itis", schema = c("dwc"), overwrite = FALSE,
-  lines = 1e+06, dbdir = taxadb_dir(), db = td_connect(dbdir))
+td_create(provider = "itis", schema = c("dwc", "common"),
+  overwrite = FALSE, lines = 1e+06, dbdir = taxadb_dir(),
+  db = td_connect(dbdir))
 }
 \arguments{
 \item{provider}{a list (character vector) of provider to be included in the

@@ -5,7 +5,7 @@
 \title{Return a reference to a given table in the taxadb database}
 \usage{
 taxa_tbl(provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd", "ott", "iucn"), schema = "dwc", db = td_connect())
+  "wd", "ott", "iucn"), schema = c("dwc", "common"), db = td_connect())
 }
 \arguments{
 \item{provider}{from which provider should the hierachy be returned?

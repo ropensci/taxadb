@@ -8,8 +8,8 @@ joining on the \code{by} column to return all rows matching the \code{x} values
 (scientificNames, taxonIDs, etc).}
 \usage{
 filter_by(x, by, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), collect = TRUE, db = td_connect(),
-  ignore_case = TRUE)
+  "slb", "wd", "ott", "iucn"), schema = c("dwc", "common"),
+  collect = TRUE, db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{x}{a vector of values to filter on}
