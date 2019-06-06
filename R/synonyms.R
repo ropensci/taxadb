@@ -45,9 +45,10 @@ synonyms <- function(name,
   })
   ## Join that back onto the id table
   out <- the_id_table %>%
-    dplyr::select("scientificName", "sort", "acceptedNameUsageID") %>%
+    dplyr::select("scientificName", "sort", "acceptedNameUsageID", "input") %>%
     dplyr::left_join(syn, by = "acceptedNameUsageID", copy = TRUE) %>%
-    dplyr::select("acceptedNameUsage", "synonym", "taxonRank", "acceptedNameUsageID") %>%
+    dplyr::select("acceptedNameUsage", "synonym", "taxonRank",
+                  "acceptedNameUsageID", "input") %>%
     dplyr::distinct()
 
   if (collect && inherits(out, "tbl_lazy")) {

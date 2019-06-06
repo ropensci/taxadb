@@ -26,6 +26,9 @@ by_common <- function(name,
                 ignore_case = TRUE,
                 db = td_connect()){
 
+  provider <- match.arg(provider)
+  if(!assert_has_common(provider, db)) return(NULL)
+
   filter_by(x = name,
             by = "vernacularName",
             provider = match.arg(provider),
@@ -35,3 +38,16 @@ by_common <- function(name,
             ignore_case = ignore_case)
 }
 
+assert_has_common <- function(provider, db){
+  has_common <- "vernacularName" %in%
+    colnames(taxa_tbl(provider, db))
+  if(has_common){
+    return(TRUE)
+  } else {
+    warning(paste("taxadb provider", provider,
+                  "does not provide common names at this time."),
+            call. = FALSE)
+    return(FALSE)
+  }
+
+}

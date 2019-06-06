@@ -7,7 +7,7 @@
 #' @param x a vector of values to filter on
 #' @param by a column name in the taxa_tbl (following Darwin Core Schema terms).
 #'   The filtering join is executed with this column as the joining variable.
-#' @param provider from which provider should the hierachy be returned?
+#' @param provider from which provider should the hierarchy be returned?
 #'  Default is 'itis'.
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to

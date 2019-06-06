@@ -39,7 +39,7 @@ bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
 bbs
 ```
 
-We see that the resulting table has 750 unqiue rows of names.  If we wish to combine data from the BBS with other data on these same species, such as trait data, we need to be able to resolve the species names to unique identifiers.  We could then likewise resolve the species names used in the trait data or any other data we wish to combine against the same naming provider,
+We see that the resulting table has 750 unique rows of names.  If we wish to combine data from the BBS with other data on these same species, such as trait data, we need to be able to resolve the species names to unique identifiers.  We could then likewise resolve the species names used in the trait data or any other data we wish to combine against the same naming provider,
 giving us a consistent set of identifiers.  Mixing identifiers from different naming providers is not ideal, as it not only gives us unmatched identifiers for the same species (e.g. `r get_ids("Homo sapiens", "itis")` and `r get_ids("Homo sapiens", "ncbi")` are both identifiers for *Homo sapiens*), but can also raise deeper challenges when different providers work from different taxonomic concepts.  
 
 
@@ -73,7 +73,7 @@ bbs_ids %>%
 The `get_ids()` function looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) OTT identifies the most, at 665 out of 750 names.  
 
 
-We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific eptithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
+We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific epithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
 
 Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:
 

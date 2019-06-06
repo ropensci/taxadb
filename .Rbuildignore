@@ -20,4 +20,6 @@ pkgdown
 paper
 ^ISSUES\.md$
 drafts
+common_names
 ^manifest\.json$
+^renv$
