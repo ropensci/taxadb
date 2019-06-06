@@ -34,9 +34,11 @@ quick_db <- memoise::memoise(
   function(tbl_name){
     # FIXME -- use the same rappdirs location, not tmpfile!
     tmp <- tempfile(fileext = ".tsv.bz2")
-    download.file(
+    utils::download.file(
       paste0(providers_download_url(tbl_name), ".tsv.bz2"),
-             tmp)
+      destfile = tmp,
+      method = "libcurl",
+      quiet = TRUE)
     suppressWarnings(suppressMessages(
       readr::read_tsv(tmp,
       col_types = readr::cols(.default = readr::col_character()))
