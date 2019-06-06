@@ -17,6 +17,7 @@ taxa_tbl <- function(
   provider <- match.arg(provider)
   schema <- match.arg(schema)
   tbl_name <- paste0(schema, "_", provider)
+
   if (is.null(db)) return(quick_db(tbl_name))
   if (!has_table(tbl_name, db)) return(quick_db(tbl_name))
 

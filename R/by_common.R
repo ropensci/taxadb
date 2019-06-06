@@ -27,27 +27,26 @@ by_common <- function(name,
                 db = td_connect()){
 
   provider <- match.arg(provider)
-  if(!assert_has_common(provider, db)) return(NULL)
+  if(!assert_has_common(provider)) return(NULL)
 
   filter_by(x = name,
             by = "vernacularName",
-            provider = match.arg(provider),
+            provider = provider,
             schema = "common",
             collect = collect,
             db = db,
             ignore_case = ignore_case)
 }
 
-assert_has_common <- function(provider, db){
-  has_common <- "vernacularName" %in%
-    colnames(taxa_tbl(provider, db))
-  if(has_common){
-    return(TRUE)
-  } else {
+NO_COMMON <- c("common_wd", "common_ott", "common_tpl")
+
+assert_has_common <- function(provider){
+  
+  if (paste0("common_", provider) %in% NO_COMMON){
     warning(paste("taxadb provider", provider,
-                  "does not provide common names at this time."),
-            call. = FALSE)
+                         "does not provide common names at this time."),
+                   call. = FALSE)
     return(FALSE)
   }
-
+  TRUE
 }
