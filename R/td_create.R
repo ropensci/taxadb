@@ -47,7 +47,7 @@
 #'
 #' }
 td_create <- function(provider = "itis",
-                      schema = c("dwc"),
+                      schema = c("dwc", "common"),
                       overwrite = FALSE,
                       lines = 1e6,
                       dbdir =  taxadb_dir(),
@@ -66,7 +66,10 @@ td_create <- function(provider = "itis",
   stopifnot(all(provider %in% recognized_provider))
 
   ## supports vectorized schema and provider lists.
-  files <- paste0(provider, ".tsv.bz2")
+  files <- unlist(lapply(schema, function(s)
+    paste0(s, "_", provider, ".tsv.bz2")))
+  #remove common name tables for providers without common names
+  files <- files[!files %in% paste0(NO_COMMON, ".tsv.bz2")]
   dest <- file.path(dbdir, files)
 
   new_dest <- dest
@@ -116,7 +119,7 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-providers_download_url <- function(files){
+providers_download_url <- function(files, schema){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
          "releases/download/dwc/",
          "dwc", ".2f", files)

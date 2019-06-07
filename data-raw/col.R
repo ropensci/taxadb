@@ -41,6 +41,26 @@ rest <-
   filter(taxa, taxonomicStatus != "accepted") %>%
   filter(!is.na(acceptedNameUsageID)) # We drop un-mapped synonyms, as they are not helpful
 
+##Common Names
+
+#get ID's that have no accepted sciname
+syn_names <- rest %>% 
+  filter(!acceptedNameUsageID %in% accepted$acceptedNameUsageID) %>%
+  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
+
+#turns out none of them join with a common name, so we don't have to deal with them (below returns an empty dataframe)
+# vern %>% select(taxonID, vernacularName, language) %>%
+#   inner_join(syn_names) %>% View()
+
+#common name table
+comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
+  inner_join(bind_rows(accepted), by = "taxonID") %>%
+  mutate(taxonID = stringi::stri_paste("COL:", taxonID),
+         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) 
+
+write_tsv(comm_table, "dwc/common_col.tsv.bz2")
+
+#add a common name to the master dwc table
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
@@ -61,9 +81,9 @@ dwc_col <-
   mutate(taxonID = stringi::stri_paste("COL:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
-write_tsv(dwc_col, "dwc/col.tsv.bz2")
+write_tsv(dwc_col, "dwc/dwc_col.tsv.bz2")
 
 
 #library(piggyback)
 #piggyback::pb_upload("dwc/col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
-
+#piggyback::pb_upload("common/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

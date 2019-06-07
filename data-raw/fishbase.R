@@ -51,6 +51,19 @@ fb_taxonid <- synonyms %>%
 ## Get common names
 fb_common <- common_names()
 
+#first english names
+comm_eng <- fb_common %>%
+  filter(Language == "en") %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName)
+
+#get the rest
+comm_names <- fb_common %>%
+  filter(!SpecCode %in% comm_eng$SpecCode) %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName) %>%
+  bind_rows(comm_eng) %>%
+  mutate(id = stri_paste("FB:", SpecCode)) %>% 
+  ungroup(SpecCode)
+
 ## Rename things to Darwin Core
 dwc <- fb_taxonid %>%
   rename(taxonID = id,
@@ -64,7 +77,8 @@ dwc <- fb_taxonid %>%
                      specificEpithet = species
                      #infraspecificEpithet
                      ),
-  by = "taxonID")
+  by = "taxonID") %>%
+  left_join(comm_names %>% select(taxonID = id, vernacularName = ComName)) 
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
@@ -72,9 +86,32 @@ dwc$infraspecificEpithet <- species[,3]
 
 
 
-write_tsv(dwc, "dwc/fb.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_fb.tsv.bz2")
+#piggyback::pb_upload( "dwc/fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
+## Common name table 
 
+#join common names with all sci name data
+common <- fb_common %>% 
+  mutate(taxonID = stri_paste("FB:", SpecCode)) %>% 
+  select(taxonID, vernacularName = ComName, language = Language) %>%
+  inner_join(dwc %>% select(-vernacularName), by = "taxonID")
+
+#just want one sci name per accepted name ID, first get accepted names, then pick a synonym for ID's that don't have an accepted name
+accepted_comm <- common %>% filter(taxonomicStatus == "accepted")
+#there's only one ID that doesn't have an accepted name
+rest_comm <- common %>% 
+  filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) 
+#but there's only one synonym (and therefore one sciname) so we can just keep all the entries (the table below is empty)
+common %>% 
+  filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) %>%
+  group_by(acceptedNameUsageID) %>% 
+  filter(n_distinct(scientificName)>1)
+
+comm_table <- bind_rows(accepted_comm, rest_comm)
+
+write_tsv(comm_table, "dwc/common_fb.tsv.bz2")
+#piggyback::pb_upload("dwc/common_fb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 ########
 
@@ -144,7 +181,22 @@ slb_taxonid <- slb_synonyms %>%
   bind_rows(mutate(slb_accepted, accepted_id = id, name_type = "accepted")) %>%
   distinct() %>% de_duplicate()
 
+## Get common names
+slb_common <- rfishbase::common_names(server = "sealifebase") %>%
+  drop_na(ComName)
 
+#first english names
+comm_eng <- slb_common %>%
+  filter(Language == "English") %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName)
+
+#get the rest
+comm_names <- slb_common %>%
+  filter(!SpecCode %in% comm_eng$SpecCode) %>%
+  n_in_group(group_var = "SpecCode", n = 1, wt = ComName) %>%
+  bind_rows(comm_eng) %>%
+  mutate(taxonID = stri_paste("SLB:", SpecCode)) %>% 
+  ungroup(SpecCode)
 
 ## Rename things to Darwin Core
 dwc <- slb_taxonid %>%
@@ -159,15 +211,41 @@ dwc <- slb_taxonid %>%
                      specificEpithet = species
                      #infraspecificEpithet
               ),
-            by = "taxonID")
+            by = "taxonID") %>%
+  left_join(comm_names %>% select(taxonID , vernacularName = ComName)) 
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
 
-write_tsv(slb, "dwc/slb.tsv.bz2")
+write_tsv(slb, "dwc/dwc_slb.tsv.bz2")
 
 
+## Common name table 
 
+#join common names with all sci name data
+common <- slb_common %>% 
+  mutate(taxonID = stri_paste("SLB:", SpecCode)) %>% 
+  select(taxonID, vernacularName = ComName, language = Language) %>%
+  inner_join(dwc %>% select(-vernacularName), by = "taxonID") %>%
+  distinct()
+
+#just want one sci name per accepted name ID, first get accepted names, then pick a synonym for ID's that don't have an accepted name
+accepted_comm <- common %>% filter(taxonomicStatus %in% c("accepted", "accepted name"))
+
+#there are many ID's without an accepted name
+rest_comm <- common %>% 
+  filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) 
+
+#there are only two accepted ID's (shown in table below) that have duplicate entries for common names, indicating that they mapped to multiple scientific names, I think it's ok to keep them 
+common %>% 
+  filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) %>%
+  group_by(acceptedNameUsageID) %>% 
+  filter(n_distinct(scientificName)>1, n_distinct(vernacularName) != n()) %>% View()
+
+
+#just write original merge since we've already addressed possible duplicates
+write_tsv(common, "dwc/common_slb.tsv.bz2")
+#piggyback::pb_upload("dwc/common_slb.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 

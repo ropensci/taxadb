@@ -31,7 +31,7 @@ tpl_dwc <- tpl_taxa %>%
          scientificNameAuthorship = authorship,
          namePublishedInYear = date,
          nomenclaturalStatus = nomenclatural_status_from_original_data_source)
-write_tsv(tpl_dwc, "dwc/tpl.tsv.bz2")
+write_tsv(tpl_dwc, "dwc/dwc_tpl.tsv.bz2")
 
 
 

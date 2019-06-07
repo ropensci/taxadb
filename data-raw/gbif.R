@@ -52,8 +52,27 @@ gbif <- taxon %>%
 accepted <- filter(gbif, taxonomicStatus == "accepted") %>% mutate(acceptedNameUsageID = taxonID)
 rest <- filter(gbif, taxonomicStatus != "accepted") %>% filter(!is.na(acceptedNameUsageID))
 
+
+##Common Names
 ## Get common names
 vern <- read_tsv("taxizedb/gbif/VernacularName.tsv")
+
+#join common names with all sci name data
+common <- vern %>% select(taxonID, vernacularName, language) %>%
+  inner_join(bind_rows(accepted, rest), by = "taxonID") %>%
+  distinct() %>%
+  mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
+         acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID)) 
+
+# #just want one sci name per accepted name ID, first get accepted names, then pick a synonym for ID's that don't have an accepted name
+# accepted_comm <- common %>% filter(taxonomicStatus == "accepted")
+# rest_comm <- common %>% filter(!acceptedNameUsageID %in% accepted_comm$acceptedNameUsageID) %>%
+#   n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
+# 
+# common_table <- bind_rows(accepted_comm, rest_comm) 
+
+write_tsv(common, "dwc/common_gbif.tsv.bz2")
+
 #first english names,
 ##why doesn't this return a unique list of taxonID without distinct()??
 comm_eng <- vern %>%
@@ -74,6 +93,7 @@ dwc_gbif <-
   mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
          acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID))
 dir.create("dwc", FALSE)
-write_tsv(dwc_gbif, "dwc/gbif.tsv.bz2")
+write_tsv(dwc_gbif, "dwc/dwc_gbif.tsv.bz2")
 
 #piggyback::pb_upload("dwc/gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="dwc")
+#piggyback::pb_upload("common/common_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

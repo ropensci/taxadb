@@ -150,7 +150,27 @@ dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 dwc$taxonID[dwc$taxonomicStatus != "accepted"] <- as.character(NA)
 
-write_tsv(dwc, "dwc/iucn.tsv.bz2")
+write_tsv(dwc, "dwc/dwc_iucn.tsv.bz2")
 
 ##library(piggyback)
 ##fs::dir_ls(glob = "data/iucn*", recursive = TRUE) %>% piggyback::pb_upload(tag = "v1.0.0")
+
+#Common names table
+
+#not all acceptedNameUsageID's have an accepted sciname, but we want to preserve as many ID's as possible
+#so first get the ones that do have an accepted id
+dwc_accepted <- dwc %>% filter(taxonomicStatus == "accepted") 
+
+#then randomly pick a synonym sciname for the rest of the ID's
+dwc_rest <- dwc %>% 
+  filter(!acceptedNameUsageID %in% dwc_accepted$acceptedNameUsageID) %>%
+  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
+  
+#then join with the common names
+comm_table <- read_tsv("data/iucn_common.tsv.bz2") %>%
+  drop_na (commonname) %>%
+  select(acceptedNameUsageID = id, vernacularName = commonname, language) %>%
+  inner_join(bind_rows(dwc_accepted, dwc_rest) %>% select(-vernacularName))
+
+write_tsv(comm_table, "dwc/common_iucn.tsv.bz2")
+#piggyback::pb_upload("common/common_iucn.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

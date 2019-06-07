@@ -9,6 +9,7 @@
 #'   The filtering join is executed with this column as the joining variable.
 #' @param provider from which provider should the hierarchy be returned?
 #'  Default is 'itis'.
+#' @param schema One of "dwc" (for Darwin Core data) or "common" (for the Common names table.)  
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
@@ -46,12 +47,14 @@ filter_by <- function(x,
                       provider = c("itis", "ncbi", "col", "tpl",
                                    "gbif", "fb", "slb", "wd", "ott",
                                    "iucn"),
+                      schema = c("dwc", "common"),
                       collect = TRUE,
                       db = td_connect(),
                       ignore_case = TRUE){
 
   provider <- match.arg(provider)
-  db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", db), input = !!sym(by))
+  schema <- match.arg(schema)
+  db_tbl <- dplyr::mutate(taxa_tbl(provider, schema, db), input = !!sym(by))
 
   if(ignore_case){
     original <- tibble::tibble(input = x, sort = 1:length(x))

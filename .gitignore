@@ -25,3 +25,5 @@ manuscript.tex
 paper/manuscript.pdf
 manuscript.log
 manuscript_cache/
+manifest.json
+dwc/*tsv.bz2

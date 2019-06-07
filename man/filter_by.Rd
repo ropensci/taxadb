@@ -8,8 +8,8 @@ joining on the \code{by} column to return all rows matching the \code{x} values
 (scientificNames, taxonIDs, etc).}
 \usage{
 filter_by(x, by, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), collect = TRUE, db = td_connect(),
-  ignore_case = TRUE)
+  "slb", "wd", "ott", "iucn"), schema = c("dwc", "common"),
+  collect = TRUE, db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{x}{a vector of values to filter on}
@@ -19,6 +19,8 @@ The filtering join is executed with this column as the joining variable.}
 
 \item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
+
+\item{schema}{One of "dwc" (for Darwin Core data) or "common" (for the Common names table.)}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
