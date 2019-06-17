@@ -5,7 +5,7 @@
 \title{create a local taxonomic database}
 \usage{
 td_create(provider = "itis", schema = c("dwc", "common"),
-  overwrite = FALSE, lines = 1e+06, dbdir = taxadb_dir(),
+  overwrite = FALSE, lines = 1e+05, dbdir = taxadb_dir(),
   db = td_connect(dbdir))
 }
 \arguments{
