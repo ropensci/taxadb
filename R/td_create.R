@@ -48,7 +48,7 @@
 td_create <- function(provider = "itis",
                       schema = c("dwc", "common"),
                       overwrite = FALSE,
-                      lines = 1e6,
+                      lines = 1e5,
                       dbdir =  taxadb_dir(),
                       db = td_connect(dbdir)
                       ){
@@ -101,7 +101,7 @@ td_create <- function(provider = "itis",
   suppress_msg({
   arkdb::unark(dest,
                db_con = db,
-               lines = 1e7,
+               lines = lines,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
                col_types = readr::cols(.default = "c"))
@@ -122,7 +122,8 @@ td_create <- function(provider = "itis",
 
 providers_download_url <- function(files, schema = "dwc"){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
-         "releases/download/", schema, "/", schema, ".2f", files)
+               "releases/download/dwc/",
+               "dwc", ".2f", files)
 }
 
 

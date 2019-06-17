@@ -55,12 +55,27 @@ td_connect <- function(dbdir = taxadb_dir(),
 
 db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
-  ## If a specific driver is requested, attempt to use that
+  ## Evaluate capabilities in reverse-priorty order
+  drivers <- "dplyr"
 
-  if (requireNamespace("duckdb", quietly = TRUE))
-    duckdb <- getExportedValue("duckdb", "duckdb")
-  if (requireNamespace("RSQLite", quietly = TRUE))
+  if (requireNamespace("RSQLite", quietly = TRUE)){
     SQLite <- getExportedValue("RSQLite", "SQLite")
+    drivers <- c("RSQLite", drivers)
+  }
+  if (requireNamespace("MonetDBLite", quietly = TRUE)){
+    MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
+    drivers <- c("MonetDBLite", drivers)
+  }
+  ## duckdb lacks necessary capabilities (e.g. temp tables) at this time
+  ## https://github.com/cwida/duckdb/issues/58
+#  if (requireNamespace("duckdb", quietly = TRUE)){
+#    duckdb <- getExportedValue("duckdb", "duckdb")
+#    drivers <- c("duckdb", drivers)
+#  }
+
+  ## If driver is undefined or not in available list, use first from the list
+  if (  !(driver %in% drivers) ) driver <- drivers[[1]]
+
 
   db <- switch(driver,
          duckdb = DBI::dbConnect(duckdb(),
@@ -69,20 +84,7 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
          RSQLite = DBI::dbConnect(SQLite(),
                                   file.path(dbname, "taxadb.sqlite")),
          dplyr = NULL,
-         "")
-  if(!is.character(db))
-    return(db)
-
-  ## Otherwise, fall back based on what's available:
-  if(requireNamespace("duckdb", quietly = TRUE))
-    return(DBI::dbConnect(duckdb(), file.path(dbname,"duckdb")))
-  if(requireNamespace("MonetDBLite", quietly = TRUE))
-    return(monetdblite_connect(file.path(dbname,"MonetDBLite")))
-  if(requireNamespace("RSQLite", quietly = TRUE))
-    return(DBI::dbConnect(SQLite(),
-                 file.path(dbname, "taxadb.sqlite")))
-  ## nope, src_df() lacks DBI syntax
-  NULL
+         NULL)
 }
 
 

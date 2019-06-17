@@ -20,7 +20,7 @@ taxa_tbl <- function(
 
   if (is.null(db)) return(quick_db(tbl_name))
   if (!has_table(tbl_name, db)){
-    td_create(provider = tbl_name, db = db)
+    td_create(provider = provider, schema = schema, db = db)
     #return(quick_db(tbl_name))
   }
   dplyr::tbl(db, tbl_name)
