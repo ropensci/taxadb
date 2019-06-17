@@ -34,7 +34,7 @@ synonyms <- function(name,
   suppress_msg({
     syn <-
       taxa_tbl(provider = provider, db = db) %>%
-      dplyr::right_join(the_id_table %>%
+      safe_right_join(the_id_table %>%
                    select("acceptedNameUsageID"),
                  by = "acceptedNameUsageID",
                  copy = TRUE) %>%

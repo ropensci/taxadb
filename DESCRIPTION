@@ -22,9 +22,7 @@ ByteCompile: true
 Depends: R (>= 2.10)
 Imports:
     dplyr,
-    dbplyr,
     DBI,
-    MonetDBLite,
     arkdb,
     tibble,
     memoise,
@@ -34,7 +32,8 @@ Imports:
     magrittr,
     stringi,
     progress,
-    utils
+    utils,
+    dbplyr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests:
@@ -44,9 +43,11 @@ Suggests:
     knitr,
     rmarkdown,
     purrr,
-    RSQLite
+    RSQLite,
+    duckdb,
+    MonetDBLite
 Language: en-US
 VignetteBuilder: knitr
 URL: https://github.com/cboettig/taxadb
 BugReports: https://github.com/cboettig/taxadb/issues
-Remotes: MonetDB/MonetDBLite-R
+Remotes: MonetDB/MonetDBLite-R, cwida/duckdb/tools/rpkg

@@ -14,7 +14,7 @@
 #' @param dbdir a location on your computer where the database should be installed.
 #'  Defaults to user data directory given by [rappdirs::user_data_dir]().
 #' @param db connection to a database.  By default, taxadb will set up its own
-#' fast [MonetDBLite::MonetDBLite]() connection.
+#' fast database connection.
 #' @details
 #'  Authorities recognized by taxadb are:
 #'  - `itis`: Integrated Taxonomic Information System, <https://www.itis.gov/>
@@ -31,7 +31,6 @@
 #' @importFrom utils download.file
 #' @importFrom DBI dbConnect dbDisconnect dbListTables
 #' @importFrom arkdb unark streamable_readr_tsv
-#' @importFrom MonetDBLite MonetDBLite
 #' @importFrom readr cols
 #' @examples
 #' \donttest{
@@ -102,7 +101,7 @@ td_create <- function(provider = "itis",
   suppress_msg({
   arkdb::unark(dest,
                db_con = db,
-               lines = 1e6,
+               lines = 1e7,
                streamable_table = arkdb::streamable_readr_tsv(),
                overwrite = overwrite,
                col_types = readr::cols(.default = "c"))
@@ -111,7 +110,8 @@ td_create <- function(provider = "itis",
   # reset readr progress bar.
   options(readr.show_progress = progress)
 
-  ## Set id as primary key in each table? automatic in MonetDB
+  ## Set id as primary key in each table? automatic in modern DBs
+  ## like MonetDB and duckdb
   # lapply(DBI::dbListTables(db$con), function(table)
   # glue::glue("ALTER TABLE {table} ADD PRIMARY KEY ({key});",
   #            table = table, key = "id"))
@@ -119,10 +119,10 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-providers_download_url <- function(files, schema){
+
+providers_download_url <- function(files, schema = "dwc"){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
-         "releases/download/dwc/",
-         "dwc", ".2f", files)
+         "releases/download/", schema, "/", schema, ".2f", files)
 }
 
 

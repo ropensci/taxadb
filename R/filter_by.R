@@ -86,11 +86,27 @@ filter_by <- function(x,
 td_filter <- function(x,y, by){
   sort <- "sort"   # avoid complaint about NSE. We could do sym("sort") but this is cleaner.
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    dplyr::right_join(x, y,
-                      by = by,
-                      copy = TRUE) %>%
+    safe_right_join(x, y, by = by, copy = TRUE) %>%
       dplyr::arrange(sort)
   })
+}
+
+## Manually copy query into DB, since RSQLite lacks right_join,
+## and dplyr `copy` can only copy table "y"
+#' @importFrom dbplyr remote_con
+#' @importFrom DBI dbWriteTable
+#' @importFrom dplyr left_join tbl
+safe_right_join <- function(x, y, by = NULL, copy = FALSE, ...){
+
+  if(copy){
+    con <- dbplyr::remote_con(x)
+    if(!is.null(con)){ ## only attempt on remote tables!
+      tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
+      DBI::dbWriteTable(con, tmpname, y, temporary = TRUE)
+      y <- dplyr::tbl(con, tmpname)
+    }
+  }
+  dplyr::left_join(y, x, by = by, ...)
 }
 
 # Thanks https://stackoverflow.com/questions/55083084

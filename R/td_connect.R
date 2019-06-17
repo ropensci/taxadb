@@ -1,26 +1,20 @@
 #' Connect to the taxadb database
 #'
 #' @param dbdir Path to the database.
-#' @return Returns a `src_dbi` connection to the default MonetDBLite database
-#' @details This function provides a MonetDBLite database connection for
-#' `taxadb`. Note that `taxadb` functions provide drop-in support for most
-#' relational database connections as an alternative to the MonetDBLite
-#' option -- simply supply a different `src_dbi` connection in place of
-#' the one returned by `td_connect()`.
+#' @param driver Default driver, one of "duckdb", "MonetDBLite", "RSQLite".
+#'   `taxadb` will select the first one of those it finds available if a
+#'   driver is not set. This fallback can be overwritten either by explicit
+#'   argument or by setting the environmental variable `TAXADB_DRIVER`.
+#' @return Returns a `src_dbi` connection to the default duckdb database
+#' @details This function provides a default database connection for
+#' `taxadb`. Note that you can use `taxadb` with any DBI-compatible database
+#' connection  by passing the connection object directly to `taxadb`
+#' functions using the `db` argument. `td_connect()` exists only to provide
+#' reasonable automatic defaults based on what is available on your system.
 #'
-#' The MonetDBLite connection provided by this function is set as the default
-#' option because it can be automatically installed as an embedded database
-#' from R, much like SQLite, without requiring a separate server instance.
-#' MonetDBLite is much faster (particularly for joins) and more feature-rich
-#' than SQLite (e.g. supporting windowing functions). One drawback of the
-#' embedded database is the inability to support concurrent connections from
-#' multiple R sessions.  Either limit access to the local database to a
-#' single R session at a time, or provide an alternative TAXADB_HOME path
-#' to start a second session with a separate database.  Alternatively,
-#' some users may prefer a free-standing server connection to support concurrent
-#' connections.  We recommend MonetDB (server version) for this for the
-#' best performance. `taxadb` will work with other database connections such
-#' as Postgres or MariaDB, but queries (filtering joins) will be much slower
+#' `duckdb` or `MonetDBLite` will give the best performance, and regular users
+#' `taxadb` will work with the built-in `RSQlite`, and with other database connections
+#' such as Postgres or MariaDB, but queries (filtering joins) will be much slower
 #' on these non-columnar databases.
 #'
 #' For performance reasons, this function will also cache and restore the
@@ -29,7 +23,7 @@
 #'
 #'
 #' @importFrom DBI dbConnect dbIsValid
-#' @importFrom MonetDBLite MonetDBLite
+# @importFrom duckdb duckdb
 #' @export
 #' @examples \donttest{
 #' ## OPTIONAL: you can first set an alternative home location,
@@ -40,9 +34,10 @@
 #' db <- connect_db()
 #'
 #' }
-td_connect <- function(dbdir = taxadb_dir()){
+td_connect <- function(dbdir = taxadb_dir(),
+                       driver = Sys.getenv("TAXADB_DRIVER")){
 
-  dbname <- file.path(dbdir, "monetdblite")
+  dbname <- file.path(dbdir, "database")
   db <- mget("td_db", envir = taxadb_cache, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
     if (DBI::dbIsValid(db)) {
@@ -50,23 +45,71 @@ td_connect <- function(dbdir = taxadb_dir()){
     }
   }
 
-  dir.create(dbname, FALSE)
+  dir.create(dbname, showWarnings = FALSE, recursive = TRUE)
 
-  tryCatch(
-    db <- DBI::dbConnect(MonetDBLite::MonetDBLite(), dbname),
+  db <- db_driver(dbname, driver)
+  #db <- monetdblite_connect(dbname)
+  assign("td_db", db, envir = taxadb_cache)
+  db
+}
+
+db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
+
+  ## If a specific driver is requested, attempt to use that
+
+  if (requireNamespace("duckdb", quietly = TRUE))
+    duckdb <- getExportedValue("duckdb", "duckdb")
+  if (requireNamespace("RSQLite", quietly = TRUE))
+    SQLite <- getExportedValue("RSQLite", "SQLite")
+
+  db <- switch(driver,
+         duckdb = DBI::dbConnect(duckdb(),
+                                 dbname = file.path(dbname,"duckdb")),
+         MonetDBLite = monetdblite_connect(file.path(dbname,"MonetDBLite")),
+         RSQLite = DBI::dbConnect(SQLite(),
+                                  file.path(dbname, "taxadb.sqlite")),
+         dplyr = NULL,
+         "")
+  if(!is.character(db))
+    return(db)
+
+  ## Otherwise, fall back based on what's available:
+  if(requireNamespace("duckdb", quietly = TRUE))
+    return(DBI::dbConnect(duckdb(), file.path(dbname,"duckdb")))
+  if(requireNamespace("MonetDBLite", quietly = TRUE))
+    return(monetdblite_connect(file.path(dbname,"MonetDBLite")))
+  if(requireNamespace("RSQLite", quietly = TRUE))
+    return(DBI::dbConnect(SQLite(),
+                 file.path(dbname, "taxadb.sqlite")))
+  ## nope, src_df() lacks DBI syntax
+  NULL
+}
+
+
+
+
+# Provide an error handler for connecting to monetdblite if locked by another session
+# @importFrom MonetDBLite MonetDBLite
+monetdblite_connect <- function(dbname, ignore_lock = TRUE){
+
+
+  if (requireNamespace("MonetDBLite", quietly = TRUE))
+    MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
+
+  db <- tryCatch({
+    if (ignore_lock) unlink(file.path(dbname, ".gdk_lock"))
+    DBI::dbConnect(MonetDBLite(), dbname = dbname)
+    },
     error = function(e){
       if(grepl("Database lock", e))
         stop(paste("Local taxadb database is locked by another R session.\n",
-                 "Try closing that session first or set the TAXADB_HOME\n",
-                  "environmental variable to a new location.\n"),
+                   "Try closing that session first or set the TAXADB_HOME\n",
+                   "environmental variable to a new location.\n"),
              call. = FALSE)
       else stop(e)
     },
     finally = NULL
   )
-
-
-  assign("td_db", db, envir = taxadb_cache)
   db
 }
 

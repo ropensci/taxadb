@@ -2,7 +2,7 @@
 testthat::test_that("mutate_db works on databases", {
 
   skip_on_cran()
-
+  skip_if(Sys.getenv("TAXADB_DRIVER") == "RSQLite")
   library(dplyr)
   library(taxadb)
   td_create(c("itis", "ncbi"))

@@ -10,7 +10,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 taxadb:::td_disconnect()
-MonetDBLite::monetdblite_shutdown()
 ```
 
 # taxadb  <img src="man/figures/logo.svg" align="right" alt="" width="120" />

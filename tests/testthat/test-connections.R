@@ -1,16 +1,5 @@
 context("test connections")
 
-test_that("we can detect locked connections", {
-
-  skip("not implemented yet")
-  dbpath <- file.path(test_db, "monetdblite")
-  dir.create(dbpath, FALSE, TRUE)
-  lockfile <- file.path(dbpath, ".gdk_lock")
-  write("", lockfile)
-  expect_error(td_connect(test_db), "Cannot connect")
-
-})
-
 
 test_that("we can use alternative DBs, such as SQLite", {
 

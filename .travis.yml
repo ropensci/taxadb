@@ -2,6 +2,8 @@
 language: R
 cache: packages
 
+before_install:
+  - Rscript -e 'remotes::install_github("cwida/duckdb/tools/rpkg", build = FALSE)'
 after_success:
   - Rscript -e 'covr::codecov()'
 
