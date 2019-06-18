@@ -78,8 +78,8 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
 
   db <- switch(driver,
-         duckdb = DBI::dbConnect(duckdb(),
-                                 dbname = file.path(dbname,"duckdb")),
+#         duckdb = DBI::dbConnect(duckdb(),
+#                                 dbname = file.path(dbname,"duckdb")),
          MonetDBLite = monetdblite_connect(file.path(dbname,"MonetDBLite")),
          RSQLite = DBI::dbConnect(SQLite(),
                                   file.path(dbname, "taxadb.sqlite")),

@@ -119,7 +119,7 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-
+## FIXME assumes file is schema-file
 providers_download_url <- function(files, schema = "dwc"){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
                "releases/download/dwc/",
