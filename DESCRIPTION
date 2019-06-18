@@ -44,7 +44,6 @@ Suggests:
     rmarkdown,
     purrr,
     RSQLite,
-    duckdb,
     MonetDBLite
 Language: en-US
 VignetteBuilder: knitr

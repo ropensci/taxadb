@@ -91,8 +91,7 @@ td_create <- function(provider = "itis",
     ## method must be specified for download.file to work w/ vectors
     utils::download.file(urls,
                          new_dest,
-                         method = "libcurl",
-                         quiet = TRUE)
+                         method = "libcurl")
   }
 
   ## silence readr progress bar in arkdb
