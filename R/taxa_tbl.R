@@ -18,13 +18,18 @@ taxa_tbl <- function(
   schema <- match.arg(schema)
   tbl_name <- paste0(schema, "_", provider)
 
-  if (is.null(db)) return(quick_db(tbl_name))
+  if (is.null(db)){
+    mem_quick_db <- memoise::memoise(quick_db,
+                                     cache = memoise::cache_filesystem(taxadb_dir()))
+    return(mem_quick_db(tbl_name))
+  }
   if (!has_table(tbl_name, db)){
     td_create(provider = provider, schema = schema, db = db)
-    #return(quick_db(tbl_name))
   }
   dplyr::tbl(db, tbl_name)
 }
+## could memoise to disk, but for some reason quickdb is not memoising...
+
 
 has_table <- function(table = NULL, db = td_connect()){
   if (is.null(db)) return(FALSE)
@@ -32,21 +37,22 @@ has_table <- function(table = NULL, db = td_connect()){
   else FALSE
 }
 
-#' @importFrom memoise memoise
+#' @importFrom memoise memoise cache_filesystem
 #' @importFrom readr read_tsv
-quick_db <- memoise::memoise(
+quick_db <-
   function(tbl_name){
-    # FIXME -- Consider running td_create
-    tmp <- tempfile(fileext = ".tsv.bz2")
-    download.file(
-      paste0(providers_download_url(tbl_name), ".tsv.bz2"),
+    #tmp <- tempfile(fileext = ".tsv.bz2")
+    tmp <- file.path(taxadb_dir(), paste0(tbl_name, ".tsv.bz2"))
+    if(!file.exists(tmp)){
+      download.file(paste0(providers_download_url(tbl_name), ".tsv.bz2"),
              tmp)
-    suppressWarnings(suppressMessages(
+    }
+    suppressWarnings(
       readr::read_tsv(tmp,
       col_types = readr::cols(.default = readr::col_character()))
-    ))
-  } #, cache = memoise::cache_filesystem(Sys.getenv("TAXADB_HOME"))
-)
+    )
+  }
+
 
 ## Memoized on install, so any cache location must already exist.
 

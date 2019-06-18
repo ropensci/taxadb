@@ -84,6 +84,8 @@ td_create <- function(provider = "itis",
     ## FIXME eventually these should be Zenodo URLs
     urls <- providers_download_url(new_files)
 
+    ## Developer NOTE: arkdb should handle remote URL case natively instead...
+
     ## Gabor recommends we drop-in curl::download_file instead here!
     ## or something fancier with curl_fetch_multi
     ## method must be specified for download.file to work w/ vectors
