@@ -3,8 +3,8 @@ title: "taxadb: A High-Performance Local Taxonomic Database Interface"
 author:
   - name: "Kari Norman"
     affiliation: ucb
-  - name: "Jorrit Poelen"
-    affiliation: jorritt
+#  - name: "Jorrit Poelen"
+#    affiliation: jorritt
   - name: "Scott Chamberlain"
     affiliation: ropensci      
   - name: "Carl Boettiger"
@@ -39,6 +39,9 @@ library(magrittr)
 library(tidyverse)
 library(taxadb)
 library(printr)
+
+## see https://blog.rstudio.com/2017/06/13/dplyr-0-7-0/, 
+## https://community.rstudio.com/t/why-does-na-match-na-when-joining-two-dataframes/28785/3
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
 printtable <- function(df){
@@ -73,21 +76,58 @@ The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `
 
 Instead of binding existing web APIs, `taxadb` is built around a set compressed text files following a consistent, standardized layout or schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup and enabling offline use.
 
-After installing the `taxadb` R package, users can create local copies of data from any of the providers using the `td_create()` function and specifying the provider abbreviation (see Table 1), or `all` to install all available providers:
+
+<!--
+### Installation
+
+`taxadb` can be installed from GitHub using the `remotes` R package:
+
+```{r eval=FALSE}
+remotes::install_github("cboettig/taxadb")
+```
+-->
+
+
 
 ```{r message = FALSE, warning=FALSE}
 library(tidyverse)
 library(taxadb)
 ```
 
+`taxadb` functions will automatically set up a local, persistent database if one has not yet been created.  
+
+```{r}
+get_ids("Gadus morhua")
+```
+
+
+This one-time setup will download, uncompress, and import the data into persistant storage (using the appropriate location specified by the operating sytstem [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same names provider will be able to access this data rapidly without the need for processing or an internet connection.  
+
+Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 1), or simply using `all` to install all available providers:
+
+
 ```{r eval=FALSE, message=FALSE}
 td_create("all")
 ```
 
-<!--  Next 2 paragraphs should possibly be left to a manual, but are likely to be overlooked aspects there... -->
-This one-time download will download and import local copies of the provider data. By default `taxadb` creates a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage, and data is stored in the appropriate location specified for applications by the operating sytstem [@rappdirs]. Users can customize this location, or opt for any alternative relational database backend by providing alternative arguments, though the default MonetDBLite system can be an order of magnitude faster than popular alternatives such as Postgres [@monetdblite].  `taxadb` will automatically handle opening, caching, and closing the MonetDBLite connection, but note that one limitation of MonetDBLite is the restriction against concurrent access: two separate R sessions on the same machine cannot both access the database at the same time. Users who need concurrent access from multiple sessions may wish to use a standalone MonetDB server or other database server instead.
 
-All `taxadb` functions can also operate in one-time-use mode without first installing a standalone server.  If a function requests a provider which has not been installed, the relevant table can be downloaded and read directly into memory.  This requires sufficient memory be available to hold the entire table (typically 1-2 GB) and will only be cached for the R session.  This can be useful in special cases such as execution on remote servers where this will be faster than importing the data locally, or to allow other packages to use methods such as `get_ids()` internally without assuming users will have first created a local copy with `td_create()`. Specify `db=NULL` on any `taxadb` function to force this in-memory dispatch. 
+`taxadb` functions like `get_ids()` and `td_create()` take an optional argument, `db`, to an external database connection.  `taxadb` will work with most DBI-compliant databases such as MySQL or Postgres [see @DBI], but will be much faster when using a column-oriented database engine such as `duckdb` or `MonetDBLite`.  These latter options are also much easier for most users, since each can be installed directly as an R package. `taxadb` will default to the fastest available option.  `taxadb` can also run without a database backend by setting `db=NULL`, though some functions will require a lot (2-20 GB) of free RAM for this to work with many of the large names providers.  
+
+<!--
+`taxadb` does not require the use of an external database system, but will automatically make use of the fastest database server available. `taxadb` can also use any DBI compliant database accessible from R, such as MySQL or Postgres [see @DBI], though the default `duckdb` or `MonetDBLite` will be both significantly faster and easier to use.  
+-->
+
+<!--  Next 2 paragraphs should possibly be left to a manual, but are likely to be overlooked aspects there... -->
+By default `taxadb` creates a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage. `taxadb` will automatically handle opening, caching, and closing the database connection. 
+
+<!-- 
+now sidestepped
+
+but note that one limitation of MonetDBLite is the restriction against concurrent access: two separate R sessions on the same machine cannot both access the database at the same time. Users who need concurrent access from multiple sessions may wish to use a standalone MonetDB server or other database server instead.
+-->
+
+
+It is not necessary to call `td_create()`.  Specify `db=NULL` on any `taxadb` function to force this in-memory dispatch. 
 
 Functions in `taxadb` are organized into several families: 
 
@@ -104,7 +144,7 @@ Taxonomic identifiers provide a fundamental abstraction which lies at the heart 
 
 These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species:
 
-```{r}
+```{r message=FALSE}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
 status_data <- read_tsv(system.file("extdata", "status_data.tsv", package="taxadb"))
 ```
