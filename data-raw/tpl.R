@@ -3,12 +3,17 @@
 library(taxizedb)
 library(tidyverse)
 library(stringi)
-tpl <- db_download_tpl()
-db_load_tpl(tpl, user = "postgres", pwd = "password", host = "postgres")
-tpl_db <- src_tpl(user = "postgres", password = "password", host = "postgres")
-#
-tpl_taxa <- tbl(tpl_db, "plantlist")  %>% collect()  ## Only table
-write_tsv(tpl_taxa, "data/tpl.tsv.bz2")
+
+dir.create("taxizedb/tpl", FALSE, TRUE)
+download.file("https://github.com/cboettig/taxadb/releases/download/data/taxizedb.2ftpl.2fplantlist.tsv.bz2",
+              "taxizedb/tpl/plantlist.tsv.bz2")
+
+# tpl <- db_download_tpl()
+# db_load_tpl(tpl, user = "postgres", pwd = "password", host = "postgres")
+# tpl_db <- src_tpl(user = "postgres", password = "password", host = "postgres")
+# #
+# tpl_taxa <- tbl(tpl_db, "plantlist")  %>% collect()  ## Only table
+# write_tsv(tpl_taxa, "data/tpl.tsv.bz2")
 
 tpl_taxa <- read_tsv("taxizedb/tpl/plantlist.tsv.bz2")
 

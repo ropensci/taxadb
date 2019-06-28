@@ -3,9 +3,13 @@ library(stringi)
 library(piggyback)
 source("data-raw/helper-routines.R")
 
-
-## all available flat files in original formats
-piggyback::pb_download(repo = "cboettig/taxadb")
+#### ITIS DIRECT:
+dir.create("taxizedb/itis", FALSE, TRUE)
+download.file("https://www.itis.gov/downloads/itisSqlite.zip", "taxizedb/itis/itisSqlite.zip")
+unzip("taxizedb/itis/itisSqlite.zip", exdir="taxizedb/itis")
+dbname <- list.files(list.dirs("taxizedb/itis", recursive=FALSE), pattern="[.]sqlite", full.names = TRUE)
+db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
+arkdb::ark(db, "taxizedb/itis", arkdb::streamable_readr_tsv(), lines = 1e6L)
 
 ## not that rank_id isn't a unique id by itself!
 rank_tbl <-

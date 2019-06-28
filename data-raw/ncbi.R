@@ -1,6 +1,11 @@
 library(tidyverse)
 source("data-raw/helper-routines.R")
 
+### NCBI Direct:
+dir.create("taxizedb/ncbi", FALSE, TRUE)
+download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip", "taxizedb/ncbi/taxdmp.zip")
+unzip("taxizedb/ncbi/taxdmp.zip", exdir="taxizedb/ncbi")
+
 ncbi_taxa <-
   inner_join(read_tsv("taxizedb/ncbi/nodes.tsv.bz2"), read_tsv("taxizedb/ncbi/names.tsv.bz2")) %>%
   select(tax_id, parent_tax_id, rank, name_txt, unique_name, name_class)

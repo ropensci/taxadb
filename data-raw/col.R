@@ -8,12 +8,15 @@ dir.create("taxizedb/col", FALSE, TRUE)
 download.file("http://www.catalogueoflife.org/DCA_Export/zip-fixed/2018-annual.zip",
               "taxizedb/col/2018-annual.zip")
 unzip("taxizedb/col/2018-annual.zip", exdir="taxizedb/col")
+taxon <- read_tsv("taxizedb/col/taxa.txt", col_types = cols(.default = col_character()), quote = "")
+vernacular <- read_tsv("taxizedb/col/vernacular.txt", col_types = cols(.default = col_character()), quote = "")
+reference <- read_tsv("taxizedb/col/reference.txt", col_types = cols(.default = col_character()), quote = "")
 
-char <- cols(.default = col_character())
+## Not useful to us, also not very complete:
+## distribution <- read_tsv("taxizedb/col/distribution.txt", col_types = cols(.default = col_character()), quote = "")     # occurrance, but sparse & coarse
+## speciesprofile <- read_tsv("taxizedb/col/speciesprofile.txt", col_types = cols(.default = col_character()), quote = "") # habitat
+# description <- read_tsv("taxizedb/col/description.txt", col_types = cols(.default = col_character()), quote = "") ## occurance countries
 
-taxon <- read_tsv("taxizedb/col/taxa.txt", col_types = char, quote = "")
-vern <- read_tsv("taxizedb/col/vernacular.txt", col_types = char, quote = "")
-#reference <- read_tsv("taxizedb/col/reference.txt", col_types = char, quote = "")
 
 ## scientificNameAuthorship tagged on to scientificName, and in inconsistent format. trim it off.
 taxa <- taxon %>%

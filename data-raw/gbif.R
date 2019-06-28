@@ -3,23 +3,27 @@ library(stringi)
 library(readr)
 source("data-raw/helper-routines.R")
 
+## extracted from: https://doi.org/10.15468/39omei
 dir.create("taxizedb/gbif", FALSE, TRUE)
 download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
               "taxizedb/gbif/backbone.zip")
 unzip("taxizedb/gbif/backbone.zip", exdir="taxizedb/gbif")
 
-coltypes <- cols(
-  .default = col_character(),
-  taxonID = col_double(),
-  parentNameUsageID = col_double(),
-  acceptedNameUsageID = col_double(),
-  originalNameUsageID = col_double(),
-  nameAccordingTo = col_character(),
-  nomenclaturalStatus = col_character()
-)
-taxon <- read_tsv("taxizedb/gbif/Taxon.tsv", col_types = coltypes)
+taxon <- read_tsv("taxizedb/gbif/Taxon.tsv")
+common <- read_tsv("taxizedb/gbif/VernacularName.tsv")
 
-# refs <- vroom::vroom("taxizedb/gbif/Reference.tsv")
+fs::dir_ls("taxizedb/gbif/") %>% fs::file_delete()
+## Cache original file:
+write_tsv(taxon, "taxizedb/gbif/taxon.tsv.bz2")
+write_tsv(common, "taxizedb/gbif/vernacular.tsv.bz2")
+
+## Optional: cache compressed extracted files
+#library(fs)
+#library(piggyback)
+## ENSURE GitHub PAT is available for uploading -- developers only.
+#fs::dir_ls("taxizedb", type = "file", recursive = TRUE) %>%
+#  piggyback::pb_upload(repo = "boettiger-lab/taxadb-cache", tag = "2019-03")
+
 
 
 ## canonicalName appears to be: Genus + specificEpithet + infraspecificEpithet
