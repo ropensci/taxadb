@@ -8,12 +8,12 @@ author:
   - name: "Scott Chamberlain"
     affiliation: ropensci      
   - name: "Carl Boettiger"
-    affiliation: ucb, 1
+    affiliation: ucb, ropensci
 address:
   - code: ucb
     address: "Dept of Environmental Science, Policy, and Management, University of California Berkeley, Berkeley CA 94720-3114, USA"
-  - code: jorrit
-    address: "Independent consultant, Oakland, CA, USA"
+# - code: jorrit
+#   address: "Independent consultant, Oakland, CA, USA"
   - code: ropensci
     address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA"
 abstract: |
@@ -74,7 +74,7 @@ The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `
 - Both query formats and responses differ substantially across different naming providers, making it difficult to apply a script designed for one provider to different provider.
 - Most queries are not reproducible, as the results depend on the state of the central server (and potentially the quality of the internet connection).  Many names providers update the server data either continuously or at regular intervals, including both revising existing names and adding new names.  <!-- For instance, @predicts2014 observes that 2013 Catalogue of Life includes the genus "Notiophilus" in two separate families, contrary to the rules of nomenclature.  This error does not occur in the 2018 edition. -->
 
-Instead of binding existing web APIs, `taxadb` is built around a set compressed text files following a consistent, standardized layout or schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup and enabling offline use.
+Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files following a consistent, standardized layout or schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup and enabling offline use.
 
 
 <!--
@@ -125,9 +125,6 @@ now sidestepped
 
 but note that one limitation of MonetDBLite is the restriction against concurrent access: two separate R sessions on the same machine cannot both access the database at the same time. Users who need concurrent access from multiple sessions may wish to use a standalone MonetDB server or other database server instead.
 -->
-
-
-It is not necessary to call `td_create()`.  Specify `db=NULL` on any `taxadb` function to force this in-memory dispatch. 
 
 Functions in `taxadb` are organized into several families: 
 
@@ -206,8 +203,6 @@ This results in many more matches, as different scientific names are recognized 
 
 ## Unresolved names
 
-KN: I don't know if this section needs to be in here, especially since `synonym()` doesn't fit cleanly in the four families of functions described at the beginning (maybe it's a helper function?). Can instead use the unresolved names discussion to segue into `by_` functions like in the tutorial. Something along the lines of "A name unresolved with `get_ids` could be due to misspelling, a missing synonym in the provider database OR a name resolving to multiple synonyms - 'by_' gives you access to all the synonym options." When it's laid out like that it also makes 'synonym()' seem less necessary.
-
 Notice that one species name could not be resolved to a COL identifier.  This could indicate a data entry problem such as a misspelling of a name, but failure to resolve properly specified scientific names is not uncommon, as even large scale efforts like the Catalogue of Life are far from a comprehensive list of all published scientific names.  
 
 
@@ -266,22 +261,12 @@ most_synonyms <- taxa_tbl("col") %>% count(acceptedNameUsageID, sort = TRUE)
 most_synonyms
 ```
 
-Here we see that some accepted identifiers, such as `COL:43082445`, are known by as many as 456 different synonyms!  `get_ids()` function seamlessly handles the resolution of all these synonyms to their accepted name usage identifier when they can be mapped to a single accepted name. 
+Here we see that some accepted identifiers, such as `COL:43082445`, are known by as many as 456 different synonyms!  `get_ids()` function seamlessly handles the resolution of all these synonyms to their accepted name usage identifier when they can be mapped to a single accepted name.
 
-This query uses the `taxa_tbl()` function to directly access the full taxonomic record in the MonetDBLite database.  This approach is fast and powerful, but note that we are restricted to using `dplyr` functions, which can be directly translated into SQL, for such queries to work successfully.  Though the result looks like a data frame, most base R operations will not work as expected:
-
-```{r}
-most_synonyms$n
-```
-Such queries are also not possible through the API or web interface to Catalogue of Life. To use custom R functions or functions from other packages we must first call the `dplyr` function `collect()` to return the table into R's memory.  This should be done with care as an unfiltered table may require several gigabytes of memory to load. 
+Some synonyms may also be associated with more than one unique identifier.  This situation is more difficult, as it is impossible to know which accepted name should be used for such synonyms without more context.  The `get_ids()` function will thus return `NA` for any name that matches more than one identifier, just as it will return `NA` for a name that does not match any identifier at all.  
 
 
-
-Some synonyms may also be associated with more than one unique identifier.  This situation is more difficult, as it is impossible to know which accepted name should be used for such synonyms without more context.  The `get_ids()` function will thus return `NA` for any name that matches more than one identifier, just as it will return `NA` for a name that does not match any identifier at all.  Other functions in `taxadb` allow us to explore these names further.
-
-Having access to a local database makes it easy to explore such issues as "identify all synonyms that resolve to more than one accepted scientific name ID", like so: 
-
-
+Other functions in `taxadb` allow us to explore these names further, for example having access to a local database makes it easy to explore such issues as "identify all synonyms that resolve to more than one accepted scientific name ID", like so: 
 
 ```{r}
 most_ambiguous <-
@@ -294,6 +279,18 @@ taxa_tbl("col") %>%
 most_ambiguous
 ```
 Here we see the name *Mabuya bistriata* is a synonym which may be associated with no fewer than 32 different accepted scientific names!
+
+
+This query uses the `taxa_tbl()` function to directly access the full taxonomic record in the MonetDBLite database.  This approach is fast and powerful, but note that we are restricted to using `dplyr` functions, which can be directly translated into SQL, for such queries to work successfully.  Though the result looks like a data frame, most base R operations will not work as expected:
+
+```{r}
+most_synonyms$n
+```
+
+Such queries are also not possible through the API or web interface to Catalogue of Life. To use custom R functions or functions from other packages we must first call the `dplyr` function `collect()` to return the table into R's memory.  This should be done with care as an unfiltered table may require several gigabytes of memory to load. 
+
+
+
 
 
 
