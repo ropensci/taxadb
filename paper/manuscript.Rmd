@@ -209,26 +209,33 @@ Names may also have an ambiguous resolution *discussion about taxonomic concepts
 
 
 ## `by_` functions for access to underlying tables
-'by_' functions can also be used to filter by common name, rank, etc...
+
+Underlying data frames can be accessed through the family of `by_` functions, which filter by certain attributes such as scientific name, id, common name, and rank. These functions allow us to ask general questions such as, how many bird species are there? 
 
 ```{r}
 by_rank("Aves", rank="class", provider = "col") %>%
-  ## some example columns
-  select(taxonID, taxonomicStatus, taxonRank, genus, specificEpithet) %>% 
-  head(5)
-
+  pull(taxonID) %>%
+  n_distinct()
 ```
 
-
-We can inspect all columns: 
+As well getting a detailed look at specific species or ids. For example, why can't `get_ids` resolve a seemingly common species?
 
 ```{r}
-by_rank("Aves", rank="class", provider = "col") %>% names()
+## example of sci name matching to more than one id.
 ```
 
-`by_common` (potentially in a box)
+We see that insert_name matches two accepted names which the user will have to choose between.
 
-* point to whole database stuff (see vingette) - queries are possible that aren't with an API
+The full taxonomic record in the MonetDBLite database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers (see Vignette for further details).
+
+\dummy{\Begin{tcolorbox}[title= Box 2: Common Names, lower separated=false]}
+
+`taxizedb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names come with many of the same problems as scientific names but worse, e.g. matching to more than one accepted name is even more frequent, non-standardized formatting (like capitalization) and spelling etc. Common names are accessed via `by_common` which takes a vector of common names. The user can then resolve discrepencies. 
+
+*talk about how we deal with common names and `by_common`*
+
+\End{tcolorbox}
+
 * software design - faster access, reproducible queries
 * Darwin Core schema citation
 
