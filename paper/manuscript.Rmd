@@ -74,7 +74,7 @@ The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `
 - Both query formats and responses differ substantially across different naming providers, making it difficult to apply a script designed for one provider to different provider.
 - Most queries are not reproducible, as the results depend on the state of the central server (and potentially the quality of the internet connection).  Many names providers update the server data either continuously or at regular intervals, including both revising existing names and adding new names.  <!-- For instance, @predicts2014 observes that 2013 Catalogue of Life includes the genus "Notiophilus" in two separate families, contrary to the rules of nomenclature.  This error does not occur in the 2018 edition. -->
 
-Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files following a consistent, standardized layout or schema (discussed below). These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup and enabling offline use.
+Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files following a consistent, standardized layout or schema following the Darwin Core Standard [@Wieczorek2012]. These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup, and enabling offline use and reproducible queries.
 
 
 <!--
@@ -235,9 +235,6 @@ The full taxonomic record in the MonetDBLite database can also be directly acces
 *talk about how we deal with common names and `by_common`*
 
 \End{tcolorbox}
-
-* software design - faster access, reproducible queries
-* Darwin Core schema citation
 
 ### Supported providers
 
