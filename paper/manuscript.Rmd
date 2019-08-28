@@ -203,32 +203,15 @@ This results in many more matches, as different scientific names are recognized 
 
 ## Unresolved names
 
-Notice that one species name could not be resolved to a COL identifier.  This could indicate a data entry problem such as a misspelling of a name or the inclusion of a citation or year, which may be addressed by `clean_names()`. However, failure to resolve properly specified scientific names is not uncommon, as even large scale efforts like the Catalogue of Life are far from a comprehensive list of all published scientific names.  
+potential ways for resolving unidentified names
+* multiple hits from `get_ids()` check duplicates, use `by_`
+* typo
+* formatting issues (be careful about false matches), `clean_names()`
+* ambiguous resolution, explore with `synonyms()` (these are the same concept with different names or vice versa)
 
+The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories"
 
-Perhaps we can resolve this name against a different authority?  As it has an IUCN classification already, the IUCN naming provider seems a natural place to start.  We can use the `synonyms()` table to attempt to identify any other scientific names by which this species is known:
-
-```{r}
-synonyms("Scleroptila gutturalis", "iucn")
-```
-
-Note that one of these synonyms is recognized in COL, and in fact matches a COL identifier of *Francolinus levalliantoides*, 376.69 grams, in our data set.  
-
-```{r}
-synonyms("Scleroptila gutturalis", "iucn") %>% 
-  pull(synonym) %>% 
-  get_ids("col")
-```
-
-
-
-## Additional taxonomic information
-
-A name unresolved by 'get_ids' could also be the result of a name matching to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'by_' functions to filter underlying taxonomic tables for additional information. 
-
-```{r}
-#by_name() w/multiple matches example.
-```
+## `by_` functions for access to underlying tables
 'by_' functions can also be used to filter by common name, rank, etc...
 
 ```{r}
@@ -246,70 +229,15 @@ We can inspect all columns:
 by_rank("Aves", rank="class", provider = "col") %>% names()
 ```
 
-Note that each of these terms are defined by 
+`by_common` (potentially in a box)
 
-
-## Caution using synonyms
-
-This process of walking synonyms between different providers should always be done with care.  Synonyms can arise for many reasons (see [@something] for discussion), and treating accepted names and known synonyms as equivalent or interchangable can quickly lead to innaccurate conclusions.  
-
-
-An accepted name can have many synonyms:
-
-```{r}
-most_synonyms <- taxa_tbl("col") %>% count(acceptedNameUsageID, sort = TRUE)
-most_synonyms
-```
-
-Here we see that some accepted identifiers, such as `COL:43082445`, are known by as many as 456 different synonyms!  `get_ids()` function seamlessly handles the resolution of all these synonyms to their accepted name usage identifier when they can be mapped to a single accepted name.
-
-Some synonyms may also be associated with more than one unique identifier.  This situation is more difficult, as it is impossible to know which accepted name should be used for such synonyms without more context.  The `get_ids()` function will thus return `NA` for any name that matches more than one identifier, just as it will return `NA` for a name that does not match any identifier at all.  
-
-
-Other functions in `taxadb` allow us to explore these names further, for example having access to a local database makes it easy to explore such issues as "identify all synonyms that resolve to more than one accepted scientific name ID", like so: 
-
-```{r}
-most_ambiguous <-
-taxa_tbl("col") %>% 
-  filter(taxonomicStatus != "accepted") %>% 
-  select(scientificName, acceptedNameUsageID) %>% 
-  distinct() %>% 
-  count(scientificName, sort=TRUE) %>%
-  filter(n > 1)
-most_ambiguous
-```
-Here we see the name *Mabuya bistriata* is a synonym which may be associated with no fewer than 32 different accepted scientific names!
-
-
-This query uses the `taxa_tbl()` function to directly access the full taxonomic record in the MonetDBLite database.  This approach is fast and powerful, but note that we are restricted to using `dplyr` functions, which can be directly translated into SQL, for such queries to work successfully.  Though the result looks like a data frame, most base R operations will not work as expected:
-
-```{r}
-most_synonyms$n
-```
-
-Such queries are also not possible through the API or web interface to Catalogue of Life. To use custom R functions or functions from other packages we must first call the `dplyr` function `collect()` to return the table into R's memory.  This should be done with care as an unfiltered table may require several gigabytes of memory to load. 
-
-
-
-
-
-
-
-
-
-
-<!--
-The motivation for an API-based approach is reasonable: (1) Web APIs are a ubiquitous standard of data exchange (2) make very minimal assumptions about the language, software, or hardware avaialable to the user, (3) users access a single centrally managed database that is maintained and upgraded by the provider, and (4) the provider can easily control access to the data, measure usage statistics, and enforce rate limits.  Many existing tools provide bindings of these APIs as functions to a specific language, including `taxize`, `tits`, `rotl`, `worms`, `redlist` and `wikitaxa` [@Chamberlain2013; @itis; @rotl; @worrms; @wikitaxa]
--->
-
-
-
-
-Darwin Core schema.
+* point to whole database stuff (see vingette) - queries are possible that aren't with an API
+* software design - faster access, reproducible queries
+* Darwin Core schema citation
 
 ### Supported providers
 
-
+Table version of below - citation, number of unique identifier
 
 - the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
 - the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi]
@@ -321,51 +249,13 @@ Darwin Core schema.
 - Open Tree Taxonomy, OTT
 - International Union for Conservation of Nature and Natural Resources (IUCN) Red list @iucn
 
-Note that some of these providers are primarily syntheses of other existing naming providers.  For instance, COL is based in part on over 130 other name databases (<http://www.catalogueoflife.org/col/info/databases>), including ITIS, FishBase, and the IUCN Redlist.  However, these syntheses may lag behind the most recent versions of their member databases, which can create surprisingly large mismatches.  Because `taxadb` provides access to the different providers using a common format, we can quickly explore this.  For instance, here we count how many accepted names in ITIS can actually be found in COL (as either accepted names or known synonyms):
 
-```{r}
-# how many ITIS accepted species names are in COL?
-itis_in_col <-
-taxa_tbl("itis") %>%
-  filter(taxonomicStatus == "accepted", taxonRank == "species") %>%
-  select(scientificName) %>% 
-  left_join(taxa_tbl("col"), by="scientificName") %>% 
-  filter(is.na(acceptedNameUsageID)) %>% 
-  count() %>%
-  pull(n)
-
-# out of how many total accepted names in ITIS?
-itis_accepted <- taxa_tbl("itis") %>%
-  filter(taxonomicStatus == "accepted", taxonRank == "species") %>% 
-  count() %>% pull(n)
-```
-$`r prettyNum(itis_in_col, big.mark = ",")`$ of the $`r prettyNum(itis_accepted, big.mark = ",")`$ of *accepted names* in ITIS ($`r round(itis_in_col / itis_accepted * 100)`$%) are not recognized by the (2018) Catalogue of Life as either accepted names or known synonyms. 
-
-Consequently, just because the naming providers such as COL, OTT, and GBIF consume the names in ITIS, NCBI, or IUCN, this does not mean we can rely exclusively on these larger syntheses.  
-
-
-<!--
-It is important to distinguish between two broad kinds of naming providers.  Efforts such as ITIS, NCBI, FishBase, and SeaLifeBase are largely independent naming assemblies. GBIF and OTT are synthetic 'taxonomic backbones,' created by reconciling species names from a wide range of providers to create a taxonomic backbone utilized internally for their respective efforts.  Catalogue of Life (COL)
--->
-
-
-
-
-
-<!--
-comment that taxonomic backbones aren't really the same thing:
-In addition to these projects, large biodiversity informatics efforts such as the Global Biodiversity Information Facility [GBIF; @gbif], publish the 'taxonomic backbone' -->
 
 
 
 ## Discussion
 
-- Resolve names to identifiers
-- Resolve synonyms to accepted names
-- Associate names with taxonomic rank and heirarchical classification
-
-discuss use Scientific names vs identifiers.  taxonConcepts?
-
+We've shown identifiers are useful in an a whole bunch of applications. People haven't done it, becuase it's time consuming - but now its fast!
 
 
 - `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. Instead, it fills an important gap between existing tools and typical research patterns.  In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
