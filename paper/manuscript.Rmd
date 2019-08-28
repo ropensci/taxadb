@@ -66,7 +66,7 @@ While these issues have long been recognized in the literature [], and a growing
 Here, we present an R package, `taxadb`, which seeks to address this gap.
 
 Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank, hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
-The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2013] has become a popular way R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
+The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2013] has become a popular way for R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
 
 - Queries require internet access at all times
 - Queries are slow and inefficient to implement and perform; frequently requiring separate API calls for each taxonomic name
@@ -203,13 +203,10 @@ This results in many more matches, as different scientific names are recognized 
 
 ## Unresolved names
 
-potential ways for resolving unidentified names
-* multiple hits from `get_ids()` check duplicates, use `by_`
-* typo
-* formatting issues (be careful about false matches), `clean_names()`
-* ambiguous resolution, explore with `synonyms()` (these are the same concept with different names or vice versa)
+`get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'by_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithet such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette).
 
-The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories"
+Names may also have an ambiguous resolution *discussion about taxonomic concepts here*. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
+
 
 ## `by_` functions for access to underlying tables
 'by_' functions can also be used to filter by common name, rank, etc...
