@@ -30,7 +30,7 @@ itis_taxa <-
   left_join(
     inner_join(hierarch, rank_tbl, copy = TRUE),
     read_tsv("taxizedb/itis/hierarchy.tsv.bz2") %>%
-      select(tsn, parent_tsn, hierarchy_string)
+      select(tsn = TSN, parent_tsn = Parent_TSN, hierarchy_string)
   ) %>%
   arrange(tsn) %>%
   select(tsn, complete_name, rank_name,
