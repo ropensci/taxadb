@@ -169,10 +169,10 @@ write_tsv(itis_taxonid, "data/itis_taxonid.tsv.bz2")
 library(taxadb)
 source("data-raw/helper-routines.R")
 
-taxonid <-
-  collect(taxa_tbl("itis", "taxonid")) %>%
-  distinct() %>%
-  de_duplicate()
+#taxonid <-  ## ARG, why is this reading from
+#  collect(taxa_tbl("itis", "taxonid")) %>%
+#  distinct() %>%
+#  de_duplicate()
 
 # get common names #
 vern <- read_tsv("taxizedb/itis/vernaculars.tsv.bz2") %>%
@@ -197,8 +197,9 @@ com_names <-  vern %>%
   bind_rows(acc_common) %>%
   distinct(acceptedNameUsageID, .keep_all = TRUE)
 
-wide <- collect(taxa_tbl("itis", "hierarchy")) %>% distinct()
-dwc <- taxonid %>%
+#wide <- collect(taxa_tbl("itis", "hierarchy")) %>% distinct()
+wide <- itis_hierarchy
+dwc <- itis_taxonid %>%
   rename(taxonID = id,
          scientificName = name,
          taxonRank = rank,
@@ -218,6 +219,8 @@ species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
 dwc$specificEpithet <- species[,2]
 dwc$infraspecificEpithet <- species[,3]
 
+
+
 write_tsv(dwc, "dwc/dwc_itis.tsv.bz2")
 
 
@@ -229,7 +232,7 @@ common <-  vern %>%
 
 write_tsv(common, "dwc/common_itis.tsv.bz2")
 
-#piggyback::pb_upload("dwc/dwc_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
+piggyback::pb_upload("dwc/dwc_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
 #piggyback::pb_upload("dwc/common_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
 
 
