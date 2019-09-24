@@ -205,7 +205,7 @@ This results in many more matches, as different scientific names are recognized 
 
 `get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'by_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithet such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette).
 
-Names may also have an ambiguous resolution *discussion about taxonomic concepts here*. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
+Names may also have an ambiguous resolution leading to resolution by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
 
 ## `by_` functions for access to underlying tables
@@ -251,6 +251,24 @@ Table version of below - citation, number of unique identifier
 - International Union for Conservation of Nature and Natural Resources (IUCN) Red list @iucn
 
 
+```{r cache = FALSE, echo = FALSE}
+tibble(provider = c("Integrated Taxonomic Information System", 
+                                 "National Center for Biological Information's Taxonomy database",
+                                 "Catalogue of Life",
+                                 "Global Biodiversity Information Facility Taxonomic Backbone",
+                                 "FishBase",
+                                 #"SeaLifeBase",
+                                 "Wikidata", "Open Tree Taxonomy",
+                                 "International Union for Conservation of Nature and Natural Resources"),
+                    abbreviation = c("itis", "ncbi", "col", "gbif", "fb", #"slb",
+                                     "wd", "ott", "iucn"),
+                    total_identifiers = map(abbreviation, 
+                                            ~taxa_tbl(.x) %>% 
+                                              select(acceptedNameUsageID) %>% pull() %>% n_distinct() %>% unlist())
+) %>% printtable()
+  
+
+```
 
 
 
