@@ -15,8 +15,9 @@ init:
 install:
   - ps: Bootstrap
 
-cache:
-  - C:\RLibrary
+## Because binary installation is fast and it is also oh so hard to clear cache on appveyor
+#cache:
+#  - C:\RLibrary
 
 # Adapt as necessary starting from here
 
