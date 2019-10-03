@@ -39,15 +39,16 @@ library(magrittr)
 library(tidyverse)
 library(taxadb)
 library(printr)
+library(knitr)
 
 ## see https://blog.rstudio.com/2017/06/13/dplyr-0-7-0/, 
 ## https://community.rstudio.com/t/why-does-na-match-na-when-joining-two-dataframes/28785/3
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
 printtable <- function(df){
-  df %>% 
-    kableExtra::kable("latex", booktabs=T) %>% 
-    kable_styling(full_width = F)
+  df %>%
+    kableExtra::kable("latex", booktabs=T) %>%
+    kableExtra::kable_styling(full_width = F)
 }
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, warning=FALSE)
 
@@ -255,21 +256,23 @@ Table version of below - citation, number of unique identifier
 What other aspects should be included in the table? Citations?
 -->
 
-```{r cache = FALSE, echo = FALSE}
-tibble(provider = c("Integrated Taxonomic Information System", 
-                                 "National Center for Biological Information's Taxonomy database",
-                                 "Catalogue of Life",
-                                 "Global Biodiversity Information Facility Taxonomic Backbone",
-                                 "FishBase",
+(ref:itis) Integrated Taxonomic Information System [@itis]
+
+```{r echo = FALSE, results = "asis"}
+tibble(provider = c("Integrated Taxonomic Information System, @itis",
+                                 "National Center for Biological Information's Taxonomy database, @ncbi",
+                                 "Catalogue of Life, @col",
+                                 "Global Biodiversity Information Facility Taxonomic Backbone, @gbif",
+                                 "FishBase, @fishbase",
                                  #"SeaLifeBase",
-                                 "Wikidata", "Open Tree Taxonomy",
-                                 "International Union for Conservation of Nature and Natural Resources"),
+                                 "Wikidata, @jorrit", "Open Tree Taxonomy, @Rees2017",
+                                 "International Union for Conservation of Nature and Natural Resources, @iucn"),
                     abbreviation = c("itis", "ncbi", "col", "gbif", "fb", #"slb",
                                      "wd", "ott", "iucn"),
                     total_identifiers = map(abbreviation, 
                                             ~taxa_tbl(.x) %>% 
                                               select(acceptedNameUsageID) %>% pull() %>% n_distinct())
-) %>% printtable()
+) %>% knitr::kable(format = "markdown")
   
 
 ```
