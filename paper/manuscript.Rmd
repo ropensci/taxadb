@@ -259,6 +259,16 @@ What other aspects should be included in the table? Citations?
 (ref:itis) Integrated Taxonomic Information System [@itis]
 
 ```{r echo = FALSE, results = "asis"}
+#provider descriptions
+desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government", 
+          ncbi = "",
+          col = "", 
+          gbif = "", 
+          fb = "", 
+          wd = "",
+          ott = "",
+          iucn = "")
+
 tibble(provider = c("Integrated Taxonomic Information System, @itis",
                                  "National Center for Biological Information's Taxonomy database, @ncbi",
                                  "Catalogue of Life, @col",
@@ -271,7 +281,8 @@ tibble(provider = c("Integrated Taxonomic Information System, @itis",
                                      "wd", "ott", "iucn"),
                     total_identifiers = map(abbreviation, 
                                             ~taxa_tbl(.x) %>% 
-                                              select(acceptedNameUsageID) %>% pull() %>% n_distinct())
+                                              select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
+                    description = desc
 ) %>% knitr::kable(format = "markdown")
   
 
