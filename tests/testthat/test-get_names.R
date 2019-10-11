@@ -14,7 +14,8 @@ test_that("we can convert various ids to prefixes", {
 
 
 
-  x <- id_to_prefix("https://tree.opentreeoflife.org/opentree/ottol@1", provider = "ott")
+  x <- id_to_prefix("https://tree.opentreeoflife.org/opentree/ottol@1",
+                    provider = "ott")
   expect_identical(x, "OTT:1")
 })
 

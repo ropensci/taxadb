@@ -28,9 +28,9 @@ functions using the \code{db} argument. \code{td_connect()} exists only to provi
 reasonable automatic defaults based on what is available on your system.
 
 \code{duckdb} or \code{MonetDBLite} will give the best performance, and regular users
-\code{taxadb} will work with the built-in \code{RSQlite}, and with other database connections
-such as Postgres or MariaDB, but queries (filtering joins) will be much slower
-on these non-columnar databases.
+\code{taxadb} will work with the built-in \code{RSQlite}, and with other database
+connections such as Postgres or MariaDB, but queries (filtering joins)
+will be much slower on these non-columnar databases.
 
 For performance reasons, this function will also cache and restore the
 existing database connection, making repeated calls to \code{td_connect()} much

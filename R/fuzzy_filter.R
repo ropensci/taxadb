@@ -1,14 +1,16 @@
 #' Match names that start or contain a specified text string
 #'
-#' @param name vector of names (scientific or common, see `by`) to be matched against.
+#' @param name vector of names (scientific or common, see `by`)
+#' to be matched against.
 #' @param match should we match by names starting with the term or containing
 #' the term anywhere in the name?
 #' @inheritParams filter_by
 #' @importFrom dplyr union mutate_at mutate select
 #' @details Note that fuzzy filter will be fast with an single or small number
-#' of names, but will be slower if given a very large vector of names to match,
-#' as unlike other `by_` commands, fuzzy matching requires separate SQL calls for
-#' each name. As fuzzy matches should all be confirmed manually in any event, e.g.
+#' of names, but will be slower if given a very large vector of
+#' names to match, as unlike other `by_` commands,
+#' fuzzy matching requires separate SQL calls for each name.
+#' As fuzzy matches should all be confirmed manually in any event, e.g.
 #' not every common name containing "monkey" belongs to a primate species.
 #'
 #' This method utilizes the database operation `%like%` to filter tables without

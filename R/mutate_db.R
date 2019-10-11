@@ -1,14 +1,16 @@
 #' Add new variables to a database
 #'
-#' [dplyr::mutate()] cannot pass arbitrary R functions over a database connection.
-#' This function provides a way to work around this, by querying the data in chunks
-#' and applying the function to each chunk, which is then appended back out to a
-#' temporary table.
+#' [dplyr::mutate()] cannot pass arbitrary R functions over a
+#' database connection. This function provides a way to work
+#' around this, by querying the data in chunks
+#' and applying the function to each chunk, which is then
+#' appended back out to a temporary table.
 #' @param .data A [dplyr::tbl] that uses a database connection, `tbl_dbi` class.
-#' @param r_fn any R function that can be called on a vector (column) of the table
+#' @param r_fn any R function that can be called on a vector (column)
+#' of the table
 #' @param col the name of the column to which the R function is applied.
-#' (Note, [dplyr::mutate()] can operate on an arbitrary list of columns, this function
-#' only operates on a single column at this time...)
+#' (Note, [dplyr::mutate()] can operate on an arbitrary list of columns,
+#' this function only operates on a single column at this time...)
 #' @param new_column column name for the new column.
 #' @param n the number of rows included in each chunk, see [DBI::dbFetch()]
 #' @return a dplyr tbl connection to the temporary table in the database
@@ -53,7 +55,7 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
 
   ## Create a temporary table which will store our data, including new column
   schema <- DBI::dbGetQuery(db, paste("SELECT * FROM", tbl, "LIMIT 1"))
-  schema[[new_column]] = r_fn(schema[[col]])
+  schema[[new_column]] <- r_fn(schema[[col]])
   DBI::dbCreateTable(db, tmp_tbl, schema, temporary = TRUE)
 
 
@@ -66,7 +68,7 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
     p$tick()
     chunk <- DBI::dbFetch(res, n = n)
     if (nrow(chunk) == 0) break
-    chunk[[new_column]] = r_fn(chunk[[col]])
+    chunk[[new_column]] <- r_fn(chunk[[col]])
     DBI::dbWriteTable(db, tmp_tbl, chunk, append=TRUE)
   }
   DBI::dbClearResult(res)

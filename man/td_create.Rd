@@ -10,20 +10,23 @@ td_create(provider = "itis", schema = c("dwc", "common"),
 }
 \arguments{
 \item{provider}{a list (character vector) of provider to be included in the
-database. By default, will install \code{itis}.  See details for a list of recognized
-provider. Use \code{provider="all"} to install all available provider automatically.}
+database. By default, will install \code{itis}.  See details for a list of
+recognized provider. Use \code{provider="all"} to install all
+available provider automatically.}
 
 \item{schema}{format of the database to import.}
 
-\item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.  Change
-to "ask" for interactive interface, or \code{TRUE} to force overwrite (i.e. updating
-a local database upon new release.)}
+\item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.
+Change to "ask" for interactive interface, or \code{TRUE} to force overwrite
+(i.e. updating a local database upon new release.)}
 
-\item{lines}{number of lines that can be safely read in to memory at once. Leave
-at default or increase for faster importing if you have plenty of spare RAM.}
+\item{lines}{number of lines that can be safely read in to memory at once.
+Leave at default or increase for faster importing if you have
+plenty of spare RAM.}
 
-\item{dbdir}{a location on your computer where the database should be installed.
-Defaults to user data directory given by \url{rappdirs::user_data_dir}.}
+\item{dbdir}{a location on your computer where the database
+should be installed. Defaults to user data directory given by
+\url{rappdirs::user_data_dir}.}
 
 \item{db}{connection to a database.  By default, taxadb will set up its own
 fast database connection.}
@@ -38,14 +41,16 @@ create a local taxonomic database
 Authorities recognized by taxadb are:
 \itemize{
 \item \code{itis}: Integrated Taxonomic Information System, \url{https://www.itis.gov/}
-\item \code{ncbi}:  National Center for Biotechnology Information, \url{https://www.ncbi.nlm.nih.gov/taxonomy}
+\item \code{ncbi}:  National Center for Biotechnology Information,
+\url{https://www.ncbi.nlm.nih.gov/taxonomy}
 \item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
 \item \code{tpl}: The Plant List, \url{http://www.theplantlist.org/}
 \item \code{gbif}: Global Biodiversity Information Facility, \url{https://www.gbif.org/}
 \item \code{fb} FishBase, \url{http://fishbase.org}
 \item \code{slb}, SeaLifeBase, \url{http://sealifebase.org}
 \item \code{wd}, Wikidata: \url{https://www.wikidata.org/}
-\item \code{ott} OpenTree Taxonomy: \url{https://github.com/OpenTreeOfLife/reference-taxonomy}
+\item \code{ott} OpenTree Taxonomy:
+\url{https://github.com/OpenTreeOfLife/reference-taxonomy}
 }
 }
 \examples{

@@ -29,12 +29,14 @@ logical, default \link{TRUE}.}
 case-insensitive matching?}
 }
 \description{
-A utility to sanitize taxonomic names to increase probability of resolving names.
+A utility to sanitize taxonomic names to increase
+probability of resolving names.
 }
 \details{
-Current implementation is limited to handling a few common cases.
-Additional extensions may be added later. A goal of the \code{clean_names} function
-is that any modification rule of the name strings be precise, atomic, and
+Current implementation is limited to handling a few
+common cases. Additional extensions may be added later.
+A goal of the \code{clean_names} function is that any
+modification rule of the name strings be precise, atomic, and
 toggle-able, rather than relying on clever but more opaque rules and
 arbitrary scores. This utility should always be used with care, as
 indiscriminate modification of names may result in successful but inaccurate

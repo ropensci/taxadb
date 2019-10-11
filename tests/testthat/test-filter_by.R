@@ -4,7 +4,9 @@ context("filter_by")
 test_that("by_common", {
   df <- by_common("Angolan Giraffe")
   expect_is(df, "data.frame")
-  match <- df %>% dplyr::filter(taxonID == "ITIS:1012250") %>% dplyr::pull(scientificName)
+  match <- df %>%
+    dplyr::filter(taxonID == "ITIS:1012250") %>%
+    dplyr::pull(scientificName)
   expect_identical(match, "Giraffa giraffa angolensis")
 })
 

@@ -19,8 +19,9 @@ taxa_tbl <- function(
   tbl_name <- paste0(schema, "_", provider)
 
   if (is.null(db)){
-    mem_quick_db <- memoise::memoise(quick_db,
-                                     cache = memoise::cache_filesystem(taxadb_dir()))
+    mem_quick_db <-
+      memoise::memoise(quick_db,
+                       cache = memoise::cache_filesystem(taxadb_dir()))
     return(mem_quick_db(tbl_name))
   }
   if (!has_table(tbl_name, db)){

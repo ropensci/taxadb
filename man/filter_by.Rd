@@ -20,7 +20,8 @@ The filtering join is executed with this column as the joining variable.}
 \item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
-\item{schema}{One of "dwc" (for Darwin Core data) or "common" (for the Common names table.)}
+\item{schema}{One of "dwc" (for Darwin Core data) or "common"
+(for the Common names table.)}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

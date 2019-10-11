@@ -9,7 +9,8 @@ by_common(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
   db = td_connect())
 }
 \arguments{
-\item{name}{a character vector of common (vernacular English) names, e.g. "Humans"}
+\item{name}{a character vector of common (vernacular English) names,
+e.g. "Humans"}
 
 \item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
