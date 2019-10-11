@@ -13,7 +13,7 @@ testthat::test_that("mutate_db works on databases", {
     select(species = scientificName) %>%
     collect() %>%
     mutate(input = clean_names(species),
-           sort = 1:length(species))
+           sort = seq_along(species))
 
   ## Input table with clean names
   ## Let's get some matches, amazing how bad this is.  Need wikidata synonyms

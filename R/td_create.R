@@ -3,29 +3,34 @@
 #'
 
 #' @param provider a list (character vector) of provider to be included in the
-#'  database. By default, will install `itis`.  See details for a list of recognized
-#'  provider. Use `provider="all"` to install all available provider automatically.
+#'  database. By default, will install `itis`.  See details for a list of
+#'  recognized provider. Use `provider="all"` to install all
+#'  available provider automatically.
 #' @param schema format of the database to import.
-#' @param lines number of lines that can be safely read in to memory at once. Leave
-#' at default or increase for faster importing if you have plenty of spare RAM.
-#' @param overwrite Should we overwrite existing tables? Default is `FALSE`.  Change
-#'  to "ask" for interactive interface, or `TRUE` to force overwrite (i.e. updating
-#'  a local database upon new release.)
-#' @param dbdir a location on your computer where the database should be installed.
-#'  Defaults to user data directory given by [rappdirs::user_data_dir]().
+#' @param lines number of lines that can be safely read in to memory at once.
+#' Leave at default or increase for faster importing if you have
+#' plenty of spare RAM.
+#' @param overwrite Should we overwrite existing tables? Default is `FALSE`.
+#' Change to "ask" for interactive interface, or `TRUE` to force overwrite
+#' (i.e. updating a local database upon new release.)
+#' @param dbdir a location on your computer where the database
+#' should be installed. Defaults to user data directory given by
+#' [rappdirs::user_data_dir]().
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
 #'  Authorities recognized by taxadb are:
 #'  - `itis`: Integrated Taxonomic Information System, <https://www.itis.gov/>
-#'  - `ncbi`:  National Center for Biotechnology Information, <https://www.ncbi.nlm.nih.gov/taxonomy>
+#'  - `ncbi`:  National Center for Biotechnology Information,
+#'  <https://www.ncbi.nlm.nih.gov/taxonomy>
 #'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>
 #'  - `tpl`: The Plant List, <http://www.theplantlist.org/>
 #'  - `gbif`: Global Biodiversity Information Facility, <https://www.gbif.org/>
 #'  - `fb` FishBase, <http://fishbase.org>
 #'  - `slb`, SeaLifeBase, <http://sealifebase.org>
 #'  - `wd`, Wikidata: <https://www.wikidata.org/>
-#'  - `ott` OpenTree Taxonomy: <https://github.com/OpenTreeOfLife/reference-taxonomy>
+#'  - `ott` OpenTree Taxonomy:
+#'  <https://github.com/OpenTreeOfLife/reference-taxonomy>
 #' @return path where database has been installed (invisibly)
 #' @export
 #' @importFrom utils download.file

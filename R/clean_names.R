@@ -1,6 +1,7 @@
 #' Clean taxonomic names
 #'
-#' A utility to sanitize taxonomic names to increase probability of resolving names.
+#' A utility to sanitize taxonomic names to increase
+#' probability of resolving names.
 #'
 #' @param names a character vector of taxonomic names (usually species names)
 #' @param fix_delim Should we replace separators `.`, `_`, `-`
@@ -16,9 +17,10 @@
 #' (see [stringi::stri_trans_general()])
 #' @param lowercase should names be coerced to lower-case to provide
 #'  case-insensitive matching?
-#' @details Current implementation is limited to handling a few common cases.
-#' Additional extensions may be added later. A goal of the `clean_names` function
-#' is that any modification rule of the name strings be precise, atomic, and
+#' @details Current implementation is limited to handling a few
+#' common cases. Additional extensions may be added later.
+#' A goal of the `clean_names` function is that any
+#' modification rule of the name strings be precise, atomic, and
 #' toggle-able, rather than relying on clever but more opaque rules and
 #' arbitrary scores. This utility should always be used with care, as
 #' indiscriminate modification of names may result in successful but inaccurate

@@ -13,9 +13,9 @@
 #' reasonable automatic defaults based on what is available on your system.
 #'
 #' `duckdb` or `MonetDBLite` will give the best performance, and regular users
-#' `taxadb` will work with the built-in `RSQlite`, and with other database connections
-#' such as Postgres or MariaDB, but queries (filtering joins) will be much slower
-#' on these non-columnar databases.
+#' `taxadb` will work with the built-in `RSQlite`, and with other database
+#' connections such as Postgres or MariaDB, but queries (filtering joins)
+#' will be much slower on these non-columnar databases.
 #'
 #' For performance reasons, this function will also cache and restore the
 #' existing database connection, making repeated calls to `td_connect()` much
@@ -90,7 +90,8 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
 
 
 
-# Provide an error handler for connecting to monetdblite if locked by another session
+# Provide an error handler for connecting to monetdblite if locked
+# by another session
 # @importFrom MonetDBLite MonetDBLite
 monetdblite_connect <- function(dbname, ignore_lock = TRUE){
 

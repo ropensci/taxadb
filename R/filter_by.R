@@ -9,7 +9,8 @@
 #'   The filtering join is executed with this column as the joining variable.
 #' @param provider from which provider should the hierarchy be returned?
 #'  Default is 'itis'.
-#' @param schema One of "dwc" (for Darwin Core data) or "common" (for the Common names table.)  
+#' @param schema One of "dwc" (for Darwin Core data) or "common"
+#' (for the Common names table.)
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
@@ -57,12 +58,12 @@ filter_by <- function(x,
   db_tbl <- dplyr::mutate(taxa_tbl(provider, schema, db), input = !!sym(by))
 
   if(ignore_case){
-    original <- tibble::tibble(input = x, sort = 1:length(x))
+    original <- tibble::tibble(input = x, sort = seq_along(x))
     x <- stringi::stri_trans_tolower(x)
     db_tbl <- dplyr::mutate_at(db_tbl, .var = "input", .fun = tolower)
   }
 
-  input_tbl <- tibble::tibble(input = x, sort = 1:length(x))
+  input_tbl <- tibble::tibble(input = x, sort = seq_along(x))
   out <- td_filter(db_tbl, input_tbl, "input")
 
   if(ignore_case){  # restore original input case
@@ -79,12 +80,14 @@ filter_by <- function(x,
 }
 
 ## A Filtering Join to filter external DB by a local table.
-## We actually use right_join instead of semi_join, so unmatched names are kept, with NA
-## Note that using right join, names appear in order of remote table, which we
-## fix by arrange.
+## We actually use right_join instead of semi_join,
+##so unmatched names are kept, with NA
+## Note that using right join, names appear in order of remote table,
+## which we fix by arrange.
 #' @importFrom dplyr right_join arrange
 td_filter <- function(x,y, by){
-  sort <- "sort"   # avoid complaint about NSE. We could do sym("sort") but this is cleaner.
+  sort <- "sort"   # avoid complaint about NSE.
+                   #We could do sym("sort") but this is cleaner.
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
     safe_right_join(x, y, by = by, copy = TRUE) %>%
       dplyr::arrange(sort)

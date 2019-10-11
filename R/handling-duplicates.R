@@ -36,7 +36,7 @@ take_first_duplicate <- function(df){
   # avoid complaints about NSE terms
   scientificName <- "scientificName"
   sort <- "sort"
-  row_num = "row_num"
+  row_num <- "row_num"
   n <- "n"
 
   ## Skip this if sort index is never duplicated

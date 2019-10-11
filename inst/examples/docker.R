@@ -20,4 +20,5 @@ create_monetdb <- function(datadir = rappdirs::user_data_dir("taxadb")) {
 }
 
 
-#conn <- dbConnect(MonetDB.R(), host="localhost", dbname="taxadb", user="monetdb", password="monetdb")
+# conn <- dbConnect(MonetDB.R(), host="localhost", dbname="taxadb",
+#                   user="monetdb", password="monetdb")
