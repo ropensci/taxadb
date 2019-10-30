@@ -62199,7 +62199,7 @@
     }
   ],
   "readme": "https://github.com/cboettig/taxadb/blob/master/README.md",
-  "fileSize": "1128.282KB",
+  "fileSize": "1148.906KB",
   "contIntegration": [
     "https://travis-ci.org/cboettig/taxadb",
     "https://ci.appveyor.com/project/cboettig/taxadb",

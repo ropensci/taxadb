@@ -74,7 +74,8 @@ Note that some names cannot be resolved to an identifier.  This can occur becaus
 
 ```{r}
 birds %>% 
-  mutate(accepted_name = get_names(id, "col"))
+  mutate(accepted_name = get_names(id, "col")) %>% 
+  head()
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted in the Catalogue of Life, while others, *Anser canagicus* are **known synonyms** of a different accepted name: **Chen canagica**.  Resolving synonyms and accepted names to identifiers helps us avoid the possible miss-matches we could have when the same species is known by two different names.
