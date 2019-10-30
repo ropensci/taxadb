@@ -1,6 +1,6 @@
 ---
 title: "Tutorial for taxadb"
-author: "Carl Boettiger"
+author: "Carl Boettiger, Kari Norman"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >

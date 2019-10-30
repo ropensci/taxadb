@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Return a reference to a given table in the taxadb database — taxa_tbl • taxadb</title>
+<title>return all taxa in which scientific name contains the text provided — name_contains • taxadb</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Return a reference to a given table in the taxadb database — taxa_tbl" />
-<meta property="og:description" content="Return a reference to a given table in the taxadb database" />
+<meta property="og:title" content="return all taxa in which scientific name contains the text provided — name_contains" />
+<meta property="og:description" content="return all taxa in which scientific name contains the text provided" />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -131,43 +131,72 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Return a reference to a given table in the taxadb database</h1>
-    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/taxa_tbl.R'><code>R/taxa_tbl.R</code></a></small>
-    <div class="hidden name"><code>taxa_tbl.Rd</code></div>
+    <h1>return all taxa in which scientific name contains the text provided</h1>
+    <small class="dont-index">Source: <a href='https://github.com/cboettig/taxadb/blob/master/R/fuzzy_filter.R'><code>R/fuzzy_filter.R</code></a></small>
+    <div class="hidden name"><code>name_contains.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Return a reference to a given table in the taxadb database</p>
+    <p>return all taxa in which scientific name contains the text provided</p>
     </div>
 
-    <pre class="usage"><span class='fu'>taxa_tbl</span>(<span class='kw'>provider</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>, <span class='st'>"slb"</span>,
-  <span class='st'>"wd"</span>, <span class='st'>"ott"</span>, <span class='st'>"iucn"</span>), <span class='kw'>schema</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"dwc"</span>, <span class='st'>"common"</span>), <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
+    <pre class="usage"><span class='fu'>name_contains</span>(<span class='no'>name</span>, <span class='kw'>provider</span> <span class='kw'>=</span> <span class='st'>"itis"</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>(),
+  <span class='kw'>ignore_case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>name</th>
+      <td><p>vector of names (scientific or common, see <code>by</code>)
+to be matched against.</p></td>
+    </tr>
     <tr>
       <th>provider</th>
       <td><p>from which provider should the hierarchy be returned?
 Default is 'itis'.</p></td>
     </tr>
     <tr>
-      <th>schema</th>
-      <td><p>the table schema on which we want to run the query</p></td>
+      <th>db</th>
+      <td><p>a connection to the taxadb database. See details.</p></td>
     </tr>
     <tr>
-      <th>db</th>
-      <td><p>a connection to the taxadb database. Default will
-attempt to connect automatically.</p></td>
+      <th>ignore_case</th>
+      <td><p>should we ignore case (capitalization) in matching names?
+default is <code>TRUE</code>.</p></td>
     </tr>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+  <span class='co'># \dontshow{</span>
+   <span class='co'>## All examples use a temporary directory</span>
+   <span class='fu'><a href='https://rdrr.io/r/base/Sys.setenv.html'>Sys.setenv</a></span>(<span class='kw'>TAXADB_HOME</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>())
+  <span class='co'># }</span>
+<span class='fu'>name_contains</span>(<span class='st'>"Homo "</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 30 x 15</span><span>
+#&gt;    taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus update_date
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>            </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      
+#&gt; </span><span style='color: #555555;'> 1</span><span> ITIS:9… Homo aethiopi… species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 2</span><span> ITIS:9… Homo american… species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 3</span><span> ITIS:9… Homo arabicus  species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 4</span><span> ITIS:9… Homo australa… species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 5</span><span> ITIS:9… Homo cafer     species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 6</span><span> ITIS:9… Homo capensis  species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 7</span><span> ITIS:9… Homo columbic… species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 8</span><span> ITIS:9… Homo drennani  species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'> 9</span><span> ITIS:9… Homo grimaldii species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'>10</span><span> ITIS:9… Homo hottento… species   ITIS:180092      synonym         2014-06-26 
+#&gt; </span><span style='color: #555555;'># … with 20 more rows, and 9 more variables: kingdom </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, phylum </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,
+#&gt; #   class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, order </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, family </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, genus </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, specificEpithet </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,
+#&gt; #   vernacularName </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, infraspecificEpithet </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'># }
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

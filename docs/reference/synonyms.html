@@ -15,21 +15,25 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,12 +41,12 @@
 
 
 
+
 <meta property="og:title" content="synonyms — synonyms" />
-
 <meta property="og:description" content="Resolve provided list of names against all known synonyms" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -54,6 +58,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -80,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,19 +100,21 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/articles/schema.html">Database schema for taxadb</a>
+      <a href="../articles/articles/backends.html">Backends for taxadb</a>
     </li>
     <li>
-      <a href="../articles/intro.html">Tutorial for taxadb</a>
+      <a href="../articles/articles/data-sources.html">Name Providers and schema used in taxadb</a>
+    </li>
+    <li>
+      <a href="../articles/articles/intro.html">Tutorial for taxadb</a>
     </li>
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/cboettig/taxadb">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -118,6 +125,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -129,14 +137,12 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Resolve provided list of names against all known synonyms</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>synonyms</span>(<span class='no'>name</span>, <span class='kw'>provider</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>,
+    <pre class="usage"><span class='fu'>synonyms</span>(<span class='no'>name</span>, <span class='kw'>provider</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"itis"</span>, <span class='st'>"ncbi"</span>, <span class='st'>"col"</span>, <span class='st'>"tpl"</span>, <span class='st'>"gbif"</span>, <span class='st'>"fb"</span>,
   <span class='st'>"slb"</span>, <span class='st'>"wd"</span>, <span class='st'>"ott"</span>, <span class='st'>"iucn"</span>), <span class='kw'>collect</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>db</span> <span class='kw'>=</span> <span class='fu'><a href='td_connect.html'>td_connect</a></span>())</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -146,7 +152,7 @@
     </tr>
     <tr>
       <th>provider</th>
-      <td><p>from which provider should the hierachy be returned?
+      <td><p>from which provider should the hierarchy be returned?
 Default is 'itis'.</p></td>
     </tr>
     <tr>
@@ -161,36 +167,41 @@ first perform subsequent filtering operations.)</p></td>
       <td><p>a connection to the taxadb database. See details.</p></td>
     </tr>
     </table>
-    
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>     <span class='co'>## All examples use a temporary directory</span>
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.setenv'>Sys.setenv</a></span>(<span class='kw'>TAXADB_HOME</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/tempfile'>tempdir</a></span>())
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+  <span class='co'># \dontshow{</span>
+   <span class='co'>## All examples use a temporary directory</span>
+   <span class='fu'><a href='https://rdrr.io/r/base/Sys.setenv.html'>Sys.setenv</a></span>(<span class='kw'>TAXADB_HOME</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>())
+  <span class='co'># }</span>
 
-
-<span class='no'>sp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trochalopteron henrici gucenense"</span>,
+<span class='no'>sp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Trochalopteron henrici gucenense"</span>,
         <span class='st'>"Trochalopteron elliotii"</span>)
-<span class='fu'>synonyms</span>(<span class='no'>sp</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 5 x 4</span><span>
-#&gt;   acceptedNameUsage      synonym                    taxonRank acceptedNameUsage…
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                  </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>             
-#&gt; </span><span style='color: #555555;'>1</span><span> Trochalopteron elliot… Garrulax elliotii          species   ITIS:916116       
-#&gt; </span><span style='color: #555555;'>2</span><span> Trochalopteron elliot… Trochalopteron henrici gu… species   ITIS:916116       
-#&gt; </span><span style='color: #555555;'>3</span><span> Trochalopteron henrici Garrulax henrici           species   ITIS:916117       
-#&gt; </span><span style='color: #555555;'>4</span><span> Trochalopteron henrici Trochalopteron henrici he… species   ITIS:916117       
-#&gt; </span><span style='color: #555555;'>5</span><span> Trochalopteron henrici Trochalopteron henrici gu… species   ITIS:916117       </div><div class='input'>
-</div></span><div class='input'>
-</div></pre>
+<span class='fu'>synonyms</span>(<span class='no'>sp</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 7 x 5</span><span>
+#&gt;   acceptedNameUsage   synonym         taxonRank acceptedNameUsag… input         
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>               </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>             </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>         
+#&gt; </span><span style='color: #555555;'>1</span><span> Trochalopteron hen… Garrulax henri… species   ITIS:916117       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>2</span><span> Trochalopteron hen… Trochalopteron… species   ITIS:916117       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>3</span><span> Trochalopteron hen… Trochalopteron… species   ITIS:916117       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>4</span><span> Trochalopteron ell… Garrulax ellio… species   ITIS:916116       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>5</span><span> Trochalopteron ell… Trochalopteron… species   ITIS:916116       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>6</span><span> Trochalopteron ell… Garrulax ellio… species   ITIS:916116       Trochaloptero…
+#&gt; </span><span style='color: #555555;'>7</span><span> Trochalopteron ell… Trochalopteron… species   ITIS:916116       Trochaloptero…</div><div class='input'>
+# }
+
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -198,13 +209,16 @@ first perform subsequent filtering operations.)</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

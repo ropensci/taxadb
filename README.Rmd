@@ -37,8 +37,7 @@ devtools::install_github("cboettig/taxadb")
 
 ```{r message = FALSE}
 library(taxadb)
-library(dplyr)
-library(readr)
+library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
 Create a local copy of the Catalogue of Life (2018) database: 
@@ -52,7 +51,7 @@ Read in the species list used by the Breeding Bird Survey:
 
 ```{r, message = FALSE}
 bbs_species_list <- system.file("extdata/bbs.tsv", package="taxadb")
-bbs <- read_tsv(bbs_species_list)
+bbs <- read.delim(bbs_species_list)
 ```
 
 ## Getting names and ids
@@ -75,7 +74,8 @@ Note that some names cannot be resolved to an identifier.  This can occur becaus
 
 ```{r}
 birds %>% 
-  mutate(accepted_name = get_names(id, "col"))
+  mutate(accepted_name = get_names(id, "col")) %>% 
+  head()
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted in the Catalogue of Life, while others, *Anser canagicus* are **known synonyms** of a different accepted name: **Chen canagica**.  Resolving synonyms and accepted names to identifiers helps us avoid the possible miss-matches we could have when the same species is known by two different names.
@@ -154,11 +154,11 @@ most_synonyms %>%
 
 ## Learn more
 
-See richer examples, including name cleaning and background on the schema in the vignettes:
+- See richer examples the package [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html).
 
-- [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html)
-- [Schema](https://cboettig.github.io/taxadb/articles/articles/schema.html)
+- Learn about the underlying data sources and formats in [Data Sources](https://cboettig.github.io/taxadb/articles/articles/data-sources.html)
 
+- Get better performance by selecting an alternative [database backend](https://cboettig.github.io/taxadb/articles/articles/backends.html) engines.
 
 
 

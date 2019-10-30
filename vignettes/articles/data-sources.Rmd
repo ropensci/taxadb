@@ -1,0 +1,95 @@
+---
+title: "Name Providers and schema used in taxadb"
+author: "Carl Boettiger, Kari Norman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{schema}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+`taxadb` relies on a set of pre-assembled tables following a set of standardized schema layouts using Darwin Core vocabulary, as outlined below.  The database dumps provided by providers supported in `taxadb` at this time are:
+
+`taxadb` abbreviation | name 
+----------------------|-------------------
+`itis`   | [The Integrated Taxonomic Information System](https://www.itis.gov/)
+`col`  | [The Catalogue of Life](http://www.catalogueoflife.org/)
+`ncbi` |  [The National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/)
+`gbif` | [The Global Biodiversity Information Facility](https://www.gbif.org/)
+`tpl`  | [The Plant List](http://www.theplantlist.org/)
+`fb`   | [FishBase](https://fishbase.ca)
+`slb`  | [SeaLifeBase](https://www.sealifebase.ca/)
+`wd`   | [WikiData](https://wikidata.org)
+`iucn` | [The IUCN Red List](https://www.iucnredlist.org) of endangered species status
+`ott`  | [Open Tree of Life taxonomy](https://tree.opentreeoflife.org/about/taxonomy-version/ott3.1).  
+
+
+***Please Note***: `taxadb` advises against uncritically combining data from multiple providers.  The same name is frequently used by different providers to mean different things -- some providers consider two names synonyms that other providers consider distinct species.  *It is crucial to recognize that taxonomic name providers represent independent taxonomic theories*, and not merely additional observations of the same immutable reality ([Franz & Sterner (2018)](https://doi.org/10.1093/database/bax100 "Nico M Franz, Beckett W Sterner, To increase trust, change the social design behind aggregated biodiversity data, Database, Volume 2018, 2018, bax100")). You cannot just merge two databases of taxonomic names like you can two databases of, say, plant traits to get a bigger and more complete sample, because the former can contain meaningful controdictions.  
+
+
+At the same time, it is also important to note that `col`, `gbif`, `ott`, are explicitly synthesis projects integrating the databases of names from a range of (many) other providers, while `itis`, `iucn`, `ncbi`, `tpl`, `fb`, and `slb` are independent name providers.  The synthetic or integrated name lists are not simple merges, but the product of considerably expert opinion, and occassional nonsense automation. As such, they too represent novel (justified or otherwise) assertions of taxonomy, and are in no way a complete substitute for the databases they integrate, owing to both differences in how up-to-date the relative records are as well as to either expert disagreements or algorithmic miss-matches.  `taxadb` makes no attempt to provide an opinion or reconciliation mechanism to any of these issues, but only to provide convenient access to data and functions for manipulating these records in a fast and consistent manner.  (In fact, it is easy to use `taxadb` to verify that many of the names recognized in, say, ITIS, are not in fact included at all in Catalogue of Life or other databases that claim to derive from ITIS).
+
+These providers also distribute taxonomic data in a wide range of database formats using a wide range of data layouts (schemas), not all of which are particularly easy to use or interpret (e.g. hierarchies are often but not always specified in `taxon_id,parent_id` pairs.)  To make it faster and easier to work across these providers, `taxadb` defines a common set of table schemas outlined below that are particularly suited for efficient computation of common tasks.  The `taxadb` format follows a strict interpretation of a subset of [Darwin Core](http://rs.tdwg.org/dwc).  `taxadb` pre-processes and publicly archives compressed, flat tables corresponding to each of these schema for each of these providers. The providers vary widely in the frequency at which they update their records, as well as whether they provide immutable versioned releases (e.g. `col`, `ott`), direct access to a database that is updated on a dynamic/continual basis without any log of the changes (`itis`, `ncbi`, others), or is simply unknown.  The `taxadb` maintainers take semi-annual snapshots and distribute versioned releases of the underlying data.  
+
+Most common operations can be expressed in terms of standard database operations, such as simple filtering joins in SQL.  To implement these, `taxadb` imports the compressed flat files into a local, column-oriented database, which can be installed entirely as an R package with no additional server setup required.  This provides a persistent store, and ensures that operations can be performed on disk since the taxonomic tables considered here are frequently too large to store in active memory.  The columnar structure enables blazingly fast joins.  Once the database is created, `taxadb` simply wraps a set of user-friendly R functions around common `SQL` queries, implemented in the popular `dplyr` syntax.  By default, `taxadb` will always collect the results of these queries to return familiar, in-memory objects to the R user.  Optional arguments allow more direct access the database queries.  
+
+## Data Schema
+
+`taxadb` relies on the Simple Darwin Core Namespace for Taxon objects, <http://rs.tdwg.org/dwc/terms/> [@dwc].  This is the mostly widely recognized format for exchange of taxonomic information.
+
+- `taxonID`: a unique id for the name (including provider prefix).  Note that some providers do not assign IDs to synonyms, but only to accepted names.  In this case, the `taxonID` should be `NA`, and the ID to the accepted name should be specified in `acceptedNameUsageID`.  
+- `scientificName`: a Latin name, either accepted or known synonym, at the lowest resolved level for the taxon.  While DWC encourages the use of authorship citations, these are intentionally omitted in most tables as inconsistency in abbreviations and formatting make names with authors much harder to resolve.  When available, this information is provided in the additional optional columns using the corresponding Darwin Core terms.  ***Please note***: `scientificName` includes names at all taxonomic rank levels, it does not mean just "genus + specific epithet".  For example, "Animalia" is also a scientific name.  The `taxonRank` column indicates the associated taxonomic rank.  
+- `taxonRank`: the rank (as given by the provider) of this taxon. **Please note**: While DarwinCore specifies seven ranks as seperate columns (see below), many providers recognize many more of possible `taxonRank` values, such as "superclass", "superorder."  For example, NCBI (`ncbi`) and OpenTree Taxonomy (`ott`) recognize over 40 different ranks, many of which are unnamed, while Catalogue of Life (`col`), GBIF an others recognize only the seven principle ranks. Vastly controdictory claims between naming providers about what rank a given name belongs to or what species are included in which rank are common.  
+- `acceptedNameUsageID` the accepted identifier.  For synonyms, the scientificName of the row with the corresponding `taxonID` gives the accepted name, according to the data provider in question.  For accepted names, this is identical to the `taxonID` for the name. If not provided, it is assumed this is the same as the `taxonID`.  
+- `taxonomicStatus` Either "accepted", for an accepted scientific name, or a term indicating if the name is a known synonym, common misspelling, etc.
+
+Some providers may report additional optional columns, see below.  
+
+
+## Hierarchy Terms
+
+Darwin Core defines several commonly recognized ranks as possible Taxon properties as well: `kingdom`, `phylum`, `class`, `order`, `family`, `genus`, `specificEpithet`, and `intraspecificEpithet`.  Additionally, the taxonomic rank of any scientific name can be specified under `taxonRank`, whether or not it is one of these names.  
+
+Semantically (specifically in the RDF sense), treating ranks as properties seems somewhat crude.  Database providers (and thus different experts) disagree both about what rank levels they recognize and what names belong in what ranks.  NCBI recognizes over 40 named ranks and numerous unnamed ranks.  OTT, in true cladistic fashion, identifies all mammals as being not only in the class "Mammalia", but also in the "class" of lobe-finned-fish, Sarcopterygii.  To distinguish between these different treatments, it would be semantically most consistent to associate a (or multiple) `taxonRankID` with each taxonomic entry, rather than a a taxonRank. This ID could be specific to the data provider, and indicate the rank name that provider associates with that rank.  Few (wikidata, with its strong RDF roots, is an exception) providers associate IDs with rank levels though. 
+
+In practice, treating ranks as properties (i.e. as column headings) is far more consistent with typical scientific usage and convenient for common applications, such as generating a list of all birds or all frogs by a simple filter on names in a column. 
+
+
+## Synonyms
+
+The `taxonomicStatus` value indicates if the name provided is a synonym, misspelling or an accepted name.  `taxadb` does not enforce any controlled vocabulary on the use of these terms beyond using the term `accepted` to indicate that the `scientificName` is an accepted name (i.e. the `dwc:acceptedNameUsage`) for the taxon.  Including both accepted names and synonyms in the `scientificName` column greatly facilitates taxonomic name resolution: a user can just perform an SQL filtering join from a given list of names and the taxadb table in order to resolve names to identifiers (`acceptedNameUsageID`s).  
+
+## Additional fields
+
+
+## Common names
+
+Common names are available from several providers, but tidy tables for `taxadb` have not yet been implemented.  Common names tables are expected to follow the following schema:
+
+- `id` The taxonomic identifier for the species (or possibly other rank)
+- `name` The common name / vernacular name
+- `language` The language in which the common name is given, if known. (all lowercase)
+- `language_code` the two-letter language code.
+
+## Linked Data formats
+
+`taxadb` tables can easily be interpreted as semantic data and will be made available as RDF triples.  This permits the richer SPARQL-based queries of taxonomic information, in addition to the SQL-based queries.  This data format will be the focus of a separate R package interface `taxald`.  
+
+## Conventions
+
+- Identifiers use the integer identifier defined by the provider, prefixed by the provider abbreviation in all capital letters: `ITIS:`, `GBIF:`, etc.
+- Rank names are always lower case without hyphens or spaces. Rank names should be mapped
+  to a table of standard accepted rank names (i.e. those recognized by ITIS, NCBI, Wikidata),
+  and rank names should have 
+- Encoding is UTF-8
+

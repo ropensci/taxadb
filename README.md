@@ -40,22 +40,22 @@ devtools::install_github("cboettig/taxadb")
 
 ``` r
 library(taxadb)
-library(dplyr)
-library(readr)
+library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
 Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
-#> not overwriting col
+#> not overwriting dwc_col
+#> not overwriting common_col
 ```
 
 Read in the species list used by the Breeding Bird Survey:
 
 ``` r
 bbs_species_list <- system.file("extdata/bbs.tsv", package="taxadb")
-bbs <- read_tsv(bbs_species_list)
+bbs <- read.delim(bbs_species_list)
 ```
 
 ## Getting names and ids
@@ -72,19 +72,17 @@ birds <- bbs %>%
   mutate(id = get_ids(species, "col"))
 
 head(birds, 10)
-#> # A tibble: 10 x 2
-#>    species                       id          
-#>    <chr>                         <chr>       
-#>  1 Dendrocygna autumnalis        <NA>        
-#>  2 Dendrocygna bicolor           COL:35517332
-#>  3 Anser canagicus               COL:35517329
-#>  4 Anser caerulescens            COL:35517325
-#>  5 Chen caerulescens (blue form) <NA>        
-#>  6 Anser rossii                  COL:35517328
-#>  7 Anser albifrons               <NA>        
-#>  8 Branta bernicla               COL:35517301
-#>  9 Branta bernicla nigricans     COL:35537100
-#> 10 Branta hutchinsii             COL:35536445
+#>                          species           id
+#> 1         Dendrocygna autumnalis         <NA>
+#> 2            Dendrocygna bicolor COL:35517332
+#> 3                Anser canagicus COL:35517329
+#> 4             Anser caerulescens COL:35517325
+#> 5  Chen caerulescens (blue form)         <NA>
+#> 6                   Anser rossii COL:35517328
+#> 7                Anser albifrons         <NA>
+#> 8                Branta bernicla COL:35517301
+#> 9      Branta bernicla nigricans COL:35537100
+#> 10             Branta hutchinsii COL:35536445
 ```
 
 Note that some names cannot be resolved to an identifier. This can occur
@@ -99,21 +97,15 @@ help us resolve this last case (see below).
 
 ``` r
 birds %>% 
-  mutate(accepted_name = get_names(id, "col"))
-#> # A tibble: 750 x 3
-#>    species                       id           accepted_name            
-#>    <chr>                         <chr>        <chr>                    
-#>  1 Dendrocygna autumnalis        <NA>         <NA>                     
-#>  2 Dendrocygna bicolor           COL:35517332 Dendrocygna bicolor      
-#>  3 Anser canagicus               COL:35517329 Chen canagica            
-#>  4 Anser caerulescens            COL:35517325 Chen caerulescens        
-#>  5 Chen caerulescens (blue form) <NA>         <NA>                     
-#>  6 Anser rossii                  COL:35517328 Chen rossii              
-#>  7 Anser albifrons               <NA>         <NA>                     
-#>  8 Branta bernicla               COL:35517301 Branta bernicla          
-#>  9 Branta bernicla nigricans     COL:35537100 Branta bernicla nigricans
-#> 10 Branta hutchinsii             COL:35536445 Branta hutchinsii        
-#> # … with 740 more rows
+  mutate(accepted_name = get_names(id, "col")) %>% 
+  head()
+#>                         species           id       accepted_name
+#> 1        Dendrocygna autumnalis         <NA>                <NA>
+#> 2           Dendrocygna bicolor COL:35517332 Dendrocygna bicolor
+#> 3               Anser canagicus COL:35517329       Chen canagica
+#> 4            Anser caerulescens COL:35517325   Chen caerulescens
+#> 5 Chen caerulescens (blue form)         <NA>                <NA>
+#> 6                  Anser rossii COL:35517328         Chen rossii
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
@@ -143,26 +135,24 @@ matches, but to more than one match:
 
 ``` r
 by_name("Trochalopteron henrici gucenense") 
-#> # A tibble: 2 x 17
-#>   taxonID acceptedNameUsa… update_date scientificName taxonRank
-#>   <chr>   <chr>            <chr>       <chr>          <chr>    
-#> 1 ITIS:9… ITIS:916116      2013-11-04  Trochaloptero… subspeci…
-#> 2 ITIS:9… ITIS:916117      2013-11-04  Trochaloptero… subspeci…
-#> # … with 12 more variables: taxonomicStatus <chr>, kingdom <chr>,
+#> # A tibble: 1 x 17
+#>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus
+#>   <int> <chr>   <chr>          <chr>     <chr>            <chr>          
+#> 1     1 <NA>    <NA>           <NA>      <NA>             <NA>           
+#> # … with 11 more variables: update_date <chr>, kingdom <chr>,
 #> #   phylum <chr>, class <chr>, order <chr>, family <chr>, genus <chr>,
 #> #   specificEpithet <chr>, vernacularName <chr>,
-#> #   infraspecificEpithet <chr>, sort <int>, input <chr>
+#> #   infraspecificEpithet <chr>, input <chr>
 ```
 
 ``` r
 by_name("Trochalopteron henrici gucenense")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
-#> # A tibble: 2 x 4
-#>   scientificName       taxonomicStatus acceptedNameUsage   acceptedNameUsa…
-#>   <chr>                <chr>           <chr>               <chr>           
-#> 1 Trochalopteron henr… synonym         Trochalopteron ell… ITIS:916116     
-#> 2 Trochalopteron henr… synonym         Trochalopteron hen… ITIS:916117
+#> # A tibble: 1 x 4
+#>   scientificName taxonomicStatus acceptedNameUsage acceptedNameUsageID
+#>   <chr>          <chr>           <chr>             <chr>              
+#> 1 <NA>           <NA>            <NA>              <NA>
 ```
 
 Similar functions `by_id`, `by_rank`, and `by_common` take IDs,
@@ -172,24 +162,24 @@ taxonomic data on all bird names in the Catalogue of Life:
 ``` r
 by_rank(name = "Aves", rank = "class", provider = "col")
 #> # A tibble: 32,327 x 21
-#>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
-#>    <chr>   <chr>          <chr>            <chr>           <chr>    
-#>  1 COL:35… Struthio came… COL:35516814     accepted        species  
-#>  2 COL:35… Rhea americana COL:35516815     accepted        species  
-#>  3 COL:35… Dromaius nova… COL:35516817     accepted        species  
-#>  4 COL:35… Casuarius ben… COL:35516818     accepted        species  
-#>  5 COL:35… Casuarius una… COL:35516819     accepted        species  
-#>  6 COL:35… Apteryx austr… COL:35516820     accepted        species  
-#>  7 COL:35… Tinamus gutta… COL:35516823     accepted        species  
-#>  8 COL:35… Tinamus major  COL:35516824     accepted        species  
-#>  9 COL:35… Tinamus osgoo… COL:35516825     accepted        species  
-#> 10 COL:35… Tinamus solit… COL:35516826     accepted        species  
-#> # … with 32,317 more rows, and 16 more variables: kingdom <chr>,
+#>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
+#>    <int> <chr>   <chr>          <chr>            <chr>           <chr>    
+#>  1     1 COL:35… Struthio came… COL:35516814     accepted        species  
+#>  2     1 COL:35… Rhea americana COL:35516815     accepted        species  
+#>  3     1 COL:35… Dromaius nova… COL:35516817     accepted        species  
+#>  4     1 COL:35… Casuarius ben… COL:35516818     accepted        species  
+#>  5     1 COL:35… Casuarius una… COL:35516819     accepted        species  
+#>  6     1 COL:35… Apteryx austr… COL:35516820     accepted        species  
+#>  7     1 COL:35… Tinamus gutta… COL:35516823     accepted        species  
+#>  8     1 COL:35… Tinamus major  COL:35516824     accepted        species  
+#>  9     1 COL:35… Tinamus osgoo… COL:35516825     accepted        species  
+#> 10     1 COL:35… Tinamus solit… COL:35516826     accepted        species  
+#> # … with 32,317 more rows, and 15 more variables: kingdom <chr>,
 #> #   phylum <chr>, class <chr>, order <chr>, family <chr>, genus <chr>,
 #> #   specificEpithet <chr>, infraspecificEpithet <chr>,
 #> #   taxonConceptID <chr>, isExtinct <chr>, nameAccordingTo <chr>,
 #> #   namePublishedIn <chr>, scientificNameAuthorship <chr>,
-#> #   vernacularName <chr>, sort <int>, input <chr>
+#> #   vernacularName <chr>, input <chr>
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -225,7 +215,7 @@ connection:
 
 ``` r
 taxa_tbl("col")
-#> # Source:   table<col> [?? x 19]
+#> # Source:   table<dwc_col> [?? x 19]
 #> # Database: MonetDBEmbeddedConnection
 #>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
 #>    <chr>   <chr>          <chr>            <chr>           <chr>    
@@ -302,9 +292,12 @@ most_synonyms %>%
 
 ## Learn more
 
-See richer examples, including name cleaning and background on the
-schema in the
-    vignettes:
+  - See richer examples the package
+    [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html).
 
-  - [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html)
-  - [Schema](https://cboettig.github.io/taxadb/articles/articles/schema.html)
+  - Learn about the underlying data sources and formats in [Data
+    Sources](https://cboettig.github.io/taxadb/articles/articles/data-sources.html)
+
+  - Get better performance by selecting an alternative [database
+    backend](https://cboettig.github.io/taxadb/articles/articles/backends.html)
+    engines.
