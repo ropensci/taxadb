@@ -34,11 +34,11 @@ known_providers <- c("itis", "ncbi", "col", "tpl",
 #'    Sys.setenv(TAXADB_HOME=tempdir())
 #'   }
 #'
-#' by_id(c("ITIS:1077358", "ITIS:175089"))
-#' by_id("ITIS:1077358", type="acceptedNameUsageID")
+#' filter_id(c("ITIS:1077358", "ITIS:175089"))
+#' filter_id("ITIS:1077358", type="acceptedNameUsageID")
 #'
 #' }
-by_id <- function(id,
+filter_id <- function(id,
                   provider = c("itis", "ncbi", "col", "tpl",
                                "gbif", "fb", "slb", "wd", "ott",
                                "iucn"),
