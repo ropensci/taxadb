@@ -95,7 +95,7 @@
       <h1>Backends for taxadb</h1>
                         <h4 class="author">Carl Boettiger, Kari Norman</h4>
             
-            <h4 class="date">2019-10-29</h4>
+            <h4 class="date">2019-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/cboettig/taxadb/blob/master/vignettes/articles/backends.Rmd"><code>vignettes/articles/backends.Rmd</code></a></small>
       <div class="hidden name"><code>backends.Rmd</code></div>
@@ -137,43 +137,7 @@
 <p><code>taxadb</code> will work just as well with any <code>DBI</code>-compatible database backend (Postgres, MariaDB, etc). All <code>taxadb</code> functions take an argument <code>taxadb_db</code>, which is just a <code>DBI</code> connection used by <code>dplyr</code>. For example, we can create an in-memory RSQLite connection and use that to store data for a single session:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">con &lt;-<span class="st"> </span>DBI<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/DBI/man/dbConnect.html">dbConnect</a></span>(RSQLite<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/RSQLite/man/SQLite.html">SQLite</a></span>(), <span class="st">":memory:"</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">taxadb<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/taxadb/man/get_ids.html">get_ids</a></span>(<span class="st">"Homo sapiens"</span>, <span class="dt">taxadb_db =</span> con)</a></code></pre></div>
-<p>Users can also call the <code><a href="../../reference/td_connect.html">td_connect()</a></code> function to connect to <code>taxadb</code>’s default databases. Running <code><a href="../../reference/td_connect.html">td_connect()</a></code> with no arguments will return the current default connection. This is a convenient way to confirm that your system is using the database engine you intended it to use. You can also use that connection to interact directly with the <code>taxadb</code> databases (e.g. using <code>dplyr</code> or <code>DBI</code> functions). The helper function <code><a href="../../reference/taxa_tbl.html">taxa_tbl()</a></code> is a quick way to access a remote table, e.g. <code>itis &lt;- taxa_tbl("itis")</code> is equivalent to:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(taxadb)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; Registered S3 method overwritten by 'R.oo':</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;   method        from       </span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;   throw.default R.methodsS3</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/td_connect.html">td_connect</a></span>()</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">itis &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tbl.html">tbl</a></span>(con, <span class="st">"dwc_itis"</span>) <span class="co"># ITIS Darwin Core table</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">## is the same as:</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">itis &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>)</a></code></pre></div>
-<p>This is often more powerful than using <code>taxadb</code>’s built in functions. For example, how many ranks are recognized by ITIS vs Catalogue of Life, and how many taxonomic names are in each rank?</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; Attaching package: 'dplyr'</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; The following objects are masked from 'package:stats':</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;     filter, lag</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt; The following objects are masked from 'package:base':</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;     intersect, setdiff, setequal, union</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>(taxonRank, <span class="dt">sort=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt; # Source:     lazy query [?? x 2]</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt; # Database:   MonetDBEmbeddedConnection</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt; # Ordered by: desc(n)</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;    taxonRank       n</span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt;    &lt;chr&gt;       &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt;  1 species    600526</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt;  2 subspecies  72116</span></a>
-<a class="sourceLine" id="cb3-18" data-line-number="18"><span class="co">#&gt;  3 genus       71406</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">#&gt;  4 variety     32460</span></a>
-<a class="sourceLine" id="cb3-20" data-line-number="20"><span class="co">#&gt;  5 family      10087</span></a>
-<a class="sourceLine" id="cb3-21" data-line-number="21"><span class="co">#&gt;  6 subfamily    3069</span></a>
-<a class="sourceLine" id="cb3-22" data-line-number="22"><span class="co">#&gt;  7 subgenus     2812</span></a>
-<a class="sourceLine" id="cb3-23" data-line-number="23"><span class="co">#&gt;  8 order        1879</span></a>
-<a class="sourceLine" id="cb3-24" data-line-number="24"><span class="co">#&gt;  9 tribe        1859</span></a>
-<a class="sourceLine" id="cb3-25" data-line-number="25"><span class="co">#&gt; 10 form         1123</span></a>
-<a class="sourceLine" id="cb3-26" data-line-number="26"><span class="co">#&gt; # … with more rows</span></a></code></pre></div>
+<p>Users can also call the <code><a href="../../reference/td_connect.html">td_connect()</a></code> function to connect to <code>taxadb</code>’s default databases. Running <code><a href="../../reference/td_connect.html">td_connect()</a></code> with no arguments will return the current default connection. This is a convenient way to confirm that your system is using the database engine you intended it to use. You can also use that connection to interact directly with the <code>taxadb</code> databases (e.g. using <code>dplyr</code> or <code>DBI</code> functions).</p>
 </div>
   </div>
 

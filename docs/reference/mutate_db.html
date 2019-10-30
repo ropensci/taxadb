@@ -141,7 +141,7 @@ appended back out to a temporary table." />
     </div>
 
     <div class="ref-description">
-    <p><code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>dplyr::mutate()</a></code> cannot pass arbitrary R functions over a
+    <p><code><a href='https://rdrr.io/pkg/dplyr/man/mutate.html'>dplyr::mutate()</a></code> cannot pass arbitrary R functions over a
 database connection. This function provides a way to work
 around this, by querying the data in chunks
 and applying the function to each chunk, which is then
@@ -155,7 +155,7 @@ appended back out to a temporary table.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>.data</th>
-      <td><p>A <a href='https://dplyr.tidyverse.org/reference/tbl.html'>dplyr::tbl</a> that uses a database connection, <code>tbl_dbi</code> class.</p></td>
+      <td><p>A <a href='https://rdrr.io/pkg/dplyr/man/tbl.html'>dplyr::tbl</a> that uses a database connection, <code>tbl_dbi</code> class.</p></td>
     </tr>
     <tr>
       <th>r_fn</th>
@@ -165,7 +165,7 @@ of the table</p></td>
     <tr>
       <th>col</th>
       <td><p>the name of the column to which the R function is applied.
-(Note, <code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>dplyr::mutate()</a></code> can operate on an arbitrary list of columns,
+(Note, <code><a href='https://rdrr.io/pkg/dplyr/man/mutate.html'>dplyr::mutate()</a></code> can operate on an arbitrary list of columns,
 this function only operates on a single column at this time...)</p></td>
     </tr>
     <tr>

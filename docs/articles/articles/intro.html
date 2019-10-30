@@ -64,10 +64,10 @@
       <a href="../../articles/articles/backends.html">Backends for taxadb</a>
     </li>
     <li>
-      <a href="../../articles/articles/intro.html">Tutorial for taxadb</a>
+      <a href="../../articles/articles/data-sources.html">Name Providers and schema used in taxadb</a>
     </li>
     <li>
-      <a href="../../articles/articles/schema.html">Database schema for taxadb</a>
+      <a href="../../articles/articles/intro.html">Tutorial for taxadb</a>
     </li>
   </ul>
 </li>
@@ -93,9 +93,9 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Tutorial for taxadb</h1>
-                        <h4 class="author">Carl Boettiger</h4>
+                        <h4 class="author">Carl Boettiger, Kari Norman</h4>
             
-            <h4 class="date">2019-10-29</h4>
+            <h4 class="date">2019-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/cboettig/taxadb/blob/master/vignettes/articles/intro.Rmd"><code>vignettes/articles/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -109,11 +109,21 @@
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(readr)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(taxadb)</a></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../../reference/td_create.html">td_create</a></span>(<span class="st">"all"</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; Warning: 1 parsing failure.</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;   row col   expected    actual         file</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; 30257  -- 18 columns 2 columns literal data</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; Warning: 2 parsing failures.</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;   row            col                     expected    actual         file</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; 96637 scientificName closing quote at end of file           literal data</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; 96637 NA             13 columns                   2 columns literal data</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; Warning: 700 parsing failures.</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; row col   expected     actual         file</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;   1  -- 13 columns 11 columns literal data</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;   2  -- 13 columns 11 columns literal data</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt;   3  -- 13 columns 11 columns literal data</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt;   4  -- 13 columns 11 columns literal data</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt;   5  -- 13 columns 11 columns literal data</span></a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#&gt; ... ... .......... .......... ............</span></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co">#&gt; See problems(...) for more details.</span></a></code></pre></div>
 <p>Note that by default, <code><a href="../../reference/td_create.html">td_create()</a></code> will not attempt to overwrite any providers which we have already installed. This means we can freely include <code><a href="../../reference/td_create.html">td_create()</a></code> at the beginning of scripts and analysis for reproducibility without concern that it will keep re-downloading and slowing things down. With this in place, we are ready to load in the species list from the Breeding Bird Survey <span class="citation">[@bbs]</span>, taken from <a href="ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt" class="uri">ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt</a>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">bbs &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata/bbs.tsv"</span>, <span class="dt">package=</span><span class="st">"taxadb"</span>))</a>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">bbs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/readr/man/read_delim.html">read_tsv</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata/bbs.tsv"</span>, <span class="dt">package=</span><span class="st">"taxadb"</span>))</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">bbs</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; # A tibble: 750 x 9</span></a>
 <a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;      Seq AOU   English_Common_… French_Common_N… Spanish_Common_… order</span></a>
@@ -135,8 +145,8 @@
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>({</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">bbs_ids &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">bbs <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">select</a></span>(species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(</a>
 <a class="sourceLine" id="cb4-6" data-line-number="6">         <span class="dt">gbif =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"gbif"</span>),</a>
 <a class="sourceLine" id="cb4-7" data-line-number="7">          <span class="dt">col =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"col"</span> ),</a>
 <a class="sourceLine" id="cb4-8" data-line-number="8">         <span class="dt">itis =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"itis"</span>),</a>
@@ -147,22 +157,22 @@
 <a class="sourceLine" id="cb4-13" data-line-number="13">  )</a>
 <a class="sourceLine" id="cb4-14" data-line-number="14">})</a>
 <a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt;    user  system elapsed </span></a>
-<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt;  18.181   3.812  19.943</span></a></code></pre></div>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt;  18.805   0.778   2.877</span></a></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">bbs_ids <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="https://purrr.tidyverse.org/reference/map.html">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(x)))</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">select</a></span>(<span class="op">-</span>species) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span>purrr<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/purrr/man/map.html">map_dbl</a></span>(<span class="cf">function</span>(x) <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(x)))</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; gbif  col itis ncbi   wd iucn  ott </span></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;  306  587  644  184    0    0  665</span></a></code></pre></div>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;  306  587  656  184  630  643  665</span></a></code></pre></div>
 <p>The <code><a href="../../reference/get_ids.html">get_ids()</a></code> function looks only for exact matches. Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) OTT identifies the most, at 665 out of 750 names.</p>
 <p>We can get more matches by cleaning the names first. The <code><a href="../../reference/clean_names.html">clean_names()</a></code> function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific epithets) such as <code>Accipiter sp.</code> drop the <code>sp.</code>, allowing matches against Genus names, and intraspecific epithets such as <code>Colaptes auratus cafer</code> are dropped to binomial names, <code>Colaptes auratus</code>. These transformations may not be appropriate for certain use cases, and should be used with care.</p>
 <p>Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">bbs_cleaned_ids &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span>bbs_ids <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species, ott) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">ids_post_clean =</span> </a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">select</a></span>(species, ott) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(<span class="dt">ids_post_clean =</span> </a>
 <a class="sourceLine" id="cb6-5" data-line-number="5">           <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(<span class="kw"><a href="../../reference/clean_names.html">clean_names</a></span>(species, <span class="dt">binomial_only =</span> <span class="ot">TRUE</span>), </a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">                   <span class="st">"ott"</span>, <span class="st">"prefix"</span>))</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(ott <span class="op">!=</span><span class="st"> </span>ids_post_clean)</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(ott <span class="op">!=</span><span class="st"> </span>ids_post_clean)</a>
 <a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; # A tibble: 6 x 3</span></a>
 <a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt;   species                            ott         ids_post_clean</span></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt;   &lt;chr&gt;                              &lt;chr&gt;       &lt;chr&gt;         </span></a>
@@ -172,7 +182,7 @@
 <a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; 4 Vermivora chrysoptera x cyanoptera OTT:6153649 OTT:85249     </span></a>
 <a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; 5 Setophaga coronata coronata        OTT:349904  OTT:451168    </span></a>
 <a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; 6 Passerina amoena x cyanea          OTT:4947623 OTT:119888</span></a>
-<a class="sourceLine" id="cb6-17" data-line-number="17">x &lt;-<span class="st"> </span>bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(ott <span class="op">!=</span><span class="st"> </span>ids_post_clean)  </a>
+<a class="sourceLine" id="cb6-17" data-line-number="17">x &lt;-<span class="st"> </span>bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(ott <span class="op">!=</span><span class="st"> </span>ids_post_clean)  </a>
 <a class="sourceLine" id="cb6-18" data-line-number="18"></a>
 <a class="sourceLine" id="cb6-19" data-line-number="19">x</a>
 <a class="sourceLine" id="cb6-20" data-line-number="20"><span class="co">#&gt; # A tibble: 6 x 3</span></a>
@@ -197,7 +207,7 @@
 <a class="sourceLine" id="cb6-39" data-line-number="39"><span class="co">#&gt; # … with 9 more variables: taxonomicStatus &lt;chr&gt;, kingdom &lt;chr&gt;,</span></a>
 <a class="sourceLine" id="cb6-40" data-line-number="40"><span class="co">#&gt; #   phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;, family &lt;chr&gt;, genus &lt;chr&gt;,</span></a>
 <a class="sourceLine" id="cb6-41" data-line-number="41"><span class="co">#&gt; #   specificEpithet &lt;chr&gt;, infraspecificEpithet &lt;chr&gt;</span></a></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ott) <span class="op">&amp;</span><span class="st"> </span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ids_post_clean))</a>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ott) <span class="op">&amp;</span><span class="st"> </span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ids_post_clean))</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; # A tibble: 75 x 3</span></a>
 <a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt;    species                                     ott   ids_post_clean</span></a>
 <a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;                                       &lt;chr&gt; &lt;chr&gt;         </span></a>
@@ -214,11 +224,11 @@
 <a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co">#&gt; # … with 65 more rows</span></a></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">pick &lt;-<span class="st"> </span><span class="cf">function</span>(A, B){ A[<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(A)] &lt;-<span class="st"> </span>B[<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(A)]; A }</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">ott_ids &lt;-<span class="st"> </span>bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">ids =</span> <span class="kw">pick</span>(ott, ids_post_clean))</a></code></pre></div>
+<a class="sourceLine" id="cb8-3" data-line-number="3">ott_ids &lt;-<span class="st"> </span>bbs_cleaned_ids <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(<span class="dt">ids =</span> <span class="kw">pick</span>(ott, ids_post_clean))</a></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">unmatched &lt;-<span class="st"> </span>ott_ids <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ids)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(species, ids) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">species =</span> <span class="kw"><a href="../../reference/clean_names.html">clean_names</a></span>(species))</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(ids)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">select</a></span>(species, ids) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(<span class="dt">species =</span> <span class="kw"><a href="../../reference/clean_names.html">clean_names</a></span>(species))</a>
 <a class="sourceLine" id="cb9-5" data-line-number="5"></a>
 <a class="sourceLine" id="cb9-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb9-7" data-line-number="7">unmatched</a>
@@ -248,71 +258,73 @@
 <a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co">#&gt; #   infraspecificEpithet &lt;chr&gt;, input &lt;chr&gt;</span></a></code></pre></div>
 <p>We can also use the <code>vernacularName</code> field available in some naming providers to resolve common names:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="../../reference/by_rank.html">by_rank</a></span>(<span class="st">"Aves"</span>, <span class="st">"class"</span>, <span class="st">"itis"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">"Woodpecker"</span>, vernacularName)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(vernacularName, scientificName, acceptedNameUsageID)</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; # A tibble: 160 x 3</span></a>
-<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co">#&gt;    vernacularName            scientificName             acceptedNameUsageID</span></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;                     &lt;chr&gt;                      &lt;chr&gt;              </span></a>
-<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co">#&gt;  1 Pileated Woodpecker       Dryocopus pileatus         ITIS:178166        </span></a>
-<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co">#&gt;  2 Red-headed Woodpecker     Melanerpes erythrocephalus ITIS:178186        </span></a>
-<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co">#&gt;  3 Acorn Woodpecker          Melanerpes formicivorus    ITIS:178189        </span></a>
-<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co">#&gt;  4 Golden-fronted Woodpecker Melanerpes aurifrons       ITIS:178194        </span></a>
-<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="co">#&gt;  5 Red-bellied Woodpecker    Melanerpes carolinus       ITIS:178195        </span></a>
-<a class="sourceLine" id="cb11-12" data-line-number="12"><span class="co">#&gt;  6 Lewis's Woodpecker        Melanerpes lewis           ITIS:178196        </span></a>
-<a class="sourceLine" id="cb11-13" data-line-number="13"><span class="co">#&gt;  7 Puerto Rican Woodpecker   Melanerpes portoricensis   ITIS:178197        </span></a>
-<a class="sourceLine" id="cb11-14" data-line-number="14"><span class="co">#&gt;  8 Gila Woodpecker           Melanerpes uropygialis     ITIS:178198        </span></a>
-<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="co">#&gt;  9 Black-backed Woodpecker   Picoides arcticus          ITIS:178250        </span></a>
-<a class="sourceLine" id="cb11-16" data-line-number="16"><span class="co">#&gt; 10 Three-toed Woodpecker     Picoides tridactylus       ITIS:178251        </span></a>
-<a class="sourceLine" id="cb11-17" data-line-number="17"><span class="co">#&gt; # … with 150 more rows</span></a></code></pre></div>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">"Woodpecker"</span>, vernacularName)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">select</a></span>(vernacularName, scientificName, acceptedNameUsageID)</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; # A tibble: 181 x 3</span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co">#&gt;    vernacularName        scientificName                   acceptedNameUsag…</span></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;                            &lt;chr&gt;            </span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co">#&gt;  1 Red-bellied Woodpeck… Centurus carolinus               ITIS:178195      </span></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co">#&gt;  2 Red-bellied Woodpeck… Centurus carolinus zebra         ITIS:178195      </span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co">#&gt;  3 Red-bellied Woodpeck… Centurus carolinus carolinus     ITIS:178195      </span></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co">#&gt;  4 Red-bellied Woodpeck… Centurus carolinus perplexus     ITIS:178195      </span></a>
+<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="co">#&gt;  5 Red-bellied Woodpeck… Centurus carolinus harpaceus     ITIS:178195      </span></a>
+<a class="sourceLine" id="cb11-12" data-line-number="12"><span class="co">#&gt;  6 Golden-fronted Woodp… Centurus aurifrons               ITIS:178194      </span></a>
+<a class="sourceLine" id="cb11-13" data-line-number="13"><span class="co">#&gt;  7 Gila Woodpecker       Centurus uropygialis             ITIS:178198      </span></a>
+<a class="sourceLine" id="cb11-14" data-line-number="14"><span class="co">#&gt;  8 Red-headed Woodpecker Melanerpes erythrocephalus caur… ITIS:178186      </span></a>
+<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="co">#&gt;  9 Red-headed Woodpecker Melanerpes erythrocephalus eryt… ITIS:178186      </span></a>
+<a class="sourceLine" id="cb11-16" data-line-number="16"><span class="co">#&gt; 10 Lewis's Woodpecker    Asyndesmus lewis                 ITIS:178196      </span></a>
+<a class="sourceLine" id="cb11-17" data-line-number="17"><span class="co">#&gt; # … with 171 more rows</span></a></code></pre></div>
 <p>Let us attempt to resolve the remaining five names.</p>
 <p>Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">unmatched <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">" "</span>, species)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">iucn =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"iucn"</span>, <span class="st">"prefix"</span>))</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/filter.html">filter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">" "</span>, species)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(<span class="dt">iucn =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(species, <span class="st">"iucn"</span>, <span class="st">"prefix"</span>))</a>
 <a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt; # A tibble: 5 x 3</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt;   species               ids   iucn </span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt; &lt;chr&gt;</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt; 1 spatula cyanoptera    &lt;NA&gt;  &lt;NA&gt; </span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt; 2 antrostomus vociferus &lt;NA&gt;  &lt;NA&gt; </span></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">#&gt; 3 antrostomus arizonae  &lt;NA&gt;  &lt;NA&gt; </span></a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt; 4 antigone canadensis   &lt;NA&gt;  &lt;NA&gt; </span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt;   species               ids   iucn         </span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt; &lt;chr&gt;        </span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt; 1 spatula cyanoptera    &lt;NA&gt;  IUCN:22680233</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt; 2 antrostomus vociferus &lt;NA&gt;  IUCN:22736393</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">#&gt; 3 antrostomus arizonae  &lt;NA&gt;  IUCN:22736398</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt; 4 antigone canadensis   &lt;NA&gt;  IUCN:22692078</span></a>
 <a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt; 5 icterus townsendi     &lt;NA&gt;  &lt;NA&gt;</span></a></code></pre></div>
 <p>By consulting the synonyms table, we can quickly see what other names these species might be known by:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">syn &lt;-<span class="st"> </span>unmatched<span class="op">$</span>species <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span>()</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/distinct.html">distinct</a></span>()</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3">syn</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; # A tibble: 10 x 5</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;    acceptedNameUsage synonym taxonRank acceptedNameUsage… input            </span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;             &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;            </span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt;  1 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               spatula cyanopte…</span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt;  2 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               antrostomus voci…</span></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;  3 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               antrostomus ariz…</span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt;  4 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               trochilid        </span></a>
-<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt;  5 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               antigone canaden…</span></a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt;  6 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               gull             </span></a>
-<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt;  7 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               tern             </span></a>
-<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt;  8 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               ardeid           </span></a>
-<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt;  9 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               woodpecker       </span></a>
-<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt; 10 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;               icterus townsendi</span></a></code></pre></div>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; # A tibble: 11 x 5</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;    acceptedNameUsage  synonym       taxonRank acceptedNameUsag… input      </span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;      </span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt;  1 Spatula cyanoptera Anas cyanopt… species   IUCN:22680233     spatula cy…</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt;  2 Antrostomus vocif… Caprimulgus … species   IUCN:22736393     antrostomu…</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;  3 Antrostomus arizo… Caprimulgus … species   IUCN:22736398     antrostomu…</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt;  4 Antrostomus arizo… Caprimulgus … species   IUCN:22736398     antrostomu…</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt;  5 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              trochilid  </span></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt;  6 Antigone canadens… Grus canaden… species   IUCN:22692078     antigone c…</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt;  7 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              gull       </span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt;  8 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              tern       </span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt;  9 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              ardeid     </span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt; 10 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              woodpecker </span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="co">#&gt; 11 &lt;NA&gt;               &lt;NA&gt;          &lt;NA&gt;      &lt;NA&gt;              icterus to…</span></a></code></pre></div>
 <p>Note that three of the four synonyms given by IUCN are considered accepted names in OTT:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">syn <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">rename</a></span>(<span class="dt">IUCN_name =</span> acceptedNameUsage,</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/select.html">rename</a></span>(<span class="dt">IUCN_name =</span> acceptedNameUsage,</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3">         <span class="dt">OTT_name =</span> synonym) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">ott_id =</span>  <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(OTT_name, <span class="st">"ott"</span>),</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/mutate.html">mutate</a></span>(<span class="dt">ott_id =</span>  <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(OTT_name, <span class="st">"ott"</span>),</a>
 <a class="sourceLine" id="cb14-5" data-line-number="5">         <span class="dt">iucn_id =</span> <span class="kw"><a href="../../reference/get_ids.html">get_ids</a></span>(IUCN_name, <span class="st">"iucn"</span>))</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # A tibble: 10 x 7</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt;    IUCN_name OTT_name taxonRank acceptedNameUsag… input      ott_id iucn_id</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;  </span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt;  1 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              spatula c… &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt;  2 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              antrostom… &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co">#&gt;  3 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              antrostom… &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co">#&gt;  4 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              trochilid  &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co">#&gt;  5 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              antigone … &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co">#&gt;  6 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              gull       &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-15" data-line-number="15"><span class="co">#&gt;  7 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              tern       &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-16" data-line-number="16"><span class="co">#&gt;  8 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              ardeid     &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-17" data-line-number="17"><span class="co">#&gt;  9 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              woodpecker &lt;NA&gt;   &lt;NA&gt;   </span></a>
-<a class="sourceLine" id="cb14-18" data-line-number="18"><span class="co">#&gt; 10 &lt;NA&gt;      &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;              icterus t… &lt;NA&gt;   &lt;NA&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # A tibble: 11 x 7</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt;    IUCN_name   OTT_name   taxonRank acceptedNameUsag… input  ott_id iucn_id</span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt;    &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  </span></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt;  1 Spatula cy… Anas cyan… species   IUCN:22680233     spatu… OTT:8… IUCN:2…</span></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt;  2 Antrostomu… Caprimulg… species   IUCN:22736393     antro… OTT:1… IUCN:2…</span></a>
+<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co">#&gt;  3 Antrostomu… Caprimulg… species   IUCN:22736398     antro… OTT:1… IUCN:2…</span></a>
+<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co">#&gt;  4 Antrostomu… Caprimulg… species   IUCN:22736398     antro… &lt;NA&gt;   IUCN:2…</span></a>
+<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co">#&gt;  5 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              troch… &lt;NA&gt;   &lt;NA&gt;   </span></a>
+<a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co">#&gt;  6 Antigone c… Grus cana… species   IUCN:22692078     antig… OTT:2… IUCN:2…</span></a>
+<a class="sourceLine" id="cb14-15" data-line-number="15"><span class="co">#&gt;  7 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              gull   &lt;NA&gt;   &lt;NA&gt;   </span></a>
+<a class="sourceLine" id="cb14-16" data-line-number="16"><span class="co">#&gt;  8 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              tern   &lt;NA&gt;   &lt;NA&gt;   </span></a>
+<a class="sourceLine" id="cb14-17" data-line-number="17"><span class="co">#&gt;  9 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              ardeid &lt;NA&gt;   &lt;NA&gt;   </span></a>
+<a class="sourceLine" id="cb14-18" data-line-number="18"><span class="co">#&gt; 10 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              woodp… &lt;NA&gt;   &lt;NA&gt;   </span></a>
+<a class="sourceLine" id="cb14-19" data-line-number="19"><span class="co">#&gt; 11 &lt;NA&gt;        &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;              icter… &lt;NA&gt;   &lt;NA&gt;</span></a></code></pre></div>
 <p>We cannot simply assume that we can crosswalk synonyms between different providers, as providers may be operating on different taxonomic concepts. In this example, IUCN recognizes four distinct taxa while OTT recognizes only thee.</p>
 <div id="differences-in-taxonomic-concepts" class="section level2">
 <h2 class="hasAnchor">
@@ -330,11 +342,11 @@
 <a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; 6 Grus canadensis   Antigone cana… species   GBIF:2474953      Grus canade…</span></a></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(cranes, <span class="st">"iucn"</span>)</a>
 <a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#&gt; # A tibble: 3 x 5</span></a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">#&gt;   acceptedNameUsage synonym taxonRank acceptedNameUsageID input            </span></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;               &lt;chr&gt;            </span></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; 1 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;                Megalornis canad…</span></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">#&gt; 2 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;                Antigone canaden…</span></a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt; 3 &lt;NA&gt;              &lt;NA&gt;    &lt;NA&gt;      &lt;NA&gt;                Grus canadensis</span></a></code></pre></div>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">#&gt;   acceptedNameUsage  synonym      taxonRank acceptedNameUsag… input        </span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;        </span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; 1 &lt;NA&gt;               &lt;NA&gt;         &lt;NA&gt;      &lt;NA&gt;              Megalornis c…</span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">#&gt; 2 Antigone canadens… Grus canade… species   IUCN:22692078     Antigone can…</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt; 3 Antigone canadens… Grus canade… species   IUCN:22692078     Grus canaden…</span></a></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="../../reference/synonyms.html">synonyms</a></span>(cranes, <span class="st">"ott"</span>)</a>
 <a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co">#&gt; # A tibble: 3 x 5</span></a>
 <a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co">#&gt;   acceptedNameUsage synonym     taxonRank acceptedNameUsag… input          </span></a>
@@ -343,19 +355,19 @@
 <a class="sourceLine" id="cb17-6" data-line-number="6"><span class="co">#&gt; 2 &lt;NA&gt;              &lt;NA&gt;        &lt;NA&gt;      &lt;NA&gt;              Antigone canad…</span></a>
 <a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt; 3 Grus canadensis   Grus proav… species   OTT:257929        Grus canadensis</span></a></code></pre></div>
 <p>(GBIF lists <em>Antigone canadensis</em> as a synonym for <em>Grus canadensis</em>; this appears backwards as the Sandhill Crane was moved out of <em>Grus</em> after molecular analyses showed it made that taxon polyphyletic; <a href="https://en.wikipedia.org/wiki/Sandhill_crane" class="uri">https://en.wikipedia.org/wiki/Sandhill_crane</a>).</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">totals &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">tibble</a></span>(</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">"itis"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">"ncbi"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ncbi"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="st">"col"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="st">"gbif"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"gbif"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="st">"ott"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ott"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="st">"wd"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"wd"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="st">"iucn"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="st">"fb"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"fb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n),</a>
-<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="st">"slb"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"slb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(n)</a>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">totals &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/reexports.html">tibble</a></span>(</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">"itis"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"itis"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">"ncbi"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ncbi"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="st">"col"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"col"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="st">"gbif"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"gbif"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="st">"ott"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"ott"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="st">"wd"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"wd"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="st">"iucn"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"iucn"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="st">"fb"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"fb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n),</a>
+<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="st">"slb"</span> =<span class="st"> </span><span class="kw"><a href="../../reference/taxa_tbl.html">taxa_tbl</a></span>(<span class="st">"slb"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/tally.html">count</a></span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/dplyr/man/pull.html">pull</a></span>(n)</a>
 <a class="sourceLine" id="cb18-11" data-line-number="11">)</a>
 <a class="sourceLine" id="cb18-12" data-line-number="12"><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(totals)</a>
-<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt; [1] 12291363</span></a></code></pre></div>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt; [1] 14863825</span></a></code></pre></div>
 </div>
   </div>
 
