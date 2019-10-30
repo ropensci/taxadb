@@ -5,7 +5,7 @@ known_providers <- c("itis", "ncbi", "col", "tpl",
 
 #' Return a taxonomic table matching the requested ids
 #'
-#' @inheritParams by_name
+#' @inheritParams filter_name
 #' @param id taxonomic id, in prefix format
 #' @param type id type.  Can be `taxonID` or `acceptedNameUsageID`,
 #'  see details.
