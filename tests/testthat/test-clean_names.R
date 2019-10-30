@@ -25,6 +25,6 @@ test_that("drop_parenthetical", {
 })
 
 test_that("clean_names", {
-  x <- clean_names(" Poa annua sp. (Smith 1912)", lowercase = FALSE)
-  expect_identical(x, "Poa annua")
+  x <- clean_names(" Poa annua sp. (Smith 1912)")
+  expect_identical(x, "poa annua")
 })
