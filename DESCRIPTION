@@ -33,7 +33,8 @@ Imports:
     stringi,
     progress,
     utils,
-    dbplyr
+    dbplyr,
+    RSQLite
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests:
@@ -43,7 +44,6 @@ Suggests:
     knitr,
     rmarkdown,
     purrr,
-    RSQLite,
     MonetDBLite
 Language: en-US
 VignetteBuilder: knitr
