@@ -44,10 +44,10 @@
 #'    Sys.setenv(TAXADB_HOME=tempdir())
 #'   }
 #'   ## Install the ITIS database
-#'   create_db("itis")
+#'   td_create("itis")
 #'
 #'   ## force re-install:
-#'   create_db("itis", overwrite = TRUE)
+#'   td_create("itis", overwrite = TRUE)
 #'
 #' }
 td_create <- function(provider = "itis",
