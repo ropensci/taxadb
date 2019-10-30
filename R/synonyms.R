@@ -4,7 +4,7 @@
 #' synonyms
 #'
 #' Resolve provided list of names against all known synonyms
-#' @inheritParams by_name
+#' @inheritParams filter_name
 #' @importFrom dplyr left_join
 #' @export
 #' @examples
@@ -28,7 +28,7 @@ synonyms <- function(name,
                      db = td_connect()){
 
 
-  the_id_table <- by_name(name, provider = provider, db = db)
+  the_id_table <- filter_name(name, provider = provider, db = db)
 
   ## Get both accepted names & synonyms for anything with an acceptedNameUsageID
   suppress_msg({

@@ -38,7 +38,7 @@ Match names that start or contain a specified text string
 \details{
 Note that fuzzy filter will be fast with an single or small number
 of names, but will be slower if given a very large vector of
-names to match, as unlike other \code{by_} commands,
+names to match, as unlike other \code{filter_} commands,
 fuzzy matching requires separate SQL calls for each name.
 As fuzzy matches should all be confirmed manually in any event, e.g.
 not every common name containing "monkey" belongs to a primate species.
