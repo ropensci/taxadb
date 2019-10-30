@@ -31,7 +31,7 @@ default is \code{TRUE}.}
 \value{
 a vector of IDs, of the same length as the input names Any
 unmatched names or multiply-matched names will return as \link{NA}s.
-To resolve multi-matched names, use \code{\link[=by_name]{by_name()}} instead to return
+To resolve multi-matched names, use \code{\link[=filter_name]{filter_name()}} instead to return
 a table with a separate row for each separate match of the input name.
 }
 \description{
@@ -55,7 +55,7 @@ get_ids("Homo sapiens", db= "ncbi", format = "uri")
 }
 }
 \seealso{
-by_name
+filter_name
 
 Other get: \code{\link{get_names}}
 }

@@ -26,7 +26,7 @@ elton <-
 ## Subset of data where names are synonyms by ITIS
 traits_ <-
   elton$Scientific %>%
-  by_name("itis") %>%
+  filter_name("itis") %>%
   filter(taxonomicStatus != "accepted") %>%
   select(Scientific = scientificName) %>%
   inner_join(elton) %>%

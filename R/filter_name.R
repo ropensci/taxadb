@@ -27,11 +27,11 @@
 #'
 #' sp <- c("Trochalopteron henrici gucenense",
 #'         "Trochalopteron elliotii")
-#' by_name(sp)
+#' filter_name(sp)
 #'
 #' }
 #'
-by_name <- function(name,
+filter_name <- function(name,
                 provider =c("itis", "ncbi", "col", "tpl",
                             "gbif", "fb", "slb", "wd", "ott",
                             "iucn"),

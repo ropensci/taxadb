@@ -62,8 +62,8 @@ filter_by("Aves", "class")
 
 }
 \seealso{
-Other filter_by: \code{\link{by_common}},
-  \code{\link{by_id}}, \code{\link{by_name}},
-  \code{\link{by_rank}}
+Other filter_by: \code{\link{filter_common}},
+  \code{\link{filter_id}}, \code{\link{filter_name}},
+  \code{\link{filter_rank}}
 }
 \concept{filter_by}

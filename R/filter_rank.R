@@ -15,11 +15,11 @@
 #'    Sys.setenv(TAXADB_HOME=tempdir())
 #'   }
 #'
-#' by_rank("Aves", "class")
+#' filter_rank("Aves", "class")
 #'
 #' }
 #'
-by_rank <- function(name,
+filter_rank <- function(name,
                     rank,
                     provider = c("itis", "ncbi", "col", "tpl",
                                  "gbif", "fb", "slb", "wd", "ott",
