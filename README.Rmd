@@ -67,7 +67,7 @@ birds <- bbs %>%
 head(birds, 10)
 ```
 
-Note that some names cannot be resolved to an identifier.  This can occur because of miss-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `by_name` filtering functions can help us resolve this last case (see below).
+Note that some names cannot be resolved to an identifier.  This can occur because of miss-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `filter_name` filtering functions can help us resolve this last case (see below).
 
 `get_ids()` returns the IDs of accepted names, that is `dwc:AcceptedNameUsageID`s.  We can resolve the IDs into accepted names:
 
@@ -83,7 +83,7 @@ This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted
 
 ## Taxonomic Data Tables
 
-Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `by_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
+Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `filter_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
 
 For instance, *Trochalopteron henrici gucenense* does not resolve to an identifier in ITIS:
 
@@ -91,32 +91,32 @@ For instance, *Trochalopteron henrici gucenense* does not resolve to an identifi
 get_ids("Trochalopteron henrici gucenense") 
 ```
 
-Using `by_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
+Using `filter_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
 
 ```{r}
-by_name("Trochalopteron henrici gucenense") 
+filter_name("Trochalopteron henrici gucenense") 
 ```
 
 
 ```{r}
-by_name("Trochalopteron henrici gucenense")  %>%
+filter_name("Trochalopteron henrici gucenense")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
 ```
 
 
-Similar functions `by_id`, `by_rank`, and `by_common` take IDs, scientific ranks, or common names, respectively.  Here, we can get taxonomic data on all bird names in the Catalogue of Life:
+Similar functions `filter_id`, `filter_rank`, and `filter_common` take IDs, scientific ranks, or common names, respectively.  Here, we can get taxonomic data on all bird names in the Catalogue of Life:
 
 
 ```{r}
-by_rank(name = "Aves", rank = "class", provider = "col")
+filter_rank(name = "Aves", rank = "class", provider = "col")
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this data: for instance, which families have the most species?
 
 
 ```{r}
-by_rank(name = "Aves", rank = "class", provider = "col") %>%
+filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   filter(taxonomicStatus == "accepted", taxonRank=="species") %>% 
   group_by(family) %>%
   count(sort = TRUE) %>% 
@@ -125,7 +125,7 @@ by_rank(name = "Aves", rank = "class", provider = "col") %>%
 
 ## Using the database connection directly
 
-`by_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The `taxa_tbl()` function provides this connection:
+`filter_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The `taxa_tbl()` function provides this connection:
 
 ```{r}
 taxa_tbl("col")
@@ -139,7 +139,7 @@ most_synonyms <- taxa_tbl("col") %>%
   count(sort=TRUE)
 most_synonyms
 ```
-However, unlike the `by_*` functions which return convenient in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, because `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `by_*` approach to be more intuitive.
+However, unlike the `filter_*` functions which return convenient in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, because `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `filter_*` approach to be more intuitive.
 
 
 So which species had those 456 names?
@@ -148,7 +148,7 @@ So which species had those 456 names?
 most_synonyms %>% 
   head(1) %>% 
   pull(acceptedNameUsageID) %>% 
-  by_id("col") %>%
+  filter_id("col") %>%
   select(scientificName)
 ```
 
