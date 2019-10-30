@@ -13,8 +13,8 @@ test_that("setup-free calls to basic functions", {
   df <- taxa_tbl(provider = "itis", db = NULL)
   chameleons <- filter(df, family == "Chamaeleonidae")
 
-  df <- by_rank(name = "Aves", rank = "class", db = NULL)
-  species <- by_name(df$scientificName, db = NULL)
+  df <- filter_rank(name = "Aves", rank = "class", db = NULL)
+  species <- filter_name(df$scientificName, db = NULL)
 
   expect_is(df, "data.frame")
   expect_is(species, "data.frame")
