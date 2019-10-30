@@ -1,6 +1,6 @@
 ---
 title: "Backends for taxadb"
-author: "Carl Boettiger"
+author: "Carl Boettiger, Kari Norman"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -51,23 +51,4 @@ con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 taxadb::get_ids("Homo sapiens", taxadb_db = con)
 ```
 
-Users can also call the `td_connect()` function to connect to `taxadb`'s default databases.  Running `td_connect()` with no arguments will return the current default connection.  This is a convenient way to confirm that your system is using the database engine you intended it to use.  You can also use that connection to interact directly with the `taxadb` databases (e.g. using `dplyr` or `DBI` functions).  The helper function `taxa_tbl()` is a quick way to access a remote table, e.g. `itis <- taxa_tbl("itis")` is equivalent to:
-
-```{r}
-library(taxadb)
-con <- td_connect()
-itis <- dplyr::tbl(con, "dwc_itis") # ITIS Darwin Core table
-
-## is the same as:
-itis <- taxa_tbl("itis")
-```
-
-
-This is often more powerful than using `taxadb`'s built in functions. For example, how many ranks are recognized by ITIS vs Catalogue of Life, and how many taxonomic names are in each rank?
-
-```{r}
-library(dplyr)
-taxa_tbl("itis") %>% count(taxonRank, sort=TRUE)
-```
-
-
+Users can also call the `td_connect()` function to connect to `taxadb`'s default databases.  Running `td_connect()` with no arguments will return the current default connection.  This is a convenient way to confirm that your system is using the database engine you intended it to use.  You can also use that connection to interact directly with the `taxadb` databases (e.g. using `dplyr` or `DBI` functions).  
