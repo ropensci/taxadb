@@ -13,15 +13,29 @@
 #' this function only operates on a single column at this time...)
 #' @param new_column column name for the new column.
 #' @param n the number of rows included in each chunk, see [DBI::dbFetch()]
+#' @param ... named arguments to be passed to `r_fn`
 #' @return a dplyr tbl connection to the temporary table in the database
 #' @importFrom dplyr tbl
 #' @export
+#' @examples
+#' \donttest{
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
 #'
+#'   #Get all common names from a provider and clean them
+#'   taxa_tbl("itis", "common") %>%
+#'   mutate_db(clean_names, vernacularName, vernacularNameClean, binomial_only = FALSE, remove_sp = FALSE)
+#'
+#'
+#' }
+
 mutate_db <- function(.data,
                       r_fn,
                       col,
                       new_column,
-                      n = 5000L){
+                      n = 5000L, ...){
 
   if(!inherits(.data, "tbl_dbi"))
     stop(paste("input must be a table from remote database connection"))
@@ -33,7 +47,7 @@ mutate_db <- function(.data,
     dbi_mutate(db = db,
                tbl = tbl,
                r_fn = r_fn, col = col, new_column = new_column,
-               n = 5000L, tmp_tbl = tmp_tablename())
+               n = 5000L, tmp_tbl = tmp_tablename(), ...)
   dplyr::tbl(db, tmp_tbl)
 }
 
@@ -51,11 +65,11 @@ mutate_db <- function(.data,
 #' @importFrom progress progress_bar
 #'
 dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
-                       tmp_tbl = tmp_tablename()){
+                       tmp_tbl = tmp_tablename(), ...){
 
   ## Create a temporary table which will store our data, including new column
   schema <- DBI::dbGetQuery(db, paste("SELECT * FROM", tbl, "LIMIT 1"))
-  schema[[new_column]] <- r_fn(schema[[col]])
+  schema[[new_column]] <- r_fn(schema[[col]], ...)
   DBI::dbCreateTable(db, tmp_tbl, schema, temporary = TRUE)
 
 
@@ -68,7 +82,7 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
     p$tick()
     chunk <- DBI::dbFetch(res, n = n)
     if (nrow(chunk) == 0) break
-    chunk[[new_column]] <- r_fn(chunk[[col]])
+    chunk[[new_column]] <- r_fn(chunk[[col]], ...)
     DBI::dbWriteTable(db, tmp_tbl, chunk, append=TRUE)
   }
   DBI::dbClearResult(res)
