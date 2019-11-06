@@ -15,11 +15,13 @@
 #'   }
 #'
 #'   #Clean a list of messy common names
-#'   names <- clean_names(c("Steller's jay", "coopers Hawk"), binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
+#'   names <- clean_names(c("Steller's jay", "coopers Hawk"),
+#'                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 #'
 #'   #Get cleaned common names from a provider and search for cleaned names in that table
 #'   taxa_tbl("itis", "common") %>%
-#'   mutate_db(clean_names, "vernacularName", "vernacularNameClean", binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
+#'   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
+#'             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
 #'   filter(vernacularNameClean %in% names)
 #'
 #'
@@ -72,14 +74,3 @@ quick_db <-
       col_types = readr::cols(.default = readr::col_character()))
     )
   }
-
-
-## Memoized on install, so any cache location must already exist.
-
-
-# tibble doesn't like null arguments
-#' @importFrom tibble lst tibble
-null_tibble <- function(...){
-  call <- Filter(Negate(is.null), tibble::lst(...))
-  do.call(tibble::tibble, call)
-}

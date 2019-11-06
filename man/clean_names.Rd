@@ -28,6 +28,9 @@ logical, default \link{TRUE}.}
 
 \item{lowercase}{should names be coerced to lower-case to provide
 case-insensitive matching?}
+
+\item{remove_punc}{replace all punctuation but apostrophes with a space,
+remove apostrophes}
 }
 \description{
 A utility to sanitize taxonomic names to increase

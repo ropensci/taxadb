@@ -17,6 +17,8 @@
 #' (see [stringi::stri_trans_general()])
 #' @param lowercase should names be coerced to lower-case to provide
 #'  case-insensitive matching?
+#' @param remove_punc replace all punctuation but apostrophes with a space,
+#' remove apostrophes
 #' @details Current implementation is limited to handling a few
 #' common cases. Additional extensions may be added later.
 #' A goal of the `clean_names` function is that any
