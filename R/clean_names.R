@@ -40,7 +40,8 @@ clean_names <-
            binomial_only = TRUE,
            remove_sp = TRUE,
            ascii_only = TRUE,
-           lowercase = TRUE){
+           lowercase = TRUE,
+           remove_punc = FALSE){
     if(lowercase)
       names <- stringi::stri_trans_tolower(names)
     if(ascii_only)
@@ -51,8 +52,9 @@ clean_names <-
       names <- binomial_names(names)
     if(remove_sp)
       names <- drop_sp.(names)
+    if(remove_punc)
+      names <- drop_punc(names)
     names
-
   }
 
 ## Name cleaning utilities
@@ -78,6 +80,9 @@ binomial_names <- function(x){
 drop_parenthetical <- function(x){
   stringi::stri_replace_all_regex(x, "\\(.+\\)", "")
 }
-
-
-
+drop_punc <- function(x){
+  #replace everything but letters and apostrophes with a space"
+  names <- stringi::stri_replace_all_regex(x, "[^[:alnum:][:space:]']", " ")
+  #remove apostrophes
+  names <- stringi::stri_replace_all_regex(x, "[']", "")
+}
