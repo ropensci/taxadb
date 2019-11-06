@@ -4,7 +4,7 @@
 \alias{mutate_db}
 \title{Add new variables to a database}
 \usage{
-mutate_db(.data, r_fn, col, new_column, n = 5000L)
+mutate_db(.data, r_fn, col, new_column, n = 5000L, ...)
 }
 \arguments{
 \item{.data}{A \link[dplyr:tbl]{dplyr::tbl} that uses a database connection, \code{tbl_dbi} class.}
@@ -19,6 +19,8 @@ this function only operates on a single column at this time...)}
 \item{new_column}{column name for the new column.}
 
 \item{n}{the number of rows included in each chunk, see \code{\link[DBI:dbFetch]{DBI::dbFetch()}}}
+
+\item{...}{named arguments to be passed to \code{r_fn}}
 }
 \value{
 a dplyr tbl connection to the temporary table in the database
@@ -29,4 +31,23 @@ database connection. This function provides a way to work
 around this, by querying the data in chunks
 and applying the function to each chunk, which is then
 appended back out to a temporary table.
+}
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+  #Clean a list of messy common names
+  names <- clean_names(c("Steller's jay", "coopers Hawk"), binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
+
+  #Get cleaned common names from a provider and search for cleaned names in that table
+  taxa_tbl("itis", "common") \%>\%
+  mutate_db(clean_names, "vernacularName", "vernacularNameClean", binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
+  filter(vernacularNameClean \%in\% names)
+
+
+
+}
 }
