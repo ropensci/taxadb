@@ -116,6 +116,21 @@ monetdblite_connect <- function(dbname, ignore_lock = TRUE){
   db
 }
 
+#' Disconnect from the taxadb database.
+#'
+#' @param env The environment where the function looks for a connection.
+#' @details This function manually closes a connection to the `taxadb` database.
+#'
+#' @importFrom DBI dbConnect dbIsValid
+# @importFrom duckdb duckdb
+#' @export
+#' @examples \donttest{
+#'
+#' ## Disconnect from the database:
+#' td_disconnect()
+#'
+#' }
+
 td_disconnect <- function(env = taxadb_cache){
   db <- mget("td_db", envir = env, ifnotfound = NA)[[1]]
   if (inherits(db, "DBIConnection")) {
