@@ -19,3 +19,24 @@ attempt to connect automatically.}
 \description{
 Return a reference to a given table in the taxadb database
 }
+\examples{
+\donttest{
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+  #Clean a list of messy common names
+  names <- clean_names(c("Steller's jay", "coopers Hawk"),
+                binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
+
+  #Get cleaned common names from a provider and search for cleaned names in that table
+  taxa_tbl("itis", "common") \%>\%
+  mutate_db(clean_names, "vernacularName", "vernacularNameClean",
+            binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
+  filter(vernacularNameClean \%in\% names)
+
+
+
+}
+}
