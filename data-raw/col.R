@@ -1,92 +1,111 @@
 library(dplyr)
 library(readr)
+library(forcats)
 library(stringi)
 source("data-raw/helper-routines.R")
 
 # All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
-dir.create("taxizedb/col", FALSE, TRUE)
-download.file("http://www.catalogueoflife.org/DCA_Export/zip-fixed/2018-annual.zip",
-              "taxizedb/col/2018-annual.zip")
-unzip("taxizedb/col/2018-annual.zip", exdir="taxizedb/col")
-taxon <- read_tsv("taxizedb/col/taxa.txt", col_types = cols(.default = col_character()), quote = "")
-vernacular <- read_tsv("taxizedb/col/vernacular.txt", col_types = cols(.default = col_character()), quote = "")
-reference <- read_tsv("taxizedb/col/reference.txt", col_types = cols(.default = col_character()), quote = "")
 
-## Not useful to us, also not very complete:
-## distribution <- read_tsv("taxizedb/col/distribution.txt", col_types = cols(.default = col_character()), quote = "")     # occurrance, but sparse & coarse
-## speciesprofile <- read_tsv("taxizedb/col/speciesprofile.txt", col_types = cols(.default = col_character()), quote = "") # habitat
-# description <- read_tsv("taxizedb/col/description.txt", col_types = cols(.default = col_character()), quote = "") ## occurance countries
+preprocess_col <- function(year = "2019", dir = file.path(tempdir(), "col")){
 
+  dir.create(dir, FALSE, FALSE)
+  download.file(paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
+                       year, "-annual.zip"),
+                file.path(dir, "col-annual.zip"))
+  unzip(file.path(dir, "col-annual.zip"), exdir=dir)
 
-## scientificNameAuthorship tagged on to scientificName, and in inconsistent format. trim it off.
-taxa <- taxon %>%
-  mutate(taxonomicStatus = forcats::fct_recode(taxonomicStatus, "accepted" = "accepted name")) %>%
-  select(taxonID, scientificName, acceptedNameUsageID, taxonomicStatus, taxonRank,
-         kingdom, phylum, class, order, family, genus, specificEpithet, infraspecificEpithet,
-         taxonConceptID, isExtinct, nameAccordingTo, namePublishedIn, scientificNameAuthorship)
-
-taxa <- bind_rows(
-  taxa %>%
-    filter(!is.na(scientificNameAuthorship)) %>%
-    mutate(scientificName =
-           stri_trim(stri_replace_first_fixed(scientificName, scientificNameAuthorship, ""))),
-  taxa %>%
-    filter(is.na(scientificNameAuthorship))
-)
+  ## a better read_tsv
+  read_tsv <- function(...) readr::read_tsv(..., quote = "", col_types = readr::cols(.default = "c"))
 
 
+  taxon <- read_tsv(file.path(dir, "taxa.txt"))
+  reference <- read_tsv(file.path(dir, "reference.txt"))
 
-## For accepted names, set acceptedNameUsageID to match taxonID, rather NA
-accepted <-
-  filter(taxa, taxonomicStatus == "accepted") %>%
-  mutate(acceptedNameUsageID = taxonID)
-rest <-
-  filter(taxa, taxonomicStatus != "accepted") %>%
-  filter(!is.na(acceptedNameUsageID)) # We drop un-mapped synonyms, as they are not helpful
+  ## scientificNameAuthorship tagged on to scientificName, and in inconsistent format. trim it off.
+  taxa_tmp <- taxon %>%
+    mutate(taxonomicStatus = forcats::fct_recode(taxonomicStatus, "accepted" = "accepted name")) %>%
+    select(taxonID, scientificName, acceptedNameUsageID, taxonomicStatus, taxonRank,
+           kingdom, phylum, class, order, family, genus, specificEpithet, infraspecificEpithet,
+           taxonConceptID, isExtinct, nameAccordingTo, namePublishedIn, scientificNameAuthorship)
+
+  taxa <- bind_rows(
+    taxa_tmp %>%
+      filter(!is.na(scientificNameAuthorship)) %>%
+      mutate(scientificName =
+             stri_trim(stri_replace_first_fixed(scientificName, scientificNameAuthorship, ""))),
+    taxa_tmp %>%
+      filter(is.na(scientificNameAuthorship))
+  )
+
+  ## For accepted names, set acceptedNameUsageID to match taxonID, rather NA
+  accepted <-
+    filter(taxa, taxonomicStatus %in% c("accepted", "provisionally accepted name")) %>%
+    mutate(acceptedNameUsageID = taxonID)
+
+  accepted_heirarchy <- select(accepted, -acceptedNameUsageID, -scientificName, -taxonomicStatus)
+  rest <-
+    filter(taxa, taxonomicStatus != "accepted") %>%
+    filter(!is.na(acceptedNameUsageID)) %>%
+    select(taxonID, scientificName, acceptedNameUsageID, taxonomicStatus) %>%
+    left_join(accepted_heirarchy, by = c("acceptedNameUsageID" = "taxonID"))
+
+  # We drop un-mapped synonyms, as they are not helpful
+
+
+  vernacular <- read_tsv(file.path(dir, "vernacular.txt"))
+  #First we create the separate common names table
+  comm_table <- vernacular %>%
+    select(taxonID, vernacularName, language) %>%
+    inner_join(bind_rows(accepted), by = "taxonID") %>%
+    mutate(taxonID = stringi::stri_paste("COL:", taxonID),
+           acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
+
+
+  # Also add a common name to the master dwc table
+  # first english names,
+  # #why doesn't this return a unique list of taxonID without distinct()??
+  comm_eng <- vernacular %>%
+    filter(language == "English") %>%
+    n_in_group(group_var = "taxonID", n = 1, wt = vernacularName)
+
+  #get the rest
+  comm_names <- vernacular %>%
+    filter(!taxonID %in% comm_eng$taxonID) %>%
+    n_in_group(group_var = "taxonID", n = 1, wt = vernacularName) %>%
+    bind_rows(comm_eng)  %>%
+    select(taxonID, vernacularName)
+
+  ## stri_paste respects NAs, avoids "<prefix>:NA"
+  ## de-duplicate avoids cases where an accepted name is also listed as a synonym.
+  dwc_col <-
+    bind_rows(accepted, rest) %>%
+    left_join(comm_names, by = "taxonID") %>%
+    mutate(taxonID = stringi::stri_paste("COL:", taxonID),
+           acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
+
+
+  dir.create("dwc", FALSE)
+  write_tsv(dwc_col, "dwc/col.tsv.bz2")
+  write_tsv(comm_table, "dwc/common_col.tsv.bz2")
+
+
+
+
+
+
+}
+
+preprocess_col(year = "2019")
+library(piggyback)
+piggyback::pb_upload("dwc/dwc_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+piggyback::pb_upload("dwc/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+
+
+
+
 
 ##Common Names
-
 #get ID's that have no accepted sciname
-syn_names <- rest %>% 
-  filter(!acceptedNameUsageID %in% accepted$acceptedNameUsageID) %>%
-  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
-
-#turns out none of them join with a common name, so we don't have to deal with them (below returns an empty dataframe)
-# vern %>% select(taxonID, vernacularName, language) %>%
-#   inner_join(syn_names) %>% View()
-
-#common name table
-comm_table <- vern %>% select(taxonID, vernacularName, language) %>%
-  inner_join(bind_rows(accepted), by = "taxonID") %>%
-  mutate(taxonID = stringi::stri_paste("COL:", taxonID),
-         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID)) 
-
-write_tsv(comm_table, "dwc/common_col.tsv.bz2")
-
-#add a common name to the master dwc table
-#first english names,
-##why doesn't this return a unique list of taxonID without distinct()??
-comm_eng <- vern %>%
-  filter(language == "English") %>%
-  n_in_group(group_var = "taxonID", n = 1, wt = vernacularName)
-
-#get the rest
-comm_names <- vern %>%
-  filter(!taxonID %in% comm_eng$taxonID) %>%
-  n_in_group(group_var = "taxonID", n = 1, wt = vernacularName) %>%
-  bind_rows(comm_eng)
-
-## stri_paste respects NAs, avoids "GBIF:NA"
-## de-duplicate avoids cases where an accepted name is also listed as a synonym.
-dwc_col <-
-  bind_rows(accepted, rest) %>%
-  left_join(comm_names %>% select(taxonID, vernacularName), by = "taxonID") %>%
-  mutate(taxonID = stringi::stri_paste("COL:", taxonID),
-         acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
-dir.create("dwc", FALSE)
-write_tsv(dwc_col, "dwc/dwc_col.tsv.bz2")
-
-
-#library(piggyback)
-#piggyback::pb_upload("dwc/col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
-#piggyback::pb_upload("common/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#syn_names <- rest %>%
+#  filter(!acceptedNameUsageID %in% accepted$acceptedNameUsageID) %>%
+#  n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
