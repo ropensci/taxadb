@@ -15,11 +15,11 @@
 #'    Sys.setenv(TAXADB_HOME=tempdir())
 #'   }
 #'
-#' by_common("Angolan Giraffe")
+#' filter_common("Angolan Giraffe")
 #'
 #' }
 #'
-by_common <- function(name,
+filter_common <- function(name,
                 provider =c("itis", "ncbi", "col", "tpl",
                             "gbif", "fb", "slb", "wd", "ott",
                             "iucn"),

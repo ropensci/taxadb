@@ -43,7 +43,7 @@ faster and more failsafe than repeated calls to \link[DBI:dbConnect]{DBI::dbConn
 Sys.setenv(TAXADB_HOME=tempdir())
 
 ## Connect to the database:
-db <- connect_db()
+db <- td_connect()
 
 }
 }

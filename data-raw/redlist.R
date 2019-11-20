@@ -5,6 +5,11 @@ library(tidyverse)
 library(httr)
 source("data-raw/helper-routines.R")
 
+downloads <- tempdir()
+dir <- file.path(downloads, "iucn")
+dir.create(dir, FALSE, FALSE)
+
+
 ## Public token from Redlist API website examples:
 key <- "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee"
 
@@ -16,18 +21,23 @@ max <- ceiling(as.numeric(content(x)$count) / 10000) - 1
 links <- paste0("http://apiv3.iucnredlist.org/api/v3/species/page/",
                 0:max,
                 "?token=", key)
-system.time({
 
-  full <- links %>%
-    map_df(function(link){
-      GET(link) %>%
-        content() %>%
-        getElement("result") %>%
-        map_df(function(x){
-          x %>% purrr::flatten() %>% as.tibble()
-        })
-    })
+
+
+system.time({
+  full_content <- links %>% map(GET)
 })
+
+
+full <- full_content %>%
+      purrr::map_df(function(obj){
+          httr::content(obj) %>%
+          getElement("result") %>%
+          purrr::map_df(function(x){
+            x %>% purrr::flatten() %>% tibble::as.tibble()
+          })
+      })
+
 
 
 sentence_case <- function(x) {
@@ -159,13 +169,13 @@ write_tsv(dwc, "dwc/dwc_iucn.tsv.bz2")
 
 #not all acceptedNameUsageID's have an accepted sciname, but we want to preserve as many ID's as possible
 #so first get the ones that do have an accepted id
-dwc_accepted <- dwc %>% filter(taxonomicStatus == "accepted") 
+dwc_accepted <- dwc %>% filter(taxonomicStatus == "accepted")
 
 #then randomly pick a synonym sciname for the rest of the ID's
-dwc_rest <- dwc %>% 
+dwc_rest <- dwc %>%
   filter(!acceptedNameUsageID %in% dwc_accepted$acceptedNameUsageID) %>%
   n_in_group(group_var = "acceptedNameUsageID", n = 1, wt = scientificName)
-  
+
 #then join with the common names
 comm_table <- read_tsv("data/iucn_common.tsv.bz2") %>%
   drop_na (commonname) %>%

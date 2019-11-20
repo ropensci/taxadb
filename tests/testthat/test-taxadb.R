@@ -17,13 +17,13 @@ test_that("we can set up a db and call basic functions", {
     filter(family == "Chamaeleonidae") %>%
     collect()
 
-  df <- by_rank(name = "Aves",
+  df <- filter_rank(name = "Aves",
                     rank = "class",
                     db = db)  %>%
     filter(taxonomicStatus == "accepted")
 
 
-  species <- by_name(df$scientificName,
+  species <- filter_name(df$scientificName,
                  db = db) %>%
     filter(taxonomicStatus == "accepted")
 
@@ -38,7 +38,7 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(chameleons)[1], 1)
 
   ## we can opt out of ignore_case on ids():
-  species <- by_name(df$scientificName,
+  species <- filter_name(df$scientificName,
                  db = db,
                  ignore_case = FALSE) %>%
     filter(taxonomicStatus == "accepted")
@@ -46,8 +46,8 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(species)[1], 1)
 
 
-  ## by_id() takes IDs instead of names:
-  names <- by_id(id = df$taxonID,
+  ## filter_id() takes IDs instead of names:
+  names <- filter_id(id = df$taxonID,
                  db = db)
   expect_is(names, "data.frame")
   expect_gt(dim(names)[1], 1)

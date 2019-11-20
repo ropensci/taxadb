@@ -20,9 +20,9 @@
 #' @param ... additional arguments (currently ignored)
 #' @return a vector of IDs, of the same length as the input names Any
 #' unmatched names or multiply-matched names will return as [NA]s.
-#' To resolve multi-matched names, use [by_name()] instead to return
+#' To resolve multi-matched names, use [filter_name()] instead to return
 #' a table with a separate row for each separate match of the input name.
-#' @seealso by_name
+#' @seealso filter_name
 #' @family get
 #' @details Note that some taxize authorities: `nbn`, `tropicos`, and `eol`,
 #' are not recognized by taxadb and will throw an error here. Meanwhile,
@@ -52,7 +52,7 @@ get_ids <- function(names,
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
-  df <- by_name(name = names,
+  df <- filter_name(name = names,
                 provider = db,
                 collect = TRUE,
                 ignore_case = ignore_case,
@@ -62,7 +62,7 @@ get_ids <- function(names,
 
   if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",
-               "Try the by_name() function instead."),
+               "Try the filter_name() function instead."),
          .call = FALSE)
   }
 

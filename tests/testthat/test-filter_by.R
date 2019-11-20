@@ -1,8 +1,8 @@
 context("filter_by")
 
 
-test_that("by_common", {
-  df <- by_common("Angolan Giraffe")
+test_that("filter_common", {
+  df <- filter_common("Angolan Giraffe")
   expect_is(df, "data.frame")
   match <- df %>%
     dplyr::filter(taxonID == "ITIS:1012250") %>%
@@ -34,37 +34,37 @@ test_that("filter_by", {
 
 
 
-test_that("by_name", {
+test_that("filter_name", {
 
   sp <- c("Trochalopteron henrici gucenense",
           "Trochalopteron elliotii")
-  sci <- by_name(sp,  ignore_case = TRUE)
+  sci <- filter_name(sp,  ignore_case = TRUE)
   expect_gt(dim(sci)[1], 1)
   expect_is(sci, "data.frame")
 })
 
 
-test_that("by_id", {
-  ids <- by_id(c("ITIS:1077358", "ITIS:175089"))
+test_that("filter_id", {
+  ids <- filter_id(c("ITIS:1077358", "ITIS:175089"))
   expect_is(ids, "data.frame")
   expect_gt(dim(ids)[1], 1)
 
-  ids <- by_id(c("ITIS:1077358", "ITIS:175089"), type = "acceptedNameUsageID")
+  ids <- filter_id(c("ITIS:1077358", "ITIS:175089"), type = "acceptedNameUsageID")
   expect_is(ids, "data.frame")
   expect_gt(dim(ids)[1], 1)
 })
 
-test_that("by_rank", {
-  ranks <- by_rank("Trochalopteron", "genus")
+test_that("filter_rank", {
+  ranks <- filter_rank("Trochalopteron", "genus")
   expect_is(ranks, "data.frame")
   expect_gt(dim(ranks)[1], 1)
 })
 
-test_that("by_common", {
+test_that("filter_common", {
 
-  by_common("man", "itis")
+  filter_common("man", "itis")
 
-  expect_warning(x <- by_common("man", "wd"),
+  expect_warning(x <- filter_common("man", "wd"),
                  "provider wd does not provide common names")
   expect_null(x)
 
