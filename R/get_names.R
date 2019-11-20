@@ -43,7 +43,7 @@ get_names <- function(id,
                        as_prefix(id, db)
                        )
   df <-
-    by_id(prefix_ids,
+    filter_id(prefix_ids,
           provider = db,
           collect = FALSE,
           db = taxadb_db) %>%

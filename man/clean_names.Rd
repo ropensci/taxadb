@@ -5,7 +5,8 @@
 \title{Clean taxonomic names}
 \usage{
 clean_names(names, fix_delim = TRUE, binomial_only = TRUE,
-  remove_sp = TRUE, ascii_only = TRUE, lowercase = TRUE)
+  remove_sp = TRUE, ascii_only = TRUE, lowercase = TRUE,
+  remove_punc = FALSE)
 }
 \arguments{
 \item{names}{a character vector of taxonomic names (usually species names)}
@@ -27,6 +28,9 @@ logical, default \link{TRUE}.}
 
 \item{lowercase}{should names be coerced to lower-case to provide
 case-insensitive matching?}
+
+\item{remove_punc}{replace all punctuation but apostrophes with a space,
+remove apostrophes}
 }
 \description{
 A utility to sanitize taxonomic names to increase
