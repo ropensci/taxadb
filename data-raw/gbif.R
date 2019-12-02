@@ -12,10 +12,14 @@ preprocess_gbif <- function(url = "http://rs.gbif.org/datasets/backbone/backbone
 
   dir <- file.path(tempdir(), "gbif")
   dir.create(dir, FALSE, FALSE)
+  archive <- file.path(dir, "backbone.zip")
   download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
-                file.path(dir, "backbone.zip"))
+                archive)
 
-  unzip(file.path(dir, "backbone.zip"), exdir=dir)
+
+  message(paste(file_hash(archive)))
+
+  unzip(archive, exdir=dir)
 
   ## a better read_tsv
   read_tsv <- function(...) readr::read_tsv(..., quote = "", col_types = readr::cols(.default = "c"))
@@ -93,8 +97,9 @@ preprocess_gbif <- function(url = "http://rs.gbif.org/datasets/backbone/backbone
   write_tsv(dwc_gbif, output_paths[["dwc"]])
   write_tsv(comm_names, output_paths[["common"]])
 
-  openssl::sha256(output_paths)
+  file_hash(output_paths)
 }
+
 
 #preprocess_gbif(file.path(tempdir(), "gbif"),
 #                output_paths = c(dwc = "2019/dwc_gbif.tsv.bz2",

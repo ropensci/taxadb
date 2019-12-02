@@ -6,14 +6,15 @@ source("data-raw/helper-routines.R")
 
 # All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
 
-preprocess_col <- function(year = "2019",
-                           dir = file.path(tempdir(), "col"),
-                           output_paths = c(dwc = paste0(year, "/dwc_col.tsv.bz2"),
-                                            common = paste0(year, "/common_col.tsv.bz2"))){
+preprocess_col <- function(url = paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
+                                        2019,
+                                        "-annual.zip"),
+                           output_paths = c(dwc = "2019/dwc_col.tsv.bz2",
+                                            common = "2019/common_col.tsv.bz2")){
 
+  dir = file.path(tempdir(), "col")
   dir.create(dir, FALSE, FALSE)
-  download.file(paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
-                       year, "-annual.zip"),
+  download.file(url,
                 file.path(dir, "col-annual.zip"))
   unzip(file.path(dir, "col-annual.zip"), exdir=dir)
 
@@ -91,7 +92,7 @@ preprocess_col <- function(year = "2019",
   write_tsv(dwc_col, output_paths["dwc"])
   write_tsv(comm_table, output_paths["common"])
 
-  output_paths
+  file_hash(output_paths)
 }
 
 

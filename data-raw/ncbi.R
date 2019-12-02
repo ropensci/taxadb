@@ -13,7 +13,7 @@ preprocess_ncbi <- function(url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zi
   archive <- file.path(dir, "taxdmp.zip")
   dir.create(dir, FALSE, FALSE)
   download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip", archive)
-  openssl::sha256(archive)
+  message(paste(file_hash(archive)))
 
 
   unzip(archive, exdir=dir)
@@ -220,7 +220,7 @@ node_types <- c("iiclilililllc")
   write_tsv(dwc, output_paths["dwc"])
   write_tsv(comm_table, output_paths["common"])
 
-  openssl::sha256(output_paths)
+  file_hash(output_paths)
 
 }
 

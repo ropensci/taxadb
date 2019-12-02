@@ -2,23 +2,21 @@ library(tidyverse)
 library(fs)
 source(here::here("data-raw/helper-routines.R"))
 
-download_ott <- function(url = "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz",
-             dir = file.path(tempdir(), "ott"),
-             archive = file.path(dir, "ott.tgz")){
-
-  dir.create(dir, FALSE, FALSE)
-  download.file(url,archive)
-  hash <- openssl::sha256(archive)
-
-  archive
-}
 
 
-preprocess_ott <- function(archive,
+preprocess_ott <- function(url = "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz",
                             output_paths =
                               c(dwc = "2019/dwc_ott.tsv.bz2",
                                 common = "2019/common_ott.tsv.bz2")
 ){
+
+  dir = file.path(tempdir(), "ott")
+  archive = file.path(dir, "ott.tgz")
+  dir.create(dir, FALSE, FALSE)
+  download.file(url,archive)
+  hash <- file_hash(archive)
+
+  message(paste(hash))
 
   basedir <- dirname(archive)
 
@@ -174,13 +172,10 @@ dwc <- dwc %>%
          )
 
 
-write_tsv(dwc, output["dwc"])
-output
+  write_tsv(dwc, output["dwc"])
+  file_hash(output_paths)
+
 }
-
-archive <- download_ott()
-preprocess_ott(archive)
-
 
 
 

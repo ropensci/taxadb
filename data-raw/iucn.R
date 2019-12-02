@@ -75,6 +75,8 @@ preprocess_iucn <- function(path = "~/Documents/data/redlist-downloads-2019-11-2
   write_tsv(dwc_iucn, output_paths["dwc"])
   write_tsv(common_iucn, output_paths["common"])
 
+  file_hash(output_paths)
+
 }
 
 #piggyback::pb_upload("dwc/dwc_iucn.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")

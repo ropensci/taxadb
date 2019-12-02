@@ -112,7 +112,7 @@ preprocess_fb <- function(output_paths = c(dwc = "2019/dwc_fb.tsv.bz2",
 
   write_tsv(dwc, output_paths["dwc"])
   write_tsv(comm_table, output_paths["common"])
-  output_paths
+  file_hash(output_paths)
 }
 
 # preprocess_fb()

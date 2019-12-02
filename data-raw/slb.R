@@ -118,7 +118,7 @@ preprocess_slb <- function(output_paths = c(dwc = "2019/dwc_slb.tsv.bz2",
   write_tsv(slb, output_paths["dwc"])
   write_tsv(common, output_paths["common"])
 
-  output_paths
+  file_hash(output_paths)
 }
 
 #preprocess_slb()

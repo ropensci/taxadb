@@ -16,7 +16,7 @@ preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip
   dir <- dirname(archive)
   dir.create(dir, FALSE, FALSE)
   download.file(url, archive)
-  message(paste(openssl::sha256(archive)))
+  message(paste(file_hash(archive)))
 
   unzip(archive, exdir=dir)
   dbname <- list.files(list.dirs(dir, recursive=FALSE), pattern="[.]sqlite", full.names = TRUE)
@@ -214,7 +214,7 @@ preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip
   write_tsv(dwc, output_paths["dwc"])
   write_tsv(common, output_paths["common"])
 
-  openssl::sha256(output_paths)
+  file_hash(output_paths)
 
 }
 #piggyback::pb_upload("dwc/dwc_itis.tsv.bz2", repo = "boettiger-lab/taxadb-cache")
