@@ -5,11 +5,16 @@ source("data-raw/helper-routines.R")
 
 ## extracted from: https://doi.org/10.15468/39omei
 
-  preprocess_gbif <- function(year = "2019", dir = file.path(tempdir(), "gbif")){
+preprocess_gbif <- function(url = "http://rs.gbif.org/datasets/backbone/backbone-current.zip",
+                            output_paths = c(dwc = "2019/dwc_gbif.tsv.bz2",
+                                             common = "2019/common_gbif.tsv.bz2")
+                              ){
 
+  dir <- file.path(tempdir(), "gbif")
   dir.create(dir, FALSE, FALSE)
   download.file("http://rs.gbif.org/datasets/backbone/backbone-current.zip",
                 file.path(dir, "backbone.zip"))
+
   unzip(file.path(dir, "backbone.zip"), exdir=dir)
 
   ## a better read_tsv
@@ -82,11 +87,20 @@ source("data-raw/helper-routines.R")
     mutate(taxonID = stringi::stri_paste("GBIF:", taxonID),
            acceptedNameUsageID = stringi::stri_paste("GBIF:", acceptedNameUsageID))
 
-  dir.create("dwc", FALSE)
-  write_tsv(dwc_gbif, "dwc/dwc_gbif.tsv.bz2")
-  write_tsv(dwc_gbif, "dwc/common_gbif.tsv.bz2")
 
+
+  dir.create(dirname(output_paths[["dwc"]]), FALSE)
+  write_tsv(dwc_gbif, output_paths[["dwc"]])
+  write_tsv(comm_names, output_paths[["common"]])
+
+  openssl::sha256(output_paths)
 }
 
-#piggyback::pb_upload("dwc/dwc_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="dwc")
-#piggyback::pb_upload("dwc/common_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#preprocess_gbif(file.path(tempdir(), "gbif"),
+#                output_paths = c(dwc = "2019/dwc_gbif.tsv.bz2",
+#                                 common = "2019/common_gbif.tsv.bz2")
+#                )
+
+
+#piggyback::pb_upload("dwc_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag="2019")
+#piggyback::pb_upload("common_gbif.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "2019")

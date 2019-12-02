@@ -6,7 +6,10 @@ source("data-raw/helper-routines.R")
 
 # All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
 
-preprocess_col <- function(year = "2019", dir = file.path(tempdir(), "col")){
+preprocess_col <- function(year = "2019",
+                           dir = file.path(tempdir(), "col"),
+                           output_paths = c(dwc = paste0(year, "/dwc_col.tsv.bz2"),
+                                            common = paste0(year, "/common_col.tsv.bz2"))){
 
   dir.create(dir, FALSE, FALSE)
   download.file(paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
@@ -84,21 +87,18 @@ preprocess_col <- function(year = "2019", dir = file.path(tempdir(), "col")){
            acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
 
 
-  dir.create("dwc", FALSE)
-  write_tsv(dwc_col, "dwc/col.tsv.bz2")
-  write_tsv(comm_table, "dwc/common_col.tsv.bz2")
+  dir.create(dirname(output_paths["dwc"]), FALSE)
+  write_tsv(dwc_col, output_paths["dwc"])
+  write_tsv(comm_table, output_paths["common"])
 
-
-
-
-
-
+  output_paths
 }
 
-preprocess_col(year = "2019")
-library(piggyback)
-piggyback::pb_upload("dwc/dwc_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
-piggyback::pb_upload("dwc/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+
+#preprocess_col(year = "2019")
+#library(piggyback)
+#piggyback::pb_upload("dwc/dwc_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#piggyback::pb_upload("dwc/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 
 
