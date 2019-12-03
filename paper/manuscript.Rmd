@@ -240,6 +240,8 @@ The full taxonomic record in the MonetDBLite database can also be directly acces
 
 ### Supported providers
 
+<!--
+
 Table version of below - citation, number of unique identifier
 
 - the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
@@ -252,11 +254,9 @@ Table version of below - citation, number of unique identifier
 - Open Tree Taxonomy, OTT
 - International Union for Conservation of Nature and Natural Resources (IUCN) Red list @iucn
 
-<!--
-What other aspects should be included in the table? Citations?
+(ref:itis) Integrated Taxonomic Information System [@itis]
 -->
 
-(ref:itis) Integrated Taxonomic Information System [@itis]
 
 ```{r echo = FALSE, results = "asis"}
 # #provider descriptions
@@ -296,10 +296,7 @@ tibble(provider = c("Integrated Taxonomic Information System, (ref:@itis)",
 
 ## Discussion
 
-Taxonomic indentifiers are a powerful tool for maintaing taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary fo resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution.In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
-
-`taxadb` establishes a local database of provider allowing for consistent and reproducible queries. The set of functions operate consistently accross providers returning data in a standardized format. 
-
+Taxonomic indentifiers are a powerful tool for maintaing taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
 ----
 
 \pagebreak
