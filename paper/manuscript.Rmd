@@ -259,17 +259,17 @@ What other aspects should be included in the table? Citations?
 (ref:itis) Integrated Taxonomic Information System [@itis]
 
 ```{r echo = FALSE, results = "asis"}
-#provider descriptions
-desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government", 
-          ncbi = "",
-          col = "", 
-          gbif = "", 
-          fb = "", 
+# #provider descriptions
+desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government",
+          ncbi = "nomenclature for sequences in the International Nucleotide Sequence Database Collaboration database",
+          col = "comphrehensive taxonomic effort, includes some other providers (e.g. itis)",
+          gbif = "taxonomic backbone of the GBIF database, assembled from other sources including COL",
+          fb = "nomenclature for global database of fishes",
           wd = "",
-          ott = "",
-          iucn = "")
+          ott = "comphrenesive tree of life based on phylogenetic trees and taxonomic data",
+          iucn = "taxonomy for classification of species status")
 
-tibble(provider = c("Integrated Taxonomic Information System, @itis",
+tibble(provider = c("Integrated Taxonomic Information System, (ref:@itis)",
                                  "National Center for Biological Information's Taxonomy database, @ncbi",
                                  "Catalogue of Life, @col",
                                  "Global Biodiversity Information Facility Taxonomic Backbone, @gbif",
@@ -279,12 +279,16 @@ tibble(provider = c("Integrated Taxonomic Information System, @itis",
                                  "International Union for Conservation of Nature and Natural Resources, @iucn"),
                     abbreviation = c("itis", "ncbi", "col", "gbif", "fb", #"slb",
                                      "wd", "ott", "iucn"),
-                    total_identifiers = map(abbreviation, 
-                                            ~taxa_tbl(.x) %>% 
+                    total_identifiers = map(abbreviation,
+                                            ~taxa_tbl(.x) %>%
                                               select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
                     description = desc
-) %>% knitr::kable(format = "markdown")
-  
+) %>%
+  knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE) %>%
+  kable_styling(latex_options="scale_down") %>%
+  kableExtra::column_spec(1, width = "5cm") %>%
+  kableExtra::column_spec(4, width = "10cm")
+
 
 ```
 
