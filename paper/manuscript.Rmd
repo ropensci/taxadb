@@ -241,7 +241,6 @@ The full taxonomic record in the MonetDBLite database can also be directly acces
 ### Supported providers
 
 <!--
-
 Table version of below - citation, number of unique identifier
 
 - the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
@@ -253,32 +252,27 @@ Table version of below - citation, number of unique identifier
 - Wikidata [@jorrit]
 - Open Tree Taxonomy, OTT
 - International Union for Conservation of Nature and Natural Resources (IUCN) Red list @iucn
-
-(ref:itis) Integrated Taxonomic Information System [@itis]
 -->
 
 
 ```{r echo = FALSE, results = "asis"}
-# #provider descriptions
+#provider descriptions
 desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government",
           ncbi = "nomenclature for sequences in the International Nucleotide Sequence Database Collaboration database",
           col = "comphrehensive taxonomic effort, includes some other providers (e.g. itis)",
           gbif = "taxonomic backbone of the GBIF database, assembled from other sources including COL",
           fb = "nomenclature for global database of fishes",
-          wd = "",
           ott = "comphrenesive tree of life based on phylogenetic trees and taxonomic data",
           iucn = "taxonomy for classification of species status")
 
-tibble(provider = c("Integrated Taxonomic Information System, (ref:@itis)",
-                                 "National Center for Biological Information's Taxonomy database, @ncbi",
-                                 "Catalogue of Life, @col",
-                                 "Global Biodiversity Information Facility Taxonomic Backbone, @gbif",
-                                 "FishBase, @fishbase",
-                                 #"SeaLifeBase",
-                                 "Wikidata, @jorrit", "Open Tree Taxonomy, @Rees2017",
-                                 "International Union for Conservation of Nature and Natural Resources, @iucn"),
-                    abbreviation = c("itis", "ncbi", "col", "gbif", "fb", #"slb",
-                                     "wd", "ott", "iucn"),
+tibble(provider = c("Integrated Taxonomic Information System, ITIS 2019",
+                                 "National Center for Biological Information's Taxonomy database, NCBI",
+                                 "Catalogue of Life, COL",
+                                 "Global Biodiversity Information Facility Taxonomic Backbone, GBIF 2019",
+                                 "FishBase, Froese and Pauly 2019",
+                                 "Open Tree Taxonomy, OTT",
+                                 "International Union for Conservation of Nature and Natural Resources,IUCN 2019"),
+                    abbreviation = c("itis", "ncbi", "col", "gbif", "fb", "ott", "iucn"),
                     total_identifiers = map(abbreviation,
                                             ~taxa_tbl(.x) %>%
                                               select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
@@ -297,7 +291,15 @@ tibble(provider = c("Integrated Taxonomic Information System, (ref:@itis)",
 ## Discussion
 
 Taxonomic indentifiers are a powerful tool for maintaing taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
-----
+
+
+* cite other tools in the space (taxize + citations)
+* Frandz citations - grumpy systemitists; we're not doing anything inferential
+* no spell check/name modification
+* could be more than one name for rank
+* versioning paragraph - argument for version like provider; we process every so often
+  * comment on the release schedule, rolling is not always up to date
+
 
 \pagebreak
 
