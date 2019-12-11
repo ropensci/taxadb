@@ -59,11 +59,10 @@ options(scipen=999)
 
 
 
-As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species, we face a continual challenge of reconciling taxonomic names.
-How many species are in the combined data? Do the studies use the same names for the same species, or do they use different synonyms for the same species?
+As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species, we face a continual challenge of reconciling taxonomic names. How many species are in the combined data? Do the studies use the same names for the same species, or do they use different synonyms for the same species?
 Failing to correct for such differences can lead to significant inflation of species counts and miss-aligned  datasets (Figure 1).
 These challenges have become particularly acute as it becomes increasingly common for researchers to work across larger number and diversity of species in any given analysis, which may preclude the resources or substantative taxonomic expertise all clades needed to resolve scientific names [@Patterson2010].
-While these issues have long been recognized in the literature [], and a growing number of databases and tools have emerged and grown over the past few decades [e.g. @itis; @ncbi; @col], it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
+While these issues have long been recognized in the literature [@boyle2013; @dayrat2005; @bortolus2008, @maldonado2015], and a growing number of databases and tools have emerged and grown over the past few decades [e.g. @itis; @ncbi; @col; @rees2014; @alvarez2018; @wagner2016; @foster2018], it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
 Here, we present an R package, `taxadb`, which seeks to address this gap.
 
 Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank, hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
@@ -206,7 +205,7 @@ This results in many more matches, as different scientific names are recognized 
 
 `get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette).
 
-Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
+Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@Franz2009, @franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
 
 ## `filter_` functions for access to underlying tables
@@ -265,13 +264,13 @@ desc <- c(itis = "originally formed to standardize taxonomic name usage across m
           ott = "comphrenesive tree of life based on phylogenetic trees and taxonomic data",
           iucn = "taxonomy for classification of species status")
 
-tibble(provider = c("Integrated Taxonomic Information System, ITIS 2019",
-                                 "National Center for Biological Information's Taxonomy database, NCBI",
-                                 "Catalogue of Life, COL",
-                                 "Global Biodiversity Information Facility Taxonomic Backbone, GBIF 2019",
-                                 "FishBase, Froese and Pauly 2019",
-                                 "Open Tree Taxonomy, OTT",
-                                 "International Union for Conservation of Nature and Natural Resources,IUCN 2019"),
+tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
+                                 "National Center for Biological Information's Taxonomy database (NCBI)",
+                                 "Catalogue of Life (COL)",
+                                 "Global Biodiversity Information Facility Taxonomic Backbone (GBIF 2019)",
+                                 "FishBase (Froese and Pauly 2019)",
+                                 "Open Tree Taxonomy (OTT)",
+                                 "International Union for Conservation of Nature and Natural Resources (IUCN 2019)"),
                     abbreviation = c("itis", "ncbi", "col", "gbif", "fb", "ott", "iucn"),
                     total_identifiers = map(abbreviation,
                                             ~taxa_tbl(.x) %>%
