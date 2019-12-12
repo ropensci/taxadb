@@ -35,7 +35,8 @@ Imports:
     utils,
     dbplyr,
     RSQLite,
-    curl
+    curl,
+    jsonlite
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.0
 Suggests:

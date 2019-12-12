@@ -39,6 +39,7 @@
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom readr cols
 #' @importFrom curl curl_download curl_fetch_memory
+#' @importFrom jsonlite fromJSON
 #' @examples
 #' \donttest{
 #'   \dontshow{
