@@ -113,18 +113,7 @@ td_create("all")
 
 `taxadb` functions like `get_ids()` and `td_create()` take an optional argument, `db`, to an external database connection.  `taxadb` will work with most DBI-compliant databases such as MySQL or Postgres [see @DBI], but will be much faster when using a column-oriented database engine such as `duckdb` or `MonetDBLite`.  These latter options are also much easier for most users, since each can be installed directly as an R package. `taxadb` will default to the fastest available option.  `taxadb` can also run without a database backend by setting `db=NULL`, though some functions will require a lot (2-20 GB) of free RAM for this to work with many of the large names providers.  
 
-<!--
-`taxadb` does not require the use of an external database system, but will automatically make use of the fastest database server available. `taxadb` can also use any DBI compliant database accessible from R, such as MySQL or Postgres [see @DBI], though the default `duckdb` or `MonetDBLite` will be both significantly faster and easier to use.  
--->
-
-<!--  Next 2 paragraphs should possibly be left to a manual, but are likely to be overlooked aspects there... -->
 By default `taxadb` creates a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage. `taxadb` will automatically handle opening, caching, and closing the database connection. 
-
-<!-- 
-now sidestepped
-
-but note that one limitation of MonetDBLite is the restriction against concurrent access: two separate R sessions on the same machine cannot both access the database at the same time. Users who need concurrent access from multiple sessions may wish to use a standalone MonetDB server or other database server instead.
--->
 
 Functions in `taxadb` are organized into several families: 
 
@@ -193,8 +182,6 @@ This results in many more matches, as different scientific names are recognized 
 
 
 
-
-
 \dummy{\Begin{tcolorbox}[title= Box 1: Taxonomic Identifiers and Synonyms, lower separated=false]}
 
 `get_ids()` returns the `acceptedNameUsageID`, the identifier associated with the *accepted* name.  Some naming providers, such as ITIS and NCBI, provide taxonomic identifiers to both synonyms and accepted names.  Other providers, such as COL and GBIF, only provide identifiers for accepted names.  Common practice in Darwin Core archives is to provide an `acceptedNameUsageID` only for names which are synonyms, and otherwise to provide a `taxonID`.  For accepted names, the `acceptedNameUsageID` is then given as missing (`NA`), while for synonyms, the `taxonID` may be missing (`NA`).  In contrast, `taxadb` lists the `acceptedNameUsageID` for accepted names (where it matches the `taxonID`), as well as known synonyms.  This is semantically identical, but also more convenient for database interfaces, since it allows a name to mapped to it's accepted identifier (or an identifier to map to it's accepted name usage) without the additional logic.  For consistency, we will use the term "identifier" to mean the `acceptedNameUsageID` rather than the more ambiguous `taxonID` (which is undefined for synonyms listed by many providers), unless explicitly stated otherwise.
@@ -203,7 +190,7 @@ This results in many more matches, as different scientific names are recognized 
 
 ## Unresolved names
 
-`get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette).
+`get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette). Spell check of input names is outside the scope of `taxadb`.
 
 Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@Franz2009, @franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
@@ -238,21 +225,6 @@ The full taxonomic record in the MonetDBLite database can also be directly acces
 \End{tcolorbox}
 
 ### Supported providers
-
-<!--
-Table version of below - citation, number of unique identifier
-
-- the Integrated Taxonomic Information System [ITIS; @itis], original formed to standardize taxonomic name usage across many agencies in the United States federal government, 
-- the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi]
-- Catalogue of Life (COL) Annual Species list. (2018 version at present)
-- Global Biodiversity Information Facility Taxonomic Backbone [GBIF; @gbif].  
-- FishBase [@fishbase] taxonomic names
-- SeaLifeBase [@sealifebase] taxonomic names
-- Wikidata [@jorrit]
-- Open Tree Taxonomy, OTT
-- International Union for Conservation of Nature and Natural Resources (IUCN) Red list @iucn
--->
-
 
 ```{r echo = FALSE, results = "asis"}
 #provider descriptions
@@ -290,14 +262,6 @@ tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
 ## Discussion
 
 Taxonomic indentifiers are a powerful tool for maintaing taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
-
-
-* cite other tools in the space (taxize + citations)
-* Frandz citations - grumpy systemitists; we're not doing anything inferential
-* no spell check/name modification
-* could be more than one name for rank
-* versioning paragraph - argument for version like provider; we process every so often
-  * comment on the release schedule, rolling is not always up to date
 
 
 \pagebreak
