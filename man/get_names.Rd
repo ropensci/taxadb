@@ -4,9 +4,12 @@
 \alias{get_names}
 \title{get_names}
 \usage{
-get_names(id, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd", "ott", "iucn"), format = c("guess", "prefix", "bare", "uri"),
-  taxadb_db = td_connect())
+get_names(
+  id,
+  db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  format = c("guess", "prefix", "bare", "uri"),
+  taxadb_db = td_connect()
+)
 }
 \arguments{
 \item{id}{a list of taxonomic identifiers.}
@@ -19,10 +22,10 @@ get_names(id, db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
 slower than if you specify this in advance!
 \item \code{prefix} (e.g. \code{NCBI:9606}), Preferred (fastest) format.
 \item \code{bare} (e.g. \code{9606}), (But must mach provider \code{db}!)
-\item \code{uri} (e.g. \code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
+\item \code{uri} (e.g. \verb{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxadb_db}{Connection to from \code{[td_connect]()}.}
+\item{taxadb_db}{Connection to from \verb{[td_connect]()}.}
 }
 \value{
 a vector of names, of the same length as the input ids. Any
@@ -34,7 +37,7 @@ Translate identifiers into scientific names
 \details{
 Like all taxadb functions, this function will run
 fastest if a local copy of the provider is installed in advance
-using \code{[td_create()]}.
+using \verb{[td_create()]}.
 }
 \examples{
 \donttest{
@@ -44,6 +47,7 @@ get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
 }
 }
 \seealso{
-Other get: \code{\link{get_ids}}
+Other get: 
+\code{\link{get_ids}()}
 }
 \concept{get}

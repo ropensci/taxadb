@@ -4,9 +4,15 @@
 \alias{td_create}
 \title{create a local taxonomic database}
 \usage{
-td_create(provider = "itis", schema = c("dwc", "common"),
-  overwrite = FALSE, lines = 1e+05, dbdir = taxadb_dir(),
-  db = td_connect(dbdir))
+td_create(
+  provider = "itis",
+  schema = c("dwc", "common"),
+  version = latest_release(),
+  overwrite = FALSE,
+  lines = 1e+05,
+  dbdir = taxadb_dir(),
+  db = td_connect(dbdir)
+)
 }
 \arguments{
 \item{provider}{a list (character vector) of provider to be included in the
@@ -15,6 +21,8 @@ recognized provider. Use \code{provider="all"} to install all
 available provider automatically.}
 
 \item{schema}{format of the database to import.}
+
+\item{version}{Which version of the taxadb provider database should we use? defaults to latest}
 
 \item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.
 Change to "ask" for interactive interface, or \code{TRUE} to force overwrite
