@@ -24,3 +24,5 @@ common_names
 ^manifest\.json$
 ^renv$
 ^CODE_OF_CONDUCT\\.md$
+^\.drake$
+

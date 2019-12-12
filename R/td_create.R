@@ -7,6 +7,7 @@
 #'  recognized provider. Use `provider="all"` to install all
 #'  available provider automatically.
 #' @param schema format of the database to import.
+#' @param version Which version of the taxadb provider database should we use? defaults to latest
 #' @param lines number of lines that can be safely read in to memory at once.
 #' Leave at default or increase for faster importing if you have
 #' plenty of spare RAM.
@@ -37,6 +38,7 @@
 #' @importFrom DBI dbConnect dbDisconnect dbListTables
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom readr cols
+#' @importFrom curl curl_download
 #' @examples
 #' \donttest{
 #'   \dontshow{
@@ -52,6 +54,7 @@
 #' }
 td_create <- function(provider = "itis",
                       schema = c("dwc", "common"),
+                      version = latest_release(),
                       overwrite = FALSE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
@@ -87,16 +90,8 @@ td_create <- function(provider = "itis",
 
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
-    urls <- providers_download_url(new_files)
-
-    ## Developer NOTE: arkdb should handle remote URL case natively instead...
-
-    ## Gabor recommends we drop-in curl::download_file instead here!
-    ## or something fancier with curl_fetch_multi
-    ## method must be specified for download.file to work w/ vectors
-    utils::download.file(urls,
-                         new_dest,
-                         method = "libcurl")
+    urls <- providers_download_url(new_files, version)
+    curl::curl_download(urls, new_dest)
   }
 
   ## silence readr progress bar in arkdb
@@ -125,11 +120,42 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-## FIXME assumes file is schema-file
-providers_download_url <- function(files, schema = "dwc"){
+providers_download_url <- function(files, version = latest_release()){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
-               "releases/download/dwc/",
-               "dwc", ".2f", files)
+               "releases/download/", version, "/", files)
 }
+
+
+
+#' List available releases
+#'
+#' @export
+#' @examples
+#' available_releases()
+available_releases <- function(){
+
+  ## check for cached version first
+  avail_releases <- mget("avail_releases",
+                         envir = taxadb_cache,
+                         ifnotfound = NA)[[1]]
+  if(!all(is.na(avail_releases)))
+    return(avail_releases)
+
+  ## Okay, check GH for a release
+  req <- curl::curl_fetch_memory("https://api.github.com/repos/boettiger-lab/taxadb-cache/releases")
+  json <- jsonlite::fromJSON(rawToChar(req$content))
+  avail_releases <- json[["tag_name"]]
+
+  ## Cache this so we don't hit GH every single time!
+  assign("avail_releases", avail_releases, envir = taxadb_cache)
+
+  avail_releases
+}
+
+latest_release <- function() {
+  available_releases()[[1]]
+}
+
+
 
 
