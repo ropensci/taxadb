@@ -4,8 +4,7 @@
 \alias{name_contains}
 \title{return all taxa in which scientific name contains the text provided}
 \usage{
-name_contains(name, provider = "itis", db = td_connect(),
-  ignore_case = TRUE)
+name_contains(name, provider = "itis", db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})

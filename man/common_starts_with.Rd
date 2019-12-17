@@ -4,8 +4,12 @@
 \alias{common_starts_with}
 \title{common name starts with}
 \usage{
-common_starts_with(name, provider = "itis", db = td_connect(),
-  ignore_case = TRUE)
+common_starts_with(
+  name,
+  provider = "itis",
+  db = td_connect(),
+  ignore_case = TRUE
+)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})

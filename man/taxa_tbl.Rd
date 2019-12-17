@@ -4,8 +4,11 @@
 \alias{taxa_tbl}
 \title{Return a reference to a given table in the taxadb database}
 \usage{
-taxa_tbl(provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd", "ott", "iucn"), schema = c("dwc", "common"), db = td_connect())
+taxa_tbl(
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  schema = c("dwc", "common"),
+  db = td_connect()
+)
 }
 \arguments{
 \item{provider}{from which provider should the hierarchy be returned?
@@ -31,10 +34,10 @@ Return a reference to a given table in the taxadb database
                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 
   #Get cleaned common names from a provider and search for cleaned names in that table
-  taxa_tbl("itis", "common") \%>\%
+  taxa_tbl("itis", "common") %>%
   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
-            binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
-  filter(vernacularNameClean \%in\% names)
+            binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
+  filter(vernacularNameClean %in% names)
 
 
 
