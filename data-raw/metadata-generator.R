@@ -11,25 +11,68 @@ file_hash <- function(x, method = openssl::sha256, ...){
 }
 
 release <- "2019"
-meta <- fs::dir_info(release) %>% 
-  mutate(sha256 = map_chr(objects, file_hash, raw = TRUE),
+meta <- fs::dir_info(release) %>%
+  mutate(sha256 = map_chr(path, file_hash, raw = TRUE),
          name = fs::path_file(path)) %>%
   select(path, size, sha256, dateCreated = modification_time)
 
+## Lightweight file metadata
+write_csv(meta, fs::path(release, "meta.csv"))
 
-dwc_terms <- 
-  read_csv("https://github.com/tdwg/dwc/raw/master/vocabulary/term_versions.csv") %>% 
-  select(attributeName = label, attributeDefinition = definition, definition = term_iri)
 
-path <- meta$path[[1]] 
+dwc_terms <-
+  read_csv("https://github.com/tdwg/dwc/raw/master/vocabulary/term_versions.csv") %>%
+  select(attributeName = label, attributeDefinition = definition, definition = term_iri) %>%
+  distinct() %>%
+  bind_rows(tibble(  #
+    attributeName = "isExtinct",
+    definition = "logical indicating whether this taxon is now extinct",
+    attributeDefinition = definition))
+
+
+path <- meta$path[[1]]
 
 meta_dataset <- function(path){
-  
+
   sha256 <- file_hash(path, openssl::sha256, raw = TRUE)
   info <- fs::file_info(path)
-  
+
   attributeName = path %>% read_tsv(n_max = 1) %>% colnames()
-  attrs <- data.frame(attributeName = attributeName) %>% left_join(dwc_terms)
-  
+  attrs <- tibble(attributeName = attributeName) %>% left_join(dwc_terms)
+
+  set_attributes(attrs, )
+  physical <- set_physical(path)
+
+
+  dataTable <- eml$dataTable(
+    entityName = basename(path),
+    entityDescription = "List of recognized taxonomic names in the Darwin Core format",
+    physical = physical,
+    attributeList = attrList)
+
 }
+
+
+me <- list(individualName = list(givenName = "Carl",
+                                 surName = "Boettiger"),
+           electronicMailAddress = "cboettig@berkeley.edu",
+           id = "http://orcid.org/0000-0002-1642-628X")
+kari <- list(individualName = list(givenName = "Kari",
+                                 surName = "Norman"),
+           electronicMailAddress = "cboettig@gmail.com",
+           id = "http://orcid.org/0000-0002-1642-628X")
+
+dataset = eml$dataset(
+  title = "",
+  creator = me,
+  contact = list(references="http://orcid.org/0000-0002-1642-628X"),
+  pubDate = Sys.Date(),
+  intellectualRights = "",
+  abstract =  "",
+  dataTable = dataTable,
+  keywordSet = keywordSet,
+  coverage = coverage,
+  methods = methods
+)
+
 
