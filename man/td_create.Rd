@@ -7,7 +7,7 @@
 td_create(
   provider = "itis",
   schema = c("dwc", "common"),
-  version = latest_release(),
+  version = latest_version(),
   overwrite = FALSE,
   lines = 1e+05,
   dbdir = taxadb_dir(),
@@ -20,9 +20,11 @@ database. By default, will install \code{itis}.  See details for a list of
 recognized provider. Use \code{provider="all"} to install all
 available provider automatically.}
 
-\item{schema}{format of the database to import.}
+\item{schema}{One of "dwc" (for Darwin Core data) or "common"
+(for the Common names table.)}
 
-\item{version}{Which version of the taxadb provider database should we use? defaults to latest}
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.
 Change to "ask" for interactive interface, or \code{TRUE} to force overwrite

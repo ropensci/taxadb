@@ -8,6 +8,7 @@ get_ids(
   names,
   db = known_providers,
   format = c("prefix", "bare", "uri"),
+  version = latest_version(),
   taxadb_db = td_connect(),
   ignore_case = TRUE,
   ...
@@ -27,7 +28,10 @@ include higher-order ranks in most authorities).}
 \verb{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxadb_db}{Connection to from \verb{[td_connect]()}.}
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  see \verb{[avialable_releases()]} for details.}
+
+\item{taxadb_db}{Connection to from \verb{[td_connect()]}.}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
 default is \code{TRUE}.}
@@ -37,7 +41,7 @@ default is \code{TRUE}.}
 \value{
 a vector of IDs, of the same length as the input names Any
 unmatched names or multiply-matched names will return as \link{NA}s.
-To resolve multi-matched names, use \code{\link[=filter_name]{filter_name()}} instead to return
+To resolve multi-matched names, use \verb{[filter_name()]} instead to return
 a table with a separate row for each separate match of the input name.
 }
 \description{

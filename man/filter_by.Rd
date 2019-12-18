@@ -12,6 +12,7 @@ filter_by(
   by,
   provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
   schema = c("dwc", "common"),
+  version = latest_version(),
   collect = TRUE,
   db = td_connect(),
   ignore_case = TRUE
@@ -28,6 +29,9 @@ Default is 'itis'.}
 
 \item{schema}{One of "dwc" (for Darwin Core data) or "common"
 (for the Common names table.)}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

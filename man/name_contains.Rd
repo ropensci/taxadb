@@ -4,7 +4,13 @@
 \alias{name_contains}
 \title{return all taxa in which scientific name contains the text provided}
 \usage{
-name_contains(name, provider = "itis", db = td_connect(), ignore_case = TRUE)
+name_contains(
+  name,
+  provider = "itis",
+  version = latest_version(),
+  db = td_connect(),
+  ignore_case = TRUE
+)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})
@@ -12,6 +18,9 @@ to be matched against.}
 
 \item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 

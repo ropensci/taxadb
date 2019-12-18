@@ -9,6 +9,7 @@ fuzzy_filter(
   by = c("scientificName", "vernacularName"),
   provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
   match = c("contains", "starts_with"),
+  version = latest_version(),
   db = td_connect(),
   ignore_case = TRUE,
   collect = TRUE
@@ -26,6 +27,9 @@ Default is 'itis'.}
 
 \item{match}{should we match by names starting with the term or containing
 the term anywhere in the name?}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 

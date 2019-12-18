@@ -17,7 +17,7 @@ clean_names(
 \arguments{
 \item{names}{a character vector of taxonomic names (usually species names)}
 
-\item{fix_delim}{Should we replace separators \code{.}, \verb{_}, \verb{-}
+\item{fix_delim}{Should we replace separators \code{.}, \verb{_}, \code{-}
 with spaces? e.g. 'Homo.sapiens' becomes 'Homo sapiens'.
 logical, default TRUE.}
 

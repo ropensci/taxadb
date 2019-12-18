@@ -7,6 +7,7 @@
 get_names(
   id,
   db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  version = latest_version(),
   format = c("guess", "prefix", "bare", "uri"),
   taxadb_db = td_connect()
 )
@@ -16,16 +17,18 @@ get_names(
 
 \item{db}{abbreviation code for the provider.  See details.}
 
-\item{format}{Format for the input identifier, one of
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  see \verb{[avialable_releases()]} for details.}
+
+\item{format}{Format for the returned identifier, one of
 \itemize{
-\item \code{guess} Will determine the prefix automatically, but will be
-slower than if you specify this in advance!
-\item \code{prefix} (e.g. \code{NCBI:9606}), Preferred (fastest) format.
-\item \code{bare} (e.g. \code{9606}), (But must mach provider \code{db}!)
-\item \code{uri} (e.g. \verb{http://ncbi.nlm.nih.gov/taxonomy/9606}).
+\item \code{prefix} (e.g. \code{NCBI:9606}, the default), or
+\item \code{bare} (e.g. \code{9606}, used in \code{taxize::get_ids()}),
+\item \code{uri} (e.g.
+\verb{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
-\item{taxadb_db}{Connection to from \verb{[td_connect]()}.}
+\item{taxadb_db}{Connection to from \verb{[td_connect()]}.}
 }
 \value{
 a vector of names, of the same length as the input ids. Any
