@@ -1,9 +1,6 @@
 
 #' Return a reference to a given table in the taxadb database
 #'
-#' @param db a connection to the taxadb database. Default will
-#' attempt to connect automatically.
-#' @param schema the table schema on which we want to run the query
 #' @importFrom dplyr tbl
 #' @inheritParams filter_by
 #' @export
@@ -33,11 +30,12 @@ taxa_tbl <- function(
                "gbif", "fb", "slb", "wd", "ott",
                "iucn"),
   schema = c("dwc","common"),
+  version = latest_release(),
   db = td_connect()){
 
   provider <- match.arg(provider)
   schema <- match.arg(schema)
-  tbl_name <- paste0(schema, "_", provider)
+  tbl_name <- paste0(version, "_", schema, "_", provider)
 
   if (is.null(db)){
     mem_quick_db <-
@@ -46,7 +44,7 @@ taxa_tbl <- function(
     return(mem_quick_db(tbl_name))
   }
   if (!has_table(tbl_name, db)){
-    td_create(provider = provider, schema = schema, db = db)
+    td_create(provider = provider, schema = schema, version = version, db = db)
   }
   dplyr::tbl(db, tbl_name)
 }

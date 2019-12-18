@@ -6,8 +6,7 @@
 #'  database. By default, will install `itis`.  See details for a list of
 #'  recognized provider. Use `provider="all"` to install all
 #'  available provider automatically.
-#' @param schema format of the database to import.
-#' @param version Which version of the taxadb provider database should we use? defaults to latest
+#' @inheritParams filter_by
 #' @param lines number of lines that can be safely read in to memory at once.
 #' Leave at default or increase for faster importing if you have
 #' plenty of spare RAM.
@@ -68,7 +67,7 @@ td_create <- function(provider = "itis",
   recognized_provider <- c("itis", "ncbi", "col", "tpl",
                            "gbif", "fb", "slb", "wd", "ott",
                            "iucn")
-  if (provider == "all") {
+  if (any(provider == "all")) {
     provider <- recognized_provider
   }
   stopifnot(all(provider %in% recognized_provider))
@@ -78,7 +77,7 @@ td_create <- function(provider = "itis",
     paste0(s, "_", provider, ".tsv.bz2")))
   #remove common name tables for providers without common names
   files <- files[!files %in% paste0(NO_COMMON, ".tsv.bz2")]
-  dest <- file.path(dbdir, files)
+  dest <- file.path(dbdir, paste0(version, "_", files))
 
   new_dest <- dest
   new_files <- files
@@ -92,7 +91,8 @@ td_create <- function(provider = "itis",
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
     urls <- providers_download_url(new_files, version)
-    curl::curl_download(urls, new_dest)
+    lapply(seq_along(urls), function(i)
+      curl::curl_download(urls[i], new_dest[i]))
   }
 
   ## silence readr progress bar in arkdb
@@ -130,6 +130,9 @@ providers_download_url <- function(files, version = latest_release()){
 
 #' List available releases
 #'
+#' taxadb uses pre-computed cache files that are released on an annual
+#' version schedule.
+#'
 #' @export
 #' @examples
 #' available_releases()
@@ -142,8 +145,14 @@ available_releases <- function(){
   if(!all(is.na(avail_releases)))
     return(avail_releases)
 
+  ## FIXME consider using direct access of a metadata record file instead
+  ## of relying on GitHub release tags to provide information about
+  ## available versions
+
   ## Okay, check GH for a release
-  req <- curl::curl_fetch_memory("https://api.github.com/repos/boettiger-lab/taxadb-cache/releases")
+  req <- curl::curl_fetch_memory(paste0(
+    "https://api.github.com/repos/",
+    "boettiger-lab/taxadb-cache/releases"))
   json <- jsonlite::fromJSON(rawToChar(req$content))
   avail_releases <- json[["tag_name"]]
 

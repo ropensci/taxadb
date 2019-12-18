@@ -19,7 +19,8 @@ preprocess_col <- function(url = paste0("http://www.catalogueoflife.org/DCA_Expo
   unzip(file.path(dir, "col-annual.zip"), exdir=dir)
 
   ## a better read_tsv
-  read_tsv <- function(...) readr::read_tsv(..., quote = "", col_types = readr::cols(.default = "c"))
+  read_tsv <- function(...) readr::read_tsv(..., quote = "",
+                                            col_types = readr::cols(.default = "c"))
 
 
   taxon <- read_tsv(file.path(dir, "taxa.txt"))
