@@ -27,6 +27,7 @@ meta <- fs::dir_info(release) %>%
 #write_csv(meta, here::here("data-raw/meta.csv"))
 meta %>%
   select(-path) %>%
+  mutate(size = as.character(size)) %>%
   write_json(here::here("data-raw/meta.json"),
              pretty = TRUE, auto_unbox=TRUE)
 
