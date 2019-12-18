@@ -30,7 +30,7 @@ taxa_tbl <- function(
                "gbif", "fb", "slb", "wd", "ott",
                "iucn"),
   schema = c("dwc","common"),
-  version = latest_release(),
+  version = latest_version(),
   db = td_connect()){
 
   provider <- match.arg(provider)

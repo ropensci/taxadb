@@ -54,7 +54,7 @@
 #' }
 td_create <- function(provider = "itis",
                       schema = c("dwc", "common"),
-                      version = latest_release(),
+                      version = latest_version(),
                       overwrite = FALSE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
@@ -121,7 +121,7 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-providers_download_url <- function(files, version = latest_release()){
+providers_download_url <- function(files, version = latest_version()){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
                "releases/download/", version, "/", files)
 }
@@ -135,8 +135,8 @@ providers_download_url <- function(files, version = latest_release()){
 #'
 #' @export
 #' @examples
-#' available_releases()
-available_releases <- function(){
+#' available_versions()
+available_versions <- function(){
 
   ## check for cached version first
   avail_releases <- mget("avail_releases",
@@ -162,8 +162,8 @@ available_releases <- function(){
   avail_releases
 }
 
-latest_release <- function() {
-  available_releases()[[1]]
+latest_version <- function() {
+  available_versions()[[1]]
 }
 
 

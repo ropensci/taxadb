@@ -39,7 +39,7 @@ fuzzy_filter <- function(name,
                                       "gbif", "fb", "slb", "wd", "ott",
                                       "iucn"),
                          match = c("contains", "starts_with"),
-                         version = latest_release(),
+                         version = latest_version(),
                          db = td_connect(),
                          ignore_case = TRUE,
                          collect = TRUE){
@@ -114,7 +114,7 @@ filter_like <- function(db_tbl, input, pattern){
 #' @inheritParams fuzzy_filter
 name_contains <- function(name,
                           provider = "itis",
-                          version = latest_release(),
+                          version = latest_version(),
                           db = td_connect(),
                           ignore_case = TRUE){
 
@@ -142,7 +142,7 @@ name_contains <- function(name,
 #' @export
 name_starts_with <- function(name,
                              provider,
-                             version = latest_release(),
+                             version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
 
@@ -171,7 +171,7 @@ name_starts_with <- function(name,
 #' @export
 common_starts_with <- function(name,
                              provider = "itis",
-                             version = latest_release(),
+                             version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
 
@@ -199,7 +199,7 @@ common_starts_with <- function(name,
 #' @export
 common_contains <- function(name,
                             provider = "itis",
-                            version = latest_release(),
+                            version = latest_version(),
                             db = td_connect(),
                             ignore_case = TRUE){
 

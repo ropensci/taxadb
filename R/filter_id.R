@@ -43,7 +43,7 @@ filter_id <- function(id,
                                "gbif", "fb", "slb", "wd", "ott",
                                "iucn"),
                   type = c("taxonID", "acceptedNameUsageID"),
-                  version = latest_release(),
+                  version = latest_version(),
                   collect = TRUE,
                   db = td_connect()){
 

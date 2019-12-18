@@ -3,15 +3,7 @@
 #'
 #' Translate identifiers into scientific names
 #' @param id a list of taxonomic identifiers.
-#' @param db abbreviation code for the provider.  See details.
-#' @param format Format for the input identifier, one of
-#'   - `guess` Will determine the prefix automatically, but will be
-#'   slower than if you specify this in advance!
-#'   - `prefix` (e.g. `NCBI:9606`), Preferred (fastest) format.
-#'   - `bare` (e.g. `9606`), (But must mach provider `db`!)
-#'   - `uri` (e.g. `http://ncbi.nlm.nih.gov/taxonomy/9606`).
-#' @param taxadb_db Connection to from `[td_connect]()`.
-
+#' @inheritParams get_ids
 #' @family get
 #' @return a vector of names, of the same length as the input ids. Any
 #' unmatched IDs will return as [NA]s.
@@ -30,6 +22,7 @@ get_names <- function(id,
                       db = c("itis", "ncbi", "col", "tpl",
                              "gbif", "fb", "slb", "wd", "ott",
                              "iucn"),
+                      version = latest_version(),
                       format = c("guess", "prefix", "bare", "uri"),
                       taxadb_db = td_connect()
                      ){
@@ -45,6 +38,7 @@ get_names <- function(id,
   df <-
     filter_id(prefix_ids,
           provider = db,
+          version = version,
           collect = FALSE,
           db = taxadb_db) %>%
     dplyr::select("scientificName", "taxonID", "sort") %>%

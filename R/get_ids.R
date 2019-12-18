@@ -45,7 +45,7 @@
 get_ids <- function(names,
                     db = known_providers,
                     format = c("prefix", "bare", "uri"),
-                    version = latest_release(),
+                    version = latest_version(),
                     taxadb_db = td_connect(),
                     ignore_case = TRUE,
                     ...){
@@ -57,6 +57,7 @@ get_ids <- function(names,
 
   df <- filter_name(name = names,
                 provider = db,
+                version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
                 db = taxadb_db)

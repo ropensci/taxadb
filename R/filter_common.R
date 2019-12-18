@@ -23,7 +23,7 @@ filter_common <- function(name,
                 provider =c("itis", "ncbi", "col", "tpl",
                             "gbif", "fb", "slb", "wd", "ott",
                             "iucn"),
-                version = latest_release(),
+                version = latest_version(),
                 collect = TRUE,
                 ignore_case = TRUE,
                 db = td_connect()){
