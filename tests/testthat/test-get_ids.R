@@ -21,7 +21,9 @@ test_that("we can get ids without a DB", {
 
   db <- td_connect(test_db)
 
+  suppressWarnings({
   bare <- get_ids("Homo sapiens", taxadb_db = NULL, format = "bare")
+  })
   expect_identical(bare, "180092")
 
 })

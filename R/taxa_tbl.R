@@ -15,7 +15,8 @@
 #'   names <- clean_names(c("Steller's jay", "coopers Hawk"),
 #'                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 #'
-#'   #Get cleaned common names from a provider and search for cleaned names in that table
+#'   #Get cleaned common names from a provider and
+#'   # search for cleaned names in that table
 #'   taxa_tbl("itis", "common") %>%
 #'   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
 #'             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
@@ -61,10 +62,12 @@ has_table <- function(table = NULL, db = td_connect()){
 #' @importFrom readr read_tsv
 quick_db <-
   function(tbl_name){
+    version <- gsub("(\\w+)_\\w+_\\w+", "\\1", tbl_name)
+    filename <- gsub("\\w+_(\\w+_\\w+)", "\\1", tbl_name)
     #tmp <- tempfile(fileext = ".tsv.bz2")
     tmp <- file.path(taxadb_dir(), paste0(tbl_name, ".tsv.bz2"))
     if(!file.exists(tmp)){
-      download.file(paste0(providers_download_url(tbl_name), ".tsv.bz2"),
+      download.file(paste0(providers_download_url(filename, version), ".tsv.bz2"),
              tmp)
     }
     suppressWarnings(

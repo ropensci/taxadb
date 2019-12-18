@@ -21,7 +21,8 @@ test_that("binomial_names", {
 
 #  not an option in clean_names() yet
 test_that("drop_parenthetical", {
-  drop_parenthetical("Poa annua (Smith 1912)")
+  x <- drop_parenthetical("Poa annua (Smith 1912)")
+  expect_identical(x, "Poa annua")
 })
 
 test_that("drop_punc", {
