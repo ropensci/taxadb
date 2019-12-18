@@ -15,12 +15,20 @@ file_hash <- function(x, method = openssl::sha256, ...){
 release <- here::here("2019")
 meta <- fs::dir_info(release) %>%
   mutate(sha256 = map_chr(path, file_hash, raw = TRUE),
-         name = fs::path_file(path)) %>%
-  select(name, size, sha256, dateCreated = modification_time, path)
+         name = fs::path_file(path),
+         contentType = "text/tab-separated-values",
+         contentEncoding = "bz2") %>%
+  select(name, size, sha256,
+         dateCreated = modification_time,
+         contentType, contentEncoding, path)
+
 
 ## Lightweight file metadata
-write_csv(meta, here::here("data-raw/meta.csv"))
-write_json(tmp, here::here("data-raw/meta.json"), pretty = TRUE, auto_unbox=TRUE)
+#write_csv(meta, here::here("data-raw/meta.csv"))
+meta %>%
+  select(-path) %>%
+  write_json(here::here("data-raw/meta.json"),
+             pretty = TRUE, auto_unbox=TRUE)
 
 
 dwc_terms <-

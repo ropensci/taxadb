@@ -1,92 +1,110 @@
 [
   {
-    "path": "2019/common_col.tsv.bz2",
-    "size": "5.8M",
+    "name": "common_col.tsv.bz2",
+    "size": "  5.8M",
     "sha256": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
     "dateCreated": "2019-12-01 23:27:37"
   },
   {
-    "path": "2019/common_fb.tsv.bz2",
-    "size": "2.57M",
+    "name": "common_fb.tsv.bz2",
+    "size": "  2.57M",
     "sha256": "b73e81c37d3c5b624d183192fdbfdcaeaeef396dd0e13d3533ff2d21eb02190e",
     "dateCreated": "2019-12-01 23:35:23"
   },
   {
-    "path": "2019/common_gbif.tsv.bz2",
-    "size": "7.2M",
+    "name": "common_gbif.tsv.bz2",
+    "size": "  7.2M",
     "sha256": "b2dc25d2999093649656662c8141af84e6a2355ee0eceb4413251319ca7d76bc",
     "dateCreated": "2019-12-02 21:34:34"
   },
   {
-    "path": "2019/common_itis.tsv.bz2",
-    "size": "3.06M",
+    "name": "common_itis.tsv.bz2",
+    "size": "  3.06M",
     "sha256": "bc63094c83d8dfa4bffa2c9d0487ff1a95952ad7e8a6eb252fb93e4f1e590fcb",
     "dateCreated": "2019-12-01 23:30:12"
   },
   {
-    "path": "2019/common_iucn.tsv.bz2",
+    "name": "common_iucn.tsv.bz2",
     "size": "156",
     "sha256": "30516362af0a394a7a78677ae129a95101cb852bda20ad872ae042ced43c463c",
     "dateCreated": "2019-12-01 23:30:12"
   },
   {
-    "path": "2019/common_ncbi.tsv.bz2",
-    "size": "65.44K",
+    "name": "common_ncbi.tsv.bz2",
+    "size": " 65.44K",
     "sha256": "a66231a9bb186b5d72931ea8924382f916fadb71a89c25eb0588d46ad32dd712",
     "dateCreated": "2019-12-02 22:43:16"
   },
   {
-    "path": "2019/common_slb.tsv.bz2",
+    "name": "common_slb.tsv.bz2",
     "size": "696.32K",
     "sha256": "8ce38e4d537a1ce50f8f9b32577df29012eaf0c84eccb28c6e9eafbe0e00d190",
     "dateCreated": "2019-12-01 23:30:12"
   },
   {
-    "path": "2019/dwc_col.tsv.bz2",
-    "size": "56.52M",
+    "name": "dwc_col.tsv.bz2",
+    "size": " 56.52M",
     "sha256": "2c5e65f240a23e2fc32240dd3144cdf2d1d0c9dcb5568c467cc3f94772abcb72",
     "dateCreated": "2019-12-01 23:26:54"
   },
   {
-    "path": "2019/dwc_fb.tsv.bz2",
-    "size": "1.56M",
+    "name": "dwc_fb.tsv.bz2",
+    "size": "  1.56M",
     "sha256": "d9ba565ef177af1eb4471d6bc82f2b270cc92bc779ce711f05bda2923d4e5518",
     "dateCreated": "2019-12-01 23:35:17"
   },
   {
-    "path": "2019/dwc_gbif.tsv.bz2",
+    "name": "dwc_gbif.tsv.bz2",
     "size": "163.45M",
     "sha256": "9b9f18d604fa9a245feb39bbc0e9529fdcc488e9f113132c65c9eca90ce93f51",
     "dateCreated": "2019-12-02 21:34:22"
   },
   {
-    "path": "2019/dwc_itis.tsv.bz2",
-    "size": "10.94M",
+    "name": "dwc_itis.tsv.bz2",
+    "size": " 10.94M",
     "sha256": "9bc29db0ce5e2695727fc5f894ef0681b766ccc9c813071cdd1bc8b4921ec110",
     "dateCreated": "2019-12-01 23:30:14"
   },
   {
-    "path": "2019/dwc_iucn.tsv.bz2",
-    "size": "2.58M",
+    "name": "dwc_iucn.tsv.bz2",
+    "size": "  2.58M",
     "sha256": "d91b51013b669a31fd268743cf2db866b0f3e7a7f1af78e60271fa5f137bd21e",
     "dateCreated": "2019-12-01 23:30:14"
   },
   {
-    "path": "2019/dwc_ncbi.tsv.bz2",
-    "size": "4.03M",
+    "name": "dwc_ncbi.tsv.bz2",
+    "size": "  4.03M",
     "sha256": "6feb51e67b7f8717e27875ff7b84d46cc8d4f182e36aa9a6baa148ec59195861",
     "dateCreated": "2019-12-02 22:43:16"
   },
   {
-    "path": "2019/dwc_ott.tsv.bz2",
-    "size": "55.81M",
+    "name": "dwc_ott.tsv.bz2",
+    "size": " 55.81M",
     "sha256": "3399516b5281ca295e64540c1198e244a9b71e9fa914be23be069ca601121b37",
     "dateCreated": "2019-12-11 15:14:21"
   },
   {
-    "path": "2019/dwc_slb.tsv.bz2",
-    "size": "1.25M",
+    "name": "dwc_slb.tsv.bz2",
+    "size": "  1.25M",
     "sha256": "25090de609b2d01bd27280bc6ff5f67db47757cca5db0306c9718e6343233ff6",
     "dateCreated": "2019-12-01 23:30:14"
+  },
+  {
+    "name": "dwc_tpl.tsv.bz2",
+    "size": "  4.87M",
+    "sha256": "afbe371055cd7c42c73ac7bb07bd265300683d4a7ae038fe7e473778a5d0dfcc",
+    "dateCreated": "2019-12-18 05:44:26"
+  },
+  {
+    "name": "dwc_wd.tsv.bz2",
+    "size": " 32.61M",
+    "sha256": "2fba4f4abbbeb3a748bdc1047b59d88ebd8dddbf3cf0f3a5fcbd48c8877fed54",
+    "dateCreated": "2019-12-18 05:47:04"
+  },
+  {
+    "name": "meta.csv",
+    "size": "  1.73K",
+    "sha256": "e475cc96bb98e53045fe00a09a5be511e3732c9fbe00d59d3b35d9b68f98eb8a",
+    "dateCreated": "2019-12-17 00:52:36"
   }
 ]
