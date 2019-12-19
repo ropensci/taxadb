@@ -4,17 +4,24 @@
 \alias{taxa_tbl}
 \title{Return a reference to a given table in the taxadb database}
 \usage{
-taxa_tbl(provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb",
-  "wd", "ott", "iucn"), schema = c("dwc", "common"), db = td_connect())
+taxa_tbl(
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  schema = c("dwc", "common"),
+  version = latest_version(),
+  db = td_connect()
+)
 }
 \arguments{
 \item{provider}{from which provider should the hierarchy be returned?
 Default is 'itis'.}
 
-\item{schema}{the table schema on which we want to run the query}
+\item{schema}{One of "dwc" (for Darwin Core data) or "common"
+(for the Common names table.)}
 
-\item{db}{a connection to the taxadb database. Default will
-attempt to connect automatically.}
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+
+\item{db}{a connection to the taxadb database. See details.}
 }
 \description{
 Return a reference to a given table in the taxadb database
@@ -30,7 +37,8 @@ Return a reference to a given table in the taxadb database
   names <- clean_names(c("Steller's jay", "coopers Hawk"),
                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 
-  #Get cleaned common names from a provider and search for cleaned names in that table
+  #Get cleaned common names from a provider and
+  # search for cleaned names in that table
   taxa_tbl("itis", "common") \%>\%
   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%

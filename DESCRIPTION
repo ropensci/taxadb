@@ -34,9 +34,11 @@ Imports:
     progress,
     utils,
     dbplyr,
-    RSQLite
+    RSQLite,
+    curl,
+    jsonlite
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Suggests:
     spelling,
     testthat,

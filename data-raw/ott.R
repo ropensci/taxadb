@@ -4,10 +4,10 @@ source(here::here("data-raw/helper-routines.R"))
 
 
 
-preprocess_ott <- function(url = "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz",
-                            output_paths =
-                              c(dwc = "2019/dwc_ott.tsv.bz2",
-                                common = "2019/common_ott.tsv.bz2")
+preprocess_ott <-
+  function(url = "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz",
+           output_paths = c(dwc = "2019/dwc_ott.tsv.bz2",
+                            common = "2019/common_ott.tsv.bz2")
 ){
 
   dir = file.path(tempdir(), "ott")
@@ -24,7 +24,9 @@ preprocess_ott <- function(url = "http://files.opentreeoflife.org/ott/ott3.2/ott
   dir <- fs::dir_ls(basedir, type="dir")
 
   ## defaulting to logicals is so annoying!
-  read_tsv <- function(...) readr::read_tsv(..., quote = "", col_types = readr::cols(.default = "c"))
+  read_tsv <- function(...)
+    readr::read_tsv(..., quote = "",
+                    col_types = readr::cols(.default = "c"))
 
 
 # Really would be nice if we followed the DAMN STANDARD. tsv is tab-delimited,
@@ -67,13 +69,24 @@ ott_taxonid <- bind_rows(
     left_join(select(taxonomy, uid, rank),
               by = c("accepted_id" = "uid")) %>%
     mutate(id = NA, accepted_id = paste0("OTT:", accepted_id))
-  ) #%>%
-  #de_duplicate()
+  )  %>% ## and rename to Darwin Core fields
+  rename(taxonID = id,
+         scientificName = name,
+         taxonRank = rank,
+         taxonomicStatus = name_type,
+         acceptedNameUsageID = accepted_id)
+
 
 rm(synonyms)
 
-max <- pull(taxonomy, rank) %>% unique() %>% length()
+## really slow but works and drops duplicates that distinct() does not
+ott_taxonid <- ott_taxonid %>%
+  de_duplicate()
 
+
+
+
+max <- pull(taxonomy, rank) %>% unique() %>% length()
 ## Time to unpack another recursive taxonomy hierarchy
 ids <- select(taxonomy, id = uid, parent = parent_uid)
 hierarchy <- ids
@@ -92,9 +105,7 @@ long_hierarchy <-
   select(id, path_id) %>%
   distinct() %>%
   arrange(id)
-
 rm(hierarchy)
-
 
 expand <- taxonomy %>%
   select(path_id = uid, path = name, path_rank = rank)
@@ -111,20 +122,20 @@ ott_long <- expand %>%
 
 rm(expand, long_hierarchy)
 
+## Only species get the DarwinCore rank columns.  All names have rank in taxonRank field
 pre_spread <-
   ott_long %>%
-  filter(rank == "species") %>%
+  filter(rank == "species", path_rank %in%
+           c("kingdom", "phylum", "class", "order", "family", "genus")) %>%
   select(id, species = name, path, path_rank) %>%
-  distinct() %>%
-  filter(!is.na(path_rank)) %>%
-### some duplicates occur with spaces in names:
-  filter(!grepl(" ", path))  %>%
-  filter(path_rank != "species") %>%
-   mutate(id = paste0("OTT:", id))
+  distinct()
+
+rm(ott_long)
+
 
 ## Many have multiple names at a given rank! e.g.
-## kingdom Chloroplastida & Archaeplastida
-## Use tidy_names()
+## kingdom Chloroplastida & Archaeplastida.  (True across all ranks)
+## Use tidy_names() to disambiguate.  Then we just take the first (ick)
 dedup <- pre_spread %>%
   mutate(orig_rank = path_rank) %>%
   group_by(id, orig_rank) %>%
@@ -133,34 +144,28 @@ dedup <- pre_spread %>%
   select(-orig_rank)
 rm(pre_spread, ott_long)
 
-ott_wide <- dedup %>% spread(path_rank, path)
-
-##### Rename things to Darwin Core ########
-
-
-taxonid <-
-  ott_taxonid %>%
+ott_wide <- dedup %>%
+  spread(path_rank, path) %>%
   distinct() %>%
-  de_duplicate()
+  select(taxonID = id,
+         kingdom, phylum, class, order, family, genus,
+         specificEpithet = species
+         #infraspecificEpithet
+  ) %>%
+  mutate(id = stringi::stri_paste("OTT:", taxonID))
 
-wide <- ott_wide %>% distinct()
-dwc <- taxonid %>%
-  rename(taxonID = id,
-         scientificName = name,
-         taxonRank = rank,
-         taxonomicStatus = name_type,
-         acceptedNameUsageID = accepted_id) %>%
-  left_join(wide %>%
-              select(taxonID = id,
-                     kingdom, phylum, class, order, family, genus,
-                     specificEpithet = species
-                     #infraspecificEpithet
-              ),
+rm(dedup)
+
+
+
+
+dwc <- ott_taxonid %>%
+  left_join(ott_wide,
             by = c("acceptedNameUsageID" =  "taxonID"))
 
 species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
-dwc$specificEpithet <- species[,2]
-dwc$infraspecificEpithet <- species[,3]
+dwc <- mutate(dwc, specificEpithet = species[,2])
+dwc <- mutate(dwc,infraspecificEpithet = species[,3])
 
 
 ## note: stringi MUCH faster than recode_factor!
@@ -172,12 +177,15 @@ dwc <- dwc %>%
          )
 
 
-  write_tsv(dwc, output["dwc"])
+  write_tsv(dwc, output_paths["dwc"])
   file_hash(output_paths)
 
 }
 
 
 
+ott = preprocess_ott(url = ("http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz"),
+                     output_paths = c(dwc = ("2019/dwc_ott.tsv.bz2"),
+                                      common = ("2019/common_ott.tsv.bz2")))
 
 

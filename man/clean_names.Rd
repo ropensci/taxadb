@@ -4,23 +4,29 @@
 \alias{clean_names}
 \title{Clean taxonomic names}
 \usage{
-clean_names(names, fix_delim = TRUE, binomial_only = TRUE,
-  remove_sp = TRUE, ascii_only = TRUE, lowercase = TRUE,
-  remove_punc = FALSE)
+clean_names(
+  names,
+  fix_delim = TRUE,
+  binomial_only = TRUE,
+  remove_sp = TRUE,
+  ascii_only = TRUE,
+  lowercase = TRUE,
+  remove_punc = FALSE
+)
 }
 \arguments{
 \item{names}{a character vector of taxonomic names (usually species names)}
 
-\item{fix_delim}{Should we replace separators \code{.}, \code{_}, \code{-}
+\item{fix_delim}{Should we replace separators \code{.}, \verb{_}, \code{-}
 with spaces? e.g. 'Homo.sapiens' becomes 'Homo sapiens'.
 logical, default TRUE.}
 
 \item{binomial_only}{Attempt to prune name to a binomial name, e.g.
-Genus and species (specific epithet), e.g. \code{Homo sapiens sapiens}
-becomes \code{Homo sapiens}. logical, default \link{TRUE}.}
+Genus and species (specific epithet), e.g. \verb{Homo sapiens sapiens}
+becomes \verb{Homo sapiens}. logical, default \link{TRUE}.}
 
 \item{remove_sp}{Should we drop unspecified species epithet designations?
-e.g. \code{Homo sp.} becomes \code{Homo} (thus only matching against genus level ids).
+e.g. \verb{Homo sp.} becomes \code{Homo} (thus only matching against genus level ids).
 logical, default \link{TRUE}.}
 
 \item{ascii_only}{should we coerce strings to ascii characters?

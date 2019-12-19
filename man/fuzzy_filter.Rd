@@ -4,10 +4,16 @@
 \alias{fuzzy_filter}
 \title{Match names that start or contain a specified text string}
 \usage{
-fuzzy_filter(name, by = c("scientificName", "vernacularName"),
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd",
-  "ott", "iucn"), match = c("contains", "starts_with"),
-  db = td_connect(), ignore_case = TRUE, collect = TRUE)
+fuzzy_filter(
+  name,
+  by = c("scientificName", "vernacularName"),
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  match = c("contains", "starts_with"),
+  version = latest_version(),
+  db = td_connect(),
+  ignore_case = TRUE,
+  collect = TRUE
+)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})
@@ -21,6 +27,9 @@ Default is 'itis'.}
 
 \item{match}{should we match by names starting with the term or containing
 the term anywhere in the name?}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 
@@ -43,7 +52,7 @@ fuzzy matching requires separate SQL calls for each name.
 As fuzzy matches should all be confirmed manually in any event, e.g.
 not every common name containing "monkey" belongs to a primate species.
 
-This method utilizes the database operation \code{\%like\%} to filter tables without
+This method utilizes the database operation \verb{\%like\%} to filter tables without
 loading into memory.  Note that this does not support the use of regular
 expressions at this time.
 }

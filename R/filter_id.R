@@ -43,12 +43,14 @@ filter_id <- function(id,
                                "gbif", "fb", "slb", "wd", "ott",
                                "iucn"),
                   type = c("taxonID", "acceptedNameUsageID"),
+                  version = latest_version(),
                   collect = TRUE,
                   db = td_connect()){
 
     filter_by(x = id,
               by = match.arg(type),
               provider = match.arg(provider),
+              version = version,
               collect = collect,
               db = db,
               ignore_case = FALSE)

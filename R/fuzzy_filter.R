@@ -39,6 +39,7 @@ fuzzy_filter <- function(name,
                                       "gbif", "fb", "slb", "wd", "ott",
                                       "iucn"),
                          match = c("contains", "starts_with"),
+                         version = latest_version(),
                          db = td_connect(),
                          ignore_case = TRUE,
                          collect = TRUE){
@@ -47,7 +48,7 @@ fuzzy_filter <- function(name,
   provider <- match.arg(provider)
   match <- match.arg(match)
 
-  db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", db),
+  db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", version, db),
                           input = !!sym(by))
   input <- "input" # NSE
 
@@ -113,6 +114,7 @@ filter_like <- function(db_tbl, input, pattern){
 #' @inheritParams fuzzy_filter
 name_contains <- function(name,
                           provider = "itis",
+                          version = latest_version(),
                           db = td_connect(),
                           ignore_case = TRUE){
 
@@ -120,6 +122,7 @@ name_contains <- function(name,
                by = "scientificName",
                provider = provider,
                match = "contains",
+               version = version,
                db = db,
                ignore_case = ignore_case)
 }
@@ -139,6 +142,7 @@ name_contains <- function(name,
 #' @export
 name_starts_with <- function(name,
                              provider,
+                             version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
 
@@ -146,6 +150,7 @@ name_starts_with <- function(name,
                by = "scientificName",
                provider = provider,
                match = "starts_with",
+               version = version,
                db = db,
                ignore_case = ignore_case)
 }
@@ -166,6 +171,7 @@ name_starts_with <- function(name,
 #' @export
 common_starts_with <- function(name,
                              provider = "itis",
+                             version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
 
@@ -173,6 +179,7 @@ common_starts_with <- function(name,
                by = "vernacularName",
                provider = provider,
                match = "starts_with",
+               version = version,
                db = db,
                ignore_case = ignore_case)
 }
@@ -192,6 +199,7 @@ common_starts_with <- function(name,
 #' @export
 common_contains <- function(name,
                             provider = "itis",
+                            version = latest_version(),
                             db = td_connect(),
                             ignore_case = TRUE){
 
@@ -199,6 +207,7 @@ common_contains <- function(name,
                by = "vernacularName",
                provider = provider,
                match = "contains",
+               version = version,
                db = db,
                ignore_case = ignore_case)
 }

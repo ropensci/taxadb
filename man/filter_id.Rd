@@ -4,9 +4,14 @@
 \alias{filter_id}
 \title{Return a taxonomic table matching the requested ids}
 \usage{
-filter_id(id, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), type = c("taxonID",
-  "acceptedNameUsageID"), collect = TRUE, db = td_connect())
+filter_id(
+  id,
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  type = c("taxonID", "acceptedNameUsageID"),
+  version = latest_version(),
+  collect = TRUE,
+  db = td_connect()
+)
 }
 \arguments{
 \item{id}{taxonomic id, in prefix format}
@@ -16,6 +21,9 @@ Default is 'itis'.}
 
 \item{type}{id type.  Can be \code{taxonID} or \code{acceptedNameUsageID},
 see details.}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -56,8 +64,10 @@ filter_id("ITIS:1077358", type="acceptedNameUsageID")
 }
 }
 \seealso{
-Other filter_by: \code{\link{filter_by}},
-  \code{\link{filter_common}}, \code{\link{filter_name}},
-  \code{\link{filter_rank}}
+Other filter_by: 
+\code{\link{filter_by}()},
+\code{\link{filter_common}()},
+\code{\link{filter_name}()},
+\code{\link{filter_rank}()}
 }
 \concept{filter_by}

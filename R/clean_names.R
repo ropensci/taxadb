@@ -80,7 +80,7 @@ binomial_names <- function(x){
     stringi::stri_trim(s[,1])
 }
 drop_parenthetical <- function(x){
-  stringi::stri_replace_all_regex(x, "\\(.+\\)", "")
+  stringi::stri_trim(stringi::stri_replace_all_regex(x, "\\(.+\\)", ""))
 }
 drop_punc <- function(x){
   #replace everything but letters and apostrophes with a space"

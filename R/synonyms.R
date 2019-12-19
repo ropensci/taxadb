@@ -24,16 +24,17 @@ synonyms <- function(name,
                      provider = c("itis", "ncbi", "col", "tpl",
                                   "gbif", "fb", "slb", "wd", "ott",
                                   "iucn"),
+                     version = latest_version(),
                      collect = TRUE,
                      db = td_connect()){
 
 
-  the_id_table <- filter_name(name, provider = provider, db = db)
+  the_id_table <- filter_name(name, provider = provider, version = version, db = db)
 
   ## Get both accepted names & synonyms for anything with an acceptedNameUsageID
   suppress_msg({
     syn <-
-      taxa_tbl(provider = provider, db = db) %>%
+      taxa_tbl(provider = provider, version = version, db = db) %>%
       safe_right_join(the_id_table %>%
                    select("acceptedNameUsageID"),
                  by = "acceptedNameUsageID",
