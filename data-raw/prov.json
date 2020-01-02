@@ -1,11 +1,22 @@
-[
+{ "@context": {
+  "@vocab": "http://schema.org",
+  "prov": "http://www.w3.org/ns/prov#",
+  "pav": ""
+  "dc": ""
+
+},
+  "@graph": [
   {
-    "name": "common_col.tsv.bz2",
+    "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
+    "@type": "prov:Entity",
+    "dc:identifier": "common_col.tsv.bz2",
     "size": "5.8M",
     "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
-    "hash_uri": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
-    "dateCreated": "2019-12-01 23:27:37",
-    "contentType": "text/tab-separated-values",
+    "prov:wasDerivedFrom": "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2019-annual.zip",
+    "pav:createdWith": "R",
+
+    "prov:generatedAtTime": "2019-12-01 23:27:37",
+    "dc:format": "text/tab-separated-values",
     "contentEncoding": "bz2"
   },
   {
@@ -162,3 +173,4 @@
     "contentEncoding": "bz2"
   }
 ]
+}

@@ -1,13 +1,19 @@
-[
-  {
-    "name": "common_col.tsv.bz2",
+{ "@context": "http://schema.org",
+  "@type": "Dataset",
+  "license" : "https://creativecommons.org/publicdomain/zero/1.0/",
+
+  "distribution": [
+    {
+    "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
+    "@type": "DataDownload",
+    "name": " Common Names from the Cataologue of Life, 2019 annual release",
+    "version": "2019",
+    "identifier": "common_col.tsv.bz2",
     "size": "5.8M",
-    "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
-    "hash_uri": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
     "dateCreated": "2019-12-01 23:27:37",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
+    "encodingFormat": "text/tab-separated-values",
+    "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/releases/download/2019/2019.2fcommon_col.tsv.bz2"
+    },
   {
     "name": "common_fb.tsv.bz2",
     "size": "2.57M",
@@ -162,3 +168,4 @@
     "contentEncoding": "bz2"
   }
 ]
+}
