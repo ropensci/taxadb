@@ -1,8 +1,9 @@
 { "@context": {
-  "@vocab": "http://schema.org",
+  "schema:": "http://schema.org",
   "prov": "http://www.w3.org/ns/prov#",
-  "pav": ""
-  "dc": ""
+  "pav": "http://purl.org/pav/",
+  "dc": "http://purl.org/dc/terms/",
+  "foaf": "http://xmlns.com/foaf/0.1/"
 
 },
   "@graph": [
@@ -10,167 +11,29 @@
     "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
     "@type": "prov:Entity",
     "dc:identifier": "common_col.tsv.bz2",
-    "size": "5.8M",
+    "schema:size": "5.8M",
     "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
     "prov:wasDerivedFrom": "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2019-annual.zip",
-    "pav:createdWith": "R",
-
+    "pav:createdWith": "https://github.com/cboettig/taxadb/blob/c4c98953247f49f971823a3e27b0200638bd552b/data-raw/col.R",
     "prov:generatedAtTime": "2019-12-01 23:27:37",
     "dc:format": "text/tab-separated-values",
-    "contentEncoding": "bz2"
+    "schema:contentEncoding": "bz2",
+    "pav:curatedBy": {
+      "@type": "pav:Agent",
+      "@id": "https://orcid.org/0000-0002-1642-628X",
+      "foaf:givenName": "Carl",
+      "foaf:surName": "Boettiger"
+      }
   },
   {
     "name": "common_fb.tsv.bz2",
     "size": "2.57M",
     "sha256_compressed": "b73e81c37d3c5b624d183192fdbfdcaeaeef396dd0e13d3533ff2d21eb02190e",
     "hash_uri": "hash://sha256/e6931283eebdb1525c138336180ff56f2354752f7fcd6f1bbdfdabff65ebe68e",
-    "dateCreated": "2019-12-01 23:35:23",
+    "prov:generatedAtTime": "2019-12-01 23:35:23",
     "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "common_gbif.tsv.bz2",
-    "size": "7.2M",
-    "sha256_compressed": "b2dc25d2999093649656662c8141af84e6a2355ee0eceb4413251319ca7d76bc",
-    "hash_uri": "hash://sha256/670288b080c940de95dd195cb3f97ceb43c1c9cd310cbf887b07da9477826fa7",
-    "dateCreated": "2019-12-02 21:34:34",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "common_itis.tsv.bz2",
-    "size": "3.06M",
-    "sha256_compressed": "bc63094c83d8dfa4bffa2c9d0487ff1a95952ad7e8a6eb252fb93e4f1e590fcb",
-    "hash_uri": "hash://sha256/a4ff57a062df5801a93dd658a505161fed0809b86ba47b19ef7d855f93252805",
-    "dateCreated": "2019-12-01 23:30:12",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "common_iucn.tsv.bz2",
-    "size": "156",
-    "sha256_compressed": "30516362af0a394a7a78677ae129a95101cb852bda20ad872ae042ced43c463c",
-    "hash_uri": "hash://sha256/e9d4ec1b2748ca86f56b388d6225ae08d55fa987364417d5a60c827a432c8c88",
-    "dateCreated": "2019-12-01 23:30:12",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "common_ncbi.tsv.bz2",
-    "size": "65.44K",
-    "sha256_compressed": "a66231a9bb186b5d72931ea8924382f916fadb71a89c25eb0588d46ad32dd712",
-    "hash_uri": "hash://sha256/544b8cc62c16d003da754370ec6959316b6b1495143393fbc36a36c3a5c37619",
-    "dateCreated": "2019-12-02 22:43:16",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "common_slb.tsv.bz2",
-    "size": "696.32K",
-    "sha256_compressed": "8ce38e4d537a1ce50f8f9b32577df29012eaf0c84eccb28c6e9eafbe0e00d190",
-    "hash_uri": "hash://sha256/a559f0b1bf40a6f96be8a65b1b59b2eaba5c81a1f6e0a0e62daff1b45c032b3f",
-    "dateCreated": "2019-12-01 23:30:12",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_col.tsv.bz2",
-    "size": "56.52M",
-    "sha256_compressed": "2c5e65f240a23e2fc32240dd3144cdf2d1d0c9dcb5568c467cc3f94772abcb72",
-    "hash_uri": "hash://sha256/35e73878eadba8afe9c30761debecd9513c72ffba677298f60b0c58739421c13",
-    "dateCreated": "2019-12-01 23:26:54",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_fb.tsv.bz2",
-    "size": "1.56M",
-    "sha256_compressed": "d9ba565ef177af1eb4471d6bc82f2b270cc92bc779ce711f05bda2923d4e5518",
-    "hash_uri": "hash://sha256/de9263b00c2f3e51c53c9eb7d636abe7c9181d14010da75eb667e04367223e2c",
-    "dateCreated": "2019-12-01 23:35:17",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_gbif.tsv.bz2",
-    "size": "163.45M",
-    "sha256_compressed": "9b9f18d604fa9a245feb39bbc0e9529fdcc488e9f113132c65c9eca90ce93f51",
-    "hash_uri": "hash://sha256/0f77555dfce42b37255dc49ca1bea93571f6424af0853416f004a697d2bc566b",
-    "dateCreated": "2019-12-02 21:34:22",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_itis.tsv.bz2",
-    "size": "10.94M",
-    "sha256_compressed": "9bc29db0ce5e2695727fc5f894ef0681b766ccc9c813071cdd1bc8b4921ec110",
-    "hash_uri": "hash://sha256/6fc5df6480870ee0811d6708dd4bf364a598a92a6773010f909f672ee519d77a",
-    "dateCreated": "2019-12-01 23:30:14",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_iucn.tsv.bz2",
-    "size": "2.58M",
-    "sha256_compressed": "d91b51013b669a31fd268743cf2db866b0f3e7a7f1af78e60271fa5f137bd21e",
-    "hash_uri": "hash://sha256/deff00ec822b7ccf0783af47c908a79b1958ced4a348af58c3cc7cd18e29fca3",
-    "dateCreated": "2019-12-01 23:30:14",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_ncbi.tsv.bz2",
-    "size": "4.03M",
-    "sha256_compressed": "6feb51e67b7f8717e27875ff7b84d46cc8d4f182e36aa9a6baa148ec59195861",
-    "hash_uri": "hash://sha256/39e073606c96eaf8b23b681b47e21a96b384d5a2b4d32100847e2f8bbb82083d",
-    "dateCreated": "2019-12-02 22:43:16",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_ott.tsv.bz2",
-    "size": "55.81M",
-    "sha256_compressed": "3399516b5281ca295e64540c1198e244a9b71e9fa914be23be069ca601121b37",
-    "hash_uri": "hash://sha256/f0bc02bbf79496b1c6288e6b9e2608ced03fdcce024a297e66b70f79230a5ae2",
-    "dateCreated": "2019-12-11 15:14:21",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_slb.tsv.bz2",
-    "size": "1.25M",
-    "sha256_compressed": "25090de609b2d01bd27280bc6ff5f67db47757cca5db0306c9718e6343233ff6",
-    "hash_uri": "hash://sha256/b13c60c980cdeca3d0e264ea1fd5076caa9038d95b273be085ff00c5259ef67d",
-    "dateCreated": "2019-12-01 23:30:14",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_tpl.tsv.bz2",
-    "size": "4.87M",
-    "sha256_compressed": "afbe371055cd7c42c73ac7bb07bd265300683d4a7ae038fe7e473778a5d0dfcc",
-    "hash_uri": "hash://sha256/d4bc2f93b25c1ba11b232e6cd88cee111e59027b0986af88ee510618f389a0e8",
-    "dateCreated": "2019-12-18 05:44:26",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "dwc_wd.tsv.bz2",
-    "size": "32.61M",
-    "sha256_compressed": "2fba4f4abbbeb3a748bdc1047b59d88ebd8dddbf3cf0f3a5fcbd48c8877fed54",
-    "hash_uri": "hash://sha256/614ce820e2213843a4565b2d531ba2066a6b8ef08aa25bfa0cee62c4e4d0a12d",
-    "dateCreated": "2019-12-18 05:47:04",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
-  },
-  {
-    "name": "meta.csv",
-    "size": "1.73K",
-    "sha256_compressed": "e475cc96bb98e53045fe00a09a5be511e3732c9fbe00d59d3b35d9b68f98eb8a",
-    "hash_uri": "hash://sha256/e475cc96bb98e53045fe00a09a5be511e3732c9fbe00d59d3b35d9b68f98eb8a",
-    "dateCreated": "2019-12-17 00:52:36",
-    "contentType": "text/tab-separated-values",
-    "contentEncoding": "bz2"
+    "contentEncoding": "bz2",
+    "pav:curatedBy": "https://orcid.org/0000-0002-1642-628X"
   }
 ]
 }
