@@ -28,3 +28,4 @@ common_names
 ^\.drake$
 2019
 dwc
+^cran-comments\.md$
