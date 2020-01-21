@@ -128,7 +128,7 @@ Functions in `taxadb` are organized into several families:
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
 
-These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species [\@ref(tab:iucn_table)]
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species (Table 1, 2).
 
 ```{r message=FALSE}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
@@ -144,7 +144,7 @@ trait_data %>% printtable(caption = "Trait data for the selected 10 species.")
 ```
 
 
-If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved:
+If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved (Table 3). 
 
 ```{r}
 joined <- full_join(trait_data, status_data, by = c("elton_name" = "redlist_name")) 
@@ -179,7 +179,7 @@ joined %>%
 ```
 
 
-This results in many more matches, as different scientific names are recognized by the naming provider (Catalog of Life 2018 in this case), as *synonyms* for the same species, and thus resolve to the same taxonomic identifier.  While we have focused on a small example for visual clarity here, the `get_ids()` function in `taxadb` can quickly resolve hundreds of thousands of species names to unique identifiers, thanks to the performance of fast joins in a local MonetDBLite database.
+This results in many more matches (Table 4), as different scientific names are recognized by the naming provider (Catalog of Life 2018 in this case), as *synonyms* for the same species, and thus resolve to the same taxonomic identifier.  While we have focused on a small example for visual clarity here, the `get_ids()` function in `taxadb` can quickly resolve hundreds of thousands of species names to unique identifiers, thanks to the performance of fast joins in a local MonetDBLite database.
 
 
 
@@ -216,7 +216,7 @@ filter_name("Zosterops rendovae") %>%
 
 ```
 
-We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between.
+We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 5).
 
 The full taxonomic record in the MonetDBLite database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers (see Vignette for further details).
 
@@ -225,8 +225,6 @@ The full taxonomic record in the MonetDBLite database can also be directly acces
 `taxizedb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names come with many of the same problems as scientific names but often more frequent, e.g. matching to more than one accepted name, non-standardized formatting (like capitalization) and spelling etc. Common names are accessed via `filter_common` which takes a vector of common names. The user can then resolve discrepencies. 
 
 \End{tcolorbox}
-
-### Supported providers
 
 ```{r echo = FALSE, results = "asis"}
 #provider descriptions
