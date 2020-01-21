@@ -45,9 +45,9 @@ library(knitr)
 ## https://community.rstudio.com/t/why-does-na-match-na-when-joining-two-dataframes/28785/3
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
-printtable <- function(df){
+printtable <- function(df, ...){
   df %>%
-    kableExtra::kable("latex", booktabs=T) %>%
+    kableExtra::kable("latex", booktabs=T, ...) %>%
     kableExtra::kable_styling(full_width = F)
 }
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, warning=FALSE)
@@ -103,7 +103,7 @@ get_ids("Gadus morhua")
 
 This one-time setup will download, uncompress, and import the data into persistant storage (using the appropriate location specified by the operating sytstem [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same names provider will be able to access this data rapidly without the need for processing or an internet connection.  
 
-Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 1), or simply using `all` to install all available providers:
+Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 6), or simply using `all` to install all available providers:
 
 
 ```{r eval=FALSE, message=FALSE}
@@ -128,19 +128,19 @@ Functions in `taxadb` are organized into several families:
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can idetnify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
 
-These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species:
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species [\@ref(tab:iucn_table)]
 
 ```{r message=FALSE}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
 status_data <- read_tsv(system.file("extdata", "status_data.tsv", package="taxadb"))
 ```
 
-```{r echo=FALSE, cache = FALSE}
-status_data %>% printtable()
+```{r iucn_table, echo=FALSE, cache = FALSE}
+status_data %>% printtable(caption = "IUCN status for the selected 10 species.")
 ```
 
-```{r echo = FALSE, cache = FALSE }
-trait_data %>% printtable()
+```{r trait_table, echo = FALSE, cache = FALSE }
+trait_data %>% printtable(caption = "Trait data for the selected 10 species.")
 ```
 
 
@@ -152,7 +152,8 @@ joined <- full_join(trait_data, status_data, by = c("elton_name" = "redlist_name
 
 
 ```{r echo = FALSE, cache = FALSE}
-joined %>% tidyr::replace_na(list(category = "-")) %>% printtable() # "NA" looks like a category, "-" is clearer visually
+joined %>% tidyr::replace_na(list(category = "-")) %>% 
+  printtable(caption = "IUCN and trait data joined on scientific name.") # "NA" looks like a category, "-" is clearer visually
 ```
 
 If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.  First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
@@ -174,7 +175,7 @@ joined <- full_join(traits, status, by = "id")
 joined %>%  
   tidyr::replace_na(list(category = "-", elton_name = "-", redlist_name = "-")) %>%
   select(elton_name, redlist_name, mass, category, id) %>%
-  printtable()
+  printtable(caption = "IUCN and trait data joined on taxonomic ID.")
 ```
 
 
@@ -192,7 +193,7 @@ This results in many more matches, as different scientific names are recognized 
 
 `get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care (Language from vignette). Spell check of input names is outside the scope of `taxadb`.
 
-Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@Franz2009, @franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
+Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@franz2009, @Franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
 
 ## `filter_` functions for access to underlying tables
@@ -210,7 +211,8 @@ As well getting a detailed look at specific species or ids. For example, why can
 ```{r}
 ## example of sci name matching to more than one id.
 filter_name("Zosterops rendovae") %>% 
-  select(1:5)
+  select(1:5) %>%
+  printtable(caption = "Accepted name matches for Zosterops rendovae.")
 
 ```
 
@@ -249,7 +251,8 @@ tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
                                               select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
                     description = desc
 ) %>%
-  knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE) %>%
+  knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE, 
+               caption = "Descriptions of providers supported by taxaDB.") %>%
   kable_styling(latex_options="scale_down") %>%
   kableExtra::column_spec(1, width = "5cm") %>%
   kableExtra::column_spec(4, width = "10cm")
