@@ -1,5 +1,6 @@
 ^appveyor\.yml$
 ^docs$
+^.*\.docx$
 ^_pkgdown\.yml$
 ^data-raw$
 ^\.pbattributes$

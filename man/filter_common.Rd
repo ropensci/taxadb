@@ -4,14 +4,9 @@
 \alias{filter_common}
 \title{Look up taxonomic information by common name}
 \usage{
-filter_common(
-  name,
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
-  version = latest_version(),
-  collect = TRUE,
-  ignore_case = TRUE,
-  db = td_connect()
-)
+filter_common(name, provider = c("itis", "ncbi", "col", "tpl", "gbif",
+  "fb", "slb", "wd", "ott", "iucn"), version = latest_version(),
+  collect = TRUE, ignore_case = TRUE, db = td_connect())
 }
 \arguments{
 \item{name}{a character vector of common (vernacular English) names,
@@ -53,10 +48,8 @@ filter_common("Angolan Giraffe")
 
 }
 \seealso{
-Other filter_by: 
-\code{\link{filter_by}()},
-\code{\link{filter_id}()},
-\code{\link{filter_name}()},
-\code{\link{filter_rank}()}
+Other filter_by: \code{\link{filter_by}},
+  \code{\link{filter_id}}, \code{\link{filter_name}},
+  \code{\link{filter_rank}}
 }
 \concept{filter_by}

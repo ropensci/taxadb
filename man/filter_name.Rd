@@ -4,14 +4,9 @@
 \alias{filter_name}
 \title{Look up taxonomic information by scientific name}
 \usage{
-filter_name(
-  name,
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
-  version = latest_version(),
-  collect = TRUE,
-  ignore_case = TRUE,
-  db = td_connect()
-)
+filter_name(name, provider = c("itis", "ncbi", "col", "tpl", "gbif",
+  "fb", "slb", "wd", "ott", "iucn"), version = latest_version(),
+  collect = TRUE, ignore_case = TRUE, db = td_connect())
 }
 \arguments{
 \item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
@@ -65,10 +60,8 @@ filter_name(sp)
 
 }
 \seealso{
-Other filter_by: 
-\code{\link{filter_by}()},
-\code{\link{filter_common}()},
-\code{\link{filter_id}()},
-\code{\link{filter_rank}()}
+Other filter_by: \code{\link{filter_by}},
+  \code{\link{filter_common}}, \code{\link{filter_id}},
+  \code{\link{filter_rank}}
 }
 \concept{filter_by}

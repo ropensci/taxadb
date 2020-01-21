@@ -4,13 +4,8 @@
 \alias{name_starts_with}
 \title{scientific name starts with}
 \usage{
-name_starts_with(
-  name,
-  provider,
-  version = latest_version(),
-  db = td_connect(),
-  ignore_case = TRUE
-)
+name_starts_with(name, provider, version = latest_version(),
+  db = td_connect(), ignore_case = TRUE)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})

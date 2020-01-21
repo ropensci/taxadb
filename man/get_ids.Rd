@@ -4,15 +4,9 @@
 \alias{get_ids}
 \title{get_ids}
 \usage{
-get_ids(
-  names,
-  db = known_providers,
-  format = c("prefix", "bare", "uri"),
-  version = latest_version(),
-  taxadb_db = td_connect(),
-  ignore_case = TRUE,
-  ...
-)
+get_ids(names, db = known_providers, format = c("prefix", "bare",
+  "uri"), version = latest_version(), taxadb_db = td_connect(),
+  ignore_case = TRUE, ...)
 }
 \arguments{
 \item{names}{a list of scientific names (which may
@@ -25,13 +19,13 @@ include higher-order ranks in most authorities).}
 \item \code{prefix} (e.g. \code{NCBI:9606}, the default), or
 \item \code{bare} (e.g. \code{9606}, used in \code{taxize::get_ids()}),
 \item \code{uri} (e.g.
-\verb{http://ncbi.nlm.nih.gov/taxonomy/9606}).
+\code{http://ncbi.nlm.nih.gov/taxonomy/9606}).
 }}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  see \verb{[avialable_releases()]} for details.}
+defaults to latest.  see \code{[avialable_releases()]} for details.}
 
-\item{taxadb_db}{Connection to from \verb{[td_connect()]}.}
+\item{taxadb_db}{Connection to from \code{[td_connect()]}.}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
 default is \code{TRUE}.}
@@ -41,21 +35,21 @@ default is \code{TRUE}.}
 \value{
 a vector of IDs, of the same length as the input names Any
 unmatched names or multiply-matched names will return as \link{NA}s.
-To resolve multi-matched names, use \verb{[filter_name()]} instead to return
+To resolve multi-matched names, use \code{[filter_name()]} instead to return
 a table with a separate row for each separate match of the input name.
 }
 \description{
-A drop-in replacement for \verb{[taxize::get_ids()]}
+A drop-in replacement for \code{[taxize::get_ids()]}
 }
 \details{
 Note that some taxize authorities: \code{nbn}, \code{tropicos}, and \code{eol},
 are not recognized by taxadb and will throw an error here. Meanwhile,
-taxadb recognizes several authorities not known to \verb{[taxize::get_ids()]}.
+taxadb recognizes several authorities not known to \code{[taxize::get_ids()]}.
 Both include \code{itis}, \code{ncbi}, \code{col}, and \code{gbif}.
 
 Like all taxadb functions, this function will run
 fastest if a local copy of the provider is installed in advance
-using \verb{[td_create()]}.
+using \code{[td_create()]}.
 }
 \examples{
 \donttest{
@@ -67,7 +61,6 @@ get_ids("Homo sapiens", db= "ncbi", format = "uri")
 \seealso{
 filter_name
 
-Other get: 
-\code{\link{get_names}()}
+Other get: \code{\link{get_names}}
 }
 \concept{get}
