@@ -45,8 +45,10 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    purrr
+    purrr, 
+    MonetDBLite
 Language: en-US
 VignetteBuilder: knitr
 URL: https://github.com/cboettig/taxadb
 BugReports: https://github.com/cboettig/taxadb/issues
+AdditionalRepositories: https://github.cboettig.io/drat
