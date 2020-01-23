@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 # RSQLite
 
-`RSQLite` is the default database backend if no suggested backend is detected.  `RSQLite` has no external software dependencies and will be autmatically installed with `taxadb` (it is a hard dependency as an imported rather than suggested package). The term `Lite` indicates that SQLite does not require the seperate "server" and "client" software model found on traditional databases such as MySQL, and SQLite is widely used in consumer software everywhere.  RSQLite packages SQLite for R.  It enables persistant local storage for R applications but will be slower than the alternatives.  For certain operations it can be significantly slower.
+`RSQLite` is the default database backend if no suggested backend is detected.  `RSQLite` has no external software dependencies and will be automatically installed with `taxadb` (it is a hard dependency as an imported rather than suggested package). The term `Lite` indicates that SQLite does not require the separate "server" and "client" software model found on traditional databases such as MySQL, and SQLite is widely used in consumer software everywhere.  RSQLite packages SQLite for R.  It enables persistent local storage for R applications but will be slower than the alternatives.  For certain operations it can be significantly slower.
 
 # MonetDBLite & duckdb
 
