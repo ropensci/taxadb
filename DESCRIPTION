@@ -2,7 +2,8 @@ Package: taxadb
 Version: 0.0.1
 Title: A High-Performance Local Taxonomic Database Interface
 Description: Creates a local database of many commonly used taxonomic authorities
-             and provides functions that can quickly query this data.  
+             and provides functions that can quickly query this data.
+ This package has been peer-reviewed by rOpenSci (v. 0.0.1).
 Authors@R: c(
             person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"),
                    comment = c(ORCID = "0000-0002-1642-628X")),
@@ -49,6 +50,6 @@ Suggests:
     MonetDBLite
 Language: en-US
 VignetteBuilder: knitr
-URL: https://github.com/cboettig/taxadb
-BugReports: https://github.com/cboettig/taxadb/issues
+URL: https://docs.ropensci.org/taxadb (website) https://github.com/ropensci/taxadb
+BugReports: https://github.com/ropensci/taxadb/issues
 AdditionalRepositories: https://github.cboettig.io/drat
