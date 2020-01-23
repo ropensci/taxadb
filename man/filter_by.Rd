@@ -7,10 +7,16 @@ by the vector \code{x}, and then uses this table to do a filtering join,
 joining on the \code{by} column to return all rows matching the \code{x} values
 (scientificNames, taxonIDs, etc).}
 \usage{
-filter_by(x, by, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), schema = c("dwc", "common"),
-  version = latest_version(), collect = TRUE, db = td_connect(),
-  ignore_case = TRUE)
+filter_by(
+  x,
+  by,
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  schema = c("dwc", "common"),
+  version = latest_version(),
+  collect = TRUE,
+  db = td_connect(),
+  ignore_case = TRUE
+)
 }
 \arguments{
 \item{x}{a vector of values to filter on}
@@ -66,8 +72,10 @@ filter_by("Aves", "class")
 
 }
 \seealso{
-Other filter_by: \code{\link{filter_common}},
-  \code{\link{filter_id}}, \code{\link{filter_name}},
-  \code{\link{filter_rank}}
+Other filter_by: 
+\code{\link{filter_common}()},
+\code{\link{filter_id}()},
+\code{\link{filter_name}()},
+\code{\link{filter_rank}()}
 }
 \concept{filter_by}

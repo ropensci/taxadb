@@ -4,10 +4,14 @@
 \alias{filter_id}
 \title{Return a taxonomic table matching the requested ids}
 \usage{
-filter_id(id, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), type = c("taxonID",
-  "acceptedNameUsageID"), version = latest_version(), collect = TRUE,
-  db = td_connect())
+filter_id(
+  id,
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  type = c("taxonID", "acceptedNameUsageID"),
+  version = latest_version(),
+  collect = TRUE,
+  db = td_connect()
+)
 }
 \arguments{
 \item{id}{taxonomic id, in prefix format}
@@ -60,8 +64,10 @@ filter_id("ITIS:1077358", type="acceptedNameUsageID")
 }
 }
 \seealso{
-Other filter_by: \code{\link{filter_by}},
-  \code{\link{filter_common}}, \code{\link{filter_name}},
-  \code{\link{filter_rank}}
+Other filter_by: 
+\code{\link{filter_by}()},
+\code{\link{filter_common}()},
+\code{\link{filter_name}()},
+\code{\link{filter_rank}()}
 }
 \concept{filter_by}

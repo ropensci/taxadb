@@ -4,9 +4,13 @@
 \alias{synonyms}
 \title{synonyms}
 \usage{
-synonyms(name, provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb",
-  "slb", "wd", "ott", "iucn"), version = latest_version(),
-  collect = TRUE, db = td_connect())
+synonyms(
+  name,
+  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  version = latest_version(),
+  collect = TRUE,
+  db = td_connect()
+)
 }
 \arguments{
 \item{name}{a character vector of scientific names, e.g. "Homo sapiens"}
