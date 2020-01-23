@@ -29,3 +29,4 @@ common_names
 2019
 dwc
 ^cran-comments\.md$
+^CRAN-RELEASE$
