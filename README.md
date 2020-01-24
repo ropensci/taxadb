@@ -303,13 +303,13 @@ most_synonyms %>%
 ## Learn more
 
   - See richer examples the package
-    [Tutorial](https://docs.ropensci.org/taxadb/articles/intro.html).
+    [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
 
   - Learn about the underlying data sources and formats in [Data
-    Sources](https://docs.ropensci.org/taxadb/articles/articles/data-sources.html)
+    Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
   - Get better performance by selecting an alternative [database
-    backend](https://docs.ropensci.org/taxadb/articles/articles/backends.html)
+    backend](https://docs.ropensci.org/taxadb/articles/backends.html)
     engines.
 
 -----

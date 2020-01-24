@@ -1,5 +1,8 @@
 {
-  "@context": ["https://doi.org/10.5063/schema/codemeta-2.0", "http://schema.org"],
+  "@context": [
+    "https://doi.org/10.5063/schema/codemeta-2.0",
+    "http://schema.org"
+  ],
   "@type": "SoftwareSourceCode",
   "identifier": "taxadb",
   "description": "Creates a local database of many commonly used taxonomic authorities\n             and provides functions that can quickly query this data.\n This package has been peer-reviewed by rOpenSci (v. 0.0.1).",
@@ -337,6 +340,10 @@
   ],
   "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
   "fileSize": "102.925KB",
-  "contIntegration": ["https://travis-ci.org/ropensci/taxadb", "https://ci.appveyor.com/project/cboettig/taxadb", "https://codecov.io/github/ropensci/taxadb?branch=master"],
+  "contIntegration": [
+    "https://travis-ci.org/ropensci/taxadb",
+    "https://ci.appveyor.com/project/cboettig/taxadb",
+    "https://codecov.io/github/ropensci/taxadb?branch=master"
+  ],
   "developmentStatus": "https://www.tidyverse.org/lifecycle/#maturing"
 }

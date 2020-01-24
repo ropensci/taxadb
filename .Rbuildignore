@@ -30,3 +30,4 @@ common_names
 ^dwc$
 ^cran-comments\.md$
 
+^CRAN-RELEASE$
