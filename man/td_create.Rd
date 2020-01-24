@@ -36,7 +36,7 @@ plenty of spare RAM.}
 
 \item{dbdir}{a location on your computer where the database
 should be installed. Defaults to user data directory given by
-\url{rappdirs::user_data_dir}.}
+\link[rappdirs:user_data_dir]{rappdirs::user_data_dir}.}
 
 \item{db}{connection to a database.  By default, taxadb will set up its own
 fast database connection.}

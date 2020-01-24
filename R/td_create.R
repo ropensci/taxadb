@@ -15,7 +15,7 @@
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
 #' should be installed. Defaults to user data directory given by
-#' [rappdirs::user_data_dir]().
+#' [rappdirs::user_data_dir].
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
