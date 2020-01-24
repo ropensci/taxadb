@@ -26,7 +26,7 @@ common_names
 ^renv$
 ^CODE_OF_CONDUCT\.md$
 ^\.drake$
-2019
-dwc
+^2019$
+^dwc$
 ^cran-comments\.md$
-^CRAN-RELEASE$
+

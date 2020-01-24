@@ -47,8 +47,8 @@ Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
-#> not overwriting dwc_col
-#> not overwriting common_col
+#> not overwriting 2019_dwc_col
+#> not overwriting 2019_common_col
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -70,13 +70,7 @@ Catalogue of Life:
 birds <- bbs %>% 
   select(species) %>% 
   mutate(id = get_ids(species, "col"))
-#> Warning: `chr_along()` is deprecated as of rlang 0.2.0.
-#> This warning is displayed once per session.
-#> Warning: `overscope_eval_next()` is deprecated as of rlang 0.2.0.
-#> Please use `eval_tidy()` with a data mask instead.
-#> This warning is displayed once per session.
-#> Warning: `overscope_clean()` is deprecated as of rlang 0.2.0.
-#> This warning is displayed once per session.
+#> not overwriting 2019_dwc_col
 
 head(birds, 10)
 #>                          species           id
@@ -106,6 +100,7 @@ help us resolve this last case (see below).
 birds %>% 
   mutate(accepted_name = get_names(id, "col")) %>% 
   head()
+#> not overwriting 2019_dwc_col
 #>                         species           id          accepted_name
 #> 1        Dendrocygna autumnalis COL:35517330 Dendrocygna autumnalis
 #> 2           Dendrocygna bicolor COL:35517332    Dendrocygna bicolor
@@ -134,6 +129,7 @@ identifier in ITIS:
 
 ``` r
 get_ids("Trochalopteron henrici gucenense") 
+#> not overwriting 2019_dwc_itis
 #> [1] NA
 ```
 
@@ -142,26 +138,28 @@ zero matches, but to more than one match:
 
 ``` r
 filter_name("Trochalopteron henrici gucenense") 
+#> not overwriting 2019_dwc_itis
 #> # A tibble: 2 x 17
 #>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus
 #>   <int> <chr>   <chr>          <chr>     <chr>            <chr>          
 #> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym        
 #> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym        
-#> # … with 11 more variables: update_date <chr>, kingdom <chr>,
-#> #   phylum <chr>, class <chr>, order <chr>, family <chr>, genus <chr>,
-#> #   specificEpithet <chr>, vernacularName <chr>,
-#> #   infraspecificEpithet <chr>, input <chr>
+#> # … with 11 more variables: update_date <chr>, kingdom <chr>, phylum <chr>,
+#> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
+#> #   vernacularName <chr>, infraspecificEpithet <chr>, input <chr>
 ```
 
 ``` r
 filter_name("Trochalopteron henrici gucenense")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
+#> not overwriting 2019_dwc_itis
+#> not overwriting 2019_dwc_itis
 #> # A tibble: 2 x 4
-#>   scientificName       taxonomicStatus acceptedNameUsage   acceptedNameUsa…
-#>   <chr>                <chr>           <chr>               <chr>           
-#> 1 Trochalopteron henr… synonym         Trochalopteron ell… ITIS:916116     
-#> 2 Trochalopteron henr… synonym         Trochalopteron hen… ITIS:916117
+#>   scientificName          taxonomicStatus acceptedNameUsage    acceptedNameUsag…
+#>   <chr>                   <chr>           <chr>                <chr>            
+#> 1 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116      
+#> 2 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -170,6 +168,7 @@ taxonomic data on all bird names in the Catalogue of Life:
 
 ``` r
 filter_rank(name = "Aves", rank = "class", provider = "col")
+#> not overwriting 2019_dwc_col
 #> # A tibble: 35,398 x 21
 #>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
 #>    <int> <chr>   <chr>          <chr>            <chr>           <chr>    
@@ -183,12 +182,11 @@ filter_rank(name = "Aves", rank = "class", provider = "col")
 #>  8     1 COL:35… Tinamus major  COL:35516824     accepted        species  
 #>  9     1 COL:35… Tinamus osgoo… COL:35516825     accepted        species  
 #> 10     1 COL:35… Tinamus solit… COL:35516826     accepted        species  
-#> # … with 35,388 more rows, and 15 more variables: kingdom <chr>,
-#> #   phylum <chr>, class <chr>, order <chr>, family <chr>, genus <chr>,
-#> #   specificEpithet <chr>, infraspecificEpithet <chr>,
-#> #   taxonConceptID <chr>, isExtinct <chr>, nameAccordingTo <chr>,
-#> #   namePublishedIn <chr>, scientificNameAuthorship <chr>,
-#> #   vernacularName <chr>, input <chr>
+#> # … with 35,388 more rows, and 15 more variables: kingdom <chr>, phylum <chr>,
+#> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
+#> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
+#> #   nameAccordingTo <chr>, namePublishedIn <chr>,
+#> #   scientificNameAuthorship <chr>, vernacularName <chr>, input <chr>
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -200,6 +198,7 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   group_by(family) %>%
   count(sort = TRUE) %>% 
   head()
+#> not overwriting 2019_dwc_col
 #> # A tibble: 6 x 2
 #> # Groups:   family [6]
 #>   family           n
@@ -224,26 +223,26 @@ connection:
 
 ``` r
 taxa_tbl("col")
-#> # Source:   table<dwc_col> [?? x 19]
+#> not overwriting 2019_dwc_col
+#> # Source:   table<2019_dwc_col> [?? x 19]
 #> # Database: MonetDBEmbeddedConnection
-#>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
-#>    <chr>   <chr>          <chr>            <chr>           <chr>    
-#>  1 COL:31… Limacoccus br… COL:316423       accepted        species  
-#>  2 COL:31… Coccus bromel… COL:316424       accepted        species  
-#>  3 COL:31… Apiomorpha po… COL:316425       accepted        species  
-#>  4 COL:31… Eriococcus ch… COL:316441       accepted        species  
-#>  5 COL:31… Eriococcus ch… COL:316442       accepted        species  
-#>  6 COL:31… Eriococcus ch… COL:316443       accepted        species  
-#>  7 COL:31… Eriococcus ci… COL:316444       accepted        species  
-#>  8 COL:31… Eriococcus ci… COL:316445       accepted        species  
-#>  9 COL:31… Eriococcus bu… COL:316447       accepted        species  
-#> 10 COL:31… Eriococcus au… COL:316450       accepted        species  
-#> # … with more rows, and 14 more variables: kingdom <chr>, phylum <chr>,
-#> #   class <chr>, order <chr>, family <chr>, genus <chr>,
-#> #   specificEpithet <chr>, infraspecificEpithet <chr>,
-#> #   taxonConceptID <chr>, isExtinct <chr>, nameAccordingTo <chr>,
-#> #   namePublishedIn <chr>, scientificNameAuthorship <chr>,
-#> #   vernacularName <chr>
+#>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom
+#>    <chr>   <chr>          <chr>            <chr>           <chr>     <chr>  
+#>  1 COL:31… Limacoccus br… COL:316423       accepted        species   Animal…
+#>  2 COL:31… Coccus bromel… COL:316424       accepted        species   Animal…
+#>  3 COL:31… Apiomorpha po… COL:316425       accepted        species   Animal…
+#>  4 COL:31… Eriococcus ch… COL:316441       accepted        species   Animal…
+#>  5 COL:31… Eriococcus ch… COL:316442       accepted        species   Animal…
+#>  6 COL:31… Eriococcus ch… COL:316443       accepted        species   Animal…
+#>  7 COL:31… Eriococcus ci… COL:316444       accepted        species   Animal…
+#>  8 COL:31… Eriococcus ci… COL:316445       accepted        species   Animal…
+#>  9 COL:31… Eriococcus bu… COL:316447       accepted        species   Animal…
+#> 10 COL:31… Eriococcus au… COL:316450       accepted        species   Animal…
+#> # … with more rows, and 13 more variables: phylum <chr>, class <chr>,
+#> #   order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
+#> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
+#> #   nameAccordingTo <chr>, namePublishedIn <chr>,
+#> #   scientificNameAuthorship <chr>, vernacularName <chr>
 ```
 
 We can still use most familiar `dplyr` verbs to perform common tasks.
@@ -253,6 +252,7 @@ For instance: which species has the most known synonyms?
 most_synonyms <- taxa_tbl("col") %>% 
   group_by(acceptedNameUsageID) %>% 
   count(sort=TRUE)
+#> not overwriting 2019_dwc_col
 most_synonyms
 #> # Source:     lazy query [?? x 2]
 #> # Database:   MonetDBEmbeddedConnection
@@ -293,6 +293,7 @@ most_synonyms %>%
   pull(acceptedNameUsageID) %>% 
   filter_id("col") %>%
   select(scientificName)
+#> not overwriting 2019_dwc_col
 #> # A tibble: 1 x 1
 #>   scientificName                     
 #>   <chr>                              
@@ -302,20 +303,20 @@ most_synonyms %>%
 ## Learn more
 
   - See richer examples the package
-    [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html).
+    [Tutorial](https://docs.ropensci.org/taxadb/articles/intro.html).
 
   - Learn about the underlying data sources and formats in [Data
-    Sources](https://cboettig.github.io/taxadb/articles/articles/data-sources.html)
+    Sources](https://docs.ropensci.org/taxadb/articles/articles/data-sources.html)
 
   - Get better performance by selecting an alternative [database
-    backend](https://cboettig.github.io/taxadb/articles/articles/backends.html)
+    backend](https://docs.ropensci.org/taxadb/articles/articles/backends.html)
     engines.
 
 -----
 
 Please note that this project is released with a [Contributor Code of
-Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree
-to abide by its
+Conduct](https://ropensci.org/code-of-conduct/). By participating in
+this project you agree to abide by its
 terms.
 
 [![ropensci\_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)

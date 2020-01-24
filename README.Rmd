@@ -154,11 +154,11 @@ most_synonyms %>%
 
 ## Learn more
 
-- See richer examples the package [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html).
+- See richer examples the package [Tutorial](https://docs.ropensci.org/taxadb/articles/intro.html).
 
-- Learn about the underlying data sources and formats in [Data Sources](https://cboettig.github.io/taxadb/articles/articles/data-sources.html)
+- Learn about the underlying data sources and formats in [Data Sources](https://docs.ropensci.org/taxadb/articles/articles/data-sources.html)
 
-- Get better performance by selecting an alternative [database backend](https://cboettig.github.io/taxadb/articles/articles/backends.html) engines.
+- Get better performance by selecting an alternative [database backend](https://docs.ropensci.org/taxadb/articles/articles/backends.html) engines.
 
 
 
@@ -171,7 +171,7 @@ if(require(codemetar)) codemetar::write_codemeta()
 
 ----
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
+Please note that this project is released with a [Contributor Code of Conduct](https://ropensci.org/code-of-conduct/).
 By participating in this project you agree to abide by its terms.
 
 [![ropensci_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)
