@@ -52,4 +52,4 @@ Language: en-US
 VignetteBuilder: knitr
 URL: https://docs.ropensci.org/taxadb, https://github.com/ropensci/taxadb
 BugReports: https://github.com/ropensci/taxadb/issues
-Additional_repositories: https://github.cboettig.io/drat
+Additional_repositories: https://cboettig.github.io/drat
