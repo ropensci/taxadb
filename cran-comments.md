@@ -1,4 +1,4 @@
-We are pleased to submit the intial release of taxadb.  This submission is now less than 5 MB (94 KB).
+We are pleased to submit the intial release of taxadb.  This submission is now less than 5 MB.
 
 
 ## Test environments
