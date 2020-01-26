@@ -5,7 +5,7 @@
   ],
   "@type": "SoftwareSourceCode",
   "identifier": "taxadb",
-  "description": "Creates a local database of many commonly used taxonomic authorities\n             and provides functions that can quickly query this data.\n This package has been peer-reviewed by rOpenSci (v. 0.0.1).",
+  "description": "Creates a local database of many commonly used taxonomic authorities\n             and provides functions that can quickly query this data.",
   "name": "taxadb: A High-Performance Local Taxonomic Database Interface",
   "codeRepository": "https://github.com/ropensci/taxadb",
   "relatedLink": "https://docs.ropensci.org/taxadb",
@@ -15,10 +15,10 @@
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
-    "version": "3.6.1",
+    "version": "3.6.2",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 3.6.1 (2019-07-05)",
+  "runtimePlatform": "R version 3.6.2 (2019-12-12)",
   "author": [
     {
       "@type": "Person",
@@ -339,7 +339,7 @@
     }
   ],
   "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
-  "fileSize": "102.925KB",
+  "fileSize": "102.888KB",
   "contIntegration": [
     "https://travis-ci.org/ropensci/taxadb",
     "https://ci.appveyor.com/project/cboettig/taxadb",
