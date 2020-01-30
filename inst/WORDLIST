@@ -34,6 +34,7 @@ intraspecific
 itis
 ITIS
 IUCN
+iucnredlist
 lifecycle
 Mammalia
 md
@@ -47,7 +48,6 @@ RDF
 Redlist
 reproducibility
 ropensci
-rOpenSci
 RSQLite
 Sandhill
 Sarcopterygii
