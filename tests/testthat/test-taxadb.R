@@ -52,15 +52,3 @@ test_that("we can set up a db and call basic functions", {
   expect_gt(dim(names)[1], 1)
 })
 
-test_that("we can set up a db and call synonyms", {
-
-  db <- td_connect(test_db)
-  skip_if(is(db, "RSQLite"))
-  ## Test synonyms: We can
-  ## get synonyms for the accepted names:
-  syns <- synonyms("Sapajus apella", db= db)
-  expect_is(syns, "data.frame")
-  expect_gt(dim(syns)[1], 1)
-
-
-})
