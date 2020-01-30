@@ -14,8 +14,8 @@ test_that("setup-free calls to basic functions", {
   sp <- filter(df, family == "Hominidae")
 
   suppressWarnings({
-  df <- filter_rank(name = "Hominidae", rank = "family", db = NULL)
-  species <- filter_name("Pan troglodytes", db = NULL)
+  df <- filter_rank(name = "Hominidae", rank = "family", provider = "itis", db = NULL)
+  species <- filter_name("Pan troglodytes", provider = "itis", db = NULL)
   })
 
   expect_is(df, "data.frame")
