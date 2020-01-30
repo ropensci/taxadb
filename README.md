@@ -47,8 +47,6 @@ Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
-#> not overwriting 2019_dwc_col
-#> not overwriting 2019_common_col
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -70,7 +68,6 @@ Catalogue of Life:
 birds <- bbs %>% 
   select(species) %>% 
   mutate(id = get_ids(species, "col"))
-#> not overwriting 2019_dwc_col
 
 head(birds, 10)
 #>                          species           id
@@ -100,7 +97,6 @@ help us resolve this last case (see below).
 birds %>% 
   mutate(accepted_name = get_names(id, "col")) %>% 
   head()
-#> not overwriting 2019_dwc_col
 #>                         species           id          accepted_name
 #> 1        Dendrocygna autumnalis COL:35517330 Dendrocygna autumnalis
 #> 2           Dendrocygna bicolor COL:35517332    Dendrocygna bicolor
@@ -129,7 +125,8 @@ identifier in ITIS:
 
 ``` r
 get_ids("Trochalopteron henrici gucenense") 
-#> not overwriting 2019_dwc_itis
+#> Importing 2019_dwc_itis.tsv.bz2 in 100000 line chunks:
+#>  ...Done! (in 55.84305 secs)
 #> [1] NA
 ```
 
@@ -138,7 +135,6 @@ zero matches, but to more than one match:
 
 ``` r
 filter_name("Trochalopteron henrici gucenense") 
-#> not overwriting 2019_dwc_itis
 #> # A tibble: 2 x 17
 #>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus
 #>   <int> <chr>   <chr>          <chr>     <chr>            <chr>          
@@ -153,8 +149,6 @@ filter_name("Trochalopteron henrici gucenense")
 filter_name("Trochalopteron henrici gucenense")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
-#> not overwriting 2019_dwc_itis
-#> not overwriting 2019_dwc_itis
 #> # A tibble: 2 x 4
 #>   scientificName          taxonomicStatus acceptedNameUsage    acceptedNameUsag…
 #>   <chr>                   <chr>           <chr>                <chr>            
@@ -168,7 +162,6 @@ taxonomic data on all bird names in the Catalogue of Life:
 
 ``` r
 filter_rank(name = "Aves", rank = "class", provider = "col")
-#> not overwriting 2019_dwc_col
 #> # A tibble: 35,398 x 21
 #>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
 #>    <int> <chr>   <chr>          <chr>            <chr>           <chr>    
@@ -198,7 +191,6 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   group_by(family) %>%
   count(sort = TRUE) %>% 
   head()
-#> not overwriting 2019_dwc_col
 #> # A tibble: 6 x 2
 #> # Groups:   family [6]
 #>   family           n
@@ -223,7 +215,6 @@ connection:
 
 ``` r
 taxa_tbl("col")
-#> not overwriting 2019_dwc_col
 #> # Source:   table<2019_dwc_col> [?? x 19]
 #> # Database: MonetDBEmbeddedConnection
 #>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom
@@ -252,7 +243,6 @@ For instance: which species has the most known synonyms?
 most_synonyms <- taxa_tbl("col") %>% 
   group_by(acceptedNameUsageID) %>% 
   count(sort=TRUE)
-#> not overwriting 2019_dwc_col
 most_synonyms
 #> # Source:     lazy query [?? x 2]
 #> # Database:   MonetDBEmbeddedConnection
@@ -293,7 +283,6 @@ most_synonyms %>%
   pull(acceptedNameUsageID) %>% 
   filter_id("col") %>%
   select(scientificName)
-#> not overwriting 2019_dwc_col
 #> # A tibble: 1 x 1
 #>   scientificName                     
 #>   <chr>                              
