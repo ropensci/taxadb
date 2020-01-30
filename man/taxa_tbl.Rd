@@ -5,7 +5,7 @@
 \title{Return a reference to a given table in the taxadb database}
 \usage{
 taxa_tbl(
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
   db = td_connect()
@@ -13,13 +13,14 @@ taxa_tbl(
 }
 \arguments{
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
 
 \item{schema}{One of "dwc" (for Darwin Core data) or "common"
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 }

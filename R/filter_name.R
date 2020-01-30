@@ -32,9 +32,7 @@
 #' }
 #'
 filter_name <- function(name,
-                provider =c("itis", "ncbi", "col", "tpl",
-                            "gbif", "fb", "slb", "wd", "ott",
-                            "iucn"),
+                provider = getOption("taxadb_default_provider", "itis"),
                 version = latest_version(),
                 collect = TRUE,
                 ignore_case = TRUE,
@@ -42,7 +40,7 @@ filter_name <- function(name,
 
   filter_by(x = name,
             by = "scientificName",
-            provider = match.arg(provider),
+            provider = provider,
             version = version,
             collect = collect,
             db = db,

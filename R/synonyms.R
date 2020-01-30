@@ -21,9 +21,7 @@
 #' }
 #'
 synonyms <- function(name,
-                     provider = c("itis", "ncbi", "col", "tpl",
-                                  "gbif", "fb", "slb", "wd", "ott",
-                                  "iucn"),
+                     provider = getOption("taxadb_default_provider", "itis"),
                      version = latest_version(),
                      collect = TRUE,
                      db = td_connect()){
