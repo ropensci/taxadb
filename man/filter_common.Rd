@@ -6,7 +6,7 @@
 \usage{
 filter_common(
   name,
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   version = latest_version(),
   collect = TRUE,
   ignore_case = TRUE,
@@ -18,10 +18,11 @@ filter_common(
 e.g. "Humans"}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

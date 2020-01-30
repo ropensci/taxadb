@@ -6,7 +6,7 @@
 \usage{
 get_names(
   id,
-  db = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  db = getOption("taxadb_default_provider", "itis"),
   version = latest_version(),
   format = c("guess", "prefix", "bare", "uri"),
   taxadb_db = td_connect()

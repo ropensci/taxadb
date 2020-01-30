@@ -17,10 +17,11 @@ name_contains(
 to be matched against.}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 

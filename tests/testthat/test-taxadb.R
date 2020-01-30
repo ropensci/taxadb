@@ -10,15 +10,14 @@ test_that("we can set up a db and call basic functions", {
   td_create(dbdir = test_db)
   db <- td_connect(test_db)
 
-  df <- taxa_tbl(provider = "itis",
-                 db = db)
+  df <- taxa_tbl(db = db)
 
-  chameleons <- df %>%
-    filter(family == "Chamaeleonidae") %>%
+  sp <- df %>%
+    filter(family == "Cebidae") %>%
     collect()
 
-  df <- filter_rank(name = "Aves",
-                    rank = "class",
+  df <- filter_rank(name = "Cebidae",
+                    rank = "family",
                     db = db)  %>%
     filter(taxonomicStatus == "accepted")
 
@@ -33,9 +32,9 @@ test_that("we can set up a db and call basic functions", {
 
   expect_is(df, "data.frame")
   expect_is(species, "data.frame")
-  expect_is(chameleons, "data.frame")
+  expect_is(sp, "data.frame")
   expect_gt(dim(df)[1], 1)
-  expect_gt(dim(chameleons)[1], 1)
+  expect_gt(dim(sp)[1], 1)
 
   ## we can opt out of ignore_case on ids():
   species <- filter_name(df$scientificName,
@@ -51,11 +50,15 @@ test_that("we can set up a db and call basic functions", {
                  db = db)
   expect_is(names, "data.frame")
   expect_gt(dim(names)[1], 1)
+})
 
+test_that("we can set up a db and call synonyms", {
+
+  db <- td_connect(test_db)
+  skip_if(is(db, "RSQLite"))
   ## Test synonyms: We can
   ## get synonyms for the accepted names:
-  syns <- synonyms(df$scientificName,
-                 db = db)
+  syns <- synonyms("Sapajus apella", db= db)
   expect_is(syns, "data.frame")
   expect_gt(dim(syns)[1], 1)
 

@@ -10,7 +10,7 @@ joining on the \code{by} column to return all rows matching the \code{x} values
 filter_by(
   x,
   by,
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
   collect = TRUE,
@@ -25,13 +25,14 @@ filter_by(
 The filtering join is executed with this column as the joining variable.}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
 
 \item{schema}{One of "dwc" (for Darwin Core data) or "common"
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

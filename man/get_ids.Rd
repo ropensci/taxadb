@@ -6,7 +6,7 @@
 \usage{
 get_ids(
   names,
-  db = known_providers,
+  db = getOption("taxadb_default_provider", "itis"),
   format = c("prefix", "bare", "uri"),
   version = latest_version(),
   taxadb_db = td_connect(),

@@ -7,7 +7,7 @@
 fuzzy_filter(
   name,
   by = c("scientificName", "vernacularName"),
-  provider = c("itis", "ncbi", "col", "tpl", "gbif", "fb", "slb", "wd", "ott", "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   match = c("contains", "starts_with"),
   version = latest_version(),
   db = td_connect(),
@@ -23,13 +23,14 @@ to be matched against.}
 The filtering join is executed with this column as the joining variable.}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
 
 \item{match}{should we match by names starting with the term or containing
 the term anywhere in the name?}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 
@@ -65,10 +66,10 @@ expressions at this time.
 
 ## match any common name containing:
 name <- c("woodpecker", "monkey")
-fuzzy_filter(name, "vernacularName", "itis")
+fuzzy_filter(name, "vernacularName")
 
 ## match scientific name
-fuzzy_filter("Homo ", "scientificName", "itis",
+fuzzy_filter("Homo ", "scientificName",
              match = "starts_with")
 }
 

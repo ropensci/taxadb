@@ -1,4 +1,10 @@
-We are pleased to submit the intial release of taxadb.  This submission is now less than 5 MB. All links should now resolve. Please note that the IUCN Redlist's website sometimes appears to time out on checks.  This is indeed the official website of this major international orgainziation and can easily be confirmed as not a 404 error in any browser.
+We are pleased to submit the intial release of taxadb.  
+
+The IUCN website URL does not include a HEAD, which causes CRAN's header-only check request (`curl -I -L`) to fail,
+even though a full check (`curl -L` would resolve https://iucnredlist.org).  To avoid this spurious error, I have
+listed this link as plain text.
+
+CRAN's checks also appeared to stall out on one system on the previous submission.  While I cannot replicate this (locally checks run under 2 minutes), I agree it may be due to a possible web request, so this revision caches a minimal copy of the data used in regular checks so that tests can be run more efficiently.
 
 
 ## Test environments

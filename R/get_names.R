@@ -19,9 +19,7 @@
 #' @export
 #' @importFrom dplyr pull select collect distinct
 get_names <- function(id,
-                      db = c("itis", "ncbi", "col", "tpl",
-                             "gbif", "fb", "slb", "wd", "ott",
-                             "iucn"),
+                      db = getOption("taxadb_default_provider", "itis"),
                       version = latest_version(),
                       format = c("guess", "prefix", "bare", "uri"),
                       taxadb_db = td_connect()

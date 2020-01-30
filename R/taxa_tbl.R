@@ -27,14 +27,11 @@
 #' }
 
 taxa_tbl <- function(
-  provider = c("itis", "ncbi", "col", "tpl",
-               "gbif", "fb", "slb", "wd", "ott",
-               "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc","common"),
   version = latest_version(),
   db = td_connect()){
 
-  provider <- match.arg(provider)
   schema <- match.arg(schema)
   tbl_name <- paste0(version, "_", schema, "_", provider)
 

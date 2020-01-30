@@ -26,18 +26,16 @@
 #'
 #' ## match any common name containing:
 #' name <- c("woodpecker", "monkey")
-#' fuzzy_filter(name, "vernacularName", "itis")
+#' fuzzy_filter(name, "vernacularName")
 #'
 #' ## match scientific name
-#' fuzzy_filter("Homo ", "scientificName", "itis",
+#' fuzzy_filter("Homo ", "scientificName",
 #'              match = "starts_with")
 #' }
 #'
 fuzzy_filter <- function(name,
                          by = c("scientificName", "vernacularName"),
-                         provider = c("itis", "ncbi", "col", "tpl",
-                                      "gbif", "fb", "slb", "wd", "ott",
-                                      "iucn"),
+                         provider = getOption("taxadb_default_provider", "itis"),
                          match = c("contains", "starts_with"),
                          version = latest_version(),
                          db = td_connect(),
@@ -45,7 +43,6 @@ fuzzy_filter <- function(name,
                          collect = TRUE){
 
   by <- match.arg(by)
-  provider <- match.arg(provider)
   match <- match.arg(match)
 
   db_tbl <- dplyr::mutate(taxa_tbl(provider, "dwc", version, db),

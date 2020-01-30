@@ -1,6 +1,6 @@
 known_providers <- c("itis", "ncbi", "col", "tpl",
                      "gbif", "fb", "slb", "wd", "ott",
-                     "iucn")
+                     "iucn", "itis_test")
 
 
 #' Return a taxonomic table matching the requested ids
@@ -39,9 +39,7 @@ known_providers <- c("itis", "ncbi", "col", "tpl",
 #'
 #' }
 filter_id <- function(id,
-                  provider = c("itis", "ncbi", "col", "tpl",
-                               "gbif", "fb", "slb", "wd", "ott",
-                               "iucn"),
+                  provider = getOption("taxadb_default_provider", "itis"),
                   type = c("taxonID", "acceptedNameUsageID"),
                   version = latest_version(),
                   collect = TRUE,
@@ -49,7 +47,7 @@ filter_id <- function(id,
 
     filter_by(x = id,
               by = match.arg(type),
-              provider = match.arg(provider),
+              provider = provider,
               version = version,
               collect = collect,
               db = db,
