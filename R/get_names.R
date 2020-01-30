@@ -25,7 +25,6 @@ get_names <- function(id,
                       taxadb_db = td_connect()
                      ){
   format <- match.arg(format)
-  db <- match.arg(db)
   n <- length(id)
 
 
