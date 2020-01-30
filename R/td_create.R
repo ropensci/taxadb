@@ -66,9 +66,9 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
   if(!dir.exists(dbdir))
     dir.create(dbdir, FALSE, TRUE)
 
-  recognized_provider <- known_providers
+  recognized_provider <- c(known_providers, "itis_test")
   if (any(provider == "all")) {
-    provider <- recognized_provider
+    provider <- known_providers
   }
   stopifnot(all(provider %in% recognized_provider))
 
@@ -176,6 +176,9 @@ latest_version <- function() {
   available_versions()[[1]]
 }
 
+known_providers <- c("itis", "ncbi", "col", "tpl",
+                     "gbif", "fb", "slb", "wd", "ott",
+                     "iucn")
 
 
 

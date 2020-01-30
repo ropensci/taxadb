@@ -1,6 +1,3 @@
-known_providers <- c("itis", "ncbi", "col", "tpl",
-                     "gbif", "fb", "slb", "wd", "ott",
-                     "iucn", "itis_test")
 
 
 #' Return a taxonomic table matching the requested ids

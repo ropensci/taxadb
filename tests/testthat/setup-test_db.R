@@ -1,14 +1,14 @@
 
-
-taxadb:::td_disconnect()
-test_db <- file.path(tempdir(), "taxadb")
-#dir.create(test_db, showWarnings = FALSE)
-Sys.setenv(TAXADB_HOME=test_db)
+## Optionally: Force a backend type, otherwise will use the best available
+## (which is currently MonetDBLite, since it is suggested)
 #Sys.setenv(TAXADB_DRIVER="MonetDBLite")
 #Sys.setenv(TAXADB_DRIVER="RSQLite")
-options(taxadb_default_provider = "itis_test")
 
-## Consider adding some minimal subset of, say, ITIS data file that
-## would allow offline testing.  Currently pretty much all tests first
-## require some access to the online data caches
+## All tests only write to tempdir
+test_db <- file.path(tempdir(), "taxadb")
+Sys.setenv(TAXADB_HOME=test_db)
+
+
+## Use locally cached version to allow for offline testing
+options(taxadb_default_provider = "itis_test")
 

@@ -1,5 +1,11 @@
 context("filter_by")
 
+## All tests only write to tempdir
+test_db <- file.path(tempdir(), "taxadb")
+Sys.setenv(TAXADB_HOME=test_db)
+## Use locally cached version to allow for offline testing
+options(taxadb_default_provider = "itis_test")
+
 
 test_that("filter_common", {
   df <- filter_common("Tufted Capuchin")
