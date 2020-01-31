@@ -6,7 +6,7 @@
 #'  database. By default, will install `itis`.  See details for a list of
 #'  recognized provider. Use `provider="all"` to install all
 #'  available provider automatically.
-#' @param schema format of the database to import.
+#' @inheritParams filter_by
 #' @param lines number of lines that can be safely read in to memory at once.
 #' Leave at default or increase for faster importing if you have
 #' plenty of spare RAM.
@@ -15,28 +15,32 @@
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
 #' should be installed. Defaults to user data directory given by
-#' [rappdirs::user_data_dir]().
+#' `[rappdirs::user_data_dir]`.
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
-#'  Authorities recognized by taxadb are:
+#'  Authorities currently recognized by taxadb are:
 #'  - `itis`: Integrated Taxonomic Information System, <https://www.itis.gov/>
 #'  - `ncbi`:  National Center for Biotechnology Information,
 #'  <https://www.ncbi.nlm.nih.gov/taxonomy>
 #'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>
 #'  - `tpl`: The Plant List, <http://www.theplantlist.org/>
 #'  - `gbif`: Global Biodiversity Information Facility, <https://www.gbif.org/>
-#'  - `fb` FishBase, <http://fishbase.org>
-#'  - `slb`, SeaLifeBase, <http://sealifebase.org>
-#'  - `wd`, Wikidata: <https://www.wikidata.org/>
-#'  - `ott` OpenTree Taxonomy:
+#'  - `fb`: FishBase, <http://fishbase.org>
+#'  - `slb`: SeaLifeBase, <http://sealifebase.org>
+#'  - `wd`: Wikidata: <https://www.wikidata.org/>
+#'  - `ott`: OpenTree Taxonomy:
 #'  <https://github.com/OpenTreeOfLife/reference-taxonomy>
+#'  - `iucn`: IUCN Red List, https://iucnredlist.org
+#'  - `itis_test`: a small subset of ITIS, cached locally with the package for testing purposes only
 #' @return path where database has been installed (invisibly)
 #' @export
 #' @importFrom utils download.file
 #' @importFrom DBI dbConnect dbDisconnect dbListTables
 #' @importFrom arkdb unark streamable_readr_tsv
 #' @importFrom readr cols
+#' @importFrom curl curl_download curl_fetch_memory
+#' @importFrom jsonlite fromJSON
 #' @examples
 #' \donttest{
 #'   \dontshow{
@@ -50,8 +54,9 @@
 #'   td_create("itis", overwrite = TRUE)
 #'
 #' }
-td_create <- function(provider = "itis",
+td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
                       schema = c("dwc", "common"),
+                      version = latest_version(),
                       overwrite = FALSE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
@@ -61,11 +66,9 @@ td_create <- function(provider = "itis",
   if(!dir.exists(dbdir))
     dir.create(dbdir, FALSE, TRUE)
 
-  recognized_provider <- c("itis", "ncbi", "col", "tpl",
-                           "gbif", "fb", "slb", "wd", "ott",
-                           "iucn")
-  if (provider == "all") {
-    provider <- recognized_provider
+  recognized_provider <- c(known_providers, "itis_test")
+  if (any(provider == "all")) {
+    provider <- known_providers
   }
   stopifnot(all(provider %in% recognized_provider))
 
@@ -74,11 +77,21 @@ td_create <- function(provider = "itis",
     paste0(s, "_", provider, ".tsv.bz2")))
   #remove common name tables for providers without common names
   files <- files[!files %in% paste0(NO_COMMON, ".tsv.bz2")]
-  dest <- file.path(dbdir, files)
+  dest <- file.path(dbdir, paste0(version, "_", files))
 
   new_dest <- dest
   new_files <- files
 
+  test_db <- grepl("itis_test", new_files)
+  if(any(test_db)){
+
+    file.copy(from = system.file(file.path("extdata", new_files), package = "taxadb"),
+              to = new_dest[test_db])
+    new_dest <- dest[!test_db]
+    new_files <- files[!test_db]
+  }
+
+  ## can this be removed? should be handled by arkdb
   if (!overwrite) {
     drop <- vapply(dest, file.exists, logical(1))
     new_dest <- dest[!drop]
@@ -87,16 +100,9 @@ td_create <- function(provider = "itis",
 
   if (length(new_files) >= 1L) {
     ## FIXME eventually these should be Zenodo URLs
-    urls <- providers_download_url(new_files)
-
-    ## Developer NOTE: arkdb should handle remote URL case natively instead...
-
-    ## Gabor recommends we drop-in curl::download_file instead here!
-    ## or something fancier with curl_fetch_multi
-    ## method must be specified for download.file to work w/ vectors
-    utils::download.file(urls,
-                         new_dest,
-                         method = "libcurl")
+    urls <- providers_download_url(new_files, version)
+    lapply(seq_along(urls), function(i)
+      curl::curl_download(urls[i], new_dest[i]))
   }
 
   ## silence readr progress bar in arkdb
@@ -125,11 +131,54 @@ td_create <- function(provider = "itis",
   invisible(dbdir)
 }
 
-## FIXME assumes file is schema-file
-providers_download_url <- function(files, schema = "dwc"){
+providers_download_url <- function(files, version = latest_version()){
   paste0("https://github.com/boettiger-lab/taxadb-cache/",
-               "releases/download/dwc/",
-               "dwc", ".2f", files)
+               "releases/download/", version, "/", files)
 }
+
+
+
+#' List available releases
+#'
+#' taxadb uses pre-computed cache files that are released on an annual
+#' version schedule.
+#'
+#' @export
+#' @examples
+#' available_versions()
+available_versions <- function(){
+
+  ## check for cached version first
+  avail_releases <- mget("avail_releases",
+                         envir = taxadb_cache,
+                         ifnotfound = NA)[[1]]
+  if(!all(is.na(avail_releases)))
+    return(avail_releases)
+
+  ## FIXME consider using direct access of a metadata record file instead
+  ## of relying on GitHub release tags to provide information about
+  ## available versions
+
+  ## Okay, check GH for a release
+  req <- curl::curl_fetch_memory(paste0(
+    "https://api.github.com/repos/",
+    "boettiger-lab/taxadb-cache/releases"))
+  json <- jsonlite::fromJSON(rawToChar(req$content))
+  avail_releases <- json[["tag_name"]]
+
+  ## Cache this so we don't hit GH every single time!
+  assign("avail_releases", avail_releases, envir = taxadb_cache)
+
+  avail_releases
+}
+
+latest_version <- function() {
+  available_versions()[[1]]
+}
+
+known_providers <- c("itis", "ncbi", "col", "tpl",
+                     "gbif", "fb", "slb", "wd", "ott",
+                     "iucn")
+
 
 

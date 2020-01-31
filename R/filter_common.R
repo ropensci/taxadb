@@ -20,20 +20,19 @@
 #' }
 #'
 filter_common <- function(name,
-                provider =c("itis", "ncbi", "col", "tpl",
-                            "gbif", "fb", "slb", "wd", "ott",
-                            "iucn"),
+                provider = getOption("taxadb_default_provider", "itis"),
+                version = latest_version(),
                 collect = TRUE,
                 ignore_case = TRUE,
                 db = td_connect()){
 
-  provider <- match.arg(provider)
   if(!assert_has_common(provider)) return(NULL)
 
   filter_by(x = name,
             by = "vernacularName",
             provider = provider,
             schema = "common",
+            version = version,
             collect = collect,
             db = db,
             ignore_case = ignore_case)

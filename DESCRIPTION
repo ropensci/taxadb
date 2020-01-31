@@ -1,8 +1,8 @@
 Package: taxadb
-Version: 0.0.1
+Version: 0.0.3
 Title: A High-Performance Local Taxonomic Database Interface
 Description: Creates a local database of many commonly used taxonomic authorities
-             and provides functions that can quickly query this data.  
+             and provides functions that can quickly query this data.
 Authors@R: c(
             person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"),
                    comment = c(ORCID = "0000-0002-1642-628X")),
@@ -34,19 +34,22 @@ Imports:
     progress,
     utils,
     dbplyr,
-    RSQLite
+    RSQLite,
+    curl,
+    jsonlite
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Suggests:
     spelling,
     testthat,
     covr,
     knitr,
     rmarkdown,
-    purrr,
-    MonetDBLite
+    purrr, 
+    MonetDBLite,
+    duckdb
 Language: en-US
 VignetteBuilder: knitr
-URL: https://github.com/cboettig/taxadb
-BugReports: https://github.com/cboettig/taxadb/issues
-Remotes: MonetDB/MonetDBLite-R, cwida/duckdb/tools/rpkg
+URL: https://docs.ropensci.org/taxadb, https://github.com/ropensci/taxadb
+BugReports: https://github.com/ropensci/taxadb/issues
+Additional_repositories: https://cboettig.github.io/drat, http://download.duckdb.org/alias/master/rstats/

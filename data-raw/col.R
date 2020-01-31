@@ -6,16 +6,21 @@ source("data-raw/helper-routines.R")
 
 # All snapshots available from: http://www.catalogueoflife.org/DCA_Export/archive.php
 
-preprocess_col <- function(year = "2019", dir = file.path(tempdir(), "col")){
+preprocess_col <- function(url = paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
+                                        2019,
+                                        "-annual.zip"),
+                           output_paths = c(dwc = "2019/dwc_col.tsv.bz2",
+                                            common = "2019/common_col.tsv.bz2")){
 
+  dir = file.path(tempdir(), "col")
   dir.create(dir, FALSE, FALSE)
-  download.file(paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/",
-                       year, "-annual.zip"),
+  download.file(url,
                 file.path(dir, "col-annual.zip"))
   unzip(file.path(dir, "col-annual.zip"), exdir=dir)
 
   ## a better read_tsv
-  read_tsv <- function(...) readr::read_tsv(..., quote = "", col_types = readr::cols(.default = "c"))
+  read_tsv <- function(...) readr::read_tsv(..., quote = "",
+                                            col_types = readr::cols(.default = "c"))
 
 
   taxon <- read_tsv(file.path(dir, "taxa.txt"))
@@ -84,21 +89,18 @@ preprocess_col <- function(year = "2019", dir = file.path(tempdir(), "col")){
            acceptedNameUsageID = stringi::stri_paste("COL:", acceptedNameUsageID))
 
 
-  dir.create("dwc", FALSE)
-  write_tsv(dwc_col, "dwc/col.tsv.bz2")
-  write_tsv(comm_table, "dwc/common_col.tsv.bz2")
+  dir.create(dirname(output_paths["dwc"]), FALSE)
+  write_tsv(dwc_col, output_paths["dwc"])
+  write_tsv(comm_table, output_paths["common"])
 
-
-
-
-
-
+  file_hash(output_paths)
 }
 
-preprocess_col(year = "2019")
-library(piggyback)
-piggyback::pb_upload("dwc/dwc_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
-piggyback::pb_upload("dwc/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+
+#preprocess_col(year = "2019")
+#library(piggyback)
+#piggyback::pb_upload("dwc/dwc_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
+#piggyback::pb_upload("dwc/common_col.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
 
 
 

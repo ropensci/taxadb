@@ -14,13 +14,15 @@
 #'   - `bare` (e.g. `9606`, used in `taxize::get_ids()`),
 #'   - `uri` (e.g.
 #'   `http://ncbi.nlm.nih.gov/taxonomy/9606`).
-#' @param taxadb_db Connection to from `[td_connect]()`.
+#' @param version Which version of the taxadb provider database should we use?
+#'  defaults to latest.  see `[avialable_releases()]` for details.
+#' @param taxadb_db Connection to from `[td_connect()]`.
 #' @param ignore_case should we ignore case (capitalization) in matching names?
 #' default is `TRUE`.
 #' @param ... additional arguments (currently ignored)
 #' @return a vector of IDs, of the same length as the input names Any
 #' unmatched names or multiply-matched names will return as [NA]s.
-#' To resolve multi-matched names, use [filter_name()] instead to return
+#' To resolve multi-matched names, use `[filter_name()]` instead to return
 #' a table with a separate row for each separate match of the input name.
 #' @seealso filter_name
 #' @family get
@@ -41,8 +43,9 @@
 #' @importFrom dplyr pull
 #' @importFrom tibble column_to_rownames
 get_ids <- function(names,
-                    db = known_providers,
+                    db = getOption("taxadb_default_provider", "itis"),
                     format = c("prefix", "bare", "uri"),
+                    version = latest_version(),
                     taxadb_db = td_connect(),
                     ignore_case = TRUE,
                     ...){
@@ -54,6 +57,7 @@ get_ids <- function(names,
 
   df <- filter_name(name = names,
                 provider = db,
+                version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
                 db = taxadb_db)

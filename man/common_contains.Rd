@@ -4,15 +4,24 @@
 \alias{common_contains}
 \title{common name starts with}
 \usage{
-common_contains(name, provider = "itis", db = td_connect(),
-  ignore_case = TRUE)
+common_contains(
+  name,
+  provider = "itis",
+  version = latest_version(),
+  db = td_connect(),
+  ignore_case = TRUE
+)
 }
 \arguments{
 \item{name}{vector of names (scientific or common, see \code{by})
 to be matched against.}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 

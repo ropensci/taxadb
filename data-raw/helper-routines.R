@@ -31,3 +31,10 @@ n_in_group <- function(data, group_var, ...){
     top_n(...) %>%
     distinct_(group_var, .keep_all = TRUE)
 }
+
+
+file_hash <- function(x, method = openssl::sha256, ...){
+  con <- lapply(x, file, ...)
+  hash <- lapply(con, method)
+  unlist(lapply(hash, as.character))
+}

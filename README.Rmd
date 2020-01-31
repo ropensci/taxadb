@@ -15,9 +15,9 @@ taxadb:::td_disconnect()
 # taxadb  <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis build status](https://travis-ci.org/cboettig/taxadb.svg?branch=master)](https://travis-ci.org/cboettig/taxadb)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/cboettig/taxadb?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxadb)
-[![Coverage status](https://codecov.io/gh/cboettig/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/cboettig/taxadb?branch=master)
+[![Travis build status](https://travis-ci.org/ropensci/taxadb.svg?branch=master)](https://travis-ci.org/ropensci/taxadb)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/ropensci/taxadb?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxadb)
+[![Coverage status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 
 
@@ -31,7 +31,7 @@ Existing approaches to these problems typically rely on web APIs, which can make
 To get started, install the development version directly from GitHub:
 
 ```{r eval=FALSE}
-devtools::install_github("cboettig/taxadb")
+devtools::install_github("ropensci/taxadb")
 ```
 
 
@@ -134,9 +134,9 @@ taxa_tbl("col")
 We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
 
 ```{r}
-most_synonyms <- taxa_tbl("col") %>% 
-  group_by(acceptedNameUsageID) %>% 
-  count(sort=TRUE)
+most_synonyms <- 
+  taxa_tbl("col") %>% 
+  count(acceptedNameUsageID, sort=TRUE)
 most_synonyms
 ```
 However, unlike the `filter_*` functions which return convenient in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, because `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `filter_*` approach to be more intuitive.
@@ -145,20 +145,23 @@ However, unlike the `filter_*` functions which return convenient in-memory table
 So which species had those 456 names?
 
 ```{r}
-most_synonyms %>% 
-  head(1) %>% 
-  pull(acceptedNameUsageID) %>% 
-  filter_id("col") %>%
-  select(scientificName)
+#most_synonyms %>% 
+#  head(1) %>% 
+#  pull(acceptedNameUsageID) %>% 
+#  filter_id("col") %>%
+#  select(scientificName)
+
+
+filter_id("COL:43082445", "col")
 ```
 
 ## Learn more
 
-- See richer examples the package [Tutorial](https://cboettig.github.io/taxadb/articles/intro.html).
+- See richer examples the package [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
 
-- Learn about the underlying data sources and formats in [Data Sources](https://cboettig.github.io/taxadb/articles/articles/data-sources.html)
+- Learn about the underlying data sources and formats in [Data Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
-- Get better performance by selecting an alternative [database backend](https://cboettig.github.io/taxadb/articles/articles/backends.html) engines.
+- Get better performance by selecting an alternative [database backend](https://docs.ropensci.org/taxadb/articles/backends.html) engines.
 
 
 
@@ -171,5 +174,7 @@ if(require(codemetar)) codemetar::write_codemeta()
 
 ----
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
+Please note that this project is released with a [Contributor Code of Conduct](https://ropensci.org/code-of-conduct/).
 By participating in this project you agree to abide by its terms.
+
+[![ropensci_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)

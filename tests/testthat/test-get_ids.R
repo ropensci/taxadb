@@ -2,29 +2,18 @@ context("get_ids")
 
 test_that("we can use get_ids options", {
 
-  db <- td_connect(test_db)
-
-  bare <- get_ids("Homo sapiens", taxadb_db = db, format="bare")
+  bare <- get_ids("Homo sapiens", format="bare")
   expect_identical(bare, "180092")
 
-  some_ids <- get_ids(c("Homo sapiens", "Mammalia"),
-                      format = "prefix", taxadb_db = db)
+  some_ids <- get_ids(c("Homo sapiens", "Sapajus apella"),
+                      format = "prefix")
 
-  expect_identical(some_ids,  c("ITIS:180092", "ITIS:179913"))
-  uri <- get_ids("Homo sapiens", db= "ncbi", format = "uri", taxadb_db = db)
-  expect_identical("http://ncbi.nlm.nih.gov/taxonomy/9606",
+  expect_identical(some_ids,  c("ITIS:180092", "ITIS:944156"))
+  uri <- get_ids("Homo sapiens", format = "uri")
+  expect_identical("http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=180092",
                    uri)
 })
 
-
-test_that("we can get ids without a DB", {
-
-  db <- td_connect(test_db)
-
-  bare <- get_ids("Homo sapiens", taxadb_db = NULL, format = "bare")
-  expect_identical(bare, "180092")
-
-})
 
 
 test_that("NA handling", {

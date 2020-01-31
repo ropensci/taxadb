@@ -1,9 +1,6 @@
 
 #' Return a reference to a given table in the taxadb database
 #'
-#' @param db a connection to the taxadb database. Default will
-#' attempt to connect automatically.
-#' @param schema the table schema on which we want to run the query
 #' @importFrom dplyr tbl
 #' @inheritParams filter_by
 #' @export
@@ -18,7 +15,8 @@
 #'   names <- clean_names(c("Steller's jay", "coopers Hawk"),
 #'                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 #'
-#'   #Get cleaned common names from a provider and search for cleaned names in that table
+#'   #Get cleaned common names from a provider and
+#'   # search for cleaned names in that table
 #'   taxa_tbl("itis", "common") %>%
 #'   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
 #'             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
@@ -29,15 +27,13 @@
 #' }
 
 taxa_tbl <- function(
-  provider = c("itis", "ncbi", "col", "tpl",
-               "gbif", "fb", "slb", "wd", "ott",
-               "iucn"),
+  provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc","common"),
+  version = latest_version(),
   db = td_connect()){
 
-  provider <- match.arg(provider)
   schema <- match.arg(schema)
-  tbl_name <- paste0(schema, "_", provider)
+  tbl_name <- paste0(version, "_", schema, "_", provider)
 
   if (is.null(db)){
     mem_quick_db <-
@@ -46,7 +42,7 @@ taxa_tbl <- function(
     return(mem_quick_db(tbl_name))
   }
   if (!has_table(tbl_name, db)){
-    td_create(provider = provider, schema = schema, db = db)
+    td_create(provider = provider, schema = schema, version = version, db = db)
   }
   dplyr::tbl(db, tbl_name)
 }
@@ -63,10 +59,12 @@ has_table <- function(table = NULL, db = td_connect()){
 #' @importFrom readr read_tsv
 quick_db <-
   function(tbl_name){
+    version <- gsub("(\\w+)_\\w+_\\w+", "\\1", tbl_name)
+    filename <- gsub("\\w+_(\\w+_\\w+)", "\\1", tbl_name)
     #tmp <- tempfile(fileext = ".tsv.bz2")
     tmp <- file.path(taxadb_dir(), paste0(tbl_name, ".tsv.bz2"))
     if(!file.exists(tmp)){
-      download.file(paste0(providers_download_url(tbl_name), ".tsv.bz2"),
+      curl::curl_download(paste0(providers_download_url(filename, version), ".tsv.bz2"),
              tmp)
     }
     suppressWarnings(

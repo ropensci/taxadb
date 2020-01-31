@@ -62,20 +62,19 @@ test_that("de-duplication does not drop input", {
 
 
 
-test_that("we can handle more intensive comparisons: ITIS", {
+test_that("we can handle more intensive comparisons: ITIS test", {
 
-  db <- td_connect(test_db)
-
-  itis_id <- taxa_tbl("itis", db = db) %>% pull(taxonID)
-  itis_accepted_id <-  taxa_tbl("itis", db = db) %>% pull(acceptedNameUsageID)
+  library(dplyr)
+  itis_id <- taxa_tbl() %>% pull(taxonID)
+  itis_accepted_id <-  taxa_tbl() %>% pull(acceptedNameUsageID)
 
   system.time({
-  itis_accepted_name <- get_names(itis_accepted_id, "itis",
-                                  format="prefix", taxadb_db = db)
+  itis_accepted_name <- get_names(itis_accepted_id,
+                                  format="prefix")
   })
 
   system.time({
-  itis_name <- get_names(itis_id, "itis", format = "prefix", taxadb_db = db)
+  itis_name <- get_names(itis_id, format = "prefix")
   })
 
   ## In ITIS: All IDs should resolve to one unique name

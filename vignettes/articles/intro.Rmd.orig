@@ -1,0 +1,214 @@
+---
+title: "Tutorial for taxadb"
+author: "Carl Boettiger, Kari Norman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+
+Here we illustrate the use of `taxadb` to resolve names in the Breeding Bird Survey species list more completely.  To get started, we load the necessary libraries and create the local copy of the `taxadb` database for all naming providers, if we have not already done so:
+
+```{r message=FALSE}
+library(dplyr)
+library(readr)
+library(taxadb)
+```
+
+```{r message=FALSE}
+td_create("all")
+```
+
+Note that by default, `td_create()` will not attempt to overwrite any providers which we have already installed.  This means we can freely include `td_create()` at the beginning of scripts and analysis for reproducibility without concern that it will keep re-downloading and slowing things down.  With this in place, we are ready to load in the species list from the Breeding Bird Survey [@bbs], taken from <ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt>:
+
+
+
+```{r message=FALSE}
+bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
+bbs
+```
+
+We see that the resulting table has 750 unique rows of names.  If we wish to combine data from the BBS with other data on these same species, such as trait data, we need to be able to resolve the species names to unique identifiers.  We could then likewise resolve the species names used in the trait data or any other data we wish to combine against the same naming provider,
+giving us a consistent set of identifiers.  Mixing identifiers from different naming providers is not ideal, as it not only gives us unmatched identifiers for the same species (e.g. `r get_ids("Homo sapiens", "itis")` and `r get_ids("Homo sapiens", "ncbi")` are both identifiers for *Homo sapiens*), but can also raise deeper challenges when different providers work from different taxonomic concepts.  
+
+
+Despite the BBS being a widely used and long established data set, a quick look (~30s to check against nearly 15 million names) with taxadb confirms that none of the providers includes all the species names used in the BBS.
+
+
+```{r}
+system.time({
+bbs_ids <- 
+bbs %>% 
+  select(species) %>%
+  mutate(
+         gbif = get_ids(species, "gbif"),
+          col = get_ids(species, "col" ),
+         itis = get_ids(species, "itis"),
+         ncbi = get_ids(species, "ncbi"),
+           wd = get_ids(species, "wd"  ),
+         iucn = get_ids(species, "iucn"),
+          ott = get_ids(species, "ott" ) 
+  )
+})
+```
+
+
+
+```{r}
+bbs_ids %>% 
+  select(-species) %>% 
+  purrr::map_dbl(function(x) sum(!is.na(x)))
+```
+The `get_ids()` function looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) OTT identifies the most, at 665 out of 750 names.  
+
+
+We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific epithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
+
+Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:
+
+```{r}
+bbs_cleaned_ids <- 
+  bbs_ids %>% 
+  select(species, ott) %>% 
+  mutate(ids_post_clean = 
+           get_ids(clean_names(species, binomial_only = TRUE), 
+                   "ott", "prefix"))
+bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)
+x <- bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)  
+
+x
+filter_id(x$ids_post_clean, provider = "ott")
+```
+
+```{r}
+bbs_cleaned_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
+```
+
+
+```{r}
+pick <- function(A, B){ A[is.na(A)] <- B[is.na(A)]; A }
+
+ott_ids <- bbs_cleaned_ids %>% mutate(ids = pick(ott, ids_post_clean))
+```
+
+
+
+
+
+
+```{r}
+unmatched <- ott_ids %>% 
+  filter(is.na(ids)) %>% 
+  select(species, ids) %>%
+  mutate(species = clean_names(species))
+
+
+unmatched
+```
+
+Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  
+
+
+We can confirm that the two family names can be resolved:
+
+```{r}
+c("Trochilidae",  "Ardeidae") %>% filter_name("ott")
+```
+
+We can also use the `vernacularName` field available in some naming providers to resolve common names:
+
+```{r}
+filter_rank("Aves", "class", "itis") %>% 
+  filter(grepl("Woodpecker", vernacularName)) %>%
+  select(vernacularName, scientificName, acceptedNameUsageID)
+
+```
+
+Let us attempt to resolve the remaining five names.  
+
+Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
+
+```{r}
+unmatched %>%
+  filter(grepl(" ", species)) %>%
+  mutate(iucn = get_ids(species, "iucn", "prefix"))
+```
+
+
+By consulting the synonyms table, we can quickly see what other names these species might be known by:
+
+```{r}
+syn <- unmatched$species %>% 
+  synonyms("iucn") %>% distinct()
+syn
+```
+
+Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
+
+```{r}
+syn %>% 
+  rename(IUCN_name = acceptedNameUsage,
+         OTT_name = synonym) %>%
+  mutate(ott_id =  get_ids(OTT_name, "ott"),
+         iucn_id = get_ids(IUCN_name, "iucn"))
+```
+
+We cannot simply assume that we can crosswalk synonyms between different providers, as providers may be operating on different taxonomic concepts.  In this example, IUCN recognizes four distinct taxa
+while OTT recognizes only thee.
+
+
+
+
+
+## Differences in taxonomic concepts:
+
+
+
+```{r}
+cranes <- c("Megalornis canadensis", "Antigone canadensis", "Grus canadensis")
+synonyms(cranes, "gbif")
+```
+
+```{r}
+synonyms(cranes, "iucn")
+```
+
+
+```{r}
+synonyms(cranes, "ott")
+```
+
+
+(GBIF lists *Antigone canadensis* as a synonym for *Grus canadensis*; this appears backwards as the Sandhill Crane was moved out of *Grus* after molecular analyses showed it made that taxon polyphyletic; https://en.wikipedia.org/wiki/Sandhill_crane). 
+
+
+
+
+
+```{r}
+totals <- tibble(
+"itis" = taxa_tbl("itis") %>% count() %>% pull(n),
+"ncbi" = taxa_tbl("ncbi") %>% count() %>% pull(n),
+"col" = taxa_tbl("col") %>% count() %>% pull(n),
+"gbif" = taxa_tbl("gbif") %>% count() %>% pull(n),
+"ott" = taxa_tbl("ott") %>% count() %>% pull(n),
+"wd" = taxa_tbl("wd") %>% count() %>% pull(n),
+"iucn" = taxa_tbl("iucn") %>% count() %>% pull(n),
+"fb" = taxa_tbl("fb") %>% count() %>% pull(n),
+"slb" = taxa_tbl("slb") %>% count() %>% pull(n)
+)
+sum(totals)
+```
+
+
+

@@ -4,9 +4,15 @@
 \alias{filter_rank}
 \title{Get all members (descendants) of a given rank level}
 \usage{
-filter_rank(name, rank, provider = c("itis", "ncbi", "col", "tpl",
-  "gbif", "fb", "slb", "wd", "ott", "iucn"), collect = TRUE,
-  ignore_case = TRUE, db = td_connect())
+filter_rank(
+  name,
+  rank,
+  provider = getOption("taxadb_default_provider", "itis"),
+  version = latest_version(),
+  collect = TRUE,
+  ignore_case = TRUE,
+  db = td_connect()
+)
 }
 \arguments{
 \item{name}{taxonomic scientific name (e.g. "Aves")}
@@ -14,7 +20,11 @@ filter_rank(name, rank, provider = c("itis", "ncbi", "col", "tpl",
 \item{rank}{taxonomic rank name. (e.g. "class")}
 
 \item{provider}{from which provider should the hierarchy be returned?
-Default is 'itis'.}
+Default is 'itis', which can also be configured using \verb{options(default_taxadb_provider=...")}.
+See \verb{[td_create]} for a list of recognized providers.}
+
+\item{version}{Which version of the taxadb provider database should we use?
+defaults to latest.  See \link{available_versions} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -46,8 +56,10 @@ filter_rank("Aves", "class")
 
 }
 \seealso{
-Other filter_by: \code{\link{filter_by}},
-  \code{\link{filter_common}}, \code{\link{filter_id}},
-  \code{\link{filter_name}}
+Other filter_by: 
+\code{\link{filter_by}()},
+\code{\link{filter_common}()},
+\code{\link{filter_id}()},
+\code{\link{filter_name}()}
 }
 \concept{filter_by}

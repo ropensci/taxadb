@@ -1,5 +1,6 @@
 ^appveyor\.yml$
 ^docs$
+^.*\.docx$
 ^_pkgdown\.yml$
 ^data-raw$
 ^\.pbattributes$
@@ -23,4 +24,10 @@ drafts
 common_names
 ^manifest\.json$
 ^renv$
-^CODE_OF_CONDUCT\\.md$
+^CODE_OF_CONDUCT\.md$
+^\.drake$
+^2019$
+^dwc$
+^cran-comments\.md$
+
+^CRAN-RELEASE$

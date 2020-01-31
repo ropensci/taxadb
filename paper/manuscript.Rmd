@@ -84,7 +84,7 @@ Instead of binding existing web APIs, `taxadb` is built around a set of compress
 `taxadb` can be installed from GitHub using the `remotes` R package:
 
 ```{r eval=FALSE}
-remotes::install_github("cboettig/taxadb")
+remotes::install_github("ropensci/taxadb")
 ```
 -->
 

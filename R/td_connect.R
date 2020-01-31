@@ -66,20 +66,20 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
     MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
     drivers <- c("MonetDBLite", drivers)
   }
-  ## duckdb lacks necessary capabilities (e.g. temp tables) at this time
+  ## duckdb lacks necessary stability
   ## https://github.com/cwida/duckdb/issues/58
-#  if (requireNamespace("duckdb", quietly = TRUE)){
-#    duckdb <- getExportedValue("duckdb", "duckdb")
-#    drivers <- c("duckdb", drivers)
-#  }
+  if (requireNamespace("duckdb", quietly = TRUE)){
+    duckdb <- getExportedValue("duckdb", "duckdb")
+    drivers <- c("duckdb", drivers)
+  }
 
   ## If driver is undefined or not in available list, use first from the list
   if (  !(driver %in% drivers) ) driver <- drivers[[1]]
 
 
   db <- switch(driver,
-#         duckdb = DBI::dbConnect(duckdb(),
-#                                 dbname = file.path(dbname,"duckdb")),
+         duckdb = DBI::dbConnect(duckdb( dbdir = file.path(dbname,"duckdb")),
+                                 dbname = file.path(dbname,"duckdb")),
          MonetDBLite = monetdblite_connect(file.path(dbname,"MonetDBLite")),
          RSQLite = DBI::dbConnect(SQLite(),
                                   file.path(dbname, "taxadb.sqlite")),

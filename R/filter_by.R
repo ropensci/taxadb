@@ -8,9 +8,12 @@
 #' @param by a column name in the taxa_tbl (following Darwin Core Schema terms).
 #'   The filtering join is executed with this column as the joining variable.
 #' @param provider from which provider should the hierarchy be returned?
-#'  Default is 'itis'.
+#'  Default is 'itis', which can also be configured using `options(default_taxadb_provider=...")`.
+#'  See `[td_create]` for a list of recognized providers.
 #' @param schema One of "dwc" (for Darwin Core data) or "common"
 #' (for the Common names table.)
+#' @param version Which version of the taxadb provider database should we use?
+#'  defaults to latest.  See [available_versions] for details.
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
@@ -45,17 +48,15 @@
 #'
 filter_by <- function(x,
                       by,
-                      provider = c("itis", "ncbi", "col", "tpl",
-                                   "gbif", "fb", "slb", "wd", "ott",
-                                   "iucn"),
+                      provider = getOption("taxadb_default_provider", "itis"),
                       schema = c("dwc", "common"),
+                      version = latest_version(),
                       collect = TRUE,
                       db = td_connect(),
                       ignore_case = TRUE){
 
-  provider <- match.arg(provider)
   schema <- match.arg(schema)
-  db_tbl <- dplyr::mutate(taxa_tbl(provider, schema, db), input = !!sym(by))
+  db_tbl <- dplyr::mutate(taxa_tbl(provider, schema, version, db), input = !!sym(by))
 
   if(ignore_case){
     original <- tibble::tibble(input = x, sort = seq_along(x))

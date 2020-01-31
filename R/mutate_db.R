@@ -75,13 +75,13 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
                        tmp_tbl = tmp_tablename(), ...){
 
   ## Create a temporary table which will store our data, including new column
-  schema <- DBI::dbGetQuery(db, paste("SELECT * FROM", tbl, "LIMIT 1"))
+  schema <- DBI::dbGetQuery(db, paste0("SELECT * FROM \"", tbl, "\" LIMIT 1"))
   schema[[new_column]] <- r_fn(schema[[col]], ...)
   DBI::dbCreateTable(db, tmp_tbl, schema, temporary = TRUE)
 
 
   ## Send the query -- we'll then page over the results in chunks.
-  res <- DBI::dbSendQuery(db, paste("SELECT * FROM", tbl))
+  res <- DBI::dbSendQuery(db, paste0("SELECT * FROM\"", tbl, '"'))
 
   ## Read table in by chunks & write out with mutated column
   p <- progress::progress_bar$new("[:spin] chunk :current", total = 100000)
