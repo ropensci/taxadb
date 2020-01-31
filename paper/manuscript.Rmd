@@ -39,6 +39,7 @@ library(magrittr)
 library(tidyverse)
 library(taxadb)
 library(printr)
+library(rticles)
 library(knitr)
 
 ## see https://blog.rstudio.com/2017/06/13/dplyr-0-7-0/, 
@@ -263,7 +264,7 @@ tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
 
 ## Data Versioning
 
-Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a static names list, while many other providers (e.g. ITIS, NCBI, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshopts from each provider, which follow an annual release model to support reproducible analyses.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`), and install and use this version of all snapshots for each provider.  However, all taxadb functions can take   
+Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a static names list, while many other providers (e.g. ITIS, NCBI, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshopts from each provider, which follow an annual release model to support reproducible analyses.   All taxadb functions that download or access data include an optional argument `version` to indicate which version of the provider data should be used.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`).    Details on the versions of data used
 
 ## Discussion
 
