@@ -64,7 +64,7 @@ quick_db <-
     #tmp <- tempfile(fileext = ".tsv.bz2")
     tmp <- file.path(taxadb_dir(), paste0(tbl_name, ".tsv.bz2"))
     if(!file.exists(tmp)){
-      download.file(paste0(providers_download_url(filename, version), ".tsv.bz2"),
+      curl::curl_download(paste0(providers_download_url(filename, version), ".tsv.bz2"),
              tmp)
     }
     suppressWarnings(

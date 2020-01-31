@@ -143,6 +143,11 @@
       "@type": "SoftwareApplication",
       "identifier": "MonetDBLite",
       "name": "MonetDBLite"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "duckdb",
+      "name": "duckdb"
     }
   ],
   "softwareRequirements": [
@@ -339,7 +344,7 @@
     }
   ],
   "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
-  "fileSize": "153.43KB",
+  "fileSize": "153.527KB",
   "contIntegration": [
     "https://travis-ci.org/ropensci/taxadb",
     "https://ci.appveyor.com/project/cboettig/taxadb",
