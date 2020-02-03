@@ -69,8 +69,6 @@ In practice, treating ranks as properties (i.e. as column headings) is far more 
 
 The `taxonomicStatus` value indicates if the name provided is a synonym, misspelling or an accepted name.  `taxadb` does not enforce any controlled vocabulary on the use of these terms beyond using the term `accepted` to indicate that the `scientificName` is an accepted name (i.e. the `dwc:acceptedNameUsage`) for the taxon.  Including both accepted names and synonyms in the `scientificName` column greatly facilitates taxonomic name resolution: a user can just perform an SQL filtering join from a given list of names and the taxadb table in order to resolve names to identifiers (`acceptedNameUsageID`s).  
 
-## Additional fields
-
 
 ## Common names
 
@@ -93,3 +91,10 @@ Common names are available from several providers, but tidy tables for `taxadb` 
   and rank names should have 
 - Encoding is UTF-8
 
+# Data Processing
+
+A set of R scripts for pre-processing data from each of the names providers is included in the source code of `taxadb`, in the `data-raw/` sub-directory.  These scripts automate the process from download to generation of the cached copy accessed by the package.  While specific processing steps vary across providers, the most of the scripts focus on extracting a variety of formats (mostly SQLite and various text formats) and combining tables into a consistent implementation of Darwin Core following the schema and conventions outlined above, and writing this data out as compressed (bz2) tab-separated value files -- a cross-platform standard format that requires little specialized software to work with. Metadata regarding the provenance of each data file are also provided, including sha256 hashes of raw data (uncompressed data) are generated for cryptographic verification of data integrity.  
+
+# Data Versioning
+
+The above scripts are intended to be rerun annually to generate updated snapshots of the each of the data providers.  Each snapshot is then distributed as described above, as a separate cache release. All `taxadb` functions interacting with the provided taxonomic names data can specify which version (year) snapshot should be used, which facilitates reproducibility and easy comparisons across versions.  The scripts required to generate the data may be adjusted as needed if any of the naming providers change there own format over time.  Additional names providers may be added as opportunity presents. 
