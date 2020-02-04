@@ -56,9 +56,10 @@ ott = preprocess_ott(url = file_in("http://files.opentreeoflife.org/ott/ott3.2/o
 
 #)
 
-library(pins)
-
-
+#library(pins)
+#board_register_github(repo = "cboettig/pins-test", name = "github_pins_test")
+#pin("dwc_gbif.tsv.bz2",
+#    board = "github_pins_test")
 
 #config <- drake_config(plan)
 #vis_drake_graph(config)
