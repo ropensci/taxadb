@@ -27,6 +27,7 @@ common_names
 ^CODE_OF_CONDUCT\.md$
 ^\.drake$
 ^2019$
+^2020$
 ^dwc$
 ^cran-comments\.md$
 
