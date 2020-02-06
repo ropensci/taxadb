@@ -1,7 +1,7 @@
 ---
 title: "Tutorial for taxadb"
 author: "Carl Boettiger, Kari Norman"
-date: "2020-01-24"
+date: "2020-02-06"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro}
@@ -11,385 +11,224 @@ vignette: >
 
 
 
-Here we illustrate the use of `taxadb` to resolve names in the Breeding Bird Survey species list more completely.  To get started, we load the necessary libraries and create the local copy of the `taxadb` database for all naming providers, if we have not already done so:
+
+The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting common tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
+
+Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
+
+
+## Install and initial setup
+
+To get started, install the development version directly from GitHub:
 
 
 ```r
-library(dplyr)
-library(readr)
+devtools::install_github("ropensci/taxadb")
+```
+
+
+
+```r
 library(taxadb)
+library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
+
+Create a local copy of the Catalogue of Life (2018) database: 
 
 
 ```r
-td_create("all")
+td_create("col")
+#> Importing 2019_common_col.tsv.bz2 in 100000 line chunks:
+#> [-] chunk 2[\] chunk 3[|] chunk 4[/] chunk 5	...Done! (in 9.042107 secs)
 ```
 
-Note that by default, `td_create()` will not attempt to overwrite any providers which we have already installed.  This means we can freely include `td_create()` at the beginning of scripts and analysis for reproducibility without concern that it will keep re-downloading and slowing things down.  With this in place, we are ready to load in the species list from the Breeding Bird Survey [@bbs], taken from <ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt>:
 
-
+Read in the species list used by the Breeding Bird Survey:
 
 
 ```r
-bbs <- read_tsv(system.file("extdata/bbs.tsv", package="taxadb"))
-bbs
-#> # A tibble: 750 x 9
-#>      Seq AOU   English_Common_Name  French_Common_Name      Spanish_Common_Name   order    family genus  species       
-#>    <dbl> <chr> <chr>                <chr>                   <chr>                 <chr>    <chr>  <chr>  <chr>         
-#>  1     6 01770 Black-bellied Whist… "Dendrocygne \xe0 vent… Dendrocygna autumnal… Anserif… Anati… Dendr… Dendrocygna a…
-#>  2     7 01780 Fulvous Whistling-D… "Dendrocygne fauve"     Dendrocygna bicolor   Anserif… Anati… Dendr… Dendrocygna b…
-#>  3     8 01760 Emperor Goose        "Oie empereur"          Anser canagicus       Anserif… Anati… Anser  Anser canagic…
-#>  4     9 01690 Snow Goose           "Oie des neiges"        Anser caerulescens    Anserif… Anati… Anser  Anser caerule…
-#>  5    10 01691 (Blue Goose) Snow G… "Oie des neiges (forme… Chen caerulescens (b… Anserif… Anati… Chen   Chen caerules…
-#>  6    11 01700 Ross's Goose         "Oie de Ross"           Anser rossii          Anserif… Anati… Anser  Anser rossii  
-#>  7    13 01710 Greater White-front… "Oie rieuse"            Anser albifrons       Anserif… Anati… Anser  Anser albifro…
-#>  8    18 01730 Brant                "Bernache cravant"      Branta bernicla       Anserif… Anati… Branta Branta bernic…
-#>  9    19 01740 (Black Brant) Brant  "Bernache cravant (gro… Branta bernicla nigr… Anserif… Anati… Branta Branta bernic…
-#> 10    21 01725 Cackling Goose       "Bernache de Hutchins"  Branta hutchinsii     Anserif… Anati… Branta Branta hutchi…
-#> # … with 740 more rows
+bbs_species_list <- system.file("extdata/bbs.tsv", package="taxadb")
+bbs <- read.delim(bbs_species_list)
 ```
 
-We see that the resulting table has 750 unique rows of names.  If we wish to combine data from the BBS with other data on these same species, such as trait data, we need to be able to resolve the species names to unique identifiers.  We could then likewise resolve the species names used in the trait data or any other data we wish to combine against the same naming provider,
-giving us a consistent set of identifiers.  Mixing identifiers from different naming providers is not ideal, as it not only gives us unmatched identifiers for the same species (e.g. ITIS:180092 and NCBI:9606 are both identifiers for *Homo sapiens*), but can also raise deeper challenges when different providers work from different taxonomic concepts.  
+## Getting names and ids
 
-
-Despite the BBS being a widely used and long established data set, a quick look (~30s to check against nearly 15 million names) with taxadb confirms that none of the providers includes all the species names used in the BBS.
+Two core functions are `get_ids()` and `get_names()`.  These functions take a vector of names or ids (respectively), and return a vector of ids or names (respectively).  For instance, we can use this to attempt to resolve all the bird names in the Breeding Bird Survey against the Catalogue of Life:
 
 
 
 ```r
-system.time({
-bbs_ids <- 
-bbs %>% 
-  select(species) %>%
-  mutate(
-         gbif = get_ids(species, "gbif"),
-          col = get_ids(species, "col" ),
-         itis = get_ids(species, "itis"),
-         ncbi = get_ids(species, "ncbi"),
-           wd = get_ids(species, "wd"  ),
-         iucn = get_ids(species, "iucn"),
-          ott = get_ids(species, "ott" ) 
-  )
-})
-#> not overwriting 2019_dwc_gbif
-#> not overwriting 2019_dwc_col
-#> not overwriting 2019_dwc_itis
-#> not overwriting 2019_dwc_ncbi
-#> not overwriting 2019_dwc_wd
-#> not overwriting 2019_dwc_iucn
-#> not overwriting 2019_dwc_ott
-#>    user  system elapsed 
-#>  24.292   1.184   4.343
+birds <- bbs %>% 
+  select(species) %>% 
+  mutate(id = get_ids(species, "col"))
+
+head(birds, 10)
+#>                          species           id
+#> 1         Dendrocygna autumnalis COL:35517330
+#> 2            Dendrocygna bicolor COL:35517332
+#> 3                Anser canagicus COL:35517329
+#> 4             Anser caerulescens COL:35517325
+#> 5  Chen caerulescens (blue form)         <NA>
+#> 6                   Anser rossii COL:35517328
+#> 7                Anser albifrons COL:35517308
+#> 8                Branta bernicla COL:35517301
+#> 9      Branta bernicla nigricans COL:35537100
+#> 10             Branta hutchinsii COL:35536445
 ```
 
+Note that some names cannot be resolved to an identifier.  This can occur because of miss-spellings, non-standard formatting, or the use of a synonym not recognized by the naming provider.  Names that cannot be uniquely resolved because they are known synonyms of multiple different species will also return `NA`.  The `filter_name` filtering functions can help us resolve this last case (see below).
+
+`get_ids()` returns the IDs of accepted names, that is `dwc:AcceptedNameUsageID`s.  We can resolve the IDs into accepted names:
 
 
 
 ```r
-bbs_ids %>% 
-  select(-species) %>% 
-  purrr::map_dbl(function(x) sum(!is.na(x)))
-#> gbif  col itis ncbi   wd iucn  ott 
-#>  672  653  657  186  630  114  668
+birds %>% 
+  mutate(accepted_name = get_names(id, "col")) %>% 
+  head()
+#>                         species           id        accepted_name
+#> 1        Dendrocygna autumnalis COL:35517330      Tringa flavipes
+#> 2           Dendrocygna bicolor COL:35517332    Picoides dorsalis
+#> 3               Anser canagicus COL:35517329   Setophaga castanea
+#> 4            Anser caerulescens COL:35517325  Bombycilla cedrorum
+#> 5 Chen caerulescens (blue form)         <NA>       Icteria virens
+#> 6                  Anser rossii COL:35517328 Somateria mollissima
 ```
-The `get_ids()` function looks only for exact matches.  Certain names may not uniquely resolve to a single ID, such as a name which is a recognized synonym for two separate taxonomic groups (such as may happen if a species is split.) OTT identifies the most, at 665 out of 750 names.  
+
+This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted in the Catalogue of Life, while others, *Anser canagicus* are **known synonyms** of a different accepted name: **Chen canagica**.  Resolving synonyms and accepted names to identifiers helps us avoid the possible miss-matches we could have when the same species is known by two different names.
 
 
-We can get more matches by cleaning the names first.  The `clean_names()` function provides several simple string manipulations to tidy names to improve the probability of a match: missing species (specific epithets) such as `Accipiter sp.` drop the `sp.`, allowing matches against Genus names, and intraspecific epithets such as `Colaptes auratus cafer` are dropped to binomial names, `Colaptes auratus`.  These transformations may not be appropriate for certain use cases, and should be used with care.  
+## Taxonomic Data Tables
 
-Observe that truncating names would result in a handful of subspecies being resolved only to the species level identifiers:
+Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `filter_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
+
+For instance, *Trochalopteron henrici gucenense* does not resolve to an identifier in ITIS:
 
 
 ```r
-bbs_cleaned_ids <- 
-  bbs_ids %>% 
-  select(species, ott) %>% 
-  mutate(ids_post_clean = 
-           get_ids(clean_names(species, binomial_only = TRUE), 
-                   "ott", "prefix"))
-#> not overwriting 2019_dwc_ott
-bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)
-#> # A tibble: 4 x 3
-#>   species                   ott         ids_post_clean
-#>   <chr>                     <chr>       <chr>         
-#> 1 Branta bernicla nigricans OTT:799107  OTT:135287    
-#> 2 Anas platyrhynchos diazi  OTT:82410   OTT:765167    
-#> 3 Buteo jamaicensis harlani OTT:1070094 OTT:509839    
-#> 4 Junco hyemalis aikeni     OTT:7068418 OTT:989502
-x <- bbs_cleaned_ids %>% na.omit() %>% filter(ott != ids_post_clean)  
-
-x
-#> # A tibble: 4 x 3
-#>   species                   ott         ids_post_clean
-#>   <chr>                     <chr>       <chr>         
-#> 1 Branta bernicla nigricans OTT:799107  OTT:135287    
-#> 2 Anas platyrhynchos diazi  OTT:82410   OTT:765167    
-#> 3 Buteo jamaicensis harlani OTT:1070094 OTT:509839    
-#> 4 Junco hyemalis aikeni     OTT:7068418 OTT:989502
-filter_id(x$ids_post_clean, provider = "ott")
-#> not overwriting 2019_dwc_ott
-#> # A tibble: 4 x 15
-#>   input  sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus kingdom phylum class order family genus
-#>   <chr> <int> <chr>   <chr>          <chr>     <chr>            <chr>           <chr>   <chr>  <chr> <chr> <chr>  <chr>
-#> 1 OTT:…     1 OTT:13… Branta bernic… species   OTT:135287       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> 2 OTT:…     2 OTT:76… Anas platyrhy… species   OTT:765167       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> 3 OTT:…     3 OTT:50… Buteo jamaice… species   OTT:509839       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> 4 OTT:…     4 OTT:98… Junco hyemalis species   OTT:989502       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> # … with 2 more variables: specificEpithet <chr>, id <chr>
+get_ids("Trochalopteron henrici gucenense") 
+#> [1] NA
 ```
+
+Using `filter_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
 
 
 ```r
-bbs_cleaned_ids %>% filter(is.na(ott) & !is.na(ids_post_clean))
-#> # A tibble: 77 x 3
-#>    species                                     ott   ids_post_clean
-#>    <chr>                                       <chr> <chr>         
-#>  1 Chen caerulescens (blue form)               <NA>  OTT:190878    
-#>  2 Anas platyrhynchos x rubripes or fulvigula  <NA>  OTT:765167    
-#>  3 Aythya marila / affinis                     <NA>  OTT:1044561   
-#>  4 Melanitta perspicillata / fusca / americana <NA>  OTT:972536    
-#>  5 Bucephala clangula / islandica              <NA>  OTT:166683    
-#>  6 Dendragapus obscurus / fuliginosus          <NA>  OTT:1003843   
-#>  7 Aechmophorus occidentalis / clarkii         <NA>  OTT:758343    
-#>  8 Coccyzus americanus / erythropthalmus       <NA>  OTT:891425    
-#>  9 Chordeiles acutipennis / minor              <NA>  OTT:484902    
-#> 10 Chordeiles minor / gundlachii               <NA>  OTT:870594    
-#> # … with 67 more rows
+filter_name("Trochalopteron henrici gucenense") 
+#> # A tibble: 2 x 17
+#>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus update_date kingdom phylum class order family genus
+#>   <int> <chr>   <chr>          <chr>     <chr>            <chr>           <chr>       <chr>   <chr>  <chr> <chr> <chr>  <chr>
+#> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym         <NA>        Animal… Chord… Aves  Pass… Leiot… Troc…
+#> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym         <NA>        Animal… Chord… Aves  Pass… Leiot… Troc…
+#> # … with 4 more variables: specificEpithet <chr>, vernacularName <chr>, infraspecificEpithet <chr>, input <chr>
 ```
 
 
 
 ```r
-pick <- function(A, B){ A[is.na(A)] <- B[is.na(A)]; A }
-
-ott_ids <- bbs_cleaned_ids %>% mutate(ids = pick(ott, ids_post_clean))
+filter_name("Trochalopteron henrici gucenense")  %>%
+  mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
+  select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
+#> # A tibble: 2 x 4
+#>   scientificName                   taxonomicStatus acceptedNameUsage       acceptedNameUsageID
+#>   <chr>                            <chr>           <chr>                   <chr>              
+#> 1 Trochalopteron henrici gucenense synonym         Trochalopteron henrici  ITIS:916117        
+#> 2 Trochalopteron henrici gucenense synonym         Trochalopteron elliotii ITIS:916116
 ```
 
 
-
-
+Similar functions `filter_id`, `filter_rank`, and `filter_common` take IDs, scientific ranks, or common names, respectively.  Here, we can get taxonomic data on all bird names in the Catalogue of Life:
 
 
 
 ```r
-unmatched <- ott_ids %>% 
-  filter(is.na(ids)) %>% 
-  select(species, ids) %>%
-  mutate(species = clean_names(species))
-
-
-unmatched
-#> # A tibble: 5 x 2
-#>   species           ids  
-#>   <chr>             <chr>
-#> 1 trochilid         <NA> 
-#> 2 tern              <NA> 
-#> 3 ardeid            <NA> 
-#> 4 woodpecker        <NA> 
-#> 5 icterus townsendi <NA>
+filter_rank(name = "Aves", rank = "class", provider = "col")
+#> # A tibble: 35,398 x 21
+#>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom phylum class order family genus
+#>    <int> <chr>   <chr>          <chr>            <chr>           <chr>     <chr>   <chr>  <chr> <chr> <chr>  <chr>
+#>  1     1 COL:35… Sturnella mag… COL:35520416     accepted        species   Animal… Chord… Aves  Pass… Icter… Stur…
+#>  2     1 COL:35… Tauraco porph… COL:35530219     accepted        infraspe… Animal… Chord… Aves  Muso… Musop… Taur…
+#>  3     1 COL:35… Pyroderus scu… COL:35534370     accepted        infraspe… Animal… Chord… Aves  Pass… Cotin… Pyro…
+#>  4     1 COL:35… Dromaius minor COL:35552206     synonym         infraspe… Animal… Chord… Aves  Casu… Droma… Drom…
+#>  5     1 COL:35… Lepidocolapte… COL:35525495     accepted        species   Animal… Chord… Aves  Pass… Furna… Lepi…
+#>  6     1 COL:35… Casuarius pap… COL:35552204     synonym         infraspe… Animal… Chord… Aves  Casu… Casua… Casu…
+#>  7     1 COL:35… Forpus modest… COL:35536431     accepted        species   Animal… Chord… Aves  Psit… Psitt… Forp…
+#>  8     1 COL:35… Pterocnemia p… COL:35552203     synonym         infraspe… Animal… Chord… Aves  Rhei… Rheid… Rhea 
+#>  9     1 COL:35… Ceyx lepidus … COL:35532279     accepted        infraspe… Animal… Chord… Aves  Cora… Alced… Ceyx 
+#> 10     1 COL:35… Rhea tarapace… COL:35552202     synonym         infraspe… Animal… Chord… Aves  Rhei… Rheid… Rhea 
+#> # … with 35,388 more rows, and 9 more variables: specificEpithet <chr>, infraspecificEpithet <chr>, taxonConceptID <chr>,
+#> #   isExtinct <chr>, nameAccordingTo <chr>, namePublishedIn <chr>, scientificNameAuthorship <chr>, vernacularName <chr>,
+#> #   input <chr>
 ```
 
-Of the remaining 10 names, 3 are clearly common names (`gull`, `tern`, `woodpecker`), two (`trochilid` and `ardeid`) are references to family names, *Trochilidae* and *Ardeidae*, and the remaining five are unresolved.  
-
-
-We can confirm that the two family names can be resolved:
-
-
-```r
-c("Trochilidae",  "Ardeidae") %>% filter_name("ott")
-#> not overwriting 2019_dwc_ott
-#> # A tibble: 2 x 15
-#>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus kingdom phylum class order family genus
-#>   <int> <chr>   <chr>          <chr>     <chr>            <chr>           <chr>   <chr>  <chr> <chr> <chr>  <chr>
-#> 1     1 OTT:81… Trochilidae    family    OTT:810751       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> 2     2 OTT:60… Ardeidae       family    OTT:609781       accepted        <NA>    <NA>   <NA>  <NA>  <NA>   <NA> 
-#> # … with 3 more variables: specificEpithet <chr>, id <chr>, input <chr>
-```
-
-We can also use the `vernacularName` field available in some naming providers to resolve common names:
-
-
-```r
-filter_rank("Aves", "class", "itis") %>% 
-  filter(grepl("Woodpecker", vernacularName)) %>%
-  select(vernacularName, scientificName, acceptedNameUsageID)
-#> not overwriting 2019_dwc_itis
-#> # A tibble: 182 x 3
-#>    vernacularName            scientificName                             acceptedNameUsageID
-#>    <chr>                     <chr>                                      <chr>              
-#>  1 Red-bellied Woodpecker    Centurus carolinus                         ITIS:178195        
-#>  2 Red-bellied Woodpecker    Centurus carolinus zebra                   ITIS:178195        
-#>  3 Red-bellied Woodpecker    Centurus carolinus carolinus               ITIS:178195        
-#>  4 Red-bellied Woodpecker    Centurus carolinus perplexus               ITIS:178195        
-#>  5 Red-bellied Woodpecker    Centurus carolinus harpaceus               ITIS:178195        
-#>  6 Golden-fronted Woodpecker Centurus aurifrons                         ITIS:178194        
-#>  7 Gila Woodpecker           Centurus uropygialis                       ITIS:178198        
-#>  8 Red-headed Woodpecker     Melanerpes erythrocephalus caurinus        ITIS:178186        
-#>  9 Red-headed Woodpecker     Melanerpes erythrocephalus erythrocephalus ITIS:178186        
-#> 10 Lewis's Woodpecker        Asyndesmus lewis                           ITIS:178196        
-#> # … with 172 more rows
-```
-
-Let us attempt to resolve the remaining five names.  
-
-Consulting IUCN Redlist names, we can resolve acceptedNameUsageIDs for four of these five:
-
-
-```r
-unmatched %>%
-  filter(grepl(" ", species)) %>%
-  mutate(iucn = get_ids(species, "iucn", "prefix"))
-#> not overwriting 2019_dwc_iucn
-#> # A tibble: 1 x 3
-#>   species           ids   iucn 
-#>   <chr>             <chr> <chr>
-#> 1 icterus townsendi <NA>  <NA>
-```
-
-
-By consulting the synonyms table, we can quickly see what other names these species might be known by:
-
-
-```r
-syn <- unmatched$species %>% 
-  synonyms("iucn") %>% distinct()
-#> not overwriting 2019_dwc_iucn
-#> not overwriting 2019_dwc_iucn
-syn
-#> # A tibble: 5 x 5
-#>   acceptedNameUsage synonym taxonRank acceptedNameUsageID input            
-#>   <chr>             <chr>   <chr>     <chr>               <chr>            
-#> 1 <NA>              <NA>    <NA>      <NA>                trochilid        
-#> 2 <NA>              <NA>    <NA>      <NA>                tern             
-#> 3 <NA>              <NA>    <NA>      <NA>                ardeid           
-#> 4 <NA>              <NA>    <NA>      <NA>                woodpecker       
-#> 5 <NA>              <NA>    <NA>      <NA>                icterus townsendi
-```
-
-Note that three of the four synonyms given by IUCN are considered accepted names in OTT:
-
-
-```r
-syn %>% 
-  rename(IUCN_name = acceptedNameUsage,
-         OTT_name = synonym) %>%
-  mutate(ott_id =  get_ids(OTT_name, "ott"),
-         iucn_id = get_ids(IUCN_name, "iucn"))
-#> not overwriting 2019_dwc_ott
-#> not overwriting 2019_dwc_iucn
-#> # A tibble: 5 x 7
-#>   IUCN_name OTT_name taxonRank acceptedNameUsageID input             ott_id iucn_id
-#>   <chr>     <chr>    <chr>     <chr>               <chr>             <chr>  <chr>  
-#> 1 <NA>      <NA>     <NA>      <NA>                trochilid         <NA>   <NA>   
-#> 2 <NA>      <NA>     <NA>      <NA>                tern              <NA>   <NA>   
-#> 3 <NA>      <NA>     <NA>      <NA>                ardeid            <NA>   <NA>   
-#> 4 <NA>      <NA>     <NA>      <NA>                woodpecker        <NA>   <NA>   
-#> 5 <NA>      <NA>     <NA>      <NA>                icterus townsendi <NA>   <NA>
-```
-
-We cannot simply assume that we can crosswalk synonyms between different providers, as providers may be operating on different taxonomic concepts.  In this example, IUCN recognizes four distinct taxa
-while OTT recognizes only thee.
-
-
-
-
-
-## Differences in taxonomic concepts:
-
+Combining these with `dplyr` functions can make it easy to explore this data: for instance, which families have the most species?
 
 
 
 ```r
-cranes <- c("Megalornis canadensis", "Antigone canadensis", "Grus canadensis")
-synonyms(cranes, "gbif")
-#> not overwriting 2019_dwc_gbif
-#> not overwriting 2019_dwc_gbif
-#> # A tibble: 12 x 5
-#>    acceptedNameUsage synonym               taxonRank acceptedNameUsageID input                
-#>    <chr>             <chr>                 <chr>     <chr>               <chr>                
-#>  1 Grus canadensis   Ardea canadensis      species   GBIF:2474953        Megalornis canadensis
-#>  2 Grus canadensis   Grus proavus          species   GBIF:2474953        Megalornis canadensis
-#>  3 Grus canadensis   Megalornis canadensis species   GBIF:2474953        Megalornis canadensis
-#>  4 Grus canadensis   Antigone canadensis   species   GBIF:2474953        Megalornis canadensis
-#>  5 Grus canadensis   Ardea canadensis      species   GBIF:2474953        Antigone canadensis  
-#>  6 Grus canadensis   Grus proavus          species   GBIF:2474953        Antigone canadensis  
-#>  7 Grus canadensis   Megalornis canadensis species   GBIF:2474953        Antigone canadensis  
-#>  8 Grus canadensis   Antigone canadensis   species   GBIF:2474953        Antigone canadensis  
-#>  9 Grus canadensis   Ardea canadensis      species   GBIF:2474953        Grus canadensis      
-#> 10 Grus canadensis   Grus proavus          species   GBIF:2474953        Grus canadensis      
-#> 11 Grus canadensis   Megalornis canadensis species   GBIF:2474953        Grus canadensis      
-#> 12 Grus canadensis   Antigone canadensis   species   GBIF:2474953        Grus canadensis
+filter_rank(name = "Aves", rank = "class", provider = "col") %>%
+  filter(taxonomicStatus == "accepted", taxonRank=="species") %>% 
+  group_by(family) %>%
+  count(sort = TRUE) %>% 
+  head()
+#> # A tibble: 6 x 2
+#> # Groups:   family [6]
+#>   family           n
+#>   <chr>        <int>
+#> 1 Tyrannidae     401
+#> 2 Thraupidae     374
+#> 3 Psittacidae    370
+#> 4 Trochilidae    338
+#> 5 Muscicapidae   314
+#> 6 Columbidae     312
 ```
+
+## Using the database connection directly
+
+`filter_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The `taxa_tbl()` function provides this connection:
 
 
 ```r
-synonyms(cranes, "iucn")
-#> not overwriting 2019_dwc_iucn
-#> not overwriting 2019_dwc_iucn
-#> # A tibble: 3 x 5
-#>   acceptedNameUsage synonym taxonRank acceptedNameUsageID input                
-#>   <chr>             <chr>   <chr>     <chr>               <chr>                
-#> 1 <NA>              <NA>    <NA>      <NA>                Megalornis canadensis
-#> 2 <NA>              <NA>    <NA>      <NA>                Antigone canadensis  
-#> 3 <NA>              <NA>    <NA>      <NA>                Grus canadensis
+taxa_tbl("col")
+#> # Source:   table<2019_dwc_col> [?? x 19]
+#> # Database: duckdb_connection
+#>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom phylum class order family genus specificEpithet
+#>    <chr>   <chr>          <chr>            <chr>           <chr>     <chr>   <chr>  <chr> <chr> <chr>  <chr> <chr>          
+#>  1 COL:31… Limacoccus br… COL:316423       accepted        species   Animal… Arthr… Inse… Hemi… Beeso… Lima… brasiliensis   
+#>  2 COL:31… Coccus bromel… COL:316424       accepted        species   Animal… Arthr… Inse… Hemi… Cocci… Cocc… bromeliae      
+#>  3 COL:31… Apiomorpha po… COL:316425       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Apio… pomaphora      
+#>  4 COL:31… Eriococcus ch… COL:316441       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… chaoticus      
+#>  5 COL:31… Eriococcus ch… COL:316442       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… chathamensis   
+#>  6 COL:31… Eriococcus ch… COL:316443       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… chilensis      
+#>  7 COL:31… Eriococcus ci… COL:316444       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… cingulatus     
+#>  8 COL:31… Eriococcus ci… COL:316445       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… cistacearum    
+#>  9 COL:31… Eriococcus bu… COL:316447       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… busariae       
+#> 10 COL:31… Eriococcus au… COL:316450       accepted        species   Animal… Arthr… Inse… Hemi… Erioc… Erio… australis      
+#> # … with more rows, and 7 more variables: infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
+#> #   nameAccordingTo <chr>, namePublishedIn <chr>, scientificNameAuthorship <chr>, vernacularName <chr>
 ```
 
+We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
 
 
 ```r
-synonyms(cranes, "ott")
-#> not overwriting 2019_dwc_ott
-#> not overwriting 2019_dwc_ott
-#> # A tibble: 12 x 5
-#>    acceptedNameUsage   synonym               taxonRank acceptedNameUsageID input                
-#>    <chr>               <chr>                 <chr>     <chr>               <chr>                
-#>  1 Antigone canadensis Grus canadensis       species   OTT:257929          Megalornis canadensis
-#>  2 Antigone canadensis Ardea canadensis      species   OTT:257929          Megalornis canadensis
-#>  3 Antigone canadensis Grus proavus          species   OTT:257929          Megalornis canadensis
-#>  4 Antigone canadensis Megalornis canadensis species   OTT:257929          Megalornis canadensis
-#>  5 Antigone canadensis Grus canadensis       species   OTT:257929          Antigone canadensis  
-#>  6 Antigone canadensis Ardea canadensis      species   OTT:257929          Antigone canadensis  
-#>  7 Antigone canadensis Grus proavus          species   OTT:257929          Antigone canadensis  
-#>  8 Antigone canadensis Megalornis canadensis species   OTT:257929          Antigone canadensis  
-#>  9 Antigone canadensis Grus canadensis       species   OTT:257929          Grus canadensis      
-#> 10 Antigone canadensis Ardea canadensis      species   OTT:257929          Grus canadensis      
-#> 11 Antigone canadensis Grus proavus          species   OTT:257929          Grus canadensis      
-#> 12 Antigone canadensis Megalornis canadensis species   OTT:257929          Grus canadensis
+taxa_tbl("col") %>% 
+  count(acceptedNameUsageID, sort=TRUE)
+#> # Source:     lazy query [?? x 2]
+#> # Database:   duckdb_connection
+#> # Ordered by: desc(n)
+#>    acceptedNameUsageID     n
+#>    <chr>               <dbl>
+#>  1 COL:43082445          456
+#>  2 COL:43081989          373
+#>  3 COL:43124375          329
+#>  4 COL:43353659          328
+#>  5 COL:43223150          322
+#>  6 COL:43337824          307
+#>  7 COL:43124158          302
+#>  8 COL:43081973          296
+#>  9 COL:43333057          253
+#> 10 COL:23162697          252
+#> # … with more rows
 ```
-
-
-(GBIF lists *Antigone canadensis* as a synonym for *Grus canadensis*; this appears backwards as the Sandhill Crane was moved out of *Grus* after molecular analyses showed it made that taxon polyphyletic; https://en.wikipedia.org/wiki/Sandhill_crane). 
-
-
-
-
-
-
-```r
-totals <- tibble(
-"itis" = taxa_tbl("itis") %>% count() %>% pull(n),
-"ncbi" = taxa_tbl("ncbi") %>% count() %>% pull(n),
-"col" = taxa_tbl("col") %>% count() %>% pull(n),
-"gbif" = taxa_tbl("gbif") %>% count() %>% pull(n),
-"ott" = taxa_tbl("ott") %>% count() %>% pull(n),
-"wd" = taxa_tbl("wd") %>% count() %>% pull(n),
-"iucn" = taxa_tbl("iucn") %>% count() %>% pull(n),
-"fb" = taxa_tbl("fb") %>% count() %>% pull(n),
-"slb" = taxa_tbl("slb") %>% count() %>% pull(n)
-)
-#> not overwriting 2019_dwc_itis
-#> not overwriting 2019_dwc_ncbi
-#> not overwriting 2019_dwc_col
-#> not overwriting 2019_dwc_gbif
-#> not overwriting 2019_dwc_ott
-#> not overwriting 2019_dwc_wd
-#> not overwriting 2019_dwc_iucn
-#> not overwriting 2019_dwc_fb
-#> not overwriting 2019_dwc_slb
-sum(totals)
-#> [1] 20060350
-```
-
-
 
