@@ -11,7 +11,7 @@
   "relatedLink": "https://docs.ropensci.org/taxadb",
   "issueTracker": "https://github.com/ropensci/taxadb/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -344,7 +344,7 @@
     }
   ],
   "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
-  "fileSize": "153.527KB",
+  "fileSize": "154.193KB",
   "contIntegration": [
     "https://travis-ci.org/ropensci/taxadb",
     "https://ci.appveyor.com/project/cboettig/taxadb",

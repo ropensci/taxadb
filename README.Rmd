@@ -134,26 +134,13 @@ taxa_tbl("col")
 We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
 
 ```{r}
-most_synonyms <- 
-  taxa_tbl("col") %>% 
+taxa_tbl("col") %>% 
   count(acceptedNameUsageID, sort=TRUE)
-most_synonyms
 ```
+
 However, unlike the `filter_*` functions which return convenient in-memory tables, this is still a remote connection.  This means that direct access using the `taxa_tbl()` function (or directly accessing the database connection using `td_connect()`) is more low-level and requires greater care.  For instance, we cannot just add a `%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the above, because `get_names` does not work on a remote collection.  Instead, we would first need to use a `collect()` to pull the summary table into memory.  Users familiar with remote databases in `dplyr` will find using `taxa_tbl()` directly to be convenient and fast, while other users may find the `filter_*` approach to be more intuitive.
 
 
-So which species had those 456 names?
-
-```{r}
-#most_synonyms %>% 
-#  head(1) %>% 
-#  pull(acceptedNameUsageID) %>% 
-#  filter_id("col") %>%
-#  select(scientificName)
-
-
-filter_id("COL:43082445", "col")
-```
 
 ## Learn more
 

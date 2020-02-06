@@ -125,8 +125,6 @@ identifier in ITIS:
 
 ``` r
 get_ids("Trochalopteron henrici gucenense") 
-#> Importing 2019_dwc_itis.tsv.bz2 in 100000 line chunks:
-#>  ...Done! (in 13.33816 secs)
 #> [1] NA
 ```
 
@@ -240,10 +238,8 @@ We can still use most familiar `dplyr` verbs to perform common tasks.
 For instance: which species has the most known synonyms?
 
 ``` r
-most_synonyms <- 
-  taxa_tbl("col") %>% 
+taxa_tbl("col") %>% 
   count(acceptedNameUsageID, sort=TRUE)
-most_synonyms
 #> # Source:     lazy query [?? x 2]
 #> # Database:   duckdb_connection
 #> # Ordered by: desc(n)
@@ -273,28 +269,6 @@ Instead, we would first need to use a `collect()` to pull the summary
 table into memory. Users familiar with remote databases in `dplyr` will
 find using `taxa_tbl()` directly to be convenient and fast, while other
 users may find the `filter_*` approach to be more intuitive.
-
-So which species had those 456 names?
-
-``` r
-#most_synonyms %>% 
-#  head(1) %>% 
-#  pull(acceptedNameUsageID) %>% 
-#  filter_id("col") %>%
-#  select(scientificName)
-
-
-filter_id("COL:43082445", "col")
-#> # A tibble: 1 x 21
-#>   input  sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
-#>   <chr> <int> <chr>   <chr>          <chr>            <chr>           <chr>    
-#> 1 COL:…     1 COL:43… Mentha longif… COL:43082445     accepted        infraspe…
-#> # … with 14 more variables: kingdom <chr>, phylum <chr>, class <chr>,
-#> #   order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
-#> #   nameAccordingTo <chr>, namePublishedIn <chr>,
-#> #   scientificNameAuthorship <chr>, vernacularName <chr>
-```
 
 ## Learn more
 
