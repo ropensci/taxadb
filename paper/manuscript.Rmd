@@ -3,8 +3,6 @@ title: "taxadb: A High-Performance Local Taxonomic Database Interface"
 author:
   - name: "Kari Norman"
     affiliation: ucb
-#  - name: "Jorrit Poelen"
-#    affiliation: jorritt
   - name: "Scott Chamberlain"
     affiliation: ropensci      
   - name: "Carl Boettiger"
@@ -12,16 +10,14 @@ author:
 address:
   - code: ucb
     address: "Dept of Environmental Science, Policy, and Management, University of California Berkeley, Berkeley CA 94720-3114, USA"
-# - code: jorrit
-#   address: "Independent consultant, Oakland, CA, USA"
   - code: ropensci
     address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA"
 abstract: |
   A familiar and growing challenge in ecological and evolutionary research is that of reconciling scientific names of relevant taxa when combining data from separate sources. While this problem is already well understood and numerous naming authorities have been created to address the issue, most researchers lack a fast, consistent, and intuitive way to reconcile taxonomic names.  Here, we present `taxadb` R package to address this gap.  In contrast to existing tools, `taxadb` provides the following:  
-  1) `taxadb` accesses established naming authorities to resolve synonyms, IDs, and hiearchical classification.  
+  1) `taxadb` accesses established naming authorities to resolve synonyms, IDs, and hierarchical classification.  
   2) `taxadb` creates a local database, managed automatically from within R, that provides fast operations on millions of taxonomic names.  
   3) `taxadb` provides a consistent and intuitive data format.  
-  4) `taxadb` is built on a simple, extensible and language agnostic design that can easily accomodiate new authorities.  
+  4) `taxadb` is built on a simple, extensible and language agnostic design that can easily accommodate new authorities.  
   
 journal: "Methods in Ecology & Evolution"
 date: "`r Sys.Date()`"
@@ -46,29 +42,50 @@ library(knitr)
 ## https://community.rstudio.com/t/why-does-na-match-na-when-joining-two-dataframes/28785/3
 pkgconfig::set_config("dplyr::na_matches" = "never")
 
+## Display NAs as "-" because "NA" looks like a category
+options(knitr.kable.NA = '-') 
+
 printtable <- function(df, ...){
   df %>%
     kableExtra::kable("latex", booktabs=T, ...) %>%
     kableExtra::kable_styling(full_width = F)
 }
-knitr::opts_chunk$set(cache=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, warning=FALSE)
 
 # no sci notation integers pleases
 options(scipen=999)
 
+taxadb::td_disconnect()
 ```
 
 
 
-As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species, we face a continual challenge of reconciling taxonomic names. How many species are in the combined data? Do the studies use the same names for the same species, or do they use different synonyms for the same species?
+As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species,
+we face a continual challenge of reconciling taxonomic names. How many species are in the combined data?
+Do the studies use the same names for the same species, or do they use different synonyms for the same species?
 Failing to correct for such differences can lead to significant inflation of species counts and miss-aligned datasets.
-These challenges have become particularly acute as it becomes increasingly common for researchers to work across a larger number and diversity of species in any given analysis, which may preclude the resources or substantative taxonomic expertise for all clades needed to resolve scientific names [@Patterson2010].  
+These challenges have become particularly acute as it becomes increasingly common for researchers to work
+across a larger number and diversity of species in any given analysis, 
+which may preclude the resources or substantive taxonomic expertise for all clades 
+needed to resolve scientific names [@Patterson2010].  
 
-While these issues have long been recognized in the literature [@boyle2013; @dayrat2005; @bortolus2008; @maldonado2015], and a growing number of databases and tools have emerged and grown over the past few decades [e.g. @itis; @ncbi; @col; @rees2014; @alvarez2018; @wagner2016; @foster2018], it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
+While these issues have long been recognized in the literature [@boyle2013; @dayrat2005; @bortolus2008; @maldonado2015],
+and a growing number of databases and tools have emerged and grown over the past few decades
+[e.g. @itis; @ncbi; @col; @rees2014; @alvarez2018; @wagner2016; @foster2018],
+it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
 Here, we present an R package, `taxadb`, which seeks to address this gap.
 
-Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank, hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
-The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2013] has become a popular way for R users to interact with naming providers and name resolution services.  `taxize` implements bindings to the web APIs (Application Programming Interface) hosted by many popular taxonomic name providers. Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks that are inherent in the implementation of these central API servers, such as:
+Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], 
+the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], 
+the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems
+by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank,
+hierarchical classification, and scientific authority (e.g. author and date) establishing a scientific name.
+The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `taxize` package [@Chamberlain2013]
+has become a popular way for R users to interact with naming providers and name resolution services. 
+`taxize` implements bindings to the web APIs (Application Programming Interface)
+hosted by many popular taxonomic name providers. 
+Unfortunately, this means that functions in the `taxize` are impacted by several major drawbacks
+that are inherent in the implementation of these central API servers, such as:
 
 - Queries require internet access at all times.
 - Queries are slow and inefficient to implement and perform; frequently requiring separate API calls for each taxonomic name.
@@ -76,7 +93,51 @@ The R language [@R] is widely used in ecology and evolution [@Lai2019] and the `
 - Both query formats and responses differ substantially across different naming providers, making it difficult to apply a script designed for one provider to different provider.
 - Most queries are not reproducible, as the results depend on the state of the central server (and potentially the quality of the internet connection).  Many names providers update the server data either continuously or at regular intervals, including both revising existing names and adding new names.
 
-Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files following a consistent, standardized layout or schema following the Darwin Core Standard [@Wieczorek2012]. These files are automatically downloaded and imported and stored on a local database by `taxadb`.  The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes under a GB, and can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  In contrast, querying a single name over the web API, requiring the server to respond, execute the query, and serialize the response, can take several seconds. Thus it does not take many taxa before transferring the entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, requiring only the one-time setup, and enabling offline use and reproducible queries.
+Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files which are 
+automatically downloaded and imported and stored on a local database by `taxadb`.  
+The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes
+over a GB, which can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  
+By using a local database as the backend, `taxadb` allows R users to interact with large data files without large memory (RAM) requirements.  A query for a single name over the web API requires a remote server to respond, execute the query, 
+and serialize the response, which can take several seconds. Thus it does not take many taxa before transferring the 
+entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, 
+requiring only the one-time setup, and enabling offline use and reproducible queries.  Rather than returning data
+in whatever format is given by the provider, `taxadb` provides a data structure following a consistent,
+standardized layout or schema following the Darwin Core Standard [@Wieczorek2012].  Table 1 summarizes the list of all naming providers currently accessed by `taxadb`.  More details are provided in the Data Sources Vignette, <https://docs.ropensci.org/taxadb/articles/data-sources.html>.
+
+
+
+```{r echo = FALSE, results = "asis"}
+#provider descriptions
+desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government",
+          ncbi = "nomenclature for sequences in the International Nucleotide Sequence Database Collaboration database",
+          col = "comprehensive taxonomic effort, includes some other providers (e.g. itis)",
+          gbif = "taxonomic backbone of the GBIF database, assembled from other sources including COL",
+          fb = "nomenclature for global database of fishes",
+          ott = "comprehensive tree of life based on phylogenetic trees and taxonomic data",
+          iucn = "taxonomy for classification of species status")
+
+tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
+                                 "National Center for Biological Information's Taxonomy database (NCBI)",
+                                 "Catalogue of Life (COL)",
+                                 "Global Biodiversity Information Facility Taxonomic Backbone (GBIF 2019)",
+                                 "FishBase (Froese and Pauly 2019)",
+                                 "Open Tree Taxonomy (OTT)",
+                                 "International Union for Conservation of Nature and Natural Resources (IUCN 2019)"),
+                    abbreviation = c("itis", "ncbi", "col", "gbif", "fb", "ott", "iucn"),
+                    total_identifiers = map(abbreviation,
+                                            ~taxa_tbl(.x) %>%
+                                              select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
+                    description = desc
+) %>%
+  knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE, 
+               caption = "Descriptions of providers supported by taxadb.") %>%
+  kable_styling(latex_options="scale_down") %>%
+  kableExtra::column_spec(1, width = "5cm") %>%
+  kableExtra::column_spec(4, width = "10cm")
+
+
+```
+
 
 
 <!--
@@ -89,21 +150,23 @@ remotes::install_github("ropensci/taxadb")
 ```
 -->
 
-
+# Package Overview
 
 ```{r message = FALSE, warning=FALSE}
 library(tidyverse)
 library(taxadb)
 ```
 
-`taxadb` functions will automatically set up a local, persistent database if one has not yet been created.  
+After loading the package, we look up the taxonomic identifier for a Atlantic Cod, *Gadus morhua*, and the compliment:
+
 
 ```{r}
 get_ids("Gadus morhua")
+get_names("ITIS:164712")
 ```
 
 
-This one-time setup will download, uncompress, and import the data into persistant storage (using the appropriate location specified by the operating sytstem [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same names provider will be able to access this data rapidly without the need for processing or an internet connection.  
+Our first call to any `taxadb` functions will automatically set up a local, persistent database if one has not yet been created. This one-time setup will download, extract, and import the compressed data into persistent database storage (using the appropriate location specified by the operating system [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same names provider will be able to access this data rapidly without the need for processing or an internet connection.  
 
 Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 6), or simply using `all` to install all available providers:
 
@@ -115,7 +178,7 @@ td_create("all")
 
 `taxadb` functions like `get_ids()` and `td_create()` take an optional argument, `db`, to an external database connection.  `taxadb` will work with most DBI-compliant databases such as MySQL or Postgres, but will be much faster when using a column-oriented database engine such as `duckdb` or `MonetDBLite`.  These latter options are also much easier for most users, since each can be installed directly as an R package. `taxadb` will default to the fastest available option.  `taxadb` can also run without a database backend by setting `db=NULL`, though some functions will require a lot (2-20 GB) of free RAM for this to work with many of the large names providers.  
 
-By default `taxadb` creates a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage. `taxadb` will automatically handle opening, caching, and closing the database connection. 
+`taxadb` uses the widely known SQLite database by default, but users are encouraged to install the optional, suggested database backends by passing the option `dependencies = TRUE` to the install command.  This installs a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage.  This also installs `duckdb`, another local columnar database which is rapidly emerging as an alternative to MonetDB and SQLite. `taxadb` will automatically detect and use these database engines if available, and automatically handles opening, caching, and closing the database connection. For large queries, MonetDBLite or `duckdb` deliver impressive improvements.  Our benchmark on resolving the 750 species names in in the Breeding Bird Survey against over 3 million names known in the 2019 Catalogue of Life takes 8 minutes in SQLite but less than a second in MonetDBLite. 
 
 Functions in `taxadb` are organized into several families: 
 
@@ -125,10 +188,9 @@ Functions in `taxadb` are organized into several families:
 - and helper utilities, such as `clean_names()`. 
 
 
-## Taxonomic IDs
+## Taxonomic Identifiers
 
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can identify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
-
 
 These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species (Table 1, 2).
 
@@ -154,8 +216,8 @@ joined <- full_join(trait_data, status_data, by = c("elton_name" = "redlist_name
 
 
 ```{r echo = FALSE, cache = FALSE}
-joined %>% tidyr::replace_na(list(category = "-")) %>% 
-  printtable(caption = "IUCN and trait data joined on scientific name.") # "NA" looks like a category, "-" is clearer visually
+joined %>%
+  printtable(caption = "IUCN and trait data joined on scientific name.")
 ```
 
 If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.  First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
@@ -193,7 +255,7 @@ This results in many more matches (Table 4), as different scientific names are r
 
 ## Unresolved names
 
-`get_ids` offers a first pass at matching scientifc names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the bionmial name. These modifications are not appropriate in all settings and should be used with care. Spell check of input names is outside the scope of `taxadb`.
+`get_ids` offers a first pass at matching scientific names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the binomial name. These modifications are not appropriate in all settings and should be used with care. Spell check of input names is outside the scope of `taxadb`.
 
 Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@franz2009; @Franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
@@ -208,7 +270,8 @@ filter_rank("Aves", rank="class", provider = "col") %>%
   n_distinct()
 ```
 
-As well as giving a detailed look at specific species or ids. For example, why can't `get_ids` resolve a seemingly common species?
+We can also use this to gain a detailed look at specific species or ids.
+For example, we can explore why `get_ids` fails to resolve a seemingly common species:
 
 ```{r}
 multi_match <- filter_name("Zosterops rendovae")
@@ -221,56 +284,51 @@ multi_match %>%
 ```
 
 We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 5).
+This is an example of how `taxadb` seeks to provide users with information from existing authorities and names providers,
+rather than make a potentially arbitrary decision.  Because they return `data.frame`s,  `filter_*` functions provide both potential matches.  Note that the simpler `get_` functions (`get_ids()`) consider multiple name as `NA` for the `id`, making them suitable for automated pipelines where manual resolution of duplicates is not an option. 
 
-The full taxonomic record in the MonetDBLite database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers (see Vignette for further details).
+
+## Direct database access
+
+The full taxonomic record in the database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers.  For example, we can easily check the coverage of accepted species names in each of the classes of vertabrates within the Catalogue of Life:
+
+```{r cache = FALSE}
+verts <- taxa_tbl("col") %>%
+  filter(taxonomicStatus == "accepted", phylum == "Chordata") %>% 
+  count(class, sort = TRUE)
+```  
+
+
+```{r echo = FALSE}
+ verts %>%
+  printtable(caption = "taxadb also provides direct access to the database, allowing dplyr or SQL queries which can compute across the entire dataset, such as counting accepted species in all vertabrate classes shown here.  This kind of query is effectively impossible in most REST API-based interfaces.")
+```
+
+
+
 
 \dummy{\Begin{tcolorbox}[title= Box 2: Common Names, lower separated=false]}
 
-`taxizedb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names come with many of the same problems as scientific names but often more frequent, e.g. matching to more than one accepted name, non-standardized formatting (like capitalization) and spelling etc. Common names are accessed via `filter_common` which takes a vector of common names. The user can then resolve discrepencies. 
+`taxadb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names come with many of the same problems as scientific names but often more frequent, e.g. matching to more than one accepted name, non-standardized formatting (like capitalization) and spelling etc. Common names are accessed via `filter_common` which takes a vector of common names. The user can then resolve discrepancies. 
 
 \End{tcolorbox}
 
-```{r echo = FALSE, results = "asis"}
-#provider descriptions
-desc <- c(itis = "originally formed to standardize taxonomic name usage across many agencies in the United States federal government",
-          ncbi = "nomenclature for sequences in the International Nucleotide Sequence Database Collaboration database",
-          col = "comphrehensive taxonomic effort, includes some other providers (e.g. itis)",
-          gbif = "taxonomic backbone of the GBIF database, assembled from other sources including COL",
-          fb = "nomenclature for global database of fishes",
-          ott = "comphrenesive tree of life based on phylogenetic trees and taxonomic data",
-          iucn = "taxonomy for classification of species status")
 
-tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
-                                 "National Center for Biological Information's Taxonomy database (NCBI)",
-                                 "Catalogue of Life (COL)",
-                                 "Global Biodiversity Information Facility Taxonomic Backbone (GBIF 2019)",
-                                 "FishBase (Froese and Pauly 2019)",
-                                 "Open Tree Taxonomy (OTT)",
-                                 "International Union for Conservation of Nature and Natural Resources (IUCN 2019)"),
-                    abbreviation = c("itis", "ncbi", "col", "gbif", "fb", "ott", "iucn"),
-                    total_identifiers = map(abbreviation,
-                                            ~taxa_tbl(.x) %>%
-                                              select(acceptedNameUsageID) %>% pull() %>% n_distinct()),
-                    description = desc
-) %>%
-  knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE, 
-               caption = "Descriptions of providers supported by taxaDB.") %>%
-  kable_styling(latex_options="scale_down") %>%
-  kableExtra::column_spec(1, width = "5cm") %>%
-  kableExtra::column_spec(4, width = "10cm")
+# Discussion
 
 
-```
+Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a static names list, while many other providers (e.g. ITIS, NCBI, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshots from each provider, which follow an annual release model to support reproducible analyses.   All taxadb functions that download or access data include an optional argument `version` to indicate which version of the provider data should be used.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`). Appropriate metadata is stored with each snapshot, including scripts used to access and reformat the data files, as described in the "Data Sources" vignette, <https://docs.ropensci.org/taxadb/articles/data-sources.html>. 
 
-## Data Versioning
+Taxonomic identifiers are a powerful tool for maintaining taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
 
-Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a static names list, while many other providers (e.g. ITIS, NCBI, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshopts from each provider, which follow an annual release model to support reproducible analyses.   All taxadb functions that download or access data include an optional argument `version` to indicate which version of the provider data should be used.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`). Appropriate metadata is stored with each snapshot, including scripts used to access and reformat the data files, as described in the "Data Sources" vignette, https://docs.ropensci.org/taxadb/articles/data-sources.html. 
-
-## Discussion
-
-Taxonomic indentifiers are a powerful tool for maintaing taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
+Lastly, we note that local database design used in `taxadb` is not unique to taxonomic names.  Despite the rapid expansion of REST API-based interfaces to ecological data [@ropensci], in our experience, much of the data relevant to ecologists and evolutionary biologists today would be also be ameniable to the local database design.  The local database approach is much easier for data providers (who can leverage static scientific database repositories instead of maintaining REST servers) and often much faster for data consumers. 
 
 
 \pagebreak
+
+
+```{r include = FALSE}
+td_disconnect()
+```
 
 # References
