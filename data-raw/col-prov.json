@@ -24,9 +24,8 @@
   "prov:wasGeneratedBy": "https://github.com/cboettig/taxadb/blob/c4c98953247f49f971823a3e27b0200638bd552b/data-raw/col.R",
   "creator": {
     "@type": "foaf:Agent",
-    "@id": "https://orcid.org/0000-0002-1642-628X",
-    "foaf:givenName": "Carl",
-    "foaf:surName": "Boettiger"
+    "url": "http://www.catalogueoflife.org/",
+    "name": "Catalogue of Life"
     }
 }
 
