@@ -1,0 +1,41 @@
+ {
+      "@context":"https://schema.org/",
+      "@type":"Dataset",
+      "name":"Catalogue of Life, 2019 Release, formatted for taxadb",
+      "description":"A copy of the Catalogue of Life taxanomic names list, formatted for taxadb R package cache",
+      "url": "http://www.catalogueoflife.org/DCA_Export/archive.php",
+      "keywords":[ "Taxonomy",
+         "Scientific names",
+         "R"      ],
+      "license" : "https://creativecommons.org/publicdomain/zero/1.0/",
+      "version": "2019",
+      "creator":{
+         "@type":"Organization",
+         "url": "http://www.catalogueoflife.org/",
+         "name":"Catalogue of Life",
+         "contactPoint":{
+            "@type":"ContactPoint",
+            "contactType": "customer service",
+            "telephone":"+31 (0)71 7519 362",
+            "email":"support@sp2000.org"
+         }
+      },
+      "distribution":[
+         {
+            "@id": "",
+            "@type":"DataDownload",
+            "name": "2019_dwc_col.tsv.bz2",
+            "description": "Common Names table",
+            "encodingFormat":"CSV",
+            "contentUrl":"https://github.com/boettiger-lab/taxadb-cache/releases/download/2019/2019.2fdwc_col.tsv.bz2"
+         },
+         {
+            "@id": "",
+            "@type":"DataDownload",
+            "name": "2019_common_col.tsv.bz2",
+            "description": "Common Names table",
+            "encodingFormat":"CSV",
+            "contentUrl":"https://github.com/boettiger-lab/taxadb-cache/releases/download/2019/2019.2fcommon_col.tsv.bz2"
+         }
+      ],
+    }

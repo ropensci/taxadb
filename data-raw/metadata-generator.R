@@ -14,7 +14,7 @@ file_hash <- function(x, method = openssl::sha256, ...){
 
 release <- here::here("2019")
 meta <- fs::dir_info(release) %>%
-  mutate(sha256 = map_chr(path, file_hash, raw = TRUE),
+  mutate(sha256 = map_chr(path, file_hash, raw = FALSE),
          name = fs::path_file(path),
          contentType = "text/tab-separated-values",
          contentEncoding = "bz2") %>%
