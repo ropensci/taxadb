@@ -1,8 +1,6 @@
 library(openssl)
 library(fs)
-library(EML)
 library(tidyverse)
-library(uuid)
 library(here)
 library(jsonlite)
 
@@ -13,12 +11,14 @@ file_hash <- function(x, method = openssl::sha256, ...){
 }
 
 release <- here::here("2019")
+## slower if we compute hash_uris on uncompressed content!
 meta <- fs::dir_info(release) %>%
-  mutate(sha256 = map_chr(path, file_hash, raw = FALSE),
+  mutate(sha256_compressed = map_chr(path, file_hash, raw = TRUE),
+         hash_uri = paste0("hash://sha256/", map_chr(path, file_hash)),
          name = fs::path_file(path),
          contentType = "text/tab-separated-values",
          contentEncoding = "bz2") %>%
-  select(name, size, sha256,
+  select(name, size, sha256_compressed, hash_uri,
          dateCreated = modification_time,
          contentType, contentEncoding, path)
 
@@ -27,9 +27,15 @@ meta <- fs::dir_info(release) %>%
 #write_csv(meta, here::here("data-raw/meta.csv"))
 meta %>%
   select(-path) %>%
-  mutate(size = as.character(size)) %>%
+  mutate(size = trimws(as.character(size))) %>%
   write_json(here::here("data-raw/meta.json"),
              pretty = TRUE, auto_unbox=TRUE)
+
+
+
+#######
+
+library(EML)
 
 
 dwc_terms <-
@@ -43,6 +49,7 @@ dwc_terms <-
 
 
 path <- meta$path[[1]]
+
 
 meta_dataset <- function(path){
 

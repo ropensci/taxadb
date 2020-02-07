@@ -1,49 +1,29 @@
- {
-      "@context":"https://schema.org/",
-      "@type":"Dataset",
-      "name":"Catalogue of Life, 2019 Release, formatted for taxadb",
-      "description":"A copy of the Catalogue of Life taxanomic names list, formatted for taxadb R package cache",
-      "derivedFrom": "http://www.catalogueoflife.org/DCA_Export/archive.php",
-      "identifier": ["https://doi.org/10.1000/182",
-                     "https://identifiers.org/ark:/12345/fk1234"],
-      "keywords":[
-         "Taxonomy",
-         "Scientific names",
-         "R"      ],
-      "license" : "https://creativecommons.org/publicdomain/zero/1.0/",
-      "creator":{
-         "@type":"Organization",
-         "url": "https://www.ncei.noaa.gov/",
-         "name":"OC/NOAA/NESDIS/NCEI > National Centers for Environmental Information, NESDIS, NOAA, U.S. Department of Commerce",
-         "contactPoint":{
-            "@type":"ContactPoint",
-            "contactType": "customer service",
-            "telephone":"+1-828-271-4800",
-            "email":"ncei.orders@noaa.gov"
-         }
-      },
-      "includedInDataCatalog":{
-         "@type":"DataCatalog",
-         "name":"data.gov"
-      },
-      "distribution":[
-         {
-            "@type":"DataDownload",
-            "encodingFormat":"CSV",
-            "contentUrl":"http://www.ncdc.noaa.gov/stormevents/ftp.jsp"
-         },
-         {
-            "@type":"DataDownload",
-            "encodingFormat":"XML",
-            "contentUrl":"http://gis.ncdc.noaa.gov/all-records/catalog/search/resource/details.page?id=gov.noaa.ncdc:C00510"
-         }
-      ],
-      "temporalCoverage":"1950-01-01/2013-12-18",
-      "spatialCoverage":{
-         "@type":"Place",
-         "geo":{
-            "@type":"GeoShape",
-            "box":"18.0 -65.0 72.0 172.0"
-         }
+{ "@context": {
+  "schema:": "http://schema.org",
+  "prov": "http://www.w3.org/ns/prov#",
+  "pav": "http://purl.org/pav/",
+  "dc": "http://purl.org/dc/terms/",
+  "foaf": "http://xmlns.com/foaf/0.1/"
+
+},
+  "@graph": [
+  {
+    "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
+    "@type": "prov:Entity",
+    "dc:identifier": "common_col.tsv.bz2",
+    "schema:size": "5.8M",
+    "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
+    "prov:wasDerivedFrom": "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2019-annual.zip",
+    "pav:createdWith": "https://github.com/cboettig/taxadb/blob/c4c98953247f49f971823a3e27b0200638bd552b/data-raw/col.R",
+    "prov:generatedAtTime": "2019-12-01 23:27:37",
+    "dc:format": "text/tab-separated-values",
+    "schema:contentEncoding": "bz2",
+    "pav:curatedBy": {
+      "@type": "pav:Agent",
+      "@id": "https://orcid.org/0000-0002-1642-628X",
+      "foaf:givenName": "Carl",
+      "foaf:surName": "Boettiger"
       }
-    }
+  }
+]
+}
