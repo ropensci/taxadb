@@ -1,29 +1,32 @@
-{ "@context": {
-  "schema:": "http://schema.org",
-  "prov": "http://www.w3.org/ns/prov#",
-  "pav": "http://purl.org/pav/",
-  "dc": "http://purl.org/dc/terms/",
-  "foaf": "http://xmlns.com/foaf/0.1/"
 
-},
-  "@graph": [
-  {
-    "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
-    "@type": "prov:Entity",
-    "dc:identifier": "common_col.tsv.bz2",
-    "schema:size": "5.8M",
-    "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
-    "prov:wasDerivedFrom": "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2019-annual.zip",
-    "pav:createdWith": "https://github.com/cboettig/taxadb/blob/c4c98953247f49f971823a3e27b0200638bd552b/data-raw/col.R",
-    "prov:generatedAtTime": "2019-12-01 23:27:37",
-    "dc:format": "text/tab-separated-values",
-    "schema:contentEncoding": "bz2",
-    "pav:curatedBy": {
-      "@type": "pav:Agent",
-      "@id": "https://orcid.org/0000-0002-1642-628X",
-      "foaf:givenName": "Carl",
-      "foaf:surName": "Boettiger"
-      }
-  }
-]
+{
+  "@context": {
+    "vocab": "http://www.w3.org/ns/dcat#",
+    "dcat":  "http://www.w3.org/ns/dcat#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "dc": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@id": "hash://sha256/354ed06837d39b65e64a06d86b01b635dbe2ecbcc0fa890a9ae1338b79a17c61",
+  "@type": "Distribution",
+  "accessRights": "http://www.catalogueoflife.org/content/terms-use",
+  "byteSize": "6080127",
+  "compressionFormat": "bz2",
+  "conformsTo": "https://dwc.tdwg.org/terms/",
+  "description": "A copy of the Catalogue of Life taxanomic names list, formatted for taxadb R package cache",
+  "downloadURL": "https://github.com/boettiger-lab/taxadb-cache/releases/download/2019/2019.2fdwc_col.tsv.bz2",
+  "mediaType": "text/tab-separated-values",
+  "issued": "2019-12-01 23:27:37",
+  "rights": "http://www.catalogueoflife.org/content/terms-use",
+  "modified": "2019-12-01 23:27:37",
+  "sha256_compressed": "e3fa608785c5cd9dbb50d0cd4ed07486639b2c57a71246dd8a6fb22bf8c10425",
+  "prov:wasDerivedFrom": "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2019-annual.zip",
+  "prov:wasGeneratedBy": "https://github.com/cboettig/taxadb/blob/c4c98953247f49f971823a3e27b0200638bd552b/data-raw/col.R",
+  "creator": {
+    "@type": "foaf:Agent",
+    "@id": "https://orcid.org/0000-0002-1642-628X",
+    "foaf:givenName": "Carl",
+    "foaf:surName": "Boettiger"
+    }
 }
+
