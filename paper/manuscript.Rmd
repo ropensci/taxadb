@@ -48,7 +48,7 @@ options(knitr.kable.NA = '-')
 printtable <- function(df, ...){
   df %>%
     kableExtra::kable("latex", booktabs=T, ...) %>%
-    kableExtra::kable_styling(full_width = F)
+    kableExtra::kable_styling(full_width = F, latex_options = "hold_position")
 }
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, warning=FALSE)
 
@@ -70,7 +70,7 @@ which may preclude the resources or substantive taxonomic expertise for all clad
 needed to resolve scientific names [@Patterson2010].  
 
 While these issues have long been recognized in the literature [@boyle2013; @dayrat2005; @bortolus2008; @maldonado2015],
-and a growing number of databases and tools have emerged and grown over the past few decades
+and a growing number of databases and tools have emerged over the past few decades
 [e.g. @itis; @ncbi; @col; @rees2014; @alvarez2018; @wagner2016; @foster2018],
 it remains difficult to resolve taxonomic names to a common authority in a transparent, efficient, and automatable manner.
 Here, we present an R package, `taxadb`, which seeks to address this gap.
@@ -94,9 +94,9 @@ that are inherent in the implementation of these central API servers, such as:
 - Most queries are not reproducible, as the results depend on the state of the central server (and potentially the quality of the internet connection).  Many names providers update the server data either continuously or at regular intervals, including both revising existing names and adding new names.
 
 Instead of binding existing web APIs, `taxadb` is built around a set of compressed text files which are 
-automatically downloaded and imported and stored on a local database by `taxadb`.  
+automatically downloaded, imported, and stored on a local database by `taxadb`. 
 The largest of the taxonomic naming providers today contain under 6 million name records with uncompressed file sizes
-over a GB, which can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection.  
+over a GB, which can be compressed to around 50 MB and downloaded in under a minute on a 1 MB/s connection. 
 By using a local database as the backend, `taxadb` allows R users to interact with large data files without large memory (RAM) requirements.  A query for a single name over the web API requires a remote server to respond, execute the query, 
 and serialize the response, which can take several seconds. Thus it does not take many taxa before transferring the 
 entire data set to query locally is more efficient.  Moreover, this local copy can be cached on the user's machine, 
@@ -130,8 +130,8 @@ tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
                     description = desc
 ) %>%
   knitr::kable(format = "latex", col.names = c("Provider", "Abbreviation", "Number of \nIdentifiers", "Description"), escape = FALSE, 
-               caption = "Descriptions of providers supported by taxadb.") %>%
-  kable_styling(latex_options="scale_down") %>%
+               caption = "Descriptions of the providers supported by taxadb with their reference abbreviation and the total number of identifiers contained by each provider.") %>%
+  kable_styling(latex_options= c("scale_down", "hold_position")) %>%
   kableExtra::column_spec(1, width = "5cm") %>%
   kableExtra::column_spec(4, width = "10cm")
 
@@ -157,7 +157,7 @@ library(tidyverse)
 library(taxadb)
 ```
 
-After loading the package, we look up the taxonomic identifier for a Atlantic Cod, *Gadus morhua*, and the compliment:
+After loading the package, we look up the taxonomic identifier for Atlantic Cod, *Gadus morhua*, and the compliment:
 
 
 ```{r}
@@ -166,9 +166,9 @@ get_names("ITIS:164712")
 ```
 
 
-Our first call to any `taxadb` functions will automatically set up a local, persistent database if one has not yet been created. This one-time setup will download, extract, and import the compressed data into persistent database storage (using the appropriate location specified by the operating system [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same names provider will be able to access this data rapidly without the need for processing or an internet connection.  
+Our first call to any `taxadb` functions will automatically set up a local, persistent database if one has not yet been created. This one-time setup will download, extract, and import the compressed data into persistent database storage (using the appropriate location specified by the operating system [see @rappdirs], or configured using the environmental variable `TAXADB_HOME`).  The example above searches for names in ITIS, the default provider, which can be configured using the `provider` argument. Any future function calls to this function or any other function using data from the same provider will be able to access this data rapidly without the need for processing or an internet connection.  
 
-Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 6), or simply using `all` to install all available providers:
+Users can also explicitly trigger this one-time setup using `td_create()` and specifying the provider abbreviation (see Table 1), or simply using `all` to install all available providers:
 
 
 ```{r eval=FALSE, message=FALSE}
@@ -176,10 +176,10 @@ td_create("all")
 ```
 
 
-`taxadb` functions like `get_ids()` and `td_create()` take an optional argument, `db`, to an external database connection.  `taxadb` will work with most DBI-compliant databases such as MySQL or Postgres, but will be much faster when using a column-oriented database engine such as `duckdb` or `MonetDBLite`.  These latter options are also much easier for most users, since each can be installed directly as an R package. `taxadb` will default to the fastest available option.  `taxadb` can also run without a database backend by setting `db=NULL`, though some functions will require a lot (2-20 GB) of free RAM for this to work with many of the large names providers.  
+`taxadb` functions like `get_ids()` and `td_create()` take an optional argument, `db`, to an external database connection.  `taxadb` will work with most DBI-compliant databases such as MySQL or Postgres, but will be much faster when using a column-oriented database engine such as `duckdb` or `MonetDBLite`.  These latter options are also much easier for most users, since each can be installed directly as an R package. `taxadb` will default to the fastest available option.  `taxadb` can also run without a database backend by setting `db=NULL`, though some functions will require a lot (2-20 GB) of free RAM for this to work with many of the larger providers.  
 
-`taxadb` uses the widely known SQLite database by default, but users are encouraged to install the optional, suggested database backends by passing the option `dependencies = TRUE` to the install command.  This installs a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage.  This also installs `duckdb`, another local columnar database which is rapidly emerging as an alternative to MonetDB and SQLite. `taxadb` will automatically detect and use these database engines if available, and automatically handles opening, caching, and closing the database connection. For large queries, MonetDBLite or `duckdb` deliver impressive improvements.  Our benchmark on resolving the 750 species names in in the Breeding Bird Survey against over 3 million names known in the 2019 Catalogue of Life takes 8 minutes in SQLite but less than a second in MonetDBLite. 
-
+`taxadb` uses the widely known SQLite database by default, but users are encouraged to install the optional, suggested database backends by passing the option `dependencies = TRUE` to the install command.  This installs a MonetDBLite database instance [@monetdblite], a columnar-oriented relational database requiring no additional installation while also providing persistent disk-based storage.  This also installs `duckdb`, another local columnar database which is rapidly emerging as an alternative to MonetDB and SQLite. `taxadb` will automatically detect and use these database engines if available, and automatically handles opening, caching, and closing the database connection. For large queries, MonetDBLite or `duckdb` deliver impressive improvements.  Our benchmark on resolving the 750 species names in the Breeding Bird Survey against over 3 million names known in the 2019 Catalogue of Life takes 8 minutes in SQLite but less than a second in MonetDBLite.  
+  
 Functions in `taxadb` are organized into several families: 
 
 - queries that return vectors: `get_ids()` and it's complement, `get_names()`,
@@ -192,7 +192,7 @@ Functions in `taxadb` are organized into several families:
 
 Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can identify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. (The historical practice of appending an author and year to a scientific name, e.g. *Poa annua ssp. annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010]).  
 
-These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits.]  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species (Table 1, 2).
+These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits].  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species (Table 2, 3).
 
 ```{r message=FALSE}
 trait_data <- read_tsv(system.file("extdata", "trait_data.tsv", package="taxadb"))
@@ -200,24 +200,25 @@ status_data <- read_tsv(system.file("extdata", "status_data.tsv", package="taxad
 ```
 
 ```{r iucn_table, echo=FALSE, cache = FALSE}
-status_data %>% printtable(caption = "IUCN status for the selected 10 species.")
+status_data %>% printtable(caption = "The subset of the IUCN status data used for subsequent taxonomic identifier examples.") 
 ```
+
 
 ```{r trait_table, echo = FALSE, cache = FALSE }
-trait_data %>% printtable(caption = "Trait data for the selected 10 species.")
+trait_data %>% printtable(caption = "The subset of the Elton trait data used for subsequent taxonomic identifier examples.")
 ```
 
 
-If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved (Table 3). 
+If we attempted to join these data directly on the species names provided by each table, we would find very little overlap, with only one species having both a body mass and an IUCN threat status resolved (Table 4). 
 
 ```{r}
-joined <- full_join(trait_data, status_data, by = c("elton_name" = "redlist_name")) 
+joined <- full_join(trait_data, status_data, by = c("elton_name" = "iucn_name")) 
 ```
 
 
 ```{r echo = FALSE, cache = FALSE}
 joined %>%
-  printtable(caption = "IUCN and trait data joined on scientific name.")
+  printtable(caption = "Example IUCN and trait data joined directly on scientific name showing only one match. While common, joining on scientific name does not account for taxnomic inconsistiencies between databases and therefore results in seemingly very little overlap in species representation between the two.")
 ```
 
 If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.  First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
@@ -225,7 +226,7 @@ If we first resolve names used in each data set into shared identifiers, (for in
 ```{r}
 
 traits <- trait_data %>% mutate(id = get_ids(elton_name, "col"))
-status <- status_data %>% mutate(id = get_ids(redlist_name, "col"))
+status <- status_data %>% mutate(id = get_ids(iucn_name, "col"))
 ```
 
 We can now join on the `id` column instead of names directly:
@@ -237,13 +238,13 @@ joined <- full_join(traits, status, by = "id")
 ```{r cache = FALSE, echo = FALSE}
 ## Just for pretty-printing
 joined %>%  
-  tidyr::replace_na(list(category = "-", elton_name = "-", redlist_name = "-")) %>%
-  select(elton_name, redlist_name, mass, category, id) %>%
-  printtable(caption = "IUCN and trait data joined on taxonomic ID.")
+  tidyr::replace_na(list(category = "-", elton_name = "-", iucn_name = "-")) %>%
+  select(elton_name, iucn_name, mass, category, id) %>%
+  printtable(caption = "Example IUCN and trait data joined on taxonomic ID. Multilple species have a different scientific name in the Elton and IUCN Redlist databases but can be match based on their COL taxonomic ID.")
 ```
 
 
-This results in many more matches (Table 4), as different scientific names are recognized by the naming provider (Catalog of Life 2018 in this case), as *synonyms* for the same species, and thus resolve to the same taxonomic identifier.  While we have focused on a small example for visual clarity here, the `get_ids()` function in `taxadb` can quickly resolve hundreds of thousands of species names to unique identifiers, thanks to the performance of fast joins in a local MonetDBLite database.
+This results in many more matches (Table 5), as different scientific names are recognized by the naming provider (Catalog of Life 2018 in this case), as *synonyms* for the same species, and thus resolve to the same taxonomic identifier.  While we have focused on a small example for visual clarity here, the `get_ids()` function in `taxadb` can quickly resolve hundreds of thousands of species names to unique identifiers, thanks to the performance of fast joins in a local MonetDBLite database.
 
 
 
@@ -274,23 +275,22 @@ We can also use this to gain a detailed look at specific species or ids.
 For example, we can explore why `get_ids` fails to resolve a seemingly common species:
 
 ```{r}
-multi_match <- filter_name("Zosterops rendovae")
+multi_match <- filter_name("Zosterops rendovae", provider = "col")
 ```
 
 ```{r echo = FALSE, cache = FALSE}
 multi_match %>%
   select(1:5) %>%
-  printtable(caption = "Accepted name matches for Zosterops rendovae.")
+  printtable(caption = "Some names may not resolve to an identifier using get\\_ids() because they match to more than one accepted ID. In such cases filter\\_ functions give further detail, as in the example of Zosterops rendovae below which has two accepted ID matches.", escape = FALSE)
 ```
 
-We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 5).
+We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 6).
 This is an example of how `taxadb` seeks to provide users with information from existing authorities and names providers,
 rather than make a potentially arbitrary decision.  Because they return `data.frame`s,  `filter_*` functions provide both potential matches.  Note that the simpler `get_` functions (`get_ids()`) consider multiple name as `NA` for the `id`, making them suitable for automated pipelines where manual resolution of duplicates is not an option. 
 
-
 ## Direct database access
 
-The full taxonomic record in the database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers.  For example, we can easily check the coverage of accepted species names in each of the classes of vertabrates within the Catalogue of Life:
+The full taxonomic record in the database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers.  For example, we can easily check the coverage of accepted species names in each of the classes of vertabrates within the Catalogue of Life (Table 7):
 
 ```{r cache = FALSE}
 verts <- taxa_tbl("col") %>%
