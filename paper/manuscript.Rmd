@@ -209,7 +209,7 @@ joined <- full_join(trait_data, status_data, by = c("elton_name" = "iucn_name"))
 
 ```{r echo = FALSE, cache = FALSE}
 joined %>%
-  printtable(caption = "Example IUCN and trait data joined directly on scientific name showing only one match. While common, joining on scientific name does not account for taxnomic inconsistiencies between databases and therefore results in seemingly very little overlap in species representation between the two.")
+  printtable(caption = "Example IUCN and trait data joined directly on scientific name showing only one match. While common, joining on scientific name does not account for taxonomic inconsistencies between databases and therefore results in seemingly very little overlap in species representation between the two.")
 ```
 
 If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have initially realized. First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
@@ -231,7 +231,7 @@ joined <- full_join(traits, status, by = "id")
 joined %>%  
   tidyr::replace_na(list(category = "-", elton_name = "-", iucn_name = "-")) %>%
   select(elton_name, iucn_name, mass, category, id) %>%
-  printtable(caption = "Example IUCN and trait data joined on taxonomic ID. Multilple species have a different scientific name in the Elton and IUCN Redlist databases but can be match based on their COL taxonomic ID.")
+  printtable(caption = "Example IUCN and trait data joined on taxonomic ID. Multiple species have a different scientific name in the Elton and IUCN Redlist databases but can be match based on their COL taxonomic ID.")
 ```
 
 
@@ -281,7 +281,7 @@ rather than make a potentially arbitrary decision.  Because they return `data.fr
 
 ## Direct database access
 
-The full taxonomic record in the database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers.  For example, we can easily check the coverage of accepted species names in each of the classes of vertabrates within the Catalogue of Life (Table 7):
+The full taxonomic record in the database can also be directly accessed by `taxa_tbl()`, allowing for whole-database queries that are not possible through the API or web interface of many providers.  For example, we can easily check the coverage of accepted species names in each of the classes of vertebrates within the Catalogue of Life (Table 7):
 
 ```{r cache = FALSE}
 verts <- taxa_tbl("col") %>%
@@ -292,7 +292,7 @@ verts <- taxa_tbl("col") %>%
 
 ```{r echo = FALSE}
  verts %>%
-  printtable(caption = "taxadb also provides direct access to the database, allowing dplyr or SQL queries which can compute across the entire dataset, such as counting accepted species in all vertabrate classes shown here.  This kind of query is effectively impossible in most REST API-based interfaces.")
+  printtable(caption = "taxadb also provides direct access to the database, allowing dplyr or SQL queries which can compute across the entire dataset, such as counting accepted species in all vertebrate classes shown here.  This kind of query is effectively impossible in most REST API-based interfaces.")
 ```
 
 
@@ -312,7 +312,7 @@ Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a stati
 
 Taxonomic identifiers are a powerful tool for maintaining taxonomic consistency, an essential task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
 
-Lastly, we note that local database design used in `taxadb` is not unique to taxonomic names.  Despite the rapid expansion of REST API-based interfaces to ecological data [@ropensci], in our experience, much of the data relevant to ecologists and evolutionary biologists today would be also be ameniable to the local database design.  The local database approach is much easier for data providers (who can leverage static scientific database repositories instead of maintaining REST servers) and often much faster for data consumers. 
+Lastly, we note that local database design used in `taxadb` is not unique to taxonomic names.  Despite the rapid expansion of REST API-based interfaces to ecological data [@ropensci], in our experience, much of the data relevant to ecologists and evolutionary biologists today would be also be amenable to the local database design.  The local database approach is much easier for data providers (who can leverage static scientific database repositories instead of maintaining REST servers) and often much faster for data consumers. 
 
 # Acknowledgments
 We thank the many researchers who contributed to the data and infrastructure of the various taxonomic providers we access through our package. Support for the development of this package was provided by United States Department of Energy through the Computational Sciences Graduate Fellowship (DOE CSGF) under grant number DE-FG02-97ER25308 awarded to K.E.A.N..
