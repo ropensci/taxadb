@@ -4,14 +4,14 @@ author:
   - name: "Kari Norman"
     affiliation: ucb
   - name: "Scott Chamberlain"
-    affiliation: ropensci      
+    affiliation: ropensci
   - name: "Carl Boettiger"
     affiliation: ucb, ropensci
 address:
   - code: ucb
     address: "Dept of Environmental Science, Policy, and Management, University of California Berkeley, Berkeley CA 94720-3114, USA"
   - code: ropensci
-    address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA"
+    address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA" 
 abstract: |
   A familiar and growing challenge in ecological and evolutionary research is that of reconciling scientific names of relevant taxa when combining data from separate sources. While this problem is already well understood and numerous naming authorities have been created to address the issue, most researchers lack a fast, consistent, and intuitive way to reconcile taxonomic names.  Here, we present `taxadb` R package to address this gap.  In contrast to existing tools, `taxadb` provides the following:  
   1) `taxadb` accesses established naming authorities to resolve synonyms, IDs, and hierarchical classification.  
@@ -23,6 +23,9 @@ journal: "Methods in Ecology & Evolution"
 date: "`r Sys.Date()`"
 bibliography: refs.bib
 layout: 3p
+header-includes:
+   - \usepackage{lineno}
+   - \linenumbers
 output: 
   rticles::elsevier_article:
     includes:
@@ -138,18 +141,6 @@ tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
 
 ```
 
-
-
-<!--
-### Installation
-
-`taxadb` can be installed from GitHub using the `remotes` R package:
-
-```{r eval=FALSE}
-remotes::install_github("ropensci/taxadb")
-```
--->
-
 # Package Overview
 
 ```{r message = FALSE, warning=FALSE}
@@ -221,7 +212,7 @@ joined %>%
   printtable(caption = "Example IUCN and trait data joined directly on scientific name showing only one match. While common, joining on scientific name does not account for taxnomic inconsistiencies between databases and therefore results in seemingly very little overlap in species representation between the two.")
 ```
 
-If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have realized at first.  First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
+If we first resolve names used in each data set into shared identifiers, (for instance, using the Catalogue of Life), we discover that there is far more overlap in the species coverage than we might have initially realized. First, we just add an ID column to each table by looking up the Catalog of Life identifier for the name provided:
 
 ```{r}
 
@@ -256,7 +247,7 @@ This results in many more matches (Table 5), as different scientific names are r
 
 ## Unresolved names
 
-`get_ids` offers a first pass at matching scientific names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the 'filter_' functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the binomial name. These modifications are not appropriate in all settings and should be used with care. Spell check of input names is outside the scope of `taxadb`.
+`get_ids` offers a first pass at matching scientific names to id, but names may remain unresolved for a number of reasons. First, a name may match to multiple accepted names, as in the case of a species that has been split. By design, these cases are left to be resolved by the researcher using the `filter_` functions to filter underlying taxonomic tables for additional information. A name may also be unresolved due to typos or improper formatting. `clean_names` addresses common formatting issues such as the inclusion of missing species epithets (e.g. `Accipiter sp.`) that prevent matches to the Genus, or intraspecific epithets such as `Colaptes auratus cafer` that prevent matches to the binomial name. These modifications are not appropriate in all settings and should be used with care. Spell check of input names is outside the scope of `taxadb`.
 
 Names may also have an ambiguous resolution wherein a name may be resolved by a different provider than the one specified, either as an accepted name or a synonym. Mapping between providers represent a meaningful scientific statement requiring an understanding of the underlying taxonomic concepts of each provider [@franz2009; @Franz2018]. The spirit of taxadb is not to automate steps that require expert knowledge, but provide access to multiple potential "taxonomic theories".
 
@@ -286,7 +277,7 @@ multi_match %>%
 
 We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 6).
 This is an example of how `taxadb` seeks to provide users with information from existing authorities and names providers,
-rather than make a potentially arbitrary decision.  Because they return `data.frame`s,  `filter_*` functions provide both potential matches.  Note that the simpler `get_` functions (`get_ids()`) consider multiple name as `NA` for the `id`, making them suitable for automated pipelines where manual resolution of duplicates is not an option. 
+rather than make a potentially arbitrary decision.  Because they return `data.frame`s,  `filter_` functions provide both potential matches.  Note that the simpler `get_` functions (`get_ids()`) consider multiple name matches as `NA` for the `id`, making them suitable for automated pipelines where manual resolution of duplicates is not an option. 
 
 ## Direct database access
 
