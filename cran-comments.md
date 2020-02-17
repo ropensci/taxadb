@@ -1,10 +1,22 @@
 We are pleased to submit the intial release of taxadb.  
 
-The IUCN website URL does not include a HEAD, which causes CRAN's header-only check request (`curl -I -L`) to fail,
-even though a full check (`curl -L` would resolve https://iucnredlist.org).  To avoid this spurious error, I have
-listed this link as plain text.
+The YEAR stated in the LICENSE is now updated.  
 
-CRAN's checks also appeared to stall out on one system on the previous submission.  While I cannot replicate this (locally checks run under 2 minutes), I agree it may be due to a possible web request, so this revision caches a minimal copy of the data used in regular checks so that tests can be run more efficiently.
+We are using \dontshow in examples to
+hide commands which are related only to testing settings. Showing these would be confusing
+to the user, because they only set an environmental variable related to testing.  
+Please note that the discussion of `dontshow` in the Writing R Extensions manual, 
+"Writing R Extensions",
+https://cran.r-project.org/doc/manuals/r-release/R-exts.html#index-_005cdontshow, does 
+not at this time discuss use of \dontshow, but this use is consistent with other 
+examples of CRAN packages which use \dontshow to hide testing-related setting of options, etc
+in examples.  We have spent considerable time selecting examples and having them peer-reviewed
+(e.g. https://github.com/ropensci/software-review/issues/344).  This issue was not commented
+on in previous submissions of this package, the automated checks, or the writing CRAN Extensions
+Manual, and our use is consistent with other CRAN packages use.  If you feel these examples
+would somehow be clearer without the use of `\dontshow` around parts meant for creating a testing
+environment only, some further explanation would be appreciated.  
+
 
 
 ## Test environments
