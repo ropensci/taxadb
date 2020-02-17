@@ -344,7 +344,7 @@
     }
   ],
   "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
-  "fileSize": "154.193KB",
+  "fileSize": "8355.897KB",
   "contIntegration": [
     "https://travis-ci.org/ropensci/taxadb",
     "https://ci.appveyor.com/project/cboettig/taxadb",
