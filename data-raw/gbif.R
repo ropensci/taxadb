@@ -1,9 +1,4 @@
-library(dplyr)
-library(stringi)
-library(readr)
-source("data-raw/helper-routines.R")
 
-## extracted from: https://doi.org/10.15468/39omei
 
 preprocess_gbif <- function(url = "http://rs.gbif.org/datasets/backbone/backbone-current.zip",
                             output_paths = c(dwc = "2019/dwc_gbif.tsv.bz2",

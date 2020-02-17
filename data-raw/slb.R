@@ -1,12 +1,7 @@
-library(rfishbase) # 3.0
-library(tidyverse)
-library(stringi)
-source("data-raw/helper-routines.R")
-
 
 
 ###### sealifebase #######################
-
+#' @export
 preprocess_slb <- function(output_paths = c(dwc = "2019/dwc_slb.tsv.bz2",
                                             common = "2019/common_slb.tsv.bz2")){
 
@@ -95,7 +90,7 @@ preprocess_slb <- function(output_paths = c(dwc = "2019/dwc_slb.tsv.bz2",
   common <- slb_common %>%
     mutate(taxonID = stri_paste("SLB:", SpecCode)) %>%
     select(taxonID, vernacularName = ComName, language = Language) %>%
-    inner_join(dwc %>% select(-vernacularName), by = "taxonID") %>%
+    inner_join(dwc_slb %>% select(-vernacularName), by = "taxonID") %>%
     distinct()
 
   #just want one sci name per accepted name ID, first get accepted names,
@@ -115,7 +110,7 @@ preprocess_slb <- function(output_paths = c(dwc = "2019/dwc_slb.tsv.bz2",
 
 
 
-  write_tsv(slb, output_paths["dwc"])
+  write_tsv(dwc_slb, output_paths["dwc"])
   write_tsv(common, output_paths["common"])
 
   file_hash(output_paths)

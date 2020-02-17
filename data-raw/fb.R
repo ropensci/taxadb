@@ -1,8 +1,4 @@
-library(rfishbase) # 3.0
-library(tidyverse)
-library(stringi)
-source(here::here("data-raw/helper-routines.R"))
-
+#' @export
 preprocess_fb <- function(output_paths = c(dwc = "2019/dwc_fb.tsv.bz2",
                                            common = "2019/common_fb.tsv.bz2")
                           ){

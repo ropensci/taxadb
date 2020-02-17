@@ -1,10 +1,6 @@
 
+redlist_api_loop <- function(){
 #install.packages('rredlist')
-library(rredlist)
-library(tidyverse)
-library(httr)
-source("data-raw/helper-routines.R")
-
 downloads <- tempdir()
 dir <- file.path(downloads, "iucn")
 dir.create(dir, FALSE, FALSE)
@@ -182,5 +178,7 @@ comm_table <- read_tsv("data/iucn_common.tsv.bz2") %>%
   select(acceptedNameUsageID = id, vernacularName = commonname, language) %>%
   inner_join(bind_rows(dwc_accepted, dwc_rest) %>% select(-vernacularName))
 
-write_tsv(comm_table, "dwc/common_iucn.tsv.bz2")
+write_tsv(comm_table, "data/common_iucn.tsv.bz2")
+
+}
 #piggyback::pb_upload("common/common_iucn.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "dwc")
