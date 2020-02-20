@@ -1,12 +1,11 @@
-library(tidyverse)
-library(fs)
-library(vroom)
+#' @importFrom vroom vroom
 
 ## Go to the Redlist website, create a user, login, and set search options to include taxonomy, synoynms, and common names
 ## Bird data is rate-limited -- filter for Passerine birds, & then for all other birds to get it in two separate downloads
 ## Then also download all other vertabrates & invertabrates
 ## Unzip all downloads to a location specified in path
 
+## This approach is much faster & more thorough than the API approach taken in `redlist.R`
 
 preprocess_iucn <- function(path = "~/Documents/data/redlist-downloads-2019-11-25",
                             output_paths = c(dwc = "2019/dwc_iucn.tsv.bz2",

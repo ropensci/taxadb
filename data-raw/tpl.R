@@ -1,9 +1,4 @@
-## apt-get -y install mariadb-client postgresql-client
-## remotes::install_github("ropensci/taxizedb")
-library(tidyverse)
-library(stringi)
-
-
+#' @export
 preprocess_tpl <- function(output_files = c(dwc = "2019/dwc_tpl.tsv.bz2")){
   archive <- file.path(tempdir(), "plantlist.tsv.bz2")
   download.file("https://github.com/cboettig/taxadb/releases/download/data/taxizedb.2ftpl.2fplantlist.tsv.bz2",

@@ -1,10 +1,5 @@
-library(tidyverse)
-library(stringi)
-library(piggyback)
-library(RSQLite)
-library(openssl)
-source("data-raw/helper-routines.R")
 
+#' @import arkdb RSQLite DBI readr dplyr stringr
 
 preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip",
                             output_paths =
@@ -149,7 +144,7 @@ preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip
     de_duplicate()
 
 
-  dwc <- itis_taxonid %>%
+  dwc_core <- itis_taxonid %>%
     rename(taxonID = id,
            scientificName = name,
            taxonRank = rank,
@@ -161,15 +156,12 @@ preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip
                        specificEpithet = species
                        #infraspecificEpithet
                 ),
-              by = c("acceptedNameUsageID" =  "taxonID")) %>%
-    left_join(com_names %>%
-                select(vernacularName = vernacular_name, acceptedNameUsageID),
-              by = "acceptedNameUsageID") %>%
-    distinct()
+              by = c("acceptedNameUsageID" =  "taxonID")) 
+  
 
-  species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
-  dwc$specificEpithet <- species[,2]
-  dwc$infraspecificEpithet <- species[,3]
+  species <- stringi::stri_extract_all_words(dwc_core$specificEpithet, simplify = TRUE)
+  dwc_core$specificEpithet <- species[,2]
+  dwc_core$infraspecificEpithet <- species[,3]
 
 
 
@@ -196,18 +188,20 @@ preprocess_itis <- function(url = "https://www.itis.gov/downloads/itisSqlite.zip
     bind_rows(acc_common) %>%
     distinct(acceptedNameUsageID, .keep_all = TRUE)
 
+
+  ## add vernacular name
+  dwc <- dwc_core %>%
+    left_join(com_names %>%
+                select(vernacularName = vernacular_name, acceptedNameUsageID),
+              by = "acceptedNameUsageID") %>%
+    distinct()
+  
+  
   ## Common name table
   common <-  vern %>%
     select(-approved_ind, -vern_id) %>%
     inner_join(dwc %>% select(-vernacularName, -update_date)) %>%
     rename(vernacularName = vernacular_name)
-
-
-
-  dir.create("dwc")
-  write_tsv(dwc, "dwc/dwc_itis.tsv.bz2")
-  write_tsv(common, "dwc/common_itis.tsv.bz2")
-
 
 
   dir.create(dirname(output_paths["dwc"]), FALSE)

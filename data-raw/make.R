@@ -12,54 +12,80 @@ conflict_prefer("filter", "dplyr")
 conflict_prefer("lag", "dplyr")
 conflict_scout()
 
-source(here("data-raw/helper-routines.R"))
+message(fs::path_wd())
 
-## And here we go, loading individual routines
-source(here("data-raw/gbif.R"))
-source(here("data-raw/itis.R"))
-source(here("data-raw/ncbi.R"))
-source(here("data-raw/col.R"))
-source(here("data-raw/fb.R"))
-source(here("data-raw/slb.R"))
-source(here("data-raw/ott.R"))
-
+devtools::load_all()
 #plan <- drake_plan(
 
-
-gbif = preprocess_gbif(url = file_in("http://rs.gbif.org/datasets/backbone/backbone-current.zip"),
-                       output_paths = c(dwc = file_out("2020/dwc_gbif.tsv.bz2"),
-                                        common = file_out("2020/common_gbif.tsv.bz2")))
-
-itis = preprocess_itis(url = file_in("https://www.itis.gov/downloads/itisSqlite.zip"),
-                       output_paths = c(dwc = file_out("2020/dwc_itis.tsv.bz2"),
-                                        common = file_out("2020/common_itis.tsv.bz2")))
-
-ncbi = preprocess_ncbi(url = file_in("ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip"),
-                      output_paths = c(dwc = file_out("2020/dwc_ncbi.tsv.bz2"),
-                                       common = file_out("2020/common_ncbi.tsv.bz2")))
-
-col = preprocess_col(url = file_in("http://www.catalogueoflife.org/DCA_Export/zip-fixed/2020-annual.zip"),
-                     output_paths = c(dwc = file_out("2020/dwc_col.tsv.bz2"),
-                                      common = file_out("2020/common_col.tsv.bz2")))
+tag <- "2020"
+dir.create(tag)
+## 2020 annual not released yet
+## col_source <- paste0("http://www.catalogueoflife.org/DCA_Export/zip-fixed/", tag, "-annual.zip")
+col_source <- "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2020-01-10-archive-complete.zip"
+ott_source <- "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz"
+gbif_source <- "http://rs.gbif.org/datasets/backbone/backbone-current.zip"
+itis_source <- "https://www.itis.gov/downloads/itisSqlite.zip"
+ncbi_source <- "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip"
+# 
+# contenturi::register_remote(col_source)
+# contenturi::register_remote(ott_source)
+# contenturi::register_remote(gbif_source)
+# contenturi::register_remote(itis_source)
 
 
-fb = preprocess_fb(output_paths = c(dwc = file_out("2020/dwc_fb.tsv.bz2"),
-                                    common = file_out("2020/common_fb.tsv.bz2")))
+message("FishBase...")
+fb = preprocess_fb(output_paths = c(dwc = file.path(tag, "dwc_fb.tsv.bz2"),
+                                    common = file.path(tag, "common_fb.tsv.bz2")))
 
-slb = preprocess_slb(output_paths = c(dwc = file_out("2020/dwc_slb.tsv.bz2"),
-                                    common = file_out("2020/common_slb.tsv.bz2")))
+message("SeaLifeBase...")
 
-ott = preprocess_ott(url = file_in("http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz"),
-                     output_paths = c(dwc = file_out("2020/dwc_ott.tsv.bz2"),
-                                      common = file_out("2020/common_ott.tsv.bz2")))
+slb = preprocess_slb(output_paths = c(dwc = file.path(tag, "dwc_slb.tsv.bz2"),
+                                    common = file.path(tag, "common_slb.tsv.bz2")))
+
+message("OTT...")
+
+ott = preprocess_ott(url = ott_source,
+                     output_paths = c(dwc = file.path(tag, "dwc_ott.tsv.bz2")))
+
+
+message("GBIF...")
+
+gbif = preprocess_gbif(url = gbif_source,
+                       output_paths = c(dwc = file.path(tag, "dwc_gbif.tsv.bz2"),
+                                        common = file.path(tag, "common_gbif.tsv.bz2")))
+
+
+message("ITIS...")
+
+itis = preprocess_itis(url = itis_source,
+                       output_paths = c(dwc = file.path(tag, "dwc_itis.tsv.bz2"),
+                                        common = file.path(tag, "common_itis.tsv.bz2")))
+
+
+message("NCBI...")
+
+ncbi = preprocess_ncbi(url = ncbi_source,
+                       output_paths = c(dwc = file.path(tag, "dwc_ncbi.tsv.bz2"),
+                                        common = file.path(tag, "common_ncbi.tsv.bz2")))
+
+
+
+message("COL...")
+
+col = preprocess_col(url = col_source,
+                     output_paths = c(dwc = file.path(tag, "dwc_col.tsv.bz2"),
+                                      common = file.path(tag, "common_col.tsv.bz2")))
 
 
 #)
 
+# library(piggyback)
+# setwd("2020"); fs::dir_ls("*.bz2") %>% pb_upload(repo = "boettiger-lab/taxadb-cache", tag = tag)
+
 #library(pins)
 #board_register_github(repo = "cboettig/pins-test", name = "github_pins_test")
-#pin("dwc_gbif.tsv.bz2",
-#    board = "github_pins_test")
+#pin("2020/dwc_gbif.tsv.bz2", board = "github_pins_test")
+
 
 #config <- drake_config(plan)
 #vis_drake_graph(config)
