@@ -41,7 +41,7 @@ take_first_duplicate <- function(df){
 
   ## Skip this if sort index is never duplicated
   max_repeated <- df %>%
-    dplyr::count(sort, sort=T) %>%
+    dplyr::count(sort, sort = TRUE) %>%
     utils::head(1) %>%
     dplyr::pull(n)
   if(max_repeated == 1) return(df)
