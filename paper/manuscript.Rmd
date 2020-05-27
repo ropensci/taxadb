@@ -181,7 +181,7 @@ Functions in `taxadb` are organized into several families:
 
 ## Taxonomic Identifiers
 
-Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names.  For instance, by resolving scientific names to identifiers, we can identify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. The common practice of appending an author and year to a scientific name, e.g. *Poa annua annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010].  
+Taxonomic identifiers provide a fundamental abstraction which lies at the heart of managing taxonomic names. For instance, by resolving scientific names to identifiers, we can identify which names are synonyms -- different scientific names used to describe the same species -- and which names are not recognized. Each naming authority provides its own identifiers for the names it recognizes. For example, the name Homo sapiens has the identifier 9606 in NCBI and 180092 in ITIS.  To avoid possible confusion, taxadb always prefixes the naming provider, e.g. NCBI:9606. Some taxonomic naming providers include separate identifiers for synonyms, see Box 1. Unmatched names may indicate an error in data entry or otherwise warrant further investigation. Taxon identifiers are also easily resolved to the original authority (scientific publication) establishing the name. The common practice of appending an author and year to a scientific name, e.g. *Poa annua annua* (Smith 1912), serves a valuable role in disambiguating different uses of the same name but can be notoriously harder to resolve to the appropriate reference, while variation in this convention creates many distinct versions of the same name [@Patterson2010].  
 
 These issues are best illustrated using a minimal example.  We'll consider the task of combining data on bird extinction risk as assessed by the IUCN [@iucn] with data on average adult biomass, as estimated in the Elton Traits v1.0 database [@elton-traits].  To keep the example concise enough for for visual presentation we will focus on a subset involving just 10 species (Table 2, 3).
 
@@ -262,7 +262,7 @@ Underlying data tables can be accessed through the family of `filter_` functions
 
 ```{r}
 filter_rank("Aves", rank="class", provider = "col") %>%
-  filter(taxonomicStatus == "accepted") %>%
+  filter(taxonomicStatus == "accepted", taxonRank == "species") %>%
   pull(taxonID) %>%
   n_distinct()
 ```
@@ -271,17 +271,18 @@ We can also use this to gain a detailed look at specific species or ids.
 For example, we can explore why `get_ids` fails to resolve a seemingly common species:
 
 ```{r}
-multi_match <- filter_name("Zosterops rendovae", provider = "col")
+multi_match <- filter_name("Abies menziesii", provider = "col")
 ```
 
 ```{r echo = FALSE, cache = FALSE}
 multi_match %>%
-  select(1:5) %>%
+  select(1:5, genus, specificEpithet) %>%
+  unite(acceptedScientificName, genus, specificEpithet, sep = " ") %>%
   printtable(caption = "Some names may not resolve to an identifier using get\\_ids() because they match to more than one accepted ID. In such cases filter\\_ functions give further detail, as in the example of *Zosterops rendovae* below which has two accepted ID matches.", escape = FALSE) %>%
   column_spec(3, italic = TRUE)
 ```
 
-We see that *Zosterops rendovae* matches two accepted names which the user will have to choose between (Table 6).
+We see that *Abies menziesii* is a synonym for three accepted names which the user will have to choose between (Table 6).
 This is an example of how `taxadb` seeks to provide users with information from existing authorities and names providers,
 rather than make a potentially arbitrary decision.  Because they return `data.frame`s,  `filter_` functions provide both potential matches.  Note that the simpler `get_` functions (`get_ids()`) consider multiple name matches as `NA` for the `id`, making them suitable for automated pipelines where manual resolution of duplicates is not an option. 
 
@@ -291,7 +292,7 @@ The full taxonomic record in the database can also be directly accessed by `taxa
 
 ```{r cache = FALSE}
 verts <- taxa_tbl("col") %>%
-  filter(taxonomicStatus == "accepted", phylum == "Chordata") %>% 
+  filter(taxonomicStatus == "accepted", phylum == "Chordata", taxonRank == "species") %>% 
   count(class, sort = TRUE)
 ```  
 
@@ -306,7 +307,7 @@ verts <- taxa_tbl("col") %>%
 
 \dummy{\Begin{tcolorbox}[title= Box 2: Common Names, lower separated=false]}
 
-`taxadb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names have many of the same issues as scientific names even more frequently (e.g. matching to more than one accepted name, non-standardized formatting). Common names are accessed via `filter_common` which takes a vector of common names. The user can then resolve discrepancies. 
+`taxadb` can also resolve common names to their identifier by mapping common name to the accepted scientific name. Common names have many of the same issues as scientific names but even more frequent (e.g. matching to more than one accepted name, non-standardized formatting). Common names are accessed via `filter_common` which takes a vector of common names. The user can then resolve discrepancies. 
 
 \End{tcolorbox}
 
@@ -314,9 +315,9 @@ verts <- taxa_tbl("col") %>%
 # Discussion
 
 
-Some taxonomic name providers (e.g. OTT, COL) offer periodic releases of a static names list, while many other providers (e.g. ITIS, NCBI, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshots from each provider, which follow an annual release model to support reproducible analyses.   All taxadb functions that download or access data include an optional argument `version` to indicate which version of the provider data should be used.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`). Appropriate metadata is stored with each snapshot, including scripts used to access and reformat the data files, as described in the "Data Sources" vignette, <https://docs.ropensci.org/taxadb/articles/data-sources.html>. 
+Some taxonomic name providers (e.g. OTT, COL, NCBI) offer periodic releases of a static names list, while many other providers (e.g. ITIS, FB, IUCN) offer name data on a rolling basis (i.e. the data returned by a given download URL is updated continuously or at arbitrary intervals without any additional indication if and how that data has changed.)  `taxadb`'s `td_create()` function downloads and stores cached snapshots from each provider, which follow an annual release model to support reproducible analyses.   All taxadb functions that download or access data include an optional argument `version` to indicate which version of the provider data should be used.  By default, `taxadb` will determine the latest version available (at the time of writing this is version `2019`). Appropriate metadata is stored with each snapshot, including scripts used to access and reformat the data files, as described in the "Data Sources" vignette, <https://docs.ropensci.org/taxadb/articles/data-sources.html>. 
 
-Taxonomic identifiers are an essential first step for maintaining taxonomic consistency, a key task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
+Taxonomic identifiers are an essential first step for maintaining taxonomic consistency, a key task for a wide variety of applications. Despite multiple taxonomic standardization efforts, resolving names to taxonomic identifiers is often not a standard step in the research work flow due to difficulty in accessing providers and the time consuming API queries necessary for resolving even moderately sized data sets. `taxadb` fills an important gap between existing tools and typical research patterns by providing a fast, reproducible approach for matching names to taxonomic identifiers. It could also be used to verify that conclusions were robust to the choice of naming provider. `taxadb` is not intended as an improvement or replacement for any existing approaches to taxonomic name resolution. In particular, `taxadb` is not a replacement for the APIs or databases provided, but merely an interface to taxonomic naming information contained within that data. 
 
 Lastly, we note that local database design used in `taxadb` is not unique to taxonomic names.  Despite the rapid expansion of REST API-based interfaces to ecological data [@ropensci], in our experience, much of the data relevant to ecologists and evolutionary biologists today would be also be amenable to the local database design.  The local database approach is much easier for data providers (who can leverage static scientific database repositories instead of maintaining REST servers) and often much faster for data consumers. 
 
