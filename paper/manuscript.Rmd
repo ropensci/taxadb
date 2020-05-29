@@ -13,7 +13,7 @@ address:
   - code: ropensci
     address: "The rOpenSci Project, University of California Berkeley, Berkeley CA 94720-3114, USA" 
 abstract: |
-  A familiar and growing challenge in ecological and evolutionary research is that of reconciling scientific names of relevant taxa when combining data from separate sources. While this problem is already well understood and numerous naming authorities have been created to address the issue, most researchers lack a fast, consistent, and intuitive way to reconcile taxonomic names.  Here, we present `taxadb` R package to address this gap.  In contrast to existing tools, `taxadb` provides all of the following in one tool:  
+  A familiar and growing challenge in ecological and evolutionary research is that of establishing consistent taxonomy when combining data from separate sources. While this problem is already well understood and numerous naming authorities have been created to address the issue, most researchers lack a fast, consistent, and intuitive way to retrieve taxonomic names.  Here, we present `taxadb` R package to address this gap.  In contrast to existing tools, `taxadb` provides all of the following in one place:  
   1) `taxadb` accesses established naming authorities to resolve synonyms, taxonomic identifiers, and hierarchical classification.  
   2) `taxadb` creates a local database, managed automatically from within R, that provides fast operations on millions of taxonomic names.  
   3) `taxadb` provides a consistent and intuitive data format.  
@@ -64,7 +64,7 @@ taxadb::td_disconnect()
 
 
 As ecologists and evolutionary biologists synthesize datasets across larger and larger assemblies of species,
-we face a continual challenge of reconciling taxonomic names. How many species are in the combined data?
+we face a continual challenge of maintaining consistent taxonomy. How many species are in the combined data?
 Do the studies use the same names for the same species, or do they use different synonyms for the same species?
 Failing to correct for such differences can lead to significant inflation of species counts and miss-aligned datasets.
 These challenges have become particularly acute as it becomes increasingly common for researchers to work
