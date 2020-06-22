@@ -324,6 +324,9 @@ Lastly, we note that local database design used in `taxadb` is not unique to tax
 # Acknowledgments
 We thank the many researchers who contributed to the data and infrastructure of the various taxonomic providers we access through our package. Support for the development of this package was provided by United States Department of Energy through the Computational Sciences Graduate Fellowship (DOE CSGF) under grant number DE-FG02-97ER25308 awarded to K.E.A.N..
 
+# Data Availability
+Code for the R package can be found on GitHub at <https://github.com/ropensci/taxadb>. The taxonomic database is also stored on Github at <https://github.com/boettiger-lab/taxadb-cache>. The original taxonomic data is stored by the individual provider and can be found through the included citations.
+
 # Authors' Contributions
 K.E.A.N., S.C., and C.B. contributed to conceptual development of the package. K.E.A.N. and C.B. developed the package and contributed to the manuscript. 
 
