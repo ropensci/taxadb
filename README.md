@@ -13,6 +13,7 @@ status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](ht
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344)
+[![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
 taxonomic data, supporting common tasks such as resolving taxonomic
@@ -98,13 +99,13 @@ help us resolve this last case (see below).
 birds %>% 
   mutate(accepted_name = get_names(id, "col")) %>% 
   head()
-#>                         species           id        accepted_name
-#> 1        Dendrocygna autumnalis COL:35517330      Tringa flavipes
-#> 2           Dendrocygna bicolor COL:35517332    Picoides dorsalis
-#> 3               Anser canagicus COL:35517329   Setophaga castanea
-#> 4            Anser caerulescens COL:35517325  Bombycilla cedrorum
-#> 5 Chen caerulescens (blue form)         <NA>       Icteria virens
-#> 6                  Anser rossii COL:35517328 Somateria mollissima
+#>                         species           id          accepted_name
+#> 1        Dendrocygna autumnalis COL:35517330 Dendrocygna autumnalis
+#> 2           Dendrocygna bicolor COL:35517332    Dendrocygna bicolor
+#> 3               Anser canagicus COL:35517329          Chen canagica
+#> 4            Anser caerulescens COL:35517325      Chen caerulescens
+#> 5 Chen caerulescens (blue form)         <NA>                   <NA>
+#> 6                  Anser rossii COL:35517328            Chen rossii
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
@@ -137,8 +138,8 @@ filter_name("Trochalopteron henrici gucenense")
 #> # A tibble: 2 x 17
 #>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus
 #>   <int> <chr>   <chr>          <chr>     <chr>            <chr>          
-#> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym        
-#> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym        
+#> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym        
+#> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym        
 #> # … with 11 more variables: update_date <chr>, kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
 #> #   vernacularName <chr>, infraspecificEpithet <chr>, input <chr>
@@ -151,8 +152,8 @@ filter_name("Trochalopteron henrici gucenense")  %>%
 #> # A tibble: 2 x 4
 #>   scientificName          taxonomicStatus acceptedNameUsage    acceptedNameUsag…
 #>   <chr>                   <chr>           <chr>                <chr>            
-#> 1 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117      
-#> 2 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116
+#> 1 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116      
+#> 2 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -164,16 +165,16 @@ filter_rank(name = "Aves", rank = "class", provider = "col")
 #> # A tibble: 35,398 x 21
 #>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
 #>    <int> <chr>   <chr>          <chr>            <chr>           <chr>    
-#>  1     1 COL:35… Sturnella mag… COL:35520416     accepted        species  
-#>  2     1 COL:35… Tauraco porph… COL:35530219     accepted        infraspe…
-#>  3     1 COL:35… Pyroderus scu… COL:35534370     accepted        infraspe…
-#>  4     1 COL:35… Dromaius minor COL:35552206     synonym         infraspe…
-#>  5     1 COL:35… Lepidocolapte… COL:35525495     accepted        species  
-#>  6     1 COL:35… Casuarius pap… COL:35552204     synonym         infraspe…
-#>  7     1 COL:35… Forpus modest… COL:35536431     accepted        species  
-#>  8     1 COL:35… Pterocnemia p… COL:35552203     synonym         infraspe…
-#>  9     1 COL:35… Ceyx lepidus … COL:35532279     accepted        infraspe…
-#> 10     1 COL:35… Rhea tarapace… COL:35552202     synonym         infraspe…
+#>  1     1 COL:35… Struthio came… COL:35516814     accepted        species  
+#>  2     1 COL:35… Rhea americana COL:35516815     accepted        species  
+#>  3     1 COL:35… Dromaius nova… COL:35516817     accepted        species  
+#>  4     1 COL:35… Casuarius ben… COL:35516818     accepted        species  
+#>  5     1 COL:35… Casuarius una… COL:35516819     accepted        species  
+#>  6     1 COL:35… Apteryx austr… COL:35516820     accepted        species  
+#>  7     1 COL:35… Tinamus gutta… COL:35516823     accepted        species  
+#>  8     1 COL:35… Tinamus major  COL:35516824     accepted        species  
+#>  9     1 COL:35… Tinamus osgoo… COL:35516825     accepted        species  
+#> 10     1 COL:35… Tinamus solit… COL:35516826     accepted        species  
 #> # … with 35,388 more rows, and 15 more variables: kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
 #> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
@@ -215,7 +216,7 @@ connection:
 ``` r
 taxa_tbl("col")
 #> # Source:   table<2019_dwc_col> [?? x 19]
-#> # Database: duckdb_connection
+#> # Database: MonetDBEmbeddedConnection
 #>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom
 #>    <chr>   <chr>          <chr>            <chr>           <chr>     <chr>  
 #>  1 COL:31… Limacoccus br… COL:316423       accepted        species   Animal…
@@ -242,7 +243,7 @@ For instance: which species has the most known synonyms?
 taxa_tbl("col") %>% 
   count(acceptedNameUsageID, sort=TRUE)
 #> # Source:     lazy query [?? x 2]
-#> # Database:   duckdb_connection
+#> # Database:   MonetDBEmbeddedConnection
 #> # Ordered by: desc(n)
 #>    acceptedNameUsageID     n
 #>    <chr>               <dbl>
