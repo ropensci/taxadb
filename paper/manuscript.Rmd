@@ -79,7 +79,7 @@ it remains difficult to resolve taxonomic names to a common authority in a trans
 Here, we present an R package, `taxadb`, which seeks to address this gap.
 
 Databases of taxonomic names such as the Integrated Taxonomic Information System [ITIS; @itis], 
-the National Center for Biological Information's (NCBI) Taxonomy database, [@ncbi], 
+the National Center for Biological Information's (NCBI) Taxonomy database [@ncbi], 
 the Catalogue of Life [COL; @col], and over one hundred other providers have sought to address these problems
 by providing expert-curated lists of accepted taxonomic names, synonyms, associated taxonomic rank,
 hierarchical classifications, and scientific authority (e.g. author and date) establishing a scientific name.
@@ -120,11 +120,11 @@ desc <- c(itis = "originally formed to standardize taxonomic name usage across m
           iucn = "taxonomy for classification of species status")
 
 tibble(provider = c("Integrated Taxonomic Information System (ITIS 2019)",
-                                 "National Center for Biological Information's Taxonomy database (NCBI)",
-                                 "Catalogue of Life (COL)",
+                                 "National Center for Biological Information's Taxonomy database (Biotechnology Information 2019)",
+                                 "Catalogue of Life (Roskov Y. 2018)",
                                  "Global Biodiversity Information Facility Taxonomic Backbone (GBIF 2019)",
                                  "FishBase (Froese and Pauly 2019)",
-                                 "Open Tree Taxonomy (OTT)",
+                                 "Open Tree Taxonomy (J. A. Rees and Cranston 2017)",
                                  "International Union for Conservation of Nature and Natural Resources (IUCN 2019)"),
                     abbreviation = c("itis", "ncbi", "col", "gbif", "fb", "ott", "iucn"),
                     total_identifiers = map(abbreviation,
@@ -278,7 +278,7 @@ multi_match <- filter_name("Abies menziesii", provider = "col")
 multi_match %>%
   select(1:5, genus, specificEpithet) %>%
   unite(acceptedScientificName, genus, specificEpithet, sep = " ") %>%
-  printtable(caption = "Some names may not resolve to an identifier using get\\_ids() because they match to more than one accepted ID. In such cases filter\\_ functions give further detail, as in the example of *Zosterops rendovae* below which has two accepted ID matches.", escape = FALSE) %>%
+  printtable(caption = "Some names may not resolve to an identifier using get\\_ids() because they match to more than one accepted ID. In such cases filter\\_ functions give further detail, as in the example of *Abies menziesii* below which has two accepted ID matches.", escape = FALSE) %>%
   column_spec(3, italic = TRUE)
 ```
 
@@ -325,7 +325,7 @@ Lastly, we note that local database design used in `taxadb` is not unique to tax
 We thank the many researchers who contributed to the data and infrastructure of the various taxonomic providers we access through our package. Support for the development of this package was provided by United States Department of Energy through the Computational Sciences Graduate Fellowship (DOE CSGF) under grant number DE-FG02-97ER25308 awarded to K.E.A.N..
 
 # Data Availability
-Code for the R package can be found on GitHub at <https://github.com/ropensci/taxadb>. The taxonomic database is also stored on Github at <https://github.com/boettiger-lab/taxadb-cache>. The original taxonomic data is stored by the individual provider and can be found through the included citations.
+Code for the R package can be found on GitHub at <https://github.com/ropensci/taxadb> and is archived on Zenodo at DOI:10.5281/zenodo.3903858 [@taxadb]. The taxonomic database is also stored on Github at <https://github.com/boettiger-lab/taxadb-cache>. The original taxonomic data are stored by the individual provider, see "Catalogue of Life", <http://www.catalogueoflife.org/> [@col], "ITIS", <https://www.itis.gov> [@itis], "NCBI", <https://www.ncbi.nlm.nih.gov/taxonomy> [@ncbi], "GBIF", <https://gbif.org> [@gbif], "Fishbase", <https://fishbase.se> [@fishbase], "Open Tree Taxonomy", <https://tree.opentreeoflife.org> [@Rees2017], "IUCN", <https://www.iucnredlist.org/resources/tax-sources> [@iucn]. 
 
 # Authors' Contributions
 K.E.A.N., S.C., and C.B. contributed to conceptual development of the package. K.E.A.N. and C.B. developed the package and contributed to the manuscript. 
