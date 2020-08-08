@@ -36,7 +36,8 @@ Imports:
     dbplyr,
     RSQLite,
     curl,
-    jsonlite
+    jsonlite,
+    MonetDBLite
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2
 Suggests:
@@ -46,7 +47,6 @@ Suggests:
     knitr,
     rmarkdown,
     purrr, 
-    MonetDBLite,
     duckdb
 Language: en-US
 VignetteBuilder: knitr
