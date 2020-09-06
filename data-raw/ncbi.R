@@ -1,9 +1,12 @@
 
+
+# See ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/
+
 #' @export
 preprocess_ncbi <- function(url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
                             output_paths =
-                              c(dwc = "2019/dwc_ncbi.tsv.bz2",
-                                common = "2019/common_ncbi.tsv.bz2")){
+                              c(dwc = "2020/dwc_ncbi.tsv.gz",
+                                common = "2020/common_ncbi.tsv.gz")){
 
 
   dir <- file.path(tempdir(), "ncbi")
@@ -104,6 +107,7 @@ node_types <- c("iiclilililllc")
   ## expect_true: confirm we have resolved all ids
   all(recursive_ncbi_ids[[length(recursive_ncbi_ids)]] == "NCBI:1")
 
+  ## many more ids than path_ids
   long_hierarchy <-
     recursive_ncbi_ids %>%
     tidyr::gather(dummy, path_id, -tsn) %>%
@@ -130,7 +134,7 @@ node_types <- c("iiclilililllc")
 
   ## de-duplication of duplicate ranks
   tmp1 <- ncbi_long %>%
-  filter(path_type == "scientific name", rank == "species") %>%
+  #filter(path_type == "scientific name", rank == "species") %>%
     select(id, species = name, path, path_rank) %>%
     distinct() %>%
     # ncbii has a few duplicate "superfamily" with both as "scientific name"
@@ -139,39 +143,9 @@ node_types <- c("iiclilililllc")
     filter(path_rank != "superfamily")
 
   tmp2 <- tmp1 %>% group_by(id, path_rank) %>% top_n(1, wt = path)
-  ncbi_wide <- tmp2 %>% spread(path_rank, path) %>% distinct()
+  rank <- ncbi %>% select(id, name, rank, name_type) %>% distinct()
 
-  rm(tmp1, tmp2)
-
-  ###
-  ncbi_taxonid <- ncbi_long %>%
-    select(id = path_id, name = path, rank = path_rank, type = path_type) %>%
-    filter(type == "scientific name") %>%
-    select(-type) %>%
-    distinct()
-
-  ## Synonyms table including all scientific names.
-  ## makes table longer, but gives us only one column to match against
-  ncbi_synonyms <- ncbi_long %>%
-    select(id = path_id, given_name = path, name_type = path_type) %>%
-    filter(name_type != "scientific name") %>%
-    distinct() %>%
-    left_join(ncbi_taxonid, by = c("id")) %>%
-    rename(accepted_name = name, name = given_name) %>%
-    select(name, accepted_name, id, rank, name_type)
-
-  taxonid <-
-  ncbi_taxonid %>%
-    mutate(name_type = "accepted",
-           accepted_id = id) %>%
-    bind_rows(
-      ncbi_synonyms %>%
-        select(name, accepted_id = id, rank, name_type) %>%
-        mutate(id = NA)
-    ) %>%
-    select(id, name, rank, accepted_id, name_type) %>%
-    distinct() %>%
-    de_duplicate()
+  ncbi_wide <- tmp2 %>% spread(path_rank, path) %>% distinct() %>% left_join(rank)
 
 
   ## Get common names for each entry
@@ -182,37 +156,30 @@ node_types <- c("iiclilililllc")
 
 
   ##### Rename things to Darwin Core
-  dwc <- taxonid %>%
+  dwc <- ncbi_wide %>%
     rename(taxonID = id,
            scientificName = name,
            taxonRank = rank,
-           taxonomicStatus = name_type,
-           acceptedNameUsageID = accepted_id) %>%
-    left_join(ncbi_wide %>%
-                select(taxonID = id,
-                       kingdom, phylum, class, order, family, genus,
-                       specificEpithet = species
-                ),
-              by = c("acceptedNameUsageID" =  "taxonID")) %>%
-    left_join(ncbi_common %>% select(id, vernacularName = name), by = c("taxonID" = "id"))
+           taxonomicStatus = name_type) %>%
+    mutate(acceptedNameUsageID = taxonID) %>%
+    select(taxonID, scientificName, taxonRank,
+           taxonomicStatus, acceptedNameUsageID,
+           kingdom, phylum, class, order, family, genus,
+           specificEpithet = species) %>% ungroup()
 
-  species <- dwc %>% filter(taxonRank == "species")
-  other <- dwc%>% filter(taxonRank != "species") %>% mutate(infraspecificEpithet = NA)
-  splitname <- stringi::stri_extract_all_words(species$scientificName, simplify = TRUE)
-  species$specificEpithet <- splitname[,2]
-  species$infraspecificEpithet <- splitname[,3]
-  dwc <- bind_rows(species, other)
+  dwc$taxonID[dwc$taxonomicStatus  != "scientific name"] <- NA_character_
+  dwc$taxonomicStatus[dwc$taxonomicStatus  == "scientific name"] <- "accepted"
 
 
   #Common name table
-  comm_table <- ncbi %>%
-    filter(name_type == "common name") %>%
-    select(acceptedNameUsageID = id, vernacularName = name) %>%
-    inner_join(dwc %>% select(-vernacularName)) %>%
+  comm_table <- dwc %>%
+    filter(taxonomicStatus == "common name") %>%
+    select(acceptedNameUsageID, vernacularName = scientificName) %>%
+    right_join(dwc) %>%
     #for this provider every acceptedNameUsageID has one accepted scientific name,
     ##  so just filter for those
-    filter(taxonomicStatus == "accepted")
-
+    filter(taxonomicStatus == "accepted") %>%
+    select(vernacularName, scientificName, taxonRank, taxonID, acceptedNameUsageID, taxonomicStatus)
 
   write_tsv(dwc, output_paths["dwc"])
   write_tsv(comm_table, output_paths["common"])
