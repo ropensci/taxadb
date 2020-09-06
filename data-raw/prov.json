@@ -1,0 +1,125 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "dct": "http://purl.org/dc/terms/",
+    "id": "@id",
+    "type": "@type",
+    "identifier": {
+      "@id": "dct:identifier",
+      "@type": "@id"
+    },
+    "title": "dct:title",
+    "description": "dct:description",
+    "issued": "dct:issued",
+    "format": "dct:format",
+    "license": {
+      "@id": "dct:license",
+      "@type": "@id"
+    },
+    "creator": "dct:creator",
+    "compressFormat": "dcat:compressFormat",
+    "byteSize": "dcat:byteSize",
+    "wasGeneratedAtTime": "prov:wasGeneratedAtTime",
+    "startedAtTime": "prov:startedAtTime",
+    "endedAtTime": "prov:startedAtTime",
+    "wasDerivedFrom": {
+      "@id": "prov:wasDerivedFrom",
+      "@type": "@id"
+    },
+    "wasGeneratedBy": {
+      "@id": "prov:wasGeneratedBy",
+      "@type": "@id"
+    },
+    "generated": {
+      "@id": "prov:generated",
+      "@type": "@id"
+    },
+    "used": {
+      "@id": "prov:used",
+      "@type": "@id"
+    },
+    "wasRevisionOf": {
+      "@id": "prov:wasRevisionOf",
+      "@type": "@id"
+    },
+    "isDocumentedBy": {
+      "@id": "http://purl.org/spar/cito/isDocumentedBy",
+      "@type": "@id"
+    },
+    "distribution": {
+      "@id": "dcat:distribution",
+      "@type": "@id"
+    },
+    "Dataset": "dcat:Dataset",
+    "Activity": "prov:Activity",
+    "Distribution": "dcat:Distribution",
+    "SoftwareSourceCode": "http://schema.org/SoftwareSourceCode"
+  },
+  "@graph": [
+    [
+      {
+        "id": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+        "type": "Distribution",
+        "identifier": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+        "title": "taxdump_2020-09-01.zip",
+        "description": "Input data",
+        "format": "application/zip",
+        "byteSize": 53061635,
+        "wasGeneratedAtTime": "2020-09-06 21:39:53"
+      }
+    ],
+    [
+      {
+        "type": ["Distribution", "SoftwareSourceCode"],
+        "id": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
+        "identifier": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
+        "title": "ncbi.R",
+        "description": "R code",
+        "format": "application/R"
+      }
+    ],
+    [
+      {
+        "id": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
+        "type": "Distribution",
+        "identifier": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
+        "title": "dwc_ncbi.tsv.gz",
+        "description": "output data",
+        "format": "application/gzip",
+        "compressFormat": "gzip",
+        "byteSize": 59639325,
+        "wasGeneratedAtTime": "2020-09-06 22:29:16",
+        "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+        "wasGeneratedBy": {
+          "type": "Activity",
+          "id": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a",
+          "description": "Running R script",
+          "used": ["hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f", "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110"],
+          "generated": ["hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882", "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77"],
+          "endedAtTime": "2020-09-06 22:29:16"
+        }
+      },
+      {
+        "id": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
+        "type": "Distribution",
+        "identifier": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
+        "title": "common_ncbi.tsv.gz",
+        "description": "output data",
+        "format": "application/gzip",
+        "compressFormat": "gzip",
+        "byteSize": 28602683,
+        "wasGeneratedAtTime": "2020-09-06 22:29:16",
+        "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+        "wasGeneratedBy": {
+          "type": "Activity",
+          "id": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a",
+          "description": "Running R script",
+          "used": ["hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f", "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110"],
+          "generated": ["hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882", "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77"],
+          "endedAtTime": "2020-09-06 22:29:16"
+        }
+      }
+    ]
+  ]
+}

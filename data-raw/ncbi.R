@@ -1,9 +1,5 @@
-
-
-# See ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/
-
-#' @export
-preprocess_ncbi <- function(url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
+source("data-raw/helper-routines.R")
+preprocess_ncbi <- function(url,
                             output_paths =
                               c(dwc = "2020/dwc_ncbi.tsv.gz",
                                 common = "2020/common_ncbi.tsv.gz")){
@@ -12,7 +8,7 @@ preprocess_ncbi <- function(url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zi
   dir <- file.path(tempdir(), "ncbi")
   archive <- file.path(dir, "taxdmp.zip")
   dir.create(dir, FALSE, FALSE)
-  download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip", archive)
+  download.file(url, archive)
   message(paste(file_hash(archive)))
 
 
@@ -188,10 +184,26 @@ node_types <- c("iiclilililllc")
 
 }
 
-#reprocess_ncbi()
 
-#library(piggyback)
-#setwd("2019")
-#piggyback::pb_upload("dwc_ncbi.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "2019")
-#piggyback::pb_upload("common_ncbi.tsv.bz2", repo="boettiger-lab/taxadb-cache", tag = "2019")
+#remotes::install_github("cboettig/prov")
+
+# See ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/
+# taxdump.zip is apparently the same as the old format, not the new format!
+sept20 <- "ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/taxdmp_2020-09-01.zip"
+curl::curl_download(sept20, "/minio/shared-data/taxadb/ncbi/taxdump_2020-09-01.zip")
+
+in_file <- "/minio/shared-data/taxadb/ncbi/taxdump_2020-09-01.zip"
+code <- "data-raw/ncbi.R"
+output_paths <- c(dwc = "2020/dwc_ncbi.tsv.gz",
+                 common = "2020/common_ncbi.tsv.gz")
+
+## HERE WE GO!
+preprocess_ncbi(sept20,output_paths)
+
+## And publish provenance
+prov:::minio_store(c(in_file, code, output_paths), "https://minio.thelio.carlboettiger.info", dir = "/minio/")
+prov::write_prov(data_in = in_file, code = code, data_out =  unname(output_paths), prov="data-raw/prov.json", append=TRUE)
+
+
+
 
