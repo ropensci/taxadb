@@ -57,69 +57,123 @@
     "SoftwareSourceCode": "http://schema.org/SoftwareSourceCode"
   },
   "@graph": [
-    [
-      {
-        "id": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
-        "type": "Distribution",
-        "identifier": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
-        "title": "taxdump_2020-09-01.zip",
-        "description": "Input data",
-        "format": "application/zip",
-        "byteSize": 53061635,
-        "wasGeneratedAtTime": "2020-09-06 21:39:53"
-      }
-    ],
-    [
-      {
-        "type": ["Distribution", "SoftwareSourceCode"],
-        "id": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
-        "identifier": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
-        "title": "ncbi.R",
-        "description": "R code",
-        "format": "application/R"
-      }
-    ],
-    [
-      {
-        "id": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
-        "type": "Distribution",
-        "identifier": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
-        "title": "dwc_ncbi.tsv.gz",
-        "description": "output data",
-        "format": "application/gzip",
-        "compressFormat": "gzip",
-        "byteSize": 59639325,
-        "wasGeneratedAtTime": "2020-09-06 22:29:16",
-        "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
-        "wasGeneratedBy": {
-          "type": "Activity",
-          "id": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a",
-          "description": "Running R script",
-          "used": ["hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f", "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110"],
-          "generated": ["hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882", "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77"],
-          "endedAtTime": "2020-09-06 22:29:16"
-        }
-      },
-      {
-        "id": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
-        "type": "Distribution",
-        "identifier": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
-        "title": "common_ncbi.tsv.gz",
-        "description": "output data",
-        "format": "application/gzip",
-        "compressFormat": "gzip",
-        "byteSize": 28602683,
-        "wasGeneratedAtTime": "2020-09-06 22:29:16",
-        "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
-        "wasGeneratedBy": {
-          "type": "Activity",
-          "id": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a",
-          "description": "Running R script",
-          "used": ["hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f", "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110"],
-          "generated": ["hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882", "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77"],
-          "endedAtTime": "2020-09-06 22:29:16"
-        }
-      }
-    ]
+    {
+      "id": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
+      "type": [
+        "Distribution",
+        "SoftwareSourceCode"
+      ],
+      "description": "R code",
+      "format": "application/R",
+      "identifier": "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110",
+      "title": "ncbi.R"
+    },
+    {
+      "id": "hash://sha256/30853fb1325cb008aa16a0fc20640f58dd228728645638b606c4d0ac09353d20",
+      "type": "Distribution",
+      "description": "output data",
+      "format": "text/plain",
+      "identifier": "hash://sha256/30853fb1325cb008aa16a0fc20640f58dd228728645638b606c4d0ac09353d20",
+      "title": "dwc_ott.tsv.bz2",
+      "byteSize": 80911253,
+      "compressFormat": "bz2",
+      "wasDerivedFrom": "hash://sha256/ea05de92319df9270866b0d1587d6cc997737d818bfce61fa7a3c9c407cb23a0",
+      "wasGeneratedAtTime": "2020-09-07 00:17:50",
+      "wasGeneratedBy": "urn:uuid:d219f7a0-e0cd-4cd6-8ebe-0077bc12b99b"
+    },
+    {
+      "id": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
+      "type": "Distribution",
+      "description": "output data",
+      "format": "application/gzip",
+      "identifier": "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
+      "title": "dwc_ncbi.tsv.gz",
+      "byteSize": 59639325,
+      "compressFormat": "gzip",
+      "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+      "wasGeneratedAtTime": "2020-09-06 22:29:16",
+      "wasGeneratedBy": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a"
+    },
+    {
+      "id": "hash://sha256/96e859673fa61334dbcc01a10456a2853a7df7de98749fc08eb931c6c30efa04",
+      "type": [
+        "Distribution",
+        "SoftwareSourceCode"
+      ],
+      "description": "R code",
+      "format": "application/R",
+      "identifier": "hash://sha256/96e859673fa61334dbcc01a10456a2853a7df7de98749fc08eb931c6c30efa04",
+      "title": "ott.R"
+    },
+    {
+      "id": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
+      "type": "Distribution",
+      "description": "output data",
+      "format": "application/gzip",
+      "identifier": "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77",
+      "title": "common_ncbi.tsv.gz",
+      "byteSize": 28602683,
+      "compressFormat": "gzip",
+      "wasDerivedFrom": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+      "wasGeneratedAtTime": "2020-09-06 22:29:16",
+      "wasGeneratedBy": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a"
+    },
+    {
+      "id": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+      "type": "Distribution",
+      "description": "Input data",
+      "format": "application/zip",
+      "identifier": "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+      "title": "taxdump_2020-09-01.zip",
+      "byteSize": 53061635,
+      "wasGeneratedAtTime": "2020-09-06 21:39:53"
+    },
+    {
+      "id": "hash://sha256/ea05de92319df9270866b0d1587d6cc997737d818bfce61fa7a3c9c407cb23a0",
+      "type": "Distribution",
+      "description": "Input data",
+      "format": "application/x-gtar-compressed",
+      "identifier": "hash://sha256/ea05de92319df9270866b0d1587d6cc997737d818bfce61fa7a3c9c407cb23a0",
+      "title": "ott3.2.tgz",
+      "byteSize": 118923248,
+      "wasGeneratedAtTime": "2020-09-06 22:36:24"
+    },
+    {
+      "id": "hash://sha256/ff7607c47ef8f11e5ff0bc2a6b12e4d545a984194986305f778541d2039e0e2f",
+      "type": [
+        "Distribution",
+        "SoftwareSourceCode"
+      ],
+      "description": "R code",
+      "format": "application/R",
+      "identifier": "hash://sha256/ff7607c47ef8f11e5ff0bc2a6b12e4d545a984194986305f778541d2039e0e2f",
+      "title": "helper-routines.R"
+    },
+    {
+      "id": "urn:uuid:5cc27dc0-c659-48fe-bbf0-a3c68981830a",
+      "type": "Activity",
+      "description": "Running R script",
+      "generated": [
+        "hash://sha256/3e478c6eec1fb7a1b131529f847a50d8e48a8bf7b08a1b8f11f6d0cbaac1c882",
+        "hash://sha256/b6884a113d8aafda1b3c89e32172218c63504d65d35442bb718d8a1a62704c77"
+      ],
+      "endedAtTime": "2020-09-06 22:29:16",
+      "used": [
+        "hash://sha256/cb022c71e1cb96d5039d6cf784adbcb181d8381ab4b86138a651bf47c34fbd6f",
+        "hash://sha256/2a2fffb570665cb3c97c79cde0b22b577d2a61b8bdde20d0996abe418b78c110"
+      ]
+    },
+    {
+      "id": "urn:uuid:d219f7a0-e0cd-4cd6-8ebe-0077bc12b99b",
+      "type": "Activity",
+      "description": "Running R script",
+      "generated": "hash://sha256/30853fb1325cb008aa16a0fc20640f58dd228728645638b606c4d0ac09353d20",
+      "endedAtTime": "2020-09-07 00:17:50",
+      "used": [
+        "hash://sha256/ea05de92319df9270866b0d1587d6cc997737d818bfce61fa7a3c9c407cb23a0",
+        "hash://sha256/96e859673fa61334dbcc01a10456a2853a7df7de98749fc08eb931c6c30efa04",
+        "hash://sha256/ff7607c47ef8f11e5ff0bc2a6b12e4d545a984194986305f778541d2039e0e2f"
+      ]
+    }
   ]
 }

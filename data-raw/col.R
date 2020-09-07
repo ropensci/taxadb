@@ -116,8 +116,8 @@ in_file <- "/minio/shared-data/taxadb/ott/col-2020-annual.zip"
 dir.create(dirname(in_file))
 curl::curl_download(in_url, in_file)
 code <- c("data-raw/col.R","data-raw/helper-routines.R")
-output_paths <- c(dwc = "2019/dwc_col.tsv.bz2",
-                 common = "2019/common_col.tsv.bz2")
+output_paths <- c(dwc = "2020/dwc_col.tsv.bz2",
+                 common = "2020/common_col.tsv.bz2")
 
 source("data-raw/helper-routines.R")
 
