@@ -62,15 +62,13 @@ db_driver <- function(dbname, driver = Sys.getenv("TAXADB_DRIVER")){
     SQLite <- getExportedValue("RSQLite", "SQLite")
     drivers <- c("RSQLite", drivers)
   }
-  if (requireNamespace("MonetDBLite", quietly = TRUE)){
-    MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
-    drivers <- c("MonetDBLite", drivers)
-  }
-  ## duckdb lacks necessary stability
-  ## https://github.com/cwida/duckdb/issues/58
   if (requireNamespace("duckdb", quietly = TRUE)){
     duckdb <- getExportedValue("duckdb", "duckdb")
     drivers <- c("duckdb", drivers)
+  }
+  if (requireNamespace("MonetDBLite", quietly = TRUE)){
+    MonetDBLite <- getExportedValue("MonetDBLite", "MonetDBLite")
+    drivers <- c("MonetDBLite", drivers)
   }
 
   ## If driver is undefined or not in available list, use first from the list
