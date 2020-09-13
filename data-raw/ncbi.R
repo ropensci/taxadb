@@ -189,16 +189,20 @@ node_types <- c("iiclilililllc")
 
 # See ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/
 # taxdump.zip is apparently the same as the old format, not the new format!
-sept20 <- "ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/taxdmp_2020-09-01.zip"
-curl::curl_download(sept20, "/minio/shared-data/taxadb/ncbi/taxdump_2020-09-01.zip")
 
-in_file <- "/minio/shared-data/taxadb/ncbi/taxdump_2020-09-01.zip"
-code <- "data-raw/ncbi.R"
+#  "ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/taxdmp_2020-09-01.zip"
+
+in_url <- "ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/taxdmp_2019-12-01.zip"
+in_file <- file.path("/minio/shared-data/taxadb/ncbi", basename(in_url))
+curl::curl_download(in_url,  in_file)
+
+code <- c("data-raw/ncbi.R", "data-raw/helper-routines.R")
 output_paths <- c(dwc = "2020/dwc_ncbi.tsv.gz",
                  common = "2020/common_ncbi.tsv.gz")
 
 ## HERE WE GO!
-preprocess_ncbi(sept20,output_paths)
+library(tidyverse)
+preprocess_ncbi(in_url, output_paths)
 
 ## And publish provenance
 prov:::minio_store(c(in_file, code, output_paths), "https://minio.thelio.carlboettiger.info", dir = "/minio/")
