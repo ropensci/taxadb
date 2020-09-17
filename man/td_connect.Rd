@@ -4,7 +4,11 @@
 \alias{td_connect}
 \title{Connect to the taxadb database}
 \usage{
-td_connect(dbdir = taxadb_dir(), driver = Sys.getenv("TAXADB_DRIVER"))
+td_connect(
+  dbdir = taxadb_dir(),
+  driver = Sys.getenv("TAXADB_DRIVER"),
+  readonly = FALSE
+)
 }
 \arguments{
 \item{dbdir}{Path to the database.}
@@ -13,9 +17,12 @@ td_connect(dbdir = taxadb_dir(), driver = Sys.getenv("TAXADB_DRIVER"))
 \code{taxadb} will select the first one of those it finds available if a
 driver is not set. This fallback can be overwritten either by explicit
 argument or by setting the environmental variable \code{TAXADB_DRIVER}.}
+
+\item{readonly}{logical, should the database be opened readonly? Prevents
+importing but will allow concurrent access from multiple sessions.}
 }
 \value{
-Returns a \code{src_dbi} connection to the default duckdb database
+Returns a DBI \code{connection} to the default duckdb database
 }
 \description{
 Connect to the taxadb database

@@ -137,6 +137,7 @@ providers_download_url <- function(files, version = latest_version()){
 }
 
 
+taxadb_cache <- new.env()
 
 #' List available releases
 #'

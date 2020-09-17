@@ -26,12 +26,21 @@ duplicate_as_unresolved <- function(df){
 }
 
 
-#' @importFrom dplyr count mutate select arrange
+
+
+
+
+
+
+#' @importFrom dplyr count mutate select arrange row_number
 #' @importFrom dplyr pull top_n group_by ungroup
 #' @importFrom stats na.omit
 #' @importFrom utils head
 take_first_duplicate <- function(df){
 
+  ## Will not work on most remote databases
+  if(inherits(df, "tbl_dbi"))
+    df <- collect(df)
 
   # avoid complaints about NSE terms
   scientificName <- "scientificName"
@@ -51,7 +60,7 @@ take_first_duplicate <- function(df){
 ## when sort is already unique.
   df %>%
     dplyr::arrange(scientificName) %>%
-    dplyr::mutate(row_num = dplyr::row_number()) %>%
+    dplyr::mutate(row_num = row_number()) %>%
     dplyr::group_by(sort) %>%
     dplyr::top_n(1, row_num) %>%
     dplyr::ungroup() %>%

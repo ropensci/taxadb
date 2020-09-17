@@ -46,10 +46,9 @@ Suggests:
     knitr,
     rmarkdown,
     purrr, 
-    MonetDBLite,
     duckdb
 Language: en-US
 VignetteBuilder: knitr
 URL: https://docs.ropensci.org/taxadb, https://github.com/ropensci/taxadb
 BugReports: https://github.com/ropensci/taxadb/issues
-Additional_repositories: https://cboettig.github.io/drat, http://download.duckdb.org/rev/618109a865ab2ce87a90ddab2fa21edfe2bb673f/rstats/
+Remotes: ropensci/arkdb
