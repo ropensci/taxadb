@@ -355,5 +355,6 @@
     "@type": "Organization",
     "name": "Comprehensive R Archive Network (CRAN)",
     "url": "https://cran.r-project.org"
-  }
+  },
+  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md"
 }

@@ -12,6 +12,7 @@ status](https://github.com/ropensci/taxadb/workflows/R-CMD-check/badge.svg)](htt
 status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
+[![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
 
 <!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
 
@@ -51,11 +52,12 @@ Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
+#> Warning in overwrite_db(con, tablename): overwriting 2019_dwc_col
 #> Importing /tmp/RtmpZIrY24/2019_dwc_col.tsv.bz2 in 100000 line chunks:
-#>  ...Done! (in 1.640688 mins)
+#>  ...Done! (in 1.634985 mins)
 #> Warning in overwrite_db(con, tablename): overwriting 2019_common_col
 #> Importing /tmp/RtmpZIrY24/2019_common_col.tsv.bz2 in 100000 line chunks:
-#>  ...Done! (in 10.50946 secs)
+#>  ...Done! (in 10.54111 secs)
 ```
 
 Read in the species list used by the Breeding Bird Survey:
