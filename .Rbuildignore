@@ -32,3 +32,4 @@ common_names
 ^cran-comments\.md$
 
 ^CRAN-RELEASE$
+^\.github$

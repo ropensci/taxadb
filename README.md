@@ -3,16 +3,19 @@
 
 # taxadb <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
+<!-- badges: start -->
+
+[![R build
+status](https://github.com/ropensci/taxadb/workflows/R-CMD-check/badge.svg)](https://github.com/ropensci/taxadb/actions)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis build
-status](https://travis-ci.org/ropensci/taxadb.svg?branch=master)](https://travis-ci.org/ropensci/taxadb)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/ropensci/taxadb?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxadb)
 [![Coverage
 status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
-[![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344)
+
+<!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
+
+<!-- badges: end -->
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
 taxonomic data, supporting common tasks such as resolving taxonomic
@@ -48,6 +51,11 @@ Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
+#> Importing /tmp/RtmpZIrY24/2019_dwc_col.tsv.bz2 in 100000 line chunks:
+#>  ...Done! (in 1.640688 mins)
+#> Warning in overwrite_db(con, tablename): overwriting 2019_common_col
+#> Importing /tmp/RtmpZIrY24/2019_common_col.tsv.bz2 in 100000 line chunks:
+#>  ...Done! (in 10.50946 secs)
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -98,16 +106,16 @@ help us resolve this last case (see below).
 birds %>% 
   mutate(accepted_name = get_names(id, "col")) %>% 
   head()
-#>                         species           id        accepted_name
-#> 1        Dendrocygna autumnalis COL:35517330      Tringa flavipes
-#> 2           Dendrocygna bicolor COL:35517332    Picoides dorsalis
-#> 3               Anser canagicus COL:35517329   Setophaga castanea
-#> 4            Anser caerulescens COL:35517325  Bombycilla cedrorum
-#> 5 Chen caerulescens (blue form)         <NA>       Icteria virens
-#> 6                  Anser rossii COL:35517328 Somateria mollissima
+#>                         species           id          accepted_name
+#> 1        Dendrocygna autumnalis COL:35517330 Dendrocygna autumnalis
+#> 2           Dendrocygna bicolor COL:35517332    Dendrocygna bicolor
+#> 3               Anser canagicus COL:35517329          Chen canagica
+#> 4            Anser caerulescens COL:35517325      Chen caerulescens
+#> 5 Chen caerulescens (blue form)         <NA>                   <NA>
+#> 6                  Anser rossii COL:35517328            Chen rossii
 ```
 
-This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
+This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
 accepted in the Catalogue of Life, while others, *Anser canagicus* are
 **known synonyms** of a different accepted name: **Chen canagica**.
 Resolving synonyms and accepted names to identifiers helps us avoid the
@@ -137,8 +145,8 @@ filter_name("Trochalopteron henrici gucenense")
 #> # A tibble: 2 x 17
 #>    sort taxonID scientificName taxonRank acceptedNameUsa… taxonomicStatus
 #>   <int> <chr>   <chr>          <chr>     <chr>            <chr>          
-#> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym        
-#> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym        
+#> 1     1 ITIS:9… Trochaloptero… subspeci… ITIS:916116      synonym        
+#> 2     1 ITIS:9… Trochaloptero… subspeci… ITIS:916117      synonym        
 #> # … with 11 more variables: update_date <chr>, kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
 #> #   vernacularName <chr>, infraspecificEpithet <chr>, input <chr>
@@ -151,8 +159,8 @@ filter_name("Trochalopteron henrici gucenense")  %>%
 #> # A tibble: 2 x 4
 #>   scientificName          taxonomicStatus acceptedNameUsage    acceptedNameUsag…
 #>   <chr>                   <chr>           <chr>                <chr>            
-#> 1 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117      
-#> 2 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116
+#> 1 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116      
+#> 2 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -164,16 +172,16 @@ filter_rank(name = "Aves", rank = "class", provider = "col")
 #> # A tibble: 35,398 x 21
 #>     sort taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank
 #>    <int> <chr>   <chr>          <chr>            <chr>           <chr>    
-#>  1     1 COL:35… Sturnella mag… COL:35520416     accepted        species  
-#>  2     1 COL:35… Tauraco porph… COL:35530219     accepted        infraspe…
-#>  3     1 COL:35… Pyroderus scu… COL:35534370     accepted        infraspe…
-#>  4     1 COL:35… Dromaius minor COL:35552206     synonym         infraspe…
-#>  5     1 COL:35… Lepidocolapte… COL:35525495     accepted        species  
-#>  6     1 COL:35… Casuarius pap… COL:35552204     synonym         infraspe…
-#>  7     1 COL:35… Forpus modest… COL:35536431     accepted        species  
-#>  8     1 COL:35… Pterocnemia p… COL:35552203     synonym         infraspe…
-#>  9     1 COL:35… Ceyx lepidus … COL:35532279     accepted        infraspe…
-#> 10     1 COL:35… Rhea tarapace… COL:35552202     synonym         infraspe…
+#>  1     1 COL:35… Struthio came… COL:35516814     accepted        species  
+#>  2     1 COL:35… Rhea americana COL:35516815     accepted        species  
+#>  3     1 COL:35… Dromaius nova… COL:35516817     accepted        species  
+#>  4     1 COL:35… Casuarius ben… COL:35516818     accepted        species  
+#>  5     1 COL:35… Casuarius una… COL:35516819     accepted        species  
+#>  6     1 COL:35… Apteryx austr… COL:35516820     accepted        species  
+#>  7     1 COL:35… Tinamus gutta… COL:35516823     accepted        species  
+#>  8     1 COL:35… Tinamus major  COL:35516824     accepted        species  
+#>  9     1 COL:35… Tinamus osgoo… COL:35516825     accepted        species  
+#> 10     1 COL:35… Tinamus solit… COL:35516826     accepted        species  
 #> # … with 35,388 more rows, and 15 more variables: kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
 #> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
@@ -287,7 +295,6 @@ users may find the `filter_*` approach to be more intuitive.
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By participating in
-this project you agree to abide by its
-terms.
+this project you agree to abide by its terms.
 
 [![ropensci\_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)
