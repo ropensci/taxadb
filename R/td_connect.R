@@ -5,7 +5,7 @@
 #'   `taxadb` will select the first one of those it finds available if a
 #'   driver is not set. This fallback can be overwritten either by explicit
 #'   argument or by setting the environmental variable `TAXADB_DRIVER`.
-#' @param read_only logical, should the database be opened read_only? Prevents
+#' @param readonly logical, should the database be opened read_only? Prevents
 #'  importing but will allow concurrent access from multiple sessions.
 #' @return Returns a DBI `connection` to the default duckdb database
 #' @details This function provides a default database connection for
@@ -39,7 +39,7 @@ td_connect <- function(dbdir = taxadb_dir(),
                        driver = Sys.getenv("TAXADB_DRIVER"),
                        read_only = FALSE){
 
-  arkdb::local_db(dbdir = dbdir, driver = driver, read_only = read_only)
+  arkdb::local_db(dbdir = dbdir, driver = driver, readonly = readonly)
 }
 
 

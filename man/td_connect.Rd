@@ -18,7 +18,7 @@ td_connect(
 driver is not set. This fallback can be overwritten either by explicit
 argument or by setting the environmental variable \code{TAXADB_DRIVER}.}
 
-\item{read_only}{logical, should the database be opened read_only? Prevents
+\item{readonly}{logical, should the database be opened read_only? Prevents
 importing but will allow concurrent access from multiple sessions.}
 }
 \value{
