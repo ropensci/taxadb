@@ -7,7 +7,7 @@
 td_connect(
   dbdir = taxadb_dir(),
   driver = Sys.getenv("TAXADB_DRIVER"),
-  read_only = FALSE
+  readonly = FALSE
 )
 }
 \arguments{
