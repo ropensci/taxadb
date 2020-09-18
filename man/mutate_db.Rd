@@ -37,6 +37,8 @@ appended back out to a temporary table.
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempfile())
+   Sys.setenv(TAXADB_DRIVER="RSQLite")
+
   }
 
   #Clean a list of messy common names
@@ -50,7 +52,11 @@ appended back out to a temporary table.
             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
   filter(vernacularNameClean \%in\% names)
 
-
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.unsetenv("TAXADB_HOME")
+   Sys.unsetenv("TAXADB_DRIVER")
+  }
 
 }
 }
