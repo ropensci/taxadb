@@ -36,10 +36,11 @@ appended back out to a temporary table.
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME=tempfile())
   }
 
   #Clean a list of messy common names
+  library(dplyr)
   names <- clean_names(c("Steller's jay", "coopers Hawk"),
                binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 

@@ -8,8 +8,6 @@ td_disconnect(db = td_connect())
 }
 \arguments{
 \item{db}{database connection}
-
-\item{env}{The environment where the function looks for a connection.}
 }
 \description{
 Disconnect from the taxadb database.

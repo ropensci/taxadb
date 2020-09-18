@@ -33,7 +33,7 @@ Return a reference to a given table in the taxadb database
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
   }
-
+  library(dplyr)
   #Clean a list of messy common names
   names <- clean_names(c("Steller's jay", "coopers Hawk"),
                 binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)

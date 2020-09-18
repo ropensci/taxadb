@@ -46,7 +46,6 @@ td_connect <- function(dbdir = taxadb_dir(),
 #' Disconnect from the taxadb database.
 #'
 #' @param db database connection
-#' @param env The environment where the function looks for a connection.
 #' @details This function manually closes a connection to the `taxadb` database.
 #'
 #' @importFrom DBI dbConnect dbIsValid

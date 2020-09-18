@@ -104,13 +104,15 @@ safe_right_join <- function(x, y, by = NULL, copy = FALSE, ...){
 
   if(copy){
     con <- dbplyr::remote_con(x)
-    if(!is.null(con)){ ## only attempt on remote tables!
+    if(inherits(con, "duckdb_connection")){
+      dplyr::right_join(x, y, by = by, copy = copy, ...)
+    } else if(inherits(con, "SQLiteConnection")){ ## only attempt on remote tables!
       tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
-      DBI::dbWriteTable(con, tmpname, y, temporary = TRUE)
+      DBI::dbWriteTable(con, tmpname, y, temporary = TRUE, overwrite = TRUE)
       y <- dplyr::tbl(con, tmpname)
     }
   }
-  dplyr::left_join(y, x, by = by, ...)
+  dplyr::left_join(y, x, by = by, copy = copy, ...)
 }
 
 # Thanks https://stackoverflow.com/questions/55083084
