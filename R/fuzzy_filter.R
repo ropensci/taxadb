@@ -30,7 +30,7 @@
 #' fuzzy_filter(name, "vernacularName")
 #'
 #' ## match scientific name
-#' fuzzy_filter("Homo ", "scientificName",
+#' fuzzy_filter("Chera", "scientificName",
 #'              match = "starts_with")
 #' }
 #'

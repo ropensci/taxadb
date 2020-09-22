@@ -7,7 +7,7 @@
 td_connect(
   dbdir = taxadb_dir(),
   driver = Sys.getenv("TAXADB_DRIVER"),
-  readonly = FALSE
+  read_only = FALSE
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ td_connect(
 driver is not set. This fallback can be overwritten either by explicit
 argument or by setting the environmental variable \code{TAXADB_DRIVER}.}
 
-\item{readonly}{logical, should the database be opened read_only? Prevents
+\item{read_only}{logical, should the database be opened read_only? Prevents
 importing but will allow concurrent access from multiple sessions.}
 }
 \value{
