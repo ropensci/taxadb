@@ -36,7 +36,8 @@ Imports:
     dbplyr,
     RSQLite,
     curl,
-    jsonlite
+    jsonlite,
+    duckdb
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests:
@@ -45,8 +46,7 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    purrr, 
-    duckdb
+    purrr
 Language: en-US
 VignetteBuilder: knitr
 URL: https://docs.ropensci.org/taxadb, https://github.com/ropensci/taxadb
