@@ -46,12 +46,14 @@
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
+#'
 #'   }
 #'   ## Install the ITIS database
-#'   td_create("itis")
+#'   td_create()
 #'
 #'   ## force re-install:
-#'   td_create("itis", overwrite = TRUE)
+#'   td_create( overwrite = TRUE)
 #'
 #' }
 td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
