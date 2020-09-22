@@ -32,13 +32,14 @@ Return a reference to a given table in the taxadb database
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 
   ## default schema is the dwc table
-  taxa_tbl("itis")
+  taxa_tbl()
 
   ## common names table
-  taxa_tbl("itis", "common")
+  taxa_tbl(schema = "common")
 
 
 
