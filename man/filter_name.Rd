@@ -56,6 +56,7 @@ accepted name and accepted ID in either case.
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 
 sp <- c("Trochalopteron henrici gucenense",

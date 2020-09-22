@@ -57,6 +57,7 @@ See examples.
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 
 filter_id(c("ITIS:1077358", "ITIS:175089"))

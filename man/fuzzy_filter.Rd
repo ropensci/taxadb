@@ -62,6 +62,7 @@ expressions at this time.
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 
 ## match any common name containing:
@@ -69,7 +70,7 @@ name <- c("woodpecker", "monkey")
 fuzzy_filter(name, "vernacularName")
 
 ## match scientific name
-fuzzy_filter("Homo ", "scientificName",
+fuzzy_filter("Chera", "scientificName",
              match = "starts_with")
 }
 

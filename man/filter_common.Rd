@@ -45,13 +45,19 @@ Look up taxonomic information by common name
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
+   options("taxadb_default_provider"="itis_test")
    Sys.setenv(TAXADB_HOME=tempdir())
   }
 
-filter_common("Angolan Giraffe")
+filter_common("Pied Tamarin")
 
 }
 
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.unsetenv("TAXADB_HOME")
+   options("taxadb_default_provider" = NULL)
+  }
 }
 \seealso{
 Other filter_by: 

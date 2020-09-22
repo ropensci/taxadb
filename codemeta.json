@@ -8,17 +8,19 @@
   "description": "Creates a local database of many commonly used taxonomic authorities\n             and provides functions that can quickly query this data.",
   "name": "taxadb: A High-Performance Local Taxonomic Database Interface",
   "codeRepository": "https://github.com/ropensci/taxadb",
-  "relatedLink": "https://docs.ropensci.org/taxadb",
+  "relatedLink": [
+    "https://docs.ropensci.org/taxadb",
+    "https://CRAN.R-project.org/package=taxadb"
+  ],
   "issueTracker": "https://github.com/ropensci/taxadb/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
-    "version": "3.6.2",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 3.6.2 (2019-12-12)",
+  "runtimePlatform": "R version 4.0.2 (2020-06-22)",
   "author": [
     {
       "@type": "Person",
@@ -141,13 +143,15 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "MonetDBLite",
-      "name": "MonetDBLite"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "duckdb",
-      "name": "duckdb"
+      "name": "duckdb",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=duckdb"
     }
   ],
   "softwareRequirements": [
@@ -191,7 +195,7 @@
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=arkdb"
+      "sameAs": "https://github.com/ropensci/arkdb"
     },
     {
       "@type": "SoftwareApplication",
@@ -343,12 +347,14 @@
       "sameAs": "https://CRAN.R-project.org/package=jsonlite"
     }
   ],
-  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
-  "fileSize": "8355.897KB",
-  "contIntegration": [
-    "https://travis-ci.org/ropensci/taxadb",
-    "https://ci.appveyor.com/project/cboettig/taxadb",
-    "https://codecov.io/github/ropensci/taxadb?branch=master"
-  ],
-  "developmentStatus": "https://www.tidyverse.org/lifecycle/#maturing"
+  "fileSize": "0KB",
+  "contIntegration": "https://codecov.io/github/ropensci/taxadb?branch=master",
+  "developmentStatus": "https://www.tidyverse.org/lifecycle/#maturing",
+  "provider": {
+    "@id": "https://cran.r-project.org",
+    "@type": "Organization",
+    "name": "Comprehensive R Archive Network (CRAN)",
+    "url": "https://cran.r-project.org"
+  },
+  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md"
 }

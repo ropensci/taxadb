@@ -59,6 +59,7 @@ joining on the \code{by} column to return all rows matching the \code{x} values
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 
 sp <- c("Trochalopteron henrici gucenense",

@@ -6,7 +6,7 @@
 \usage{
 common_starts_with(
   name,
-  provider = "itis",
+  provider = getOption("taxadb_default_provider", "itis"),
   version = latest_version(),
   db = td_connect(),
   ignore_case = TRUE
@@ -36,6 +36,7 @@ common name starts with
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
   }
 common_starts_with("monkey")
 }

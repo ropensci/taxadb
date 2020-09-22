@@ -4,10 +4,10 @@
 \alias{td_disconnect}
 \title{Disconnect from the taxadb database.}
 \usage{
-td_disconnect(env = taxadb_cache)
+td_disconnect(db = td_connect())
 }
 \arguments{
-\item{env}{The environment where the function looks for a connection.}
+\item{db}{database connection}
 }
 \description{
 Disconnect from the taxadb database.

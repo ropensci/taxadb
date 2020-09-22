@@ -36,20 +36,28 @@ appended back out to a temporary table.
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME=tempfile())
+   Sys.setenv(TAXADB_DRIVER="RSQLite")
+   options("taxadb_default_provider"="itis_test")
+
   }
 
   #Clean a list of messy common names
+  library(dplyr)
   names <- clean_names(c("Steller's jay", "coopers Hawk"),
                binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 
   #Get cleaned common names from a provider and search for cleaned names in that table
-  taxa_tbl("itis", "common") \%>\%
+  taxa_tbl(schema = "common") \%>\%
   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
   filter(vernacularNameClean \%in\% names)
 
-
+  \dontshow{
+   ## All examples use a temporary directory
+   Sys.unsetenv("TAXADB_HOME")
+   Sys.unsetenv("TAXADB_DRIVER")
+  }
 
 }
 }

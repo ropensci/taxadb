@@ -20,38 +20,38 @@ preprocess_ott <-
     readr::read_tsv(..., quote = "",
                     col_types = readr::cols(.default = "c"))
   }
-  
-  
+
+
   # Really would be nice if we followed the DAMN STANDARD. tsv is tab-delimited,
   # not "\\t\\|\\t" delimited, people!
-  
+
   ## we `select()` in order to drop columns consisting solely of pipe separators...
   ## ignore warnings
   synonyms <- read_tsv(file.path(dir, "synonyms.tsv")) %>%
     select(name, uid, type, uniqname, sourceinfo)
   taxonomy <- read_tsv(file.path(dir, "taxonomy.tsv")) %>%
     select(name, uid, parent_uid, rank, uniqname, sourceinfo, flags)
-  
-  
+
+
   ## sourceinfo is comma-separated list of identifiers which synonym resolves against
   ## (identifiers of accepted names, not just ids to the synonym, not listed)
   ## UIDs are OTT ids of the ACCEPTED NAMES.  no ids to synonym names
-  
+
   # synonyms involve a lot of types, but mostly "synonym".
   ## Does not include "accepted" names.
   ## synonyms %>% count(type) %>% arrange(desc(n))
-  
+
   # taxonomy includes a lot of different flags,
   # including "extinct", "environmental", & "incertae_sedis"
   ## taxonomy %>% count(flags) %>% arrange(desc(n))
-  
+
   ## DEPRECATED Synonyms table: id, accepted_name, rank, name, name_type
   #ott_synonyms <- taxonomy %>%
   #  select(accepted_name = name, uid, rank) %>%
   #  right_join(synonyms) %>%
   #  select(id = uid, accepted_name, name, rank, name_type = type) %>%
   #  mutate(id = paste0("OTT:", id))
-  
+
   ## TaxonID table
   ott_taxonid <- bind_rows(
     taxonomy %>% select(id = uid, name, rank) %>%
@@ -68,17 +68,17 @@ preprocess_ott <-
            taxonRank = rank,
            taxonomicStatus = name_type,
            acceptedNameUsageID = accepted_id)
-  
-  
+
+
   rm(synonyms)
-  
+
   ## really slow but works and drops duplicates that distinct() does not
   ott_taxonid <- ott_taxonid %>%
     de_duplicate()
-  
-  
-  
-  
+
+
+
+
   max <- pull(taxonomy, rank) %>% unique() %>% length()
   ## Time to unpack another recursive taxonomy hierarchy
   ids <- select(taxonomy, id = uid, parent = parent_uid)
@@ -99,22 +99,22 @@ preprocess_ott <-
     distinct() %>%
     arrange(id)
   rm(hierarchy)
-  
+
   expand <- taxonomy %>%
     select(path_id = uid, path = name, path_rank = rank)
   rm(taxonomy)
-  
+
   expand %>% pull(path_rank) %>% unique()
-  
+
   ott_long <- expand %>%
     select(id = path_id, name = path, rank = path_rank) %>%
     inner_join(long_hierarchy) %>%
     inner_join(expand) %>%
     filter(!grepl("no rank", rank)) %>%
     filter(!grepl("no rank", path_rank))
-  
+
   rm(expand, long_hierarchy)
-  
+
   ## Only species get the DarwinCore rank columns.  All names have rank in taxonRank field
   pre_spread <-
     ott_long %>%
@@ -122,10 +122,10 @@ preprocess_ott <-
              c("kingdom", "phylum", "class", "order", "family", "genus")) %>%
     select(id, species = name, path, path_rank) %>%
     distinct()
-  
+
    rm(ott_long)
-  
-  
+
+
   ## Many have multiple names at a given rank! e.g.
   ## kingdom Chloroplastida & Archaeplastida.  (True across all ranks)
   ## Use tidy_names() to disambiguate.  Then we just take the first (ick)
@@ -136,7 +136,7 @@ preprocess_ott <-
     ungroup() %>%
     select(-orig_rank)
   rm(pre_spread)
-  
+
   ott_wide <- dedup %>%
     spread(path_rank, path) %>%
     distinct() %>%
@@ -146,23 +146,23 @@ preprocess_ott <-
            #infraspecificEpithet
     ) %>%
     mutate(taxonID = stringi::stri_paste("OTT:", taxonID))
-  
+
   rm(dedup)
-  
-  
-  
-  
+
+
+
+
   dwc <- ott_taxonid %>%
     left_join(ott_wide,
               by = c("acceptedNameUsageID" =  "taxonID"))
-  
+
   species <- stringi::stri_extract_all_words(dwc$specificEpithet, simplify = TRUE)
-  
-  
+
+
   dwc <- mutate(dwc, specificEpithet = species[,2])
   dwc <- mutate(dwc,infraspecificEpithet = species[,3])
-  
-  
+
+
   ## note: stringi MUCH faster than recode_factor!
   dwc <- dwc %>%
     mutate(taxonomicStatus =
@@ -170,12 +170,35 @@ preprocess_ott <-
                                        "accepted",
                                        fixed="accepted_name")
            )
-  
-  
+
+
     write_tsv(dwc, output_paths["dwc"])
-    
-  
+
+
 }
+
+
+
+in_url <- "http://files.opentreeoflife.org/ott/ott3.2/ott3.2.tgz"
+in_file <- "/minio/shared-data/taxadb/ott/ott3.2.tgz"
+dir.create(dirname(in_file))
+curl::curl_download(in_url, in_file)
+code <- c("data-raw/ott.R","data-raw/helper-routines.R")
+output_paths = c(dwc = "2020/dwc_ott.tsv.bz2")
+
+
+source("data-raw/helper-routines.R")
+
+## HERE WE GO!
+preprocess_ott(url = in_url, output_paths)
+
+## And publish provenance
+prov:::minio_store(c(in_file, code, output_paths), "https://minio.thelio.carlboettiger.info", dir = "/minio/")
+prov::write_prov(data_in = in_file, code = code, data_out =  unname(output_paths), prov="data-raw/prov.json", append=TRUE)
+
+
+
+
 
 
 

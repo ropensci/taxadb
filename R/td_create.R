@@ -10,7 +10,7 @@
 #' @param lines number of lines that can be safely read in to memory at once.
 #' Leave at default or increase for faster importing if you have
 #' plenty of spare RAM.
-#' @param overwrite Should we overwrite existing tables? Default is `FALSE`.
+#' @param overwrite Should we overwrite existing tables? Default is `TRUE`.
 #' Change to "ask" for interactive interface, or `TRUE` to force overwrite
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
@@ -46,18 +46,20 @@
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
+#'
 #'   }
 #'   ## Install the ITIS database
-#'   td_create("itis")
+#'   td_create()
 #'
 #'   ## force re-install:
-#'   td_create("itis", overwrite = TRUE)
+#'   td_create( overwrite = TRUE)
 #'
 #' }
 td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
                       schema = c("dwc", "common"),
                       version = latest_version(),
-                      overwrite = FALSE,
+                      overwrite = TRUE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
                       db = td_connect(dbdir)
@@ -137,6 +139,7 @@ providers_download_url <- function(files, version = latest_version()){
 }
 
 
+taxadb_cache <- new.env()
 
 #' List available releases
 #'

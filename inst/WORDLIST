@@ -1,6 +1,5 @@
 Animalia
 Anser
-AppVeyor
 Aves
 bicolor
 blazingly
@@ -13,6 +12,7 @@ cryptographic
 cwida
 DarwinCore
 Dendrocygna
+DOI
 dplyr
 duckdb
 dwc

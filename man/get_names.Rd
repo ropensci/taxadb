@@ -44,10 +44,17 @@ using \verb{[td_create()]}.
 }
 \examples{
 \donttest{
-get_names(180092)
-get_names(c("ITIS:180092", "ITIS:179913"))
-get_names(c("ITIS:180092", "ITIS:179913"), format = "prefix")
+
+\dontshow{
+   ## All examples use a temporary directory
+   Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
+  }
+
+get_names(c("ITIS:1025094", "ITIS:1025103"), format = "prefix")
+
 }
+
 }
 \seealso{
 Other get: 

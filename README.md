@@ -3,17 +3,20 @@
 
 # taxadb <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
+<!-- badges: start -->
+
+[![R build
+status](https://github.com/ropensci/taxadb/workflows/R-CMD-check/badge.svg)](https://github.com/ropensci/taxadb/actions)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis build
-status](https://travis-ci.org/ropensci/taxadb.svg?branch=master)](https://travis-ci.org/ropensci/taxadb)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/ropensci/taxadb?branch=master&svg=true)](https://ci.appveyor.com/project/cboettig/taxadb)
 [![Coverage
 status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
-[![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344)
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
+
+<!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
+
+<!-- badges: end -->
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
 taxonomic data, supporting common tasks such as resolving taxonomic
@@ -49,6 +52,12 @@ Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
 td_create("col")
+#> Warning in overwrite_db(con, tablename): overwriting 2019_dwc_col
+#> Importing /tmp/RtmpZIrY24/2019_dwc_col.tsv.bz2 in 100000 line chunks:
+#>  ...Done! (in 1.634985 mins)
+#> Warning in overwrite_db(con, tablename): overwriting 2019_common_col
+#> Importing /tmp/RtmpZIrY24/2019_common_col.tsv.bz2 in 100000 line chunks:
+#>  ...Done! (in 10.54111 secs)
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -108,7 +117,7 @@ birds %>%
 #> 6                  Anser rossii COL:35517328            Chen rossii
 ```
 
-This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
+This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
 accepted in the Catalogue of Life, while others, *Anser canagicus* are
 **known synonyms** of a different accepted name: **Chen canagica**.
 Resolving synonyms and accepted names to identifiers helps us avoid the
@@ -216,7 +225,7 @@ connection:
 ``` r
 taxa_tbl("col")
 #> # Source:   table<2019_dwc_col> [?? x 19]
-#> # Database: MonetDBEmbeddedConnection
+#> # Database: duckdb_connection
 #>    taxonID scientificName acceptedNameUsa… taxonomicStatus taxonRank kingdom
 #>    <chr>   <chr>          <chr>            <chr>           <chr>     <chr>  
 #>  1 COL:31… Limacoccus br… COL:316423       accepted        species   Animal…
@@ -243,7 +252,7 @@ For instance: which species has the most known synonyms?
 taxa_tbl("col") %>% 
   count(acceptedNameUsageID, sort=TRUE)
 #> # Source:     lazy query [?? x 2]
-#> # Database:   MonetDBEmbeddedConnection
+#> # Database:   duckdb_connection
 #> # Ordered by: desc(n)
 #>    acceptedNameUsageID     n
 #>    <chr>               <dbl>
@@ -288,7 +297,6 @@ users may find the `filter_*` approach to be more intuitive.
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By participating in
-this project you agree to abide by its
-terms.
+this project you agree to abide by its terms.
 
 [![ropensci\_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)

@@ -21,20 +21,29 @@
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=tempfile())
+#'    Sys.setenv(TAXADB_DRIVER="RSQLite")
+#'    options("taxadb_default_provider"="itis_test")
+#'
 #'   }
 #'
 #'   #Clean a list of messy common names
+#'   library(dplyr)
 #'   names <- clean_names(c("Steller's jay", "coopers Hawk"),
 #'                binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 #'
 #'   #Get cleaned common names from a provider and search for cleaned names in that table
-#'   taxa_tbl("itis", "common") %>%
+#'   taxa_tbl(schema = "common") %>%
 #'   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
 #'             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) %>%
 #'   filter(vernacularNameClean %in% names)
 #'
-#'
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.unsetenv("TAXADB_HOME")
+#'    Sys.unsetenv("TAXADB_DRIVER")
+
+#'   }
 #'
 #' }
 
@@ -77,7 +86,7 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
   ## Create a temporary table which will store our data, including new column
   schema <- DBI::dbGetQuery(db, paste0("SELECT * FROM \"", tbl, "\" LIMIT 1"))
   schema[[new_column]] <- r_fn(schema[[col]], ...)
-  DBI::dbCreateTable(db, tmp_tbl, schema, temporary = TRUE)
+  DBI::dbCreateTable(db, tmp_tbl, schema, temporary = TRUE, overwrite = TRUE)
 
 
   ## Send the query -- we'll then page over the results in chunks.
@@ -90,14 +99,14 @@ dbi_mutate <- function(db, tbl, r_fn, col, new_column, n = 5000L,
     chunk <- DBI::dbFetch(res, n = n)
     if (nrow(chunk) == 0) break
     chunk[[new_column]] <- r_fn(chunk[[col]], ...)
-    DBI::dbWriteTable(db, tmp_tbl, chunk, append=TRUE)
+    DBI::dbWriteTable(db, tmp_tbl, chunk, append = TRUE)
   }
   DBI::dbClearResult(res)
 
   invisible(tmp_tbl)
 }
 
-tmp_tablename <- function(n=10)
+tmp_tablename <- function(n=15)
   paste0("tmp_", paste0(sample(letters, n, replace = TRUE), collapse = ""))
 
 

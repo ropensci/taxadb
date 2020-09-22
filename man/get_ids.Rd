@@ -59,10 +59,20 @@ using \verb{[td_create()]}.
 }
 \examples{
 \donttest{
-get_ids("Homo sapiens")
-get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
-get_ids("Homo sapiens", db= "ncbi", format = "uri")
+
+  \dontshow{
+   ## All examples use a temporary directory
+   options("taxadb_default_provider"="itis_test")
+   Sys.setenv(TAXADB_HOME=tempdir())
+  }
+
+get_ids("Midas bicolor")
+get_ids(c("Midas bicolor", "Aves"), format = "prefix")
+get_ids("Midas bicolor", format = "uri")
+
 }
+
+
 }
 \seealso{
 filter_name

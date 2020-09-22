@@ -22,6 +22,7 @@
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
 #'
 #' ## match any common name containing:
@@ -29,7 +30,7 @@
 #' fuzzy_filter(name, "vernacularName")
 #'
 #' ## match scientific name
-#' fuzzy_filter("Homo ", "scientificName",
+#' fuzzy_filter("Chera", "scientificName",
 #'              match = "starts_with")
 #' }
 #'
@@ -105,12 +106,13 @@ filter_like <- function(db_tbl, input, pattern){
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
-#' name_contains("Homo ")
+#' name_contains("Chera")
 #' }
 #' @inheritParams fuzzy_filter
 name_contains <- function(name,
-                          provider = "itis",
+                          provider = getOption("taxadb_default_provider", "itis"),
                           version = latest_version(),
                           db = td_connect(),
                           ignore_case = TRUE){
@@ -132,13 +134,14 @@ name_contains <- function(name,
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
-#' name_contains("Homo ")
+#' name_starts_with("Chera")
 #' }
 #' @inheritParams fuzzy_filter
 #' @export
 name_starts_with <- function(name,
-                             provider,
+                             provider = getOption("taxadb_default_provider", "itis"),
                              version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
@@ -161,13 +164,14 @@ name_starts_with <- function(name,
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' common_starts_with("monkey")
 #' }
 #' @inheritParams fuzzy_filter
 #' @export
 common_starts_with <- function(name,
-                             provider = "itis",
+                             provider = getOption("taxadb_default_provider", "itis"),
                              version = latest_version(),
                              db = td_connect(),
                              ignore_case = TRUE){
@@ -189,13 +193,14 @@ common_starts_with <- function(name,
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' common_contains("monkey")
 #' }
 #' @inheritParams fuzzy_filter
 #' @export
 common_contains <- function(name,
-                            provider = "itis",
+                            provider = getOption("taxadb_default_provider", "itis"),
                             version = latest_version(),
                             db = td_connect(),
                             ignore_case = TRUE){

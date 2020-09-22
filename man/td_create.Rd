@@ -8,7 +8,7 @@ td_create(
   provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
-  overwrite = FALSE,
+  overwrite = TRUE,
   lines = 1e+05,
   dbdir = taxadb_dir(),
   db = td_connect(dbdir)
@@ -26,7 +26,7 @@ available provider automatically.}
 \item{version}{Which version of the taxadb provider database should we use?
 defaults to latest.  See \link{available_versions} for details.}
 
-\item{overwrite}{Should we overwrite existing tables? Default is \code{FALSE}.
+\item{overwrite}{Should we overwrite existing tables? Default is \code{TRUE}.
 Change to "ask" for interactive interface, or \code{TRUE} to force overwrite
 (i.e. updating a local database upon new release.)}
 
@@ -70,12 +70,14 @@ Authorities currently recognized by taxadb are:
   \dontshow{
    ## All examples use a temporary directory
    Sys.setenv(TAXADB_HOME=tempdir())
+   options("taxadb_default_provider"="itis_test")
+
   }
   ## Install the ITIS database
-  td_create("itis")
+  td_create()
 
   ## force re-install:
-  td_create("itis", overwrite = TRUE)
+  td_create( overwrite = TRUE)
 
 }
 }

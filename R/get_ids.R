@@ -35,10 +35,20 @@
 #' fastest if a local copy of the provider is installed in advance
 #' using `[td_create()]`.
 #' @examples \donttest{
-#' get_ids("Homo sapiens")
-#' get_ids(c("Homo sapiens", "Mammalia"), format = "prefix")
-#' get_ids("Homo sapiens", db= "ncbi", format = "uri")
+#'
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    options("taxadb_default_provider"="itis_test")
+#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'   }
+#'
+#' get_ids("Midas bicolor")
+#' get_ids(c("Midas bicolor", "Aves"), format = "prefix")
+#' get_ids("Midas bicolor", format = "uri")
+#'
 #' }
+#'
+#'
 #' @export
 #' @importFrom dplyr pull
 #' @importFrom tibble column_to_rownames
@@ -60,7 +70,8 @@ get_ids <- function(names,
                 version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
-                db = taxadb_db)
+                db = taxadb_db) %>%
+    arrange(sort)
 
   df <- duplicate_as_unresolved(df)
 
