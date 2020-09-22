@@ -70,7 +70,8 @@ get_ids <- function(names,
                 version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
-                db = taxadb_db)
+                db = taxadb_db) %>%
+    arrange(sort)
 
   df <- duplicate_as_unresolved(df)
 

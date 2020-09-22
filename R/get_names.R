@@ -33,7 +33,7 @@ get_names <- function(id,
                      ){
   format <- match.arg(format)
   n <- length(id)
-
+  ver <- version
 
   prefix_ids <- switch(format,
                        prefix = id,
@@ -42,13 +42,14 @@ get_names <- function(id,
   df <-
     filter_id(prefix_ids,
           provider = db,
-          version = version,
+          version = ver,
           collect = FALSE,
           db = taxadb_db) %>%
     dplyr::select("scientificName", "taxonID", "sort") %>%
     dplyr::distinct() %>%
     take_first_duplicate() %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    arrange(sort)
 
   if(dim(df)[1] != n){
     stop(paste("Error in resolving possible duplicate names.",
