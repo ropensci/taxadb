@@ -48,7 +48,7 @@ appended back out to a temporary table.
                binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE)
 
   #Get cleaned common names from a provider and search for cleaned names in that table
-  taxa_tbl("itis", "common") \%>\%
+  taxa_tbl(schema = "common") \%>\%
   mutate_db(clean_names, "vernacularName", "vernacularNameClean",
             binomial_only = FALSE, remove_sp = FALSE, remove_punc = TRUE) \%>\%
   filter(vernacularNameClean \%in\% names)
