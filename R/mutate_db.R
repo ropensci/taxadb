@@ -23,6 +23,7 @@
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempfile())
 #'    Sys.setenv(TAXADB_DRIVER="RSQLite")
+#'    options("taxadb_default_provider"="itis_test")
 #'
 #'   }
 #'
