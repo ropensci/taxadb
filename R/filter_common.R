@@ -12,13 +12,20 @@
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
+#'    options("taxadb_default_provider"="itis_test")
 #'    Sys.setenv(TAXADB_HOME=tempdir())
 #'   }
 #'
-#' filter_common("Angolan Giraffe")
+#' filter_common("Pied Tamarin")
 #'
 #' }
 #'
+#'   \dontshow{
+#'    ## All examples use a temporary directory
+#'    Sys.unsetenv("TAXADB_HOME")
+#'    options("taxadb_default_provider" = NULL)
+#'   }
+
 filter_common <- function(name,
                 provider = getOption("taxadb_default_provider", "itis"),
                 version = latest_version(),

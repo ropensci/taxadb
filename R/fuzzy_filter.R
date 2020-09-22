@@ -22,6 +22,7 @@
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    options("taxadb_default_provider"="itis_test")
 #'   }
 #'
 #' ## match any common name containing:
