@@ -26,7 +26,7 @@
 #'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>
 #'  - `tpl`: The Plant List, <http://www.theplantlist.org/>
 #'  - `gbif`: Global Biodiversity Information Facility, <https://www.gbif.org/>
-#'  - `fb`: FishBase, <http://fishbase.de>
+#'  - `fb`: FishBase, <http://fishbase.de/>
 #'  - `slb`: SeaLifeBase, <http://sealifebase.org>
 #'  - `wd`: Wikidata: https://www.wikidata.org
 #'  - `ott`: OpenTree Taxonomy:
