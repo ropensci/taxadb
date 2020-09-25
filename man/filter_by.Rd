@@ -32,7 +32,7 @@ See \verb{[td_create]} for a list of recognized providers.}
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{available_versions} for details.}
+defaults to latest.  See \link{tl_import} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

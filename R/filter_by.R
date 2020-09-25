@@ -13,7 +13,7 @@
 #' @param schema One of "dwc" (for Darwin Core data) or "common"
 #' (for the Common names table.)
 #' @param version Which version of the taxadb provider database should we use?
-#'  defaults to latest.  See [available_versions] for details.
+#'  defaults to latest.  See [tl_import] for details.
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may

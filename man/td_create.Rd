@@ -24,7 +24,7 @@ available provider automatically.}
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{available_versions} for details.}
+defaults to latest.  See \link{tl_import} for details.}
 
 \item{overwrite}{Should we overwrite existing tables? Default is \code{TRUE}.
 Change to "ask" for interactive interface, or \code{TRUE} to force overwrite

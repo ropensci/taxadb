@@ -32,17 +32,13 @@ taxa_tbl <- function(
   tbl_name <- paste0(version, "_", schema, "_", provider)
 
   if (is.null(db)){
-    mem_quick_db <-
-      memoise::memoise(quick_db,
-                       cache = memoise::cache_filesystem(taxadb_dir()))
-    return(mem_quick_db(tbl_name))
+    return(quick_db(tbl_name))
   }
   if (!has_table(tbl_name, db)){
     td_create(provider = provider, schema = schema, version = version, db = db)
   }
   dplyr::tbl(db, tbl_name)
 }
-## could memoise to disk, but for some reason quickdb is not memoising...
 
 
 has_table <- function(table = NULL, db = td_connect()){
@@ -51,20 +47,16 @@ has_table <- function(table = NULL, db = td_connect()){
   else FALSE
 }
 
-#' @importFrom memoise memoise cache_filesystem
 #' @importFrom readr read_tsv
 quick_db <-
   function(tbl_name){
     version <- gsub("(\\w+)_\\w+_\\w+", "\\1", tbl_name)
-    filename <- gsub("\\w+_(\\w+_\\w+)", "\\1", tbl_name)
-    #tmp <- tempfile(fileext = ".tsv.bz2")
-    tmp <- file.path(taxadb_dir(), paste0(tbl_name, ".tsv.bz2"))
-    if(!file.exists(tmp)){
-      curl::curl_download(paste0(providers_download_url(filename, version), ".tsv.bz2"),
-             tmp)
-    }
+    schema <- gsub("\\w+_(\\w+)_\\w+", "\\1", tbl_name)
+    provider <- gsub("\\w+_\\w+_(\\w+)", "\\1", tbl_name)
+    tmp <- tl_import(provider, schema, version)
+
     suppressWarnings(
-      readr::read_tsv(tmp,
+      readr::read_tsv(file(tmp),
       col_types = readr::cols(.default = readr::col_character()))
     )
   }

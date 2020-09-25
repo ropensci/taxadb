@@ -3,6 +3,7 @@ Anser
 Aves
 bicolor
 blazingly
+bugfix
 bz
 canagica
 canagicus
@@ -11,6 +12,7 @@ cladistic
 cryptographic
 cwida
 DarwinCore
+DCAT
 Dendrocygna
 DOI
 dplyr
@@ -31,6 +33,8 @@ itis
 ITIS
 IUCN
 iucnredlist
+JSON
+LD
 lifecycle
 Mammalia
 MonetDBLite

@@ -65,48 +65,10 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
                       db = td_connect(dbdir)
                       ){
 
-  if(!dir.exists(dbdir))
-    dir.create(dbdir, FALSE, TRUE)
 
-  recognized_provider <- c(known_providers, "itis_test")
-  if (any(provider == "all")) {
-    provider <- known_providers
-  }
-  stopifnot(all(provider %in% recognized_provider))
 
-  ## supports vectorized schema and provider lists.
-  files <- unlist(lapply(schema, function(s)
-    paste0(s, "_", provider, ".tsv.bz2")))
-  #remove common name tables for providers without common names
-  files <- files[!files %in% paste0(NO_COMMON, ".tsv.bz2")]
-  dest <- file.path(dbdir, paste0(version, "_", files))
-
-  new_dest <- dest
-  new_files <- files
-
-  test_db <- grepl("itis_test", new_files)
-  if(any(test_db)){
-
-    file.copy(from = system.file(file.path("extdata", new_files), package = "taxadb"),
-              to = new_dest[test_db])
-    new_dest <- dest[!test_db]
-    new_files <- files[!test_db]
-  }
-
-  ## can this be removed? should be handled by arkdb
-  if (!overwrite) {
-    drop <- vapply(dest, file.exists, logical(1))
-    new_dest <- dest[!drop]
-    new_files <- files[!drop]
-  }
-
-  if (length(new_files) >= 1L) {
-    ## FIXME eventually these should be Zenodo URLs
-    urls <- providers_download_url(new_files, version)
-    lapply(seq_along(urls), function(i)
-      curl::curl_download(urls[i], new_dest[i]))
-  }
-
+  dest <- tl_import(provider, schema, version)
+  tablenames <- names(dest)
   ## silence readr progress bar in arkdb
   progress <- getOption("readr.show_progress")
   options(readr.show_progress = FALSE)
@@ -114,6 +76,7 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
   ## silence MonetDBLite complaints about reserved SQL characters
   suppress_msg({
   arkdb::unark(dest,
+               tablenames = tablenames,
                db_con = db,
                lines = lines,
                streamable_table = arkdb::streamable_readr_tsv(),
@@ -123,65 +86,8 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
 
   # reset readr progress bar.
   options(readr.show_progress = progress)
-
-  ## Set id as primary key in each table? automatic in modern DBs
-  ## like MonetDB and duckdb
-  # lapply(DBI::dbListTables(db$con), function(table)
-  # glue::glue("ALTER TABLE {table} ADD PRIMARY KEY ({key});",
-  #            table = table, key = "id"))
-
   invisible(dbdir)
 }
-
-providers_download_url <- function(files, version = latest_version()){
-  paste0("https://github.com/boettiger-lab/taxadb-cache/",
-               "releases/download/", version, "/", files)
-}
-
-
-taxadb_cache <- new.env()
-
-#' List available releases
-#'
-#' taxadb uses pre-computed cache files that are released on an annual
-#' version schedule.
-#'
-#' @export
-#' @examples
-#' available_versions()
-available_versions <- function(){
-
-  ## check for cached version first
-  avail_releases <- mget("avail_releases",
-                         envir = taxadb_cache,
-                         ifnotfound = NA)[[1]]
-  if(!all(is.na(avail_releases)))
-    return(avail_releases)
-
-  ## FIXME consider using direct access of a metadata record file instead
-  ## of relying on GitHub release tags to provide information about
-  ## available versions
-
-  ## Okay, check GH for a release
-  req <- curl::curl_fetch_memory(paste0(
-    "https://api.github.com/repos/",
-    "boettiger-lab/taxadb-cache/releases"))
-  json <- jsonlite::fromJSON(rawToChar(req$content))
-  avail_releases <- json[["tag_name"]]
-
-  ## Cache this so we don't hit GH every single time!
-  assign("avail_releases", avail_releases, envir = taxadb_cache)
-
-  avail_releases
-}
-
-latest_version <- function() {
-  available_versions()[[1]]
-}
-
-known_providers <- c("itis", "ncbi", "col", "tpl",
-                     "gbif", "fb", "slb", "wd", "ott",
-                     "iucn")
 
 
 

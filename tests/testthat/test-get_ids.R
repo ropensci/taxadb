@@ -2,14 +2,15 @@ context("get_ids")
 
 test_that("we can use get_ids options", {
 
-  bare <- get_ids("Homo sapiens", format="bare")
+  ## Fixme use bird examples instead so we can stick with itis_test
+  bare <- get_ids("Homo sapiens", format="bare", db = "itis")
   expect_identical(bare, "180092")
 
   some_ids <- get_ids(c("Homo sapiens", "Sapajus apella"),
-                      format = "prefix")
+                      format = "prefix", db = "itis")
 
-  expect_identical(some_ids,  c("ITIS:180092", "ITIS:944156"))
-  uri <- get_ids("Homo sapiens", format = "uri")
+  expect_identical(some_ids,  c("ITIS:180092", "ITIS:944156"),)
+  uri <- get_ids("Homo sapiens", format = "uri", db =  "itis")
   expect_identical("http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=180092",
                    uri)
 })

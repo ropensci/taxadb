@@ -37,7 +37,8 @@ Imports:
     RSQLite,
     curl,
     jsonlite,
-    duckdb
+    duckdb,
+    contentid
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests:

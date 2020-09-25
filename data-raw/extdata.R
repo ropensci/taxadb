@@ -5,6 +5,10 @@ library(purrr)
 ## Script to prepare the data files included in extdata from original sources
 
 
+write_tsv("inst/extdata/dwc_itis_test.tsv.bz2")
+write_tsv("inst/extdata/common_itis_test.tsv.bz2")
+
+
 ## Breeding Bird Survey
 url <- "ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt"
 col_names <- c("Seq", "AOU", "English_Common_Name", "French_Common_Name",
