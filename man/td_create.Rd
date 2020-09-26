@@ -56,7 +56,7 @@ Authorities currently recognized by taxadb are:
 \item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
 \item \code{tpl}: The Plant List, \url{http://www.theplantlist.org/}
 \item \code{gbif}: Global Biodiversity Information Facility, \url{https://www.gbif.org/}
-\item \code{fb}: FishBase, \url{http://fishbase.de/}
+\item \code{fb}: FishBase, \url{http://www.fishbase.de/}
 \item \code{slb}: SeaLifeBase, \url{http://sealifebase.org}
 \item \code{wd}: Wikidata: https://www.wikidata.org
 \item \code{ott}: OpenTree Taxonomy:
