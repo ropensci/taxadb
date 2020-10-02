@@ -30,7 +30,7 @@ See \verb{[td_create]} for a list of recognized providers.}
 the term anywhere in the name?}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{available_versions} for details.}
+defaults to latest.  See \link{tl_import} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 

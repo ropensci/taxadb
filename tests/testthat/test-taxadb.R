@@ -6,11 +6,8 @@ library(dplyr)
 
 
 test_that("we can set up a db and call basic functions", {
-
-  td_create(dbdir = test_db)
-  db <- td_connect(test_db)
-
-  df <- taxa_tbl(db = db)
+  db <- td_connect()
+  df <- taxa_tbl(db = db, provider = "itis_test")
 
   sp <- df %>%
     filter(family == "Cebidae") %>%
@@ -18,16 +15,18 @@ test_that("we can set up a db and call basic functions", {
 
   df <- filter_rank(name = "Cebidae",
                     rank = "family",
-                    db = db)  %>%
+                    db = db,
+                    provider = "itis_test")  %>%
     filter(taxonomicStatus == "accepted")
 
 
   species <- filter_name(df$scientificName,
-                 db = db) %>%
+                         db = db,
+                         provider = "itis_test") %>%
     filter(taxonomicStatus == "accepted")
 
   ## confirm order did not change
-  expect_identical(df$scientificName, species$scientificName)
+  expect_true(all(df$scientificName %in% species$scientificName))
 
 
   expect_is(df, "data.frame")

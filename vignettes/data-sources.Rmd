@@ -27,9 +27,9 @@ knitr::opts_chunk$set(
 `ncbi` |  [The National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/)
 `gbif` | [The Global Biodiversity Information Facility](https://www.gbif.org/)
 `tpl`  | [The Plant List](http://www.theplantlist.org/)
-`fb`   | [FishBase](https://fishbase.ca)
+`fb`   | [FishBase](https://www.fishbase.de/)
 `slb`  | [SeaLifeBase](https://www.sealifebase.ca/)
-`wd`   | [WikiData](https://wikidata.org)
+`wd`   | WikiData,  (wikidata.org)
 `iucn` | The IUCN Red List of endangered species status, `https://www.iucnredlist.org`
 `ott`  | [Open Tree of Life taxonomy](https://tree.opentreeoflife.org/about/taxonomy-version/ott3.1).  
 

@@ -24,7 +24,7 @@ available provider automatically.}
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{available_versions} for details.}
+defaults to latest.  See \link{tl_import} for details.}
 
 \item{overwrite}{Should we overwrite existing tables? Default is \code{TRUE}.
 Change to "ask" for interactive interface, or \code{TRUE} to force overwrite
@@ -56,9 +56,9 @@ Authorities currently recognized by taxadb are:
 \item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
 \item \code{tpl}: The Plant List, \url{http://www.theplantlist.org/}
 \item \code{gbif}: Global Biodiversity Information Facility, \url{https://www.gbif.org/}
-\item \code{fb}: FishBase, \url{http://fishbase.org}
+\item \code{fb}: FishBase, \url{https://www.fishbase.de/}
 \item \code{slb}: SeaLifeBase, \url{http://sealifebase.org}
-\item \code{wd}: Wikidata: \url{https://www.wikidata.org/}
+\item \code{wd}: Wikidata: https://www.wikidata.org
 \item \code{ott}: OpenTree Taxonomy:
 \url{https://github.com/OpenTreeOfLife/reference-taxonomy}
 \item \code{iucn}: IUCN Red List, https://iucnredlist.org
