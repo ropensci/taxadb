@@ -62,7 +62,7 @@ take_first_duplicate <- function(df){
     dplyr::arrange(scientificName) %>%
     dplyr::mutate(row_num = row_number()) %>%
     dplyr::group_by(sort) %>%
-    dplyr::top_n(1, row_num) %>%
+    dplyr::filter(row_num == max(row_num, na.rm = TRUE)) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(sort)
 
