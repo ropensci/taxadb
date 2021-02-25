@@ -20,7 +20,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.0.2 (2020-06-22)",
+  "runtimePlatform": "R version 4.0.3 (2020-10-10)",
   "author": [
     {
       "@type": "Person",
@@ -140,18 +140,6 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=purrr"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "duckdb",
-      "name": "duckdb",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=duckdb"
     }
   ],
   "softwareRequirements": [
@@ -189,13 +177,14 @@
       "@type": "SoftwareApplication",
       "identifier": "arkdb",
       "name": "arkdb",
+      "version": ">= 0.0.6",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://github.com/ropensci/arkdb"
+      "sameAs": "https://CRAN.R-project.org/package=arkdb"
     },
     {
       "@type": "SoftwareApplication",
@@ -345,16 +334,41 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=jsonlite"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "duckdb",
+      "name": "duckdb",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=duckdb"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "contentid",
+      "name": "contentid",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=contentid"
     }
   ],
   "fileSize": "0KB",
   "contIntegration": "https://codecov.io/github/ropensci/taxadb?branch=master",
-  "developmentStatus": "https://www.tidyverse.org/lifecycle/#maturing",
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html",
   "provider": {
     "@id": "https://cran.r-project.org",
     "@type": "Organization",
     "name": "Comprehensive R Archive Network (CRAN)",
     "url": "https://cran.r-project.org"
   },
-  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md"
+  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
+  "releaseNotes": "https://github.com/ropensci/taxadb/blob/master/NEWS.md"
 }

@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 `taxadb` abbreviation | name 
 ----------------------|-------------------
-`itis`   | [The Integrated Taxonomic Information System](https://www.itis.gov/)
+`itis`   | The Integrated Taxonomic Information System, `https://www.itis.gov/`
 `col`  | [The Catalogue of Life](http://www.catalogueoflife.org/)
 `ncbi` |  [The National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/)
 `gbif` | [The Global Biodiversity Information Facility](https://www.gbif.org/)
