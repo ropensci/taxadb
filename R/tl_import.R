@@ -54,12 +54,16 @@ tl_import <- function(provider = getOption("tl_default_provider", "itis"),
                   paste(keys[is.na(dict[keys])], collapse= ", "),
                   "\n  checking for older versions."))
 
-    tmp <- prov[prov$series %in% series, ]
-    keys <- tmp$key
-    message(paste("  using", paste(keys, collapse= ", ")))
-    dict <- tmp$id
-    names(dict) <- tmp$key
-
+    missing_series <- keys[is.na(dict[keys])]
+    tmp <- prov[prov$series %in% missing_series, ]
+    if(nrow(tmp) == 0){
+      message(paste(missing_series, "not available"))
+    } else {
+      keys <- tmp$key
+      message(paste("  using", paste(keys, collapse= ", ")))
+      dict <- tmp$id
+      names(dict) <- tmp$key
+    }
   }
 
   ids <- as.character(na_omit(dict[keys]))
