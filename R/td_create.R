@@ -20,7 +20,7 @@
 #' fast database connection.
 #' @details
 #'  Authorities currently recognized by taxadb are:
-#'  - `itis`: Integrated Taxonomic Information System, https://www.itis.gov
+#'  - `itis`: Integrated Taxonomic Information System, `https://www.itis.gov`
 #'  - `ncbi`:  National Center for Biotechnology Information,
 #'  <https://www.ncbi.nlm.nih.gov/taxonomy>
 #'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>

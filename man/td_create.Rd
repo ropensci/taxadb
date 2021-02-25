@@ -50,7 +50,7 @@ create a local taxonomic database
 \details{
 Authorities currently recognized by taxadb are:
 \itemize{
-\item \code{itis}: Integrated Taxonomic Information System, https://www.itis.gov
+\item \code{itis}: Integrated Taxonomic Information System, \verb{https://www.itis.gov}
 \item \code{ncbi}:  National Center for Biotechnology Information,
 \url{https://www.ncbi.nlm.nih.gov/taxonomy}
 \item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
