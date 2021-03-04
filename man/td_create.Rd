@@ -11,7 +11,7 @@ td_create(
   overwrite = TRUE,
   lines = 1e+05,
   dbdir = taxadb_dir(),
-  db = td_connect(dbdir)
+  db = td_connect(dbdir, read_only = FALSE)
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ plenty of spare RAM.}
 
 \item{dbdir}{a location on your computer where the database
 should be installed. Defaults to user data directory given by
-\verb{[rappdirs::user_data_dir]}.}
+\verb{[tools::R_user_dir("taxadb")]}.}
 
 \item{db}{connection to a database.  By default, taxadb will set up its own
 fast database connection.}

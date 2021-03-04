@@ -23,11 +23,10 @@ Depends: R (>= 4.0)
 Imports:
     dplyr,
     DBI,
-    arkdb (>= 0.0.6),
+    arkdb (>= 0.0.10),
     tibble,
     memoise,
     readr,
-    rappdirs,
     rlang,
     magrittr,
     stringi,

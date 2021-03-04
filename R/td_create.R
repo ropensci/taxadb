@@ -15,7 +15,7 @@
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
 #' should be installed. Defaults to user data directory given by
-#' `[rappdirs::user_data_dir]`.
+#' `[tools::R_user_dir("taxadb")]`.
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
@@ -62,9 +62,8 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
                       overwrite = TRUE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
-                      db = td_connect(dbdir)
+                      db = td_connect(dbdir, read_only = FALSE)
                       ){
-
 
 
   dest <- tl_import(provider, schema, version)
@@ -86,8 +85,8 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
 
   # reset readr progress bar.
   options(readr.show_progress = progress)
+
   invisible(dbdir)
 }
-
 
 

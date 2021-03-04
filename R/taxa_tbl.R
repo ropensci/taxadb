@@ -35,7 +35,13 @@ taxa_tbl <- function(
     return(quick_db(tbl_name))
   }
   if (!has_table(tbl_name, db)){
-    td_create(provider = provider, schema = schema, version = version, db = db)
+    ## Doing td_create on the fly when a table is missing is kinda dodgy!
+    ## We need a write-access connection for this. Also,
+    ## td_create() closes the connection when done, so we have to re-open it
+    dbw <- with_write_access(db)
+    td_create(provider = provider, schema = schema, version = version, db = dbw)
+    td_disconnect(dbw)
+    db <- with_readonly(db)
   }
   dplyr::tbl(db, tbl_name)
 }
@@ -60,3 +66,39 @@ quick_db <-
       col_types = readr::cols(.default = readr::col_character()))
     )
   }
+
+
+
+
+
+with_write_access <- function(db){
+  if(!inherits(db, "duckdb_connection")) return(db)
+  if(db@driver@read_only){
+    dir <- dirname(db@driver@dbdir)
+    db <- td_connect(dbdir = dir,
+                     driver = "duckdb",
+                     read_only = FALSE)
+  }
+  db
+}
+
+
+with_readonly <- function(db){
+  if(inherits(db, "duckdb_connection")){
+    if(db@driver@read_only){
+      dir <- dirname(db@driver@dbdir)
+      db <- td_connect(dbdir = dir,
+                           driver = "duckdb",
+                           read_only = TRUE)
+    }
+  } else if(inherits("SQLiteConnection")) {
+    db <- DBI::dbConnect(db)
+  } else {
+    # Guess and hope for the best...
+    db <- td_connect()
+  }
+  db
+}
+
+
+

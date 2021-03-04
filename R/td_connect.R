@@ -36,8 +36,8 @@
 #'
 #' }
 td_connect <- function(dbdir = taxadb_dir(),
-                       driver = Sys.getenv("TAXADB_DRIVER"),
-                       read_only = FALSE){
+                       driver = Sys.getenv("TAXADB_DRIVER", "duckdb"),
+                       read_only = TRUE){
 
   arkdb::local_db(dbdir = dbdir, driver = driver, readonly = read_only)
 }
@@ -64,7 +64,7 @@ td_disconnect <- function(db = td_connect()){
 
 
 taxadb_dir <- function(){
-  Sys.getenv("TAXADB_HOME",  rappdirs::user_data_dir("taxadb"))
+  Sys.getenv("TAXADB_HOME",  tools::R_user_dir("taxadb"))
 }
 
 

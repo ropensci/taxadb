@@ -91,8 +91,8 @@ td_filter <- function(x,y, by){
   sort <- "sort"   # avoid complaint about NSE.
                    #We could do sym("sort") but this is cleaner.
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    safe_right_join(x, y, by = by, copy = TRUE) %>%
-      dplyr::arrange(sort)
+    safe_right_join(x, y, by = by, copy = TRUE)
+    ## Do not dplyr::arrange(sort), that's expensive in DB
   })
 }
 
@@ -105,7 +105,8 @@ safe_right_join <- function(x, y, by = NULL, copy = FALSE, ...){
 
   if(copy){
     con <- dbplyr::remote_con(x)
-    if(inherits(con, "duckdb_connection")){
+    if(inherits(con, "duckdb_connection") ||
+       inherits(con, "MonetDBEmbeddedConnection")){
       dplyr::right_join(x, y, by = by, copy = copy, ...)
     } else if(inherits(con, "SQLiteConnection")){ ## only attempt on remote tables!
       tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
