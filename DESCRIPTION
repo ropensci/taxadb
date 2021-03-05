@@ -23,7 +23,7 @@ Depends: R (>= 4.0)
 Imports:
     dplyr,
     DBI,
-    arkdb (>= 0.0.11),
+    arkdb (> 0.0.10),
     tibble,
     memoise,
     readr,
