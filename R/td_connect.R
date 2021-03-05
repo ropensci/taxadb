@@ -36,7 +36,7 @@
 #'
 #' }
 td_connect <- function(dbdir = taxadb_dir(),
-                       driver = Sys.getenv("TAXADB_DRIVER"),
+                       driver = Sys.getenv("TAXADB_DRIVER", "duckdb"),
                        read_only = FALSE){
 
   arkdb::local_db(dbdir = dbdir, driver = driver, readonly = read_only)

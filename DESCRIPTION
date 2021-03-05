@@ -47,7 +47,8 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    purrr
+    purrr,
+    crayon
 Language: en-US
 VignetteBuilder: knitr
 URL: <https://docs.ropensci.org/taxadb/>, <https://github.com/ropensci/taxadb>
