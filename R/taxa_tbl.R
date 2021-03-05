@@ -91,7 +91,7 @@ with_readonly <- function(db){
                            driver = "duckdb",
                            read_only = TRUE)
     }
-  } else if(inherits("SQLiteConnection")) {
+  } else if(inherits(db, "SQLiteConnection")) {
     db <- DBI::dbConnect(db)
   } else {
     # Guess and hope for the best...
