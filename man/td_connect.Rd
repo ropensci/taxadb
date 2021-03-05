@@ -6,7 +6,7 @@
 \usage{
 td_connect(
   dbdir = taxadb_dir(),
-  driver = Sys.getenv("TAXADB_DRIVER"),
+  driver = Sys.getenv("TAXADB_DRIVER", "duckdb"),
   read_only = FALSE
 )
 }

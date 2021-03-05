@@ -61,12 +61,14 @@ get_ids <- function(names,
                     ...){
   format <- match.arg(format)
   n <- length(names)
+  provider <- db
+
 
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
   df <- filter_name(name = names,
-                provider = db,
+                provider = provider,
                 version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
@@ -98,7 +100,7 @@ get_ids <- function(names,
       return(NA_character_)
     }
   },
-  character(1L))
+  character(1L), USE.NAMES = FALSE)
 
 
   ## Format ID as requested
