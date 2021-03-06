@@ -91,8 +91,8 @@ td_filter <- function(x,y, by){
   sort <- "sort"   # avoid complaint about NSE.
                    #We could do sym("sort") but this is cleaner.
   suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    safe_right_join(x, y, by = by, copy = TRUE) %>%
-      dplyr::arrange(sort)
+    safe_right_join(x, y, by = by, copy = TRUE) #%>%
+      #dplyr::arrange(sort)
   })
 }
 

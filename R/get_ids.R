@@ -61,32 +61,47 @@ get_ids <- function(names,
                     ...){
   format <- match.arg(format)
   n <- length(names)
+  provider <- db
+
 
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
   df <- filter_name(name = names,
-                provider = db,
+                provider = provider,
                 version = version,
                 collect = TRUE,
                 ignore_case = ignore_case,
                 db = taxadb_db) %>%
     arrange(sort)
 
-  df <- duplicate_as_unresolved(df)
+  out <- vapply(names, function(x){
+    df <- df[df$scientificName == x, ]
 
-  if(dim(df)[1] != n){
-    stop(paste("Error in resolving possible duplicate names.",
-               "Try the filter_name() function instead."),
-         .call = FALSE)
-  }
+    if(nrow(df) < 1) return(NA_character_)
 
-  ##
-  if("acceptedNameUsageID" %in% names(df)){
-    out <- dplyr::pull(df, "acceptedNameUsageID")
-  } else {
-    out <- dplyr::pull(df, "taxonID")
-  }
+    # Unambiguous: one acceptedNameUsageID per name
+    if(nrow(df)==1) return(df$acceptedNameUsageID[1])
+
+    ## Drop infraspecies when not perfect match
+    df <- df[is.na(df$infraspecificEpithet),]
+
+    ## If we resolve to a unique accepted ID, return that
+    ids <- unique(df$acceptedNameUsageID)
+    if(length(ids)==1){
+      return(ids)
+    } else {
+      warning(paste0("  Found ", bb(length(ids)), " possible identifiers for ",
+                     ibr(x),
+                     ".\n  Returning ", bb('NA'), ". Try ",
+                     bb(paste0("tl('", x, "', '", provider,"')")),
+                     " to resolve manually.\n"),
+              call. = FALSE)
+      return(NA_character_)
+    }
+  },
+  character(1L), USE.NAMES = FALSE)
+
 
   ## Format ID as requested
   switch(format,
@@ -122,3 +137,12 @@ prefix_to_uri <- function(x){
   replace_empty(out)
 }
 
+
+ibr <- function(...){
+  if(!requireNamespace("crayon", quietly = TRUE)) return(paste(...))
+  crayon::italic(crayon::bold(crayon::red(...)))
+}
+bb <- function(...){
+  if(!requireNamespace("crayon", quietly = TRUE)) return(paste(...))
+  crayon::bold(crayon::blue(...))
+}
