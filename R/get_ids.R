@@ -99,7 +99,7 @@ get_ids <- function(names,
       warning(paste0("  Found ", bb(length(ids)), " possible identifiers for ",
                      ibr(x),
                      ".\n  Returning ", bb('NA'), ". Try ",
-                     bb(paste0("filter_id('", x, "', '", provider,"')")),
+                     bb(paste0("filter_id('", x, "', '", db,"')")),
                      " to resolve manually.\n"),
               call. = FALSE)
       }

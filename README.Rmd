@@ -7,7 +7,7 @@ output: github_document
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  warning = FALSE,
+  warning = TRUE,
   comment = "#>"
 )
 taxadb:::td_disconnect()
@@ -73,7 +73,7 @@ Two core functions are `get_ids()` and `get_names()`.  These functions take a ve
 ```{r}
 birds <- bbs %>% 
   select(species) %>% 
-  mutate(id = taxalight::get_ids(species, "col"))
+  mutate(id = get_ids(species, "col"))
 
 head(birds, 10)
 ```

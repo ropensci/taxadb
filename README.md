@@ -78,7 +78,7 @@ Catalogue of Life:
 ``` r
 birds <- bbs %>% 
   select(species) %>% 
-  mutate(id = taxalight::get_ids(species, "col"))
+  mutate(id = get_ids(species, "col"))
 
 head(birds, 10)
 #>                          species          id
@@ -136,6 +136,8 @@ identifier in ITIS:
 
 ``` r
 get_ids("Trochalopteron henrici gucenense") 
+#> Warning:   Found 2 possible identifiers for Trochalopteron henrici gucenense.
+#>   Returning NA. Try filter_id('Trochalopteron henrici gucenense', 'itis') to resolve manually.
 #> [1] NA
 ```
 
