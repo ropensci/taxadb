@@ -11,6 +11,7 @@ get_ids(
   version = latest_version(),
   taxadb_db = td_connect(),
   ignore_case = TRUE,
+  warn = TRUE,
   ...
 )
 }
@@ -35,6 +36,9 @@ defaults to latest.  see \verb{[avialable_releases()]} for details.}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
 default is \code{TRUE}.}
+
+\item{warn}{should we display warnings on NAs resulting from multiply-resolved matches?
+(Unlike unmatched names, these NAs can usually be resolved manually via \code{\link[=filter_id]{filter_id()}})}
 
 \item{...}{additional arguments (currently ignored)}
 }

@@ -7,6 +7,7 @@ output: github_document
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
   comment = "#>"
 )
 taxadb:::td_disconnect()
@@ -32,9 +33,15 @@ Existing approaches to these problems typically rely on web APIs, which can make
 
 ## Install and initial setup
 
-To get started, install the development version directly from GitHub:
+To get started, install from CRAN
 
-```{r eval=FALSE}
+``` r
+install.pacakges("taxadb")
+```
+
+or install the development version directly from GitHub:
+
+``` r
 devtools::install_github("ropensci/taxadb")
 ```
 
@@ -47,7 +54,7 @@ library(dplyr) # Used to illustrate how a typical workflow combines nicely with 
 Create a local copy of the Catalogue of Life (2018) database: 
 
 ```{r }
-td_create("col")
+td_create("col", overwrite=FALSE)
 ```
 
 
@@ -66,7 +73,7 @@ Two core functions are `get_ids()` and `get_names()`.  These functions take a ve
 ```{r}
 birds <- bbs %>% 
   select(species) %>% 
-  mutate(id = get_ids(species, "col"))
+  mutate(id = taxalight::get_ids(species, "col"))
 
 head(birds, 10)
 ```

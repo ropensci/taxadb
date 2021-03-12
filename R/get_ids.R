@@ -19,6 +19,8 @@
 #' @param taxadb_db Connection to from `[td_connect()]`.
 #' @param ignore_case should we ignore case (capitalization) in matching names?
 #' default is `TRUE`.
+#' @param warn should we display warnings on NAs resulting from multiply-resolved matches?
+#' (Unlike unmatched names, these NAs can usually be resolved manually via [filter_id()])
 #' @param ... additional arguments (currently ignored)
 #' @return a vector of IDs, of the same length as the input names Any
 #' unmatched names or multiply-matched names will return as [NA]s.
@@ -58,6 +60,7 @@ get_ids <- function(names,
                     version = latest_version(),
                     taxadb_db = td_connect(),
                     ignore_case = TRUE,
+                    warn = TRUE,
                     ...){
   format <- match.arg(format)
   n <- length(names)
@@ -67,7 +70,7 @@ get_ids <- function(names,
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
 
-  df <- filter_name(name = names,
+  taxa <- filter_name(name = names,
                 provider = provider,
                 version = version,
                 collect = TRUE,
@@ -76,7 +79,8 @@ get_ids <- function(names,
     arrange(sort)
 
   out <- vapply(names, function(x){
-    df <- df[df$scientificName == x, ]
+    df <- taxa[x == taxa$scientificName, ]
+    df <- df[!is.na(df$scientificName),]
 
     if(nrow(df) < 1) return(NA_character_)
 
@@ -91,12 +95,14 @@ get_ids <- function(names,
     if(length(ids)==1){
       return(ids)
     } else {
+      if(warn){
       warning(paste0("  Found ", bb(length(ids)), " possible identifiers for ",
                      ibr(x),
                      ".\n  Returning ", bb('NA'), ". Try ",
-                     bb(paste0("tl('", x, "', '", provider,"')")),
+                     bb(paste0("filter_id('", x, "', '", provider,"')")),
                      " to resolve manually.\n"),
               call. = FALSE)
+      }
       return(NA_character_)
     }
   },

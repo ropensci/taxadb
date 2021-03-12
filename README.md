@@ -15,6 +15,7 @@ status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
 
 <!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
+
 <!-- badges: end -->
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
@@ -36,7 +37,13 @@ formats.
 
 ## Install and initial setup
 
-To get started, install the development version directly from GitHub:
+To get started, install from CRAN
+
+``` r
+install.pacakges("taxadb")
+```
+
+or install the development version directly from GitHub:
 
 ``` r
 devtools::install_github("ropensci/taxadb")
@@ -50,13 +57,7 @@ library(dplyr) # Used to illustrate how a typical workflow combines nicely with 
 Create a local copy of the Catalogue of Life (2018) database:
 
 ``` r
-td_create("col")
-#> Warning in overwrite_db(con, tablename): overwriting 2020_dwc_col
-#> Importing /home/cboettig/.local/share/R/contentid/data/85/45/85455c919650c46864c4dd04be43c8b1b08994ace82c4805871dfe20b5ab5cd3 in 100000 line chunks:
-#>  ...Done! (in 6.964715 mins)
-#> Warning in overwrite_db(con, tablename): overwriting 2020_common_col
-#> Importing /home/cboettig/.local/share/R/contentid/data/ae/99/ae9948252e798b9879144b84b521f88de3677cf0308b92283e75385a9c487ea3 in 100000 line chunks:
-#>  ...Done! (in 46.12354 secs)
+td_create("col", overwrite=FALSE)
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -77,7 +78,7 @@ Catalogue of Life:
 ``` r
 birds <- bbs %>% 
   select(species) %>% 
-  mutate(id = get_ids(species, "col"))
+  mutate(id = taxalight::get_ids(species, "col"))
 
 head(birds, 10)
 #>                          species          id
@@ -272,8 +273,8 @@ However, unlike the `filter_*` functions which return convenient
 in-memory tables, this is still a remote connection. This means that
 direct access using the `taxa_tbl()` function (or directly accessing the
 database connection using `td_connect()`) is more low-level and requires
-greater care. For instance, we cannot just add a
-`%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
+greater care. For instance, we cannot just add a `%>%
+mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
 above, because `get_names` does not work on a remote collection.
 Instead, we would first need to use a `collect()` to pull the summary
 table into memory. Users familiar with remote databases in `dplyr` will
@@ -282,17 +283,17 @@ users may find the `filter_*` approach to be more intuitive.
 
 ## Learn more
 
--   See richer examples the package
+  - See richer examples the package
     [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
 
--   Learn about the underlying data sources and formats in [Data
+  - Learn about the underlying data sources and formats in [Data
     Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
--   Get better performance by selecting an alternative [database
+  - Get better performance by selecting an alternative [database
     backend](https://docs.ropensci.org/taxadb/articles/backends.html)
     engines.
 
-------------------------------------------------------------------------
+-----
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By participating in
