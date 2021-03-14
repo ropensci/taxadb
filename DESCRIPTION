@@ -53,4 +53,3 @@ Language: en-US
 VignetteBuilder: knitr
 URL: <https://docs.ropensci.org/taxadb/>, <https://github.com/ropensci/taxadb>
 BugReports: https://github.com/ropensci/taxadb/issues
-Remotes: ropensci/arkdb
