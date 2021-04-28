@@ -68,7 +68,7 @@ test_that("filter_rank", {
 
 test_that("filter_common", {
 
-  filter_common("man", "itis")
+  filter_common("man", "itis_test")
 
   expect_warning(x <- filter_common("man", "wd"),
                  "provider wd does not provide common names")
