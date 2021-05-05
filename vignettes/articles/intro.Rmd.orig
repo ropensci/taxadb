@@ -2,6 +2,26 @@
 title: "Tutorial for taxadb"
 author: "Carl Boettiger, Kari Norman"
 date: "`r Sys.Date()`"
+references:
+- id: norman2020
+  title: One-click science marketing
+  author:
+  - family: Norman
+    given: Kari E. A
+  - family: Chamberlain
+    given: Scott
+  - family: Boettiger
+    given: Carl
+  container-title: Methods in Ecology and Evolution
+  volume: 11
+  URL: 'https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13440'
+  DOI: 10.1111/2041-210X.13440
+  issue: 9
+  page: 1153--1159
+  type: article-journal
+  issued:
+    year: 2020
+    month: 9
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro}
@@ -18,9 +38,9 @@ knitr::opts_chunk$set(
 ```
 
 
-The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting common tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
+The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting common tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records [see `taxadb` companion paper @norman2020].
 
-Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
+Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.
 
 
 ## Install and initial setup
@@ -37,7 +57,7 @@ library(taxadb)
 library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
-Create a local copy of the Catalogue of Life (2018) database: 
+Create a local copy of the Catalogue of Life (2018) database:
 
 ```{r }
 td_create("col")
@@ -57,8 +77,8 @@ Two core functions are `get_ids()` and `get_names()`.  These functions take a ve
 
 
 ```{r}
-birds <- bbs %>% 
-  select(species) %>% 
+birds <- bbs %>%
+  select(species) %>%
   mutate(id = get_ids(species, "col"))
 
 head(birds, 10)
@@ -70,8 +90,8 @@ Note that some names cannot be resolved to an identifier.  This can occur becaus
 
 
 ```{r}
-birds %>% 
-  mutate(accepted_name = get_names(id, "col")) %>% 
+birds %>%
+  mutate(accepted_name = get_names(id, "col")) %>%
   head()
 ```
 
@@ -80,24 +100,24 @@ This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted
 
 ## Taxonomic Data Tables
 
-Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `filter_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
+Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `filter_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.
 
 For instance, *Trochalopteron henrici gucenense* does not resolve to an identifier in ITIS:
 
 ```{r}
-get_ids("Trochalopteron henrici gucenense") 
+get_ids("Trochalopteron henrici gucenense")
 ```
 
 Using `filter_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
 
 ```{r}
-filter_name("Trochalopteron henrici gucenense") 
+filter_name("Trochalopteron henrici gucenense")
 ```
 
 
 ```{r}
 filter_name("Trochalopteron henrici gucenense")  %>%
-  mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
+  mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>%
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
 ```
 
@@ -114,9 +134,9 @@ Combining these with `dplyr` functions can make it easy to explore this data: fo
 
 ```{r}
 filter_rank(name = "Aves", rank = "class", provider = "col") %>%
-  filter(taxonomicStatus == "accepted", taxonRank=="species") %>% 
+  filter(taxonomicStatus == "accepted", taxonRank=="species") %>%
   group_by(family) %>%
-  count(sort = TRUE) %>% 
+  count(sort = TRUE) %>%
   head()
 ```
 
@@ -131,7 +151,9 @@ taxa_tbl("col")
 We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
 
 ```{r}
-taxa_tbl("col") %>% 
+taxa_tbl("col") %>%
   count(acceptedNameUsageID, sort=TRUE)
 ```
+
+# References
 
