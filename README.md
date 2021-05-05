@@ -15,7 +15,6 @@ status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
 
 <!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
-
 <!-- badges: end -->
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
@@ -24,7 +23,8 @@ names to identifiers, looking up higher classification ranks of given
 species, or returning a list of all species below a given rank. These
 tasks are particularly common when synthesizing data across large
 species assemblies, such as combining occurrence records with trait
-records.
+records (see `taxadb` companion paper [Norman et
+al. 2020](https://doi.org/10.1111/2041-210X.13440)).
 
 Existing approaches to these problems typically rely on web APIs, which
 can make them impractical for work with large numbers of species or in
@@ -275,27 +275,37 @@ However, unlike the `filter_*` functions which return convenient
 in-memory tables, this is still a remote connection. This means that
 direct access using the `taxa_tbl()` function (or directly accessing the
 database connection using `td_connect()`) is more low-level and requires
-greater care. For instance, we cannot just add a `%>%
-mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
+greater care. For instance, we cannot just add a
+`%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
 above, because `get_names` does not work on a remote collection.
 Instead, we would first need to use a `collect()` to pull the summary
 table into memory. Users familiar with remote databases in `dplyr` will
 find using `taxa_tbl()` directly to be convenient and fast, while other
 users may find the `filter_*` approach to be more intuitive.
 
+## How to cite `taxadb`?
+
+You can access the citation information through `citation("taxadb")`
+within R, which refers to `taxadb` companion paper:
+
+> Kari E. A. Norman, Scott Chamberlain, and Carl Boettiger (2020).
+> taxadb: A high-performance local taxonomic database interface. Methods
+> in Ecology and Evolution, 11(9), 1153-1159.
+> <https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13440>.
+
 ## Learn more
 
-  - See richer examples the package
+-   See richer examples the package
     [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
 
-  - Learn about the underlying data sources and formats in [Data
+-   Learn about the underlying data sources and formats in [Data
     Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
-  - Get better performance by selecting an alternative [database
+-   Get better performance by selecting an alternative [database
     backend](https://docs.ropensci.org/taxadb/articles/backends.html)
     engines.
 
------
+------------------------------------------------------------------------
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By participating in
