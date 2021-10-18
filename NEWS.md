@@ -1,3 +1,12 @@
+# taxadb 0.1.4
+
+* export `taxadb_dir()`, making it easier to purge the DB after `duckdb` upgrades
+* All imports must be used
+
+# taxadb 0.1.3
+
+* more robust testing
+
 # taxadb 0.1.2
 
 * avoid erroneous messages when installing providers that lack common names.

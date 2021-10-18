@@ -71,11 +71,14 @@ using \verb{[td_create()]}.
   }
 
 get_ids("Midas bicolor")
-get_ids(c("Midas bicolor", "Aves"), format = "prefix")
+get_ids(c("Midas bicolor", "Homo sapiens"), format = "prefix")
 get_ids("Midas bicolor", format = "uri")
 
 }
 
+  \dontshow{
+   Sys.unsetenv("TAXADB_HOME")
+  }
 
 }
 \seealso{
