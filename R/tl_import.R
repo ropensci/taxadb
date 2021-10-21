@@ -128,4 +128,8 @@ latest_version <-
 
 }
 
-
+## Any imports must be explicitly referenced.
+## bunzip is needed for arkdb functionality
+dummyutils <- function(...){
+  R.utils::bunzip2(...)
+}
