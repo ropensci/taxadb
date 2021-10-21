@@ -45,11 +45,14 @@
 #'   }
 #'
 #' get_ids("Midas bicolor")
-#' get_ids(c("Midas bicolor", "Aves"), format = "prefix")
+#' get_ids(c("Midas bicolor", "Homo sapiens"), format = "prefix")
 #' get_ids("Midas bicolor", format = "uri")
 #'
 #' }
 #'
+#'   \dontshow{
+#'    Sys.unsetenv("TAXADB_HOME")
+#'   }
 #'
 #' @export
 #' @importFrom dplyr pull
@@ -88,7 +91,8 @@ get_ids <- function(names,
     if(nrow(df)==1) return(df$acceptedNameUsageID[1])
 
     ## Drop infraspecies when not perfect match
-    df <- df[is.na(df$infraspecificEpithet),]
+    if(sum(is.na(is.na(df$infraspecificEpithet)))==1)
+      df <- df[is.na(df$infraspecificEpithet),]
 
     ## If we resolve to a unique accepted ID, return that
     ids <- unique(df$acceptedNameUsageID)
@@ -99,7 +103,7 @@ get_ids <- function(names,
       warning(paste0("  Found ", bb(length(ids)), " possible identifiers for ",
                      ibr(x),
                      ".\n  Returning ", bb('NA'), ". Try ",
-                     bb(paste0("filter_id('", x, "', '", db,"')")),
+                     bb(paste0("filter_name('", x, "', '", db,"')")),
                      " to resolve manually.\n"),
               call. = FALSE)
       }

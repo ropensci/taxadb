@@ -57,15 +57,12 @@ td_connect <- function(dbdir = taxadb_dir(),
 #' td_disconnect()
 #'
 #' }
-
 td_disconnect <- function(db = td_connect()){
  arkdb::local_db_disconnect(db)
 }
 
 
-taxadb_dir <- function(){
-  Sys.getenv("TAXADB_HOME",  rappdirs::user_data_dir("taxadb"))
-}
-
-
-
+## A duckdb function must be used if duckdb is listed in Imports
+## listing duckdb in imports allows arkdb to use it as the default engine
+## instead of RSQLite
+dummy_duck <- function() duckdb::duckdb()
