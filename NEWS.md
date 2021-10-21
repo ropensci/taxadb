@@ -1,8 +1,10 @@
 # taxadb 0.1.4
 
+* bugfix in `get_ids()` when multiple English common names are accepted for the species.
 * export `taxadb_dir()`, making it easier to purge the DB after `duckdb` upgrades
 * All imports must be used
-* addresses unpredictable & un-reproducible test failures seen on certain CRAN test machines. (Note that the failing test in question does not access internet resources)
+* Improve testing in `db=NULL` case.
+* Require R.utils, to ensure compressed files can be expanded
 
 # taxadb 0.1.3
 

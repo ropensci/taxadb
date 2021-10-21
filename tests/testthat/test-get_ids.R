@@ -2,7 +2,6 @@ context("get_ids")
 
 test_that("we can use get_ids options", {
 
-  skip_on_cran() # un-reproducible errors on certain architectures
   ## Fixme use bird examples instead so we can stick with itis_test
   bare <- get_ids("Homo sapiens", format="bare", db = "itis_test")
   expect_identical(bare, "180092")
