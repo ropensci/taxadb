@@ -57,6 +57,7 @@ quick_db <-
 
     suppressWarnings(
       readr::read_tsv(file(tmp),
-      col_types = readr::cols(.default = readr::col_character()))
+      col_types = readr::cols(.default = readr::col_character()),
+      lazy = FALSE)
     )
   }

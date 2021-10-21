@@ -2,6 +2,7 @@
 
 * export `taxadb_dir()`, making it easier to purge the DB after `duckdb` upgrades
 * All imports must be used
+* addresses unpredictable & un-reproducible test failures seen on certain CRAN test machines. (Note that the failing test in question does not access internet resources)
 
 # taxadb 0.1.3
 
