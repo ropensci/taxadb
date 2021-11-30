@@ -1,3 +1,15 @@
+# taxadb 0.1.4
+
+* bugfix in `get_ids()` when multiple English common names are accepted for the species.
+* export `taxadb_dir()`, making it easier to purge the DB after `duckdb` upgrades
+* All imports must be used
+* Improve testing in `db=NULL` case.
+* Require R.utils, to ensure compressed files can be expanded
+
+# taxadb 0.1.3
+
+* more robust testing
+
 # taxadb 0.1.2
 
 * avoid erroneous messages when installing providers that lack common names.

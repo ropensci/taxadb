@@ -32,7 +32,7 @@ taxa_tbl <- function(
   tbl_name <- paste0(version, "_", schema, "_", provider)
 
   if (is.null(db)){
-    return(quick_db(tbl_name))
+    return(quick_db(provider, schema, version))
   }
   if (!has_table(tbl_name, db)){
     td_create(provider = provider, schema = schema, version = version, db = db)
@@ -49,14 +49,12 @@ has_table <- function(table = NULL, db = td_connect()){
 
 #' @importFrom readr read_tsv
 quick_db <-
-  function(tbl_name){
-    version <- gsub("(\\w+)_\\w+_\\w+", "\\1", tbl_name)
-    schema <- gsub("\\w+_(\\w+)_\\w+", "\\1", tbl_name)
-    provider <- gsub("\\w+_\\w+_(\\w+)", "\\1", tbl_name)
+  function(provider, schema, version){
     tmp <- tl_import(provider, schema, version)
 
     suppressWarnings(
       readr::read_tsv(file(tmp),
-      col_types = readr::cols(.default = readr::col_character()))
+      col_types = readr::cols(.default = readr::col_character()),
+      lazy = FALSE)
     )
   }

@@ -1,5 +1,6 @@
 library(testthat)
 library(taxadb)
 
-#Sys.setenv(TAXADB_DRIVER="MonetDBLite")
+## Optionally we can select backend for testing: duckdb, MonetDBLite, or RSQLite
+## Sys.setenv("TAXADB_DRIVER"="MonetDBLite")
 test_check("taxadb")
