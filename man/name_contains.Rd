@@ -35,7 +35,7 @@ return all taxa in which scientific name contains the text provided
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
 name_contains("Chera")

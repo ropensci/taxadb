@@ -21,7 +21,7 @@
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #'
@@ -105,7 +105,7 @@ filter_like <- function(db_tbl, input, pattern){
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' name_contains("Chera")
@@ -133,7 +133,7 @@ name_contains <- function(name,
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' name_starts_with("Chera")
@@ -163,7 +163,7 @@ name_starts_with <- function(name,
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' common_starts_with("monkey")
@@ -192,7 +192,7 @@ common_starts_with <- function(name,
 #' \donttest{
 #'   \dontshow{
 #'    ## All examples use a temporary directory
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #' common_contains("monkey")

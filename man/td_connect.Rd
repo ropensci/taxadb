@@ -47,7 +47,7 @@ faster and more failsafe than repeated calls to \link[DBI:dbConnect]{DBI::dbConn
 \donttest{
 ## OPTIONAL: you can first set an alternative home location,
 ## such as a temporary directory:
-Sys.setenv(TAXADB_HOME=tempdir())
+Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 
 ## Connect to the database:
 db <- td_connect()

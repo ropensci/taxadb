@@ -35,7 +35,7 @@ common name starts with
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
 common_contains("monkey")

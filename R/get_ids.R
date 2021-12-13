@@ -41,7 +41,7 @@
 #'   \dontshow{
 #'    ## All examples use a temporary directory
 #'    options("taxadb_default_provider"="itis_test")
-#'    Sys.setenv(TAXADB_HOME=tempdir())
+#'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'   }
 #'
 #' get_ids("Midas bicolor")
