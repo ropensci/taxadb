@@ -58,7 +58,7 @@ joining on the \code{by} column to return all rows matching the \code{x} values
 \donttest{
   \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
 

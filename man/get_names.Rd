@@ -47,7 +47,7 @@ using \verb{[td_create()]}.
 
 \dontshow{
    ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=tempdir())
+   Sys.setenv(TAXADB_HOME = file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
 
