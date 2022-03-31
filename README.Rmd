@@ -36,7 +36,7 @@ Existing approaches to these problems typically rely on web APIs, which can make
 To get started, install from CRAN
 
 ``` r
-install.pacakges("taxadb")
+install.packages("taxadb")
 ```
 
 or install the development version directly from GitHub:
