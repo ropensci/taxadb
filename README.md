@@ -40,7 +40,7 @@ formats.
 To get started, install from CRAN
 
 ``` r
-install.pacakges("taxadb")
+install.packages("taxadb")
 ```
 
 or install the development version directly from GitHub:
