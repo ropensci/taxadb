@@ -28,8 +28,12 @@ mutate_db <- function(.data,
   if(!inherits(.data, "tbl_dbi"))
     stop(paste("input must be a table from remote database connection"))
 
-  db <- .data$src$con
-  tbl <- as.character(.data$ops$x)
+  db <- dbplyr::remote_con(.data)
+  tbl <- dbplyr::remote_name(.data)
+
+  if (is.null(tbl)) {
+    stop("Can only mutate plain tables")
+  }
 
   tmp_tbl <-
     dbi_mutate(db = db,
