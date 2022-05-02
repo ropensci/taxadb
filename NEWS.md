@@ -1,3 +1,7 @@
+# taxadb 0.1.5
+
+* bugfix for upcoming dbplyr release
+
 # taxadb 0.1.4
 
 * bugfix in `get_ids()` when multiple English common names are accepted for the species.
