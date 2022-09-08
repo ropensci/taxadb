@@ -10,7 +10,7 @@ test_that("tl_import", {
 test_that("tl_import", {
 
   expect_message({
-    path <- tl_import("fb", version="2020")
+    path <- tl_import("col", version="2020")
   })
   expect_true(all(file.exists(path)))
 
