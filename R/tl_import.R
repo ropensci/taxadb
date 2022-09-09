@@ -40,8 +40,8 @@ tl_import <- function(provider = getOption("tl_default_provider", "itis"),
                     package = "taxadb"),
         system.file("extdata", "common_itis_test.tsv.bz2",
                     package = "taxadb"))
-    names(testfile) <- paste0(version,
-                              c("dwc_itis_test_","common_itis_test_"))
+    names(testfile) <- paste0("v", version,
+                              c("_dwc_itis_test","_common_itis_test"))
     return(testfile[keys])
   }
 
