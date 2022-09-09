@@ -22,7 +22,7 @@ Depends: R (>= 4.0)
 Imports:
     dplyr,
     DBI,
-    arkdb (> 0.0.16),
+    arkdb (>= 0.0.16),
     tibble,
     readr,
     rappdirs,
