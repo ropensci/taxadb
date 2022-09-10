@@ -29,7 +29,7 @@ taxa_tbl <- function(
   db = td_connect()){
 
   schema <- match.arg(schema)
-  tbl_name <- paste0(schema, "_", provider, "_",  version)
+  tbl_name <- paste0("v", version, "_", schema, "_", provider)
 
   if (is.null(db)){
     return(quick_db(provider, schema, version))
