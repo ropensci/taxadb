@@ -1,6 +1,13 @@
+
+# taxadb 0.1.6
+
+* bugfix for recent duckdb release. 
+(imported table names are now prefixed with "v" to avoid names that start with numbers)
+
+
 # taxadb 0.1.5
 
-compatibility change for upcoming dbplyr release
+* bugfix for upcoming dbplyr release
 
 # taxadb 0.1.4
 

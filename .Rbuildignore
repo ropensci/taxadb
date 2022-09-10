@@ -33,3 +33,4 @@ common_names
 
 ^CRAN-RELEASE$
 ^\.github$
+^CRAN-SUBMISSION$

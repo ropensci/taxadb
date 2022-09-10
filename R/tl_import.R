@@ -31,7 +31,7 @@ tl_import <- function(provider = getOption("tl_default_provider", "itis"),
                       ){
 
   series <- unlist(lapply(schema, paste, provider, sep="_"))
-  keys <- paste(version, series, sep="_")
+  keys <- paste(paste0("v", version), series, sep="_")
 
   ## For unit tests / examples only
   if(provider == "itis_test"){
@@ -40,14 +40,14 @@ tl_import <- function(provider = getOption("tl_default_provider", "itis"),
                     package = "taxadb"),
         system.file("extdata", "common_itis_test.tsv.bz2",
                     package = "taxadb"))
-    names(testfile) <- paste0(version, c("_common_itis_test", "_dwc_itis_test"))
-
+    names(testfile) <- paste0("v", version,
+                              c("_dwc_itis_test","_common_itis_test"))
     return(testfile[keys])
   }
 
   prov <- parse_prov(prov)
   dict <- prov$id
-  names(dict) <- prov$key
+  names(dict) <- paste0("v", prov$key)
 
   if(any(is.na(dict[keys]))){
     message(paste("could not find",

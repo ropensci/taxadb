@@ -10,11 +10,9 @@ citEntry(entry = "Article",
   volume       = "11",
   number       = "9",
   pages        = "1153--1159",
-  url          = "https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13440",
-
   textVersion  =
   paste("Kari E. A. Norman, Scott Chamberlain, and Carl Boettiger (2020).",
         "taxadb: A high-performance local taxonomic database interface.",
         "Methods in Ecology and Evolution, 11(9), 1153-1159.",
-        "https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13440.")
+        "doi:10.1111/2041-210X.13440.")
 )
