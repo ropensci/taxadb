@@ -1,3 +1,4 @@
+
 # taxadb 0.1.6
 
 * bugfix for recent duckdb release. 
