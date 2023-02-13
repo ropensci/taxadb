@@ -22,21 +22,20 @@ Depends: R (>= 4.0)
 Imports:
     dplyr,
     DBI,
+    duckdb,
     tibble,
-    readr,
     rlang,
     magrittr,
     stringi,
     progress,
     utils,
     dbplyr,
-    curl,
     jsonlite,
     duckdb,
     contentid,
-    R.utils
+    memoise
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests:
     spelling,
     testthat,

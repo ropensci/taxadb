@@ -1,13 +1,3 @@
-parquet_import <- function(provider = "col", version = "latest", schema = "dwc",
-                           prov = prov_cache()) {
-
-  meta <- parse_schema(provider, version, schema, prov)
-  paths <- cache_urls(meta$url, meta$id)
-
-  tablename <- paste0("v", version, "_", schema, "_", provider)
-  conn <- duckdb_view(paths, tablename, td_connect(version))
-}
-
 
 
 
@@ -42,6 +32,8 @@ parse_schema <- function(provider = "col", version = "latest", schema = "dwc",
   if(version == "latest") version <- max(versions)
   elements <- elements[versions == version]
 
+
+  # filters
   name <- purrr::map_chr(elements, "name", .default=NA)
   elements <- elements[grepl(pattern = provider, name)]
 

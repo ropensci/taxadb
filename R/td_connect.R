@@ -28,17 +28,11 @@
 #' }
 td_connect <- function(dbdir = NULL,
                        driver = NULL,
-                       read_only = NULL,
-                       version = latest_version()){
+                       read_only = NULL){
 
-  for(x in c(dbdir, driver, read_only)) {
-    if(!is.null(x)) {
-      warning(paste("arg", x, "is deprecated and will be ignored see docs\n",
-                    "future releases will remove this arguments"))
-    }
-  }
+  assert_deprecated(dbdir, driver, read_only)
 
-  db_name <- paste("taxadb",version, sep="_")
+  db_name <- "taxadb_conn"
   db <- mget(db_name, envir = taxadb_cache, ifnotfound = NA)[[1]]
 
   if(!inherits(db, "duckdb_connection")){
@@ -77,10 +71,8 @@ td_disconnect <- function(db = td_connect()){
 
 taxadb_cache <- new.env()
 
-#' disconnect the database
-#' @param db optional, an existing pointer to the db, e.g. from [fb_conn()]
-#' or [fb_import()].
-#' @export
-db_disconnect <- function(db = NULL){
-
+assert_deprecated <- function(...) {
+  if(!all(vapply(list(...), is.null, FALSE)))
+    warning(paste("deprecated arguments will be removed",
+                  " from future releases, see function docs"))
 }

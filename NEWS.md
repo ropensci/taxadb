@@ -1,3 +1,13 @@
+# taxadb 0.2.0
+
+* taxadb is now backed by partitioned parquet files, cached locally by contentid
+* taxadb is now fully-duckdb based. This deprecates the previous 'pluggable' backend
+  with options to use RSQLite or no database backend. Parquet-backed option means that
+  even initial import is much faster, leaving no need to use any of the inferior 
+  backend options.
+* mutate_db is deprecated, `dplyr::mutate()` will work as anticipated.
+* metadata/prov archive is now based on schema.org rather than DCAT2
+
 
 # taxadb 0.1.6
 

@@ -4,22 +4,14 @@
 \alias{td_connect}
 \title{Connect to the taxadb database}
 \usage{
-td_connect(
-  dbdir = taxadb_dir(),
-  driver = Sys.getenv("TAXADB_DRIVER", "duckdb"),
-  read_only = FALSE
-)
+td_connect(dbdir = NULL, driver = NULL, read_only = NULL)
 }
 \arguments{
-\item{dbdir}{Path to the database.}
+\item{dbdir}{Path to the database. no longer needed}
 
-\item{driver}{Default driver, one of "duckdb", "MonetDBLite", "RSQLite".
-\code{taxadb} will select the first one of those it finds available if a
-driver is not set. This fallback can be overwritten either by explicit
-argument or by setting the environmental variable \code{TAXADB_DRIVER}.}
+\item{driver}{deprecated, ignored.  driver will always be duckdb.}
 
-\item{read_only}{logical, should the database be opened read_only? Prevents
-importing but will allow concurrent access from multiple sessions.}
+\item{read_only}{deprecated, driver is always read-only.}
 }
 \value{
 Returns a DBI \code{connection} to the default duckdb database
@@ -33,11 +25,6 @@ This function provides a default database connection for
 connection  by passing the connection object directly to \code{taxadb}
 functions using the \code{db} argument. \code{td_connect()} exists only to provide
 reasonable automatic defaults based on what is available on your system.
-
-\code{duckdb} or \code{MonetDBLite} will give the best performance, and regular users
-\code{taxadb} will work with the built-in \code{RSQlite}, and with other database
-connections such as Postgres or MariaDB, but queries (filtering joins)
-will be much slower on these non-columnar databases.
 
 For performance reasons, this function will also cache and restore the
 existing database connection, making repeated calls to \code{td_connect()} much
