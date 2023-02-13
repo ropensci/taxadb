@@ -6,11 +6,7 @@
 #Sys.setenv(TAXADB_DRIVER="duckdb")
 
 ## All tests only write to tempdir
-test_db <- file.path(tempdir(), "taxadb")
-Sys.setenv(TAXADB_HOME=test_db)
-
-
-print(paste("Testing using backend", class(td_connect())))
+Sys.setenv(CONTENTID_HOME=tempfile())
 
 ## Use locally cached version to allow for offline testing
-options(taxadb_default_provider = "itis_test")
+#options(taxadb_default_provider = "itis_test")

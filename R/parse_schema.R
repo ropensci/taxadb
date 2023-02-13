@@ -22,7 +22,14 @@ prov_cache <- function() {
 parse_schema <- function(provider = "col", version = "latest", schema = "dwc",
                          prov = prov_cache()
                          ){
+  if(provider == "itis_test") {
+    file <- system.file("extdata",
+                        paste0(schema, "_", provider, ".parquet"),
+                        package="taxadb")
+    id <- contentid::store(file)
+    return(data.frame(id=id, url=file, version="Alpha"))
 
+  }
 
   elements <- prov[["@graph"]]
   datasets <- purrr::map_chr(elements, "type", .default=NA) == "Dataset"
@@ -35,10 +42,10 @@ parse_schema <- function(provider = "col", version = "latest", schema = "dwc",
 
   # filters
   name <- purrr::map_chr(elements, "name", .default=NA)
-  elements <- elements[grepl(pattern = provider, name)]
+  elements <- elements[grepl(provider, name)]
 
   name <- purrr::map_chr(elements, "name", .default=NA)
-  elements <- elements[grepl(pattern = schema, name)]
+  elements <- elements[grepl(schema, name)]
 
   name <- purrr::map_chr(elements, "name", .default=NA)
   if(length(elements) > 1) stop(paste("multiple matches found:", name))
@@ -99,7 +106,7 @@ contentid_registry <- function(ids, sources) {
   df <- data.frame(identifier = ids, source = sources, date = NA, size=NA,
                    status =200, md5 = NA, sha1=NA, sha256=NA, sha384 = NA,
                    sha512 = NA)
-  write.table(df,   tmp, row.names = FALSE, sep="\t", quote=FALSE)
+  utils::write.table(df,   tmp, row.names = FALSE, sep="\t", quote=FALSE)
   return(tmp)
 }
 

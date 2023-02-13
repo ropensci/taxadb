@@ -8,8 +8,7 @@ tl_import(
   provider = getOption("tl_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
-  prov = paste0("https://raw.githubusercontent.com/",
-    "boettiger-lab/taxadb-cache/master/prov.json")
+  prov = prov_cache()
 )
 }
 \arguments{

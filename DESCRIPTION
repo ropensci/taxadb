@@ -20,18 +20,14 @@ Encoding: UTF-8
 ByteCompile: true
 Depends: R (>= 4.0)
 Imports:
-    dplyr,
     DBI,
     duckdb,
     tibble,
+    dplyr,
+    dbplyr,
     rlang,
     magrittr,
     stringi,
-    progress,
-    utils,
-    dbplyr,
-    jsonlite,
-    duckdb,
     contentid,
     memoise
 Roxygen: list(markdown = TRUE)

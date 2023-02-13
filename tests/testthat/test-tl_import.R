@@ -3,16 +3,16 @@
 test_that("tl_import", {
 
   path <- tl_import("itis_test")
-  print(path)
-  expect_true(all(file.exists(path)))
+  expect_true(all(file.exists(unlist(path))))
 
 })
 
 test_that("tl_import", {
+  skip_on_cran()
+  skip_if_offline()
 
-  path <- tl_import("col", version="2020")
-
-  expect_true(all(file.exists(path)))
+  path <- tl_import("itis", version="22.12")
+  expect_true(all(file.exists(unlist(path))))
 
 })
 

@@ -26,13 +26,13 @@
 tl_import <- function(provider = getOption("tl_default_provider", "itis"),
                       schema = c("dwc", "common"),
                       version = latest_version(),
-                      prov = paste0("https://raw.githubusercontent.com/",
-                                    "boettiger-lab/taxadb-cache/master/prov.json")
+                      prov =  prov_cache()
                       ){
-
-  meta <- parse_schema(provider, version, shema, prov)
-  paths <- cache_urls(meta$url, meta$id)
-  paths
+  lapply(schema, function(schema) {
+    meta <- parse_schema(provider, version, schema, prov)
+    paths <- cache_urls(meta$url, meta$id)
+    paths
+  })
 }
 
 

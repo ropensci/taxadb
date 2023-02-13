@@ -33,14 +33,13 @@ bz
 canagica
 canagicus
 cladistic
+contentid
 cryptographic
 dbplyr
-dplyr
 duckdb
 dwc
 eval
 failsafe
-fishbase
 github
 gucenense
 harddisk
@@ -50,6 +49,7 @@ https
 itis
 iucnredlist
 lifecycle
+pluggable
 pre
 reproducibility
 ropensci
@@ -64,4 +64,3 @@ taxonRank
 tbl
 tdwg
 wikidata
-www
