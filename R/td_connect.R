@@ -36,7 +36,7 @@ td_connect <- function(dbdir = NULL,
   db <- mget(db_name, envir = taxadb_cache, ifnotfound = NA)[[1]]
 
   if(!inherits(db, "duckdb_connection")){
-    db <- DBI::dbConnect(drv = duckdb::duckdb())
+    db <- DBI::dbConnect(duckdb::duckdb())
     assign(db_name, db, envir = taxadb_cache)
   }
   db

@@ -16,13 +16,11 @@ taxadb:::td_disconnect()
 # taxadb  <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
 <!-- badges: start -->
-[![R build status](https://github.com/ropensci/taxadb/workflows/R-CMD-check/badge.svg)](https://github.com/ropensci/taxadb/actions)
+[![R-CMD-check](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![Coverage status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
-
-<!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
 <!-- badges: end -->
 
 
@@ -51,10 +49,10 @@ library(taxadb)
 library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
-Create a local copy of the Catalogue of Life (2018) database: 
+Create a local copy of the (current) Catalogue of Life database: 
 
 ```{r }
-td_create("col", overwrite=FALSE)
+td_create("col")
 ```
 
 
@@ -96,21 +94,23 @@ This illustrates that some of our names, e.g. *Dendrocygna bicolor* are accepted
 
 Local access to taxonomic data tables lets us do much more than look up names and ids.  A family of `filter_*` functions in `taxadb` help us work directly with subsets of the taxonomic data.  As we noted above, this can be useful in resolving certain ambiguous names.  
 
-For instance, *Trochalopteron henrici gucenense* does not resolve to an identifier in ITIS:
+For instance, *Agrostis caespitosa* does not resolve to an identifier in ITIS:
 
 ```{r}
-get_ids("Trochalopteron henrici gucenense") 
+get_ids("Agrostis caespitosa", "itis") 
 ```
 
-Using `filter_name()`, we find this is because the name resolves not to zero matches, but to more than one match:
+Using `filter_name()`, we find this is because the name resolves not to zero matches, but is a known synonym to more than one accepted name (as indicated by the accepted name usage id)
+
 
 ```{r}
-filter_name("Trochalopteron henrici gucenense") 
+filter_name('Agrostis caespitosa', 'itis')
 ```
 
+We can resolve the scientific name to the acceptedNameUsage using `get_names()` on the _accepted_ IDs: (These also correspond to the genus and specificEpithet column, as the classification is always given only based on acceptedNameUsageID).
 
 ```{r}
-filter_name("Trochalopteron henrici gucenense")  %>%
+filter_name("Agrostis caespitosa")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
 ```
@@ -145,7 +145,7 @@ taxa_tbl("col")
 We can still use most familiar `dplyr` verbs to perform common tasks.  For instance: which species has the most known synonyms?
 
 ```{r}
-taxa_tbl("col") %>% 
+taxa_tbl("itis") %>% 
   count(acceptedNameUsageID, sort=TRUE)
 ```
 
@@ -166,7 +166,7 @@ However, unlike the `filter_*` functions which return convenient in-memory table
 ```{r include=FALSE}
 taxadb:::td_disconnect()
 
-if(require(codemetar)) codemetar::write_codemeta()
+if(require(codemeta)) codemeta::write_codemeta()
 ```
 
 ----
