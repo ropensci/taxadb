@@ -5,8 +5,11 @@ parquet_import <- function(provider = "col", version = "latest", schema = "dwc",
   paths <- cache_urls(meta$url, meta$id)
 
   tablename <- paste0("v", version, "_", schema, "_", provider)
-  conn <- duckdb_view(paths, tablename)
+  conn <- duckdb_view(paths, tablename, td_connect(version))
 }
+
+
+
 
 prov_cache <- function() {
   url <- paste0("https://raw.githubusercontent.com/",

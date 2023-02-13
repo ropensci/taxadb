@@ -15,7 +15,7 @@
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
 #' should be installed. Defaults to user data directory given by
-#' `[rappdirs::user_data_dir]`.
+#' `[tools::R_user_dir()]`.
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
@@ -56,13 +56,13 @@
 #'   td_create( overwrite = TRUE)
 #'
 #' }
-td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
+td_create_ <- function(provider = getOption("taxadb_default_provider", "itis"),
                       schema = c("dwc", "common"),
                       version = latest_version(),
                       overwrite = TRUE,
                       lines = 1e5,
                       dbdir =  taxadb_dir(),
-                      db = td_connect(dbdir)
+                      db = td_connect(version=version)
                       ){
 
 

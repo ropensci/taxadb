@@ -11,5 +11,5 @@
 #' unlink(taxadb::taxadb_dir(), TRUE)
 #'
 taxadb_dir <- function(){
-  Sys.getenv("TAXADB_HOME",  rappdirs::user_data_dir("taxadb"))
+  Sys.getenv("TAXADB_HOME",  tools::R_user_dir("taxadb"))
 }
