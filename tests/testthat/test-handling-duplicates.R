@@ -13,9 +13,7 @@ test_that("we can take first duplicate", {
 
 test_that("take_first_duplicate works in db connection", {
 
-  dbdir <- tempdir()
-  dbname <- file.path(dbdir, "taxadb.sqlite")
-  db <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
+  db <- DBI::dbConnect(duckdb::duckdb())
 
   df_db <-
     df %>%
@@ -28,7 +26,6 @@ test_that("take_first_duplicate works in db connection", {
   expect_equal(nrow(out), 2)
 
   DBI::dbDisconnect(db)
-  unlink(dbname)
 
 })
 

@@ -8,16 +8,16 @@ td_create(
   provider = getOption("taxadb_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
-  overwrite = TRUE,
-  lines = 1e+05,
-  dbdir = taxadb_dir(),
-  db = td_connect(dbdir)
+  overwrite = NULL,
+  lines = NULL,
+  dbdir = NULL,
+  db = td_connect()
 )
 }
 \arguments{
-\item{provider}{a list (character vector) of provider to be included in the
+\item{provider}{a list (character vector) of provider(s) to be included in the
 database. By default, will install \code{itis}.  See details for a list of
-recognized provider. Use \code{provider="all"} to install all
+recognized provider.
 available provider automatically.}
 
 \item{schema}{One of "dwc" (for Darwin Core data) or "common"
@@ -36,7 +36,7 @@ plenty of spare RAM.}
 
 \item{dbdir}{a location on your computer where the database
 should be installed. Defaults to user data directory given by
-\verb{[rappdirs::user_data_dir]}.}
+\verb{[tools::R_user_dir()]}.}
 
 \item{db}{connection to a database.  By default, taxadb will set up its own
 fast database connection.}
@@ -54,11 +54,7 @@ Authorities currently recognized by taxadb are:
 \item \code{ncbi}:  National Center for Biotechnology Information,
 \url{https://www.ncbi.nlm.nih.gov/taxonomy}
 \item \code{col}: Catalogue of Life, \url{http://www.catalogueoflife.org/}
-\item \code{tpl}: The Plant List, \url{http://www.theplantlist.org/}
 \item \code{gbif}: Global Biodiversity Information Facility, \url{https://www.gbif.org/}
-\item \code{fb}: FishBase, \verb{http://fishbase.org}
-\item \code{slb}: SeaLifeBase, \url{http://sealifebase.org}
-\item \code{wd}: Wikidata: https://www.wikidata.org
 \item \code{ott}: OpenTree Taxonomy:
 \url{https://github.com/OpenTreeOfLife/reference-taxonomy}
 \item \code{iucn}: IUCN Red List, https://iucnredlist.org

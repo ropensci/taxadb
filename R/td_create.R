@@ -2,9 +2,9 @@
 #' create a local taxonomic database
 #'
 
-#' @param provider a list (character vector) of provider to be included in the
+#' @param provider a list (character vector) of provider(s) to be included in the
 #'  database. By default, will install `itis`.  See details for a list of
-#'  recognized provider. Use `provider="all"` to install all
+#'  recognized provider.
 #'  available provider automatically.
 #' @inheritParams filter_by
 #' @param lines number of lines that can be safely read in to memory at once.
@@ -15,7 +15,7 @@
 #' (i.e. updating a local database upon new release.)
 #' @param dbdir a location on your computer where the database
 #' should be installed. Defaults to user data directory given by
-#' `[rappdirs::user_data_dir]`.
+#' `[tools::R_user_dir()]`.
 #' @param db connection to a database.  By default, taxadb will set up its own
 #' fast database connection.
 #' @details
@@ -24,23 +24,18 @@
 #'  - `ncbi`:  National Center for Biotechnology Information,
 #'  <https://www.ncbi.nlm.nih.gov/taxonomy>
 #'  - `col`: Catalogue of Life, <http://www.catalogueoflife.org/>
-#'  - `tpl`: The Plant List, <http://www.theplantlist.org/>
+#  - `tpl`: The Plant List, <http://www.theplantlist.org/>
 #'  - `gbif`: Global Biodiversity Information Facility, <https://www.gbif.org/>
-#'  - `fb`: FishBase, `http://fishbase.org`
-#'  - `slb`: SeaLifeBase, <http://sealifebase.org>
-#'  - `wd`: Wikidata: https://www.wikidata.org
+#  - `fb`: FishBase, `http://fishbase.org`
+#  - `slb`: SeaLifeBase, <http://sealifebase.org>
+#  - `wd`: Wikidata: https://www.wikidata.org
 #'  - `ott`: OpenTree Taxonomy:
 #'  <https://github.com/OpenTreeOfLife/reference-taxonomy>
 #'  - `iucn`: IUCN Red List, https://iucnredlist.org
 #'  - `itis_test`: a small subset of ITIS, cached locally with the package for testing purposes only
 #' @return path where database has been installed (invisibly)
 #' @export
-#' @importFrom utils download.file
 #' @importFrom DBI dbConnect dbDisconnect dbListTables
-#' @importFrom arkdb unark streamable_readr_tsv
-#' @importFrom readr cols
-#' @importFrom curl curl_download curl_fetch_memory
-#' @importFrom jsonlite fromJSON
 #' @examples
 #' \donttest{
 #'   \dontshow{
@@ -59,34 +54,24 @@
 td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
                       schema = c("dwc", "common"),
                       version = latest_version(),
-                      overwrite = TRUE,
-                      lines = 1e5,
-                      dbdir =  taxadb_dir(),
-                      db = td_connect(dbdir)
+                      overwrite = NULL,
+                      lines = NULL,
+                      dbdir =  NULL,
+                      db = td_connect()
                       ){
 
+  assert_deprecated(overwrite, lines)
 
-
-  dest <- tl_import(provider, schema, version)
-  tablenames <- names(dest)
-  ## silence readr progress bar in arkdb
-  progress <- getOption("readr.show_progress")
-  options(readr.show_progress = FALSE)
-
-  ## silence MonetDBLite complaints about reserved SQL characters
-  suppress_msg({
-  arkdb::unark(dest,
-               tablenames = tablenames,
-               db_con = db,
-               lines = lines,
-               streamable_table = arkdb::streamable_readr_tsv(),
-               overwrite = overwrite,
-               col_types = readr::cols(.default = "c"))
-  })
-
-  # reset readr progress bar.
-  options(readr.show_progress = progress)
-  invisible(dbdir)
+  prov = prov_cache()
+  for(p in provider) {
+    for(s in schema) {
+      meta <- parse_schema(p, version, s, prov)
+      paths <- cache_urls(meta$url, meta$id)
+      tablename <- paste0("v", version, "_", s, "_", p)
+      db <- duckdb_view(paths, tablename, db)
+    }
+  }
+  invisible(db)
 }
 
 

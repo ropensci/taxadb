@@ -1,23 +1,14 @@
 #' Connect to the taxadb database
 #'
-#' @param dbdir Path to the database.
-#' @param driver Default driver, one of "duckdb", "MonetDBLite", "RSQLite".
-#'   `taxadb` will select the first one of those it finds available if a
-#'   driver is not set. This fallback can be overwritten either by explicit
-#'   argument or by setting the environmental variable `TAXADB_DRIVER`.
-#' @param read_only logical, should the database be opened read_only? Prevents
-#'  importing but will allow concurrent access from multiple sessions.
+#' @param dbdir Path to the database. no longer needed
+#' @param driver deprecated, ignored.  driver will always be duckdb.
+#' @param read_only deprecated, driver is always read-only.
 #' @return Returns a DBI `connection` to the default duckdb database
 #' @details This function provides a default database connection for
 #' `taxadb`. Note that you can use `taxadb` with any DBI-compatible database
 #' connection  by passing the connection object directly to `taxadb`
 #' functions using the `db` argument. `td_connect()` exists only to provide
 #' reasonable automatic defaults based on what is available on your system.
-#'
-#' `duckdb` or `MonetDBLite` will give the best performance, and regular users
-#' `taxadb` will work with the built-in `RSQlite`, and with other database
-#' connections such as Postgres or MariaDB, but queries (filtering joins)
-#' will be much slower on these non-columnar databases.
 #'
 #' For performance reasons, this function will also cache and restore the
 #' existing database connection, making repeated calls to `td_connect()` much
@@ -35,13 +26,21 @@
 #' db <- td_connect()
 #'
 #' }
-td_connect <- function(dbdir = taxadb_dir(),
-                       driver = Sys.getenv("TAXADB_DRIVER", "duckdb"),
-                       read_only = FALSE){
+td_connect <- function(dbdir = NULL,
+                       driver = NULL,
+                       read_only = NULL){
 
-  arkdb::local_db(dbdir = dbdir, driver = driver, readonly = read_only)
+  assert_deprecated(dbdir, driver, read_only)
+
+  db_name <- "taxadb_conn"
+  db <- mget(db_name, envir = taxadb_cache, ifnotfound = NA)[[1]]
+
+  if(!inherits(db, "duckdb_connection")){
+    db <- DBI::dbConnect(duckdb::duckdb())
+    assign(db_name, db, envir = taxadb_cache)
+  }
+  db
 }
-
 
 #' Disconnect from the taxadb database.
 #'
@@ -58,11 +57,22 @@ td_connect <- function(dbdir = taxadb_dir(),
 #'
 #' }
 td_disconnect <- function(db = td_connect()){
- arkdb::local_db_disconnect(db)
+  if(inherits(db, "duckdb_connection")) {
+    DBI::dbDisconnect(db, shutdown=TRUE)
+  }
+  db_name <- ls(envir = taxadb_cache)
+  for(cached in db_name) {
+    db <- mget(cached, envir = taxadb_cache, ifnotfound = NA)[[1]]
+    remove(list = cached, envir = taxadb_cache)
+  }
 }
 
 
-## A duckdb function must be used if duckdb is listed in Imports
-## listing duckdb in imports allows arkdb to use it as the default engine
-## instead of RSQLite
-dummy_duck <- function() duckdb::duckdb()
+
+taxadb_cache <- new.env()
+
+assert_deprecated <- function(...) {
+  if(!all(vapply(list(...), is.null, FALSE)))
+    warning(paste("deprecated arguments will be removed",
+                  " from future releases, see function docs"))
+}

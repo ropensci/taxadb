@@ -8,8 +8,7 @@ tl_import(
   provider = getOption("tl_default_provider", "itis"),
   schema = c("dwc", "common"),
   version = latest_version(),
-  prov = paste0("https://raw.githubusercontent.com/",
-    "boettiger-lab/taxadb-cache/master/prov.json")
+  prov = prov_cache()
 )
 }
 \arguments{
@@ -35,7 +34,7 @@ content hash so that \code{tl_import} will not attempt to download the
 same file multiple times.
 }
 \details{
-\code{tl_import} parses a DCAT2/PROV-O record to determine the correct version
+\code{tl_import} parses a schema.org record to determine the correct version
 to download. If offline, \code{tl_import} will attempt to resolve against
 it's own provenance cache. Users can also examine / parse the prov
 JSON-LD file directly to determine the provenance of the data products

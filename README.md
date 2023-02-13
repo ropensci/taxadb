@@ -5,17 +5,13 @@
 
 <!-- badges: start -->
 
-[![R build
-status](https://github.com/ropensci/taxadb/workflows/R-CMD-check/badge.svg)](https://github.com/ropensci/taxadb/actions)
+[![R-CMD-check](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![Coverage
 status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
-
-<!-- [![peer-review](https://badges.ropensci.org/344_status.svg)](https://github.com/ropensci/software-review/issues/344) -->
-
 <!-- badges: end -->
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to
@@ -54,10 +50,10 @@ library(taxadb)
 library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
-Create a local copy of the Catalogue of Life (2018) database:
+Create a local copy of the (current) Catalogue of Life database:
 
 ``` r
-td_create("col", overwrite=FALSE)
+td_create("col")
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -81,17 +77,17 @@ birds <- bbs %>%
   mutate(id = get_ids(species, "col"))
 
 head(birds, 10)
-#>                          species          id
-#> 1         Dendrocygna autumnalis COL:3177882
-#> 2            Dendrocygna bicolor COL:3177881
-#> 3                Anser canagicus COL:3178026
-#> 4             Anser caerulescens COL:3178024
-#> 5  Chen caerulescens (blue form)        <NA>
-#> 6                   Anser rossii COL:3178025
-#> 7                Anser albifrons COL:3178017
-#> 8                Branta bernicla COL:3178037
-#> 9      Branta bernicla nigricans COL:3185200
-#> 10             Branta hutchinsii COL:3178039
+#>                          species        id
+#> 1         Dendrocygna autumnalis COL:34Q2Z
+#> 2            Dendrocygna bicolor COL:34Q32
+#> 3                Anser canagicus      <NA>
+#> 4             Anser caerulescens      <NA>
+#> 5  Chen caerulescens (blue form)      <NA>
+#> 6                   Anser rossii      <NA>
+#> 7                Anser albifrons COL:679WV
+#> 8                Branta bernicla  COL:N749
+#> 9      Branta bernicla nigricans      <NA>
+#> 10             Branta hutchinsii  COL:N74B
 ```
 
 Note that some names cannot be resolved to an identifier. This can occur
@@ -108,13 +104,13 @@ help us resolve this last case (see below).
 birds %>% 
   mutate(accepted_name = get_names(id, "col")) %>% 
   head()
-#>                         species          id          accepted_name
-#> 1        Dendrocygna autumnalis COL:3177882 Dendrocygna autumnalis
-#> 2           Dendrocygna bicolor COL:3177881    Dendrocygna bicolor
-#> 3               Anser canagicus COL:3178026          Chen canagica
-#> 4            Anser caerulescens COL:3178024      Chen caerulescens
-#> 5 Chen caerulescens (blue form)        <NA>                   <NA>
-#> 6                  Anser rossii COL:3178025            Chen rossii
+#>                         species        id          accepted_name
+#> 1        Dendrocygna autumnalis COL:34Q2Z Dendrocygna autumnalis
+#> 2           Dendrocygna bicolor COL:34Q32    Dendrocygna bicolor
+#> 3               Anser canagicus      <NA>                   <NA>
+#> 4            Anser caerulescens      <NA>                   <NA>
+#> 5 Chen caerulescens (blue form)      <NA>                   <NA>
+#> 6                  Anser rossii      <NA>                   <NA>
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
@@ -131,40 +127,56 @@ names and ids. A family of `filter_*` functions in `taxadb` help us work
 directly with subsets of the taxonomic data. As we noted above, this can
 be useful in resolving certain ambiguous names.
 
-For instance, *Trochalopteron henrici gucenense* does not resolve to an
-identifier in ITIS:
+For instance, *Agrostis caespitosa* does not resolve to an identifier in
+ITIS:
 
 ``` r
-get_ids("Trochalopteron henrici gucenense") 
-#> Warning:   Found 2 possible identifiers for Trochalopteron henrici gucenense.
-#>   Returning NA. Try filter_id('Trochalopteron henrici gucenense', 'itis') to resolve manually.
+get_ids("Agrostis caespitosa", "itis") 
+#> Warning:   Found 5 possible identifiers for Agrostis caespitosa.
+#>   Returning NA. Try filter_name('Agrostis caespitosa', 'itis') to resolve manually.
 #> [1] NA
 ```
 
 Using `filter_name()`, we find this is because the name resolves not to
-zero matches, but to more than one match:
+zero matches, but is a known synonym to more than one accepted name (as
+indicated by the accepted name usage id)
 
 ``` r
-filter_name("Trochalopteron henrici gucenense") 
-#> # A tibble: 2 x 17
-#>    sort taxonID   scientificName      taxonRank acceptedNameUsa… taxonomicStatus
-#>   <int> <chr>     <chr>               <chr>     <chr>            <chr>          
-#> 1     1 ITIS:924… Trochalopteron hen… subspeci… ITIS:916116      synonym        
-#> 2     1 ITIS:924… Trochalopteron hen… subspeci… ITIS:916117      synonym        
-#> # … with 11 more variables: update_date <chr>, kingdom <chr>, phylum <chr>,
-#> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, vernacularName <chr>, input <chr>
+filter_name('Agrostis caespitosa', 'itis')
+#> # A tibble: 6 × 17
+#>    sort taxonID     scien…¹ taxon…² accep…³ taxon…⁴ updat…⁵ kingdom phylum class
+#>   <int> <chr>       <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  <chr>
+#> 1     1 ITIS:785430 Agrost… species ITIS:5… synonym 2010-1… Plantae <NA>   Magn…
+#> 2     1 ITIS:785431 Agrost… species ITIS:4… synonym 2010-1… Plantae <NA>   Magn…
+#> 3     1 ITIS:785432 Agrost… species ITIS:4… synonym 2010-1… Plantae <NA>   Magn…
+#> 4     1 ITIS:785433 Agrost… species ITIS:7… synonym 2010-1… Plantae <NA>   Magn…
+#> 5     1 ITIS:785434 Agrost… species ITIS:5… synonym 2010-1… Plantae <NA>   Magn…
+#> 6     1 ITIS:785435 Agrost… species ITIS:7… synonym 2010-1… Plantae <NA>   Magn…
+#> # … with 7 more variables: order <chr>, family <chr>, genus <chr>,
+#> #   specificEpithet <chr>, infraspecificEpithet <chr>, vernacularName <chr>,
+#> #   input <chr>, and abbreviated variable names ¹​scientificName, ²​taxonRank,
+#> #   ³​acceptedNameUsageID, ⁴​taxonomicStatus, ⁵​update_date
 ```
 
+We can resolve the scientific name to the acceptedNameUsage using
+`get_names()` on the *accepted* IDs: (These also correspond to the genus
+and specificEpithet column, as the classification is always given only
+based on acceptedNameUsageID).
+
 ``` r
-filter_name("Trochalopteron henrici gucenense")  %>%
+filter_name("Agrostis caespitosa")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
-#> # A tibble: 2 x 4
-#>   scientificName          taxonomicStatus acceptedNameUsage    acceptedNameUsag…
-#>   <chr>                   <chr>           <chr>                <chr>            
-#> 1 Trochalopteron henrici… synonym         Trochalopteron elli… ITIS:916116      
-#> 2 Trochalopteron henrici… synonym         Trochalopteron henr… ITIS:916117
+#> # A tibble: 6 × 4
+#>   scientificName      taxonomicStatus acceptedNameUsage          acceptedNameU…¹
+#>   <chr>               <chr>           <chr>                      <chr>          
+#> 1 Agrostis caespitosa synonym         Deschampsia cespitosa      ITIS:502001    
+#> 2 Agrostis caespitosa synonym         Agrostis stolonifera       ITIS:40400     
+#> 3 Agrostis caespitosa synonym         Agrostis stolonifera       ITIS:40400     
+#> 4 Agrostis caespitosa synonym         Calamagrostis preslii      ITIS:782718    
+#> 5 Agrostis caespitosa synonym         Muhlenbergia torreyi       ITIS:503886    
+#> 6 Agrostis caespitosa synonym         Muhlenbergia quadridentata ITIS:783883    
+#> # … with abbreviated variable name ¹​acceptedNameUsageID
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -173,24 +185,24 @@ taxonomic data on all bird names in the Catalogue of Life:
 
 ``` r
 filter_rank(name = "Aves", rank = "class", provider = "col")
-#> # A tibble: 36,336 x 21
-#>     sort taxonID   scientificName    acceptedNameUsag… taxonomicStatus taxonRank
-#>    <int> <chr>     <chr>             <chr>             <chr>           <chr>    
-#>  1     1 COL:3148… Nisaetus nanus    COL:3148416       accepted        species  
-#>  2     1 COL:3148… Circaetus beaudo… COL:3148666       accepted        species  
-#>  3     1 COL:3148… Cariama cristata  COL:3148731       accepted        species  
-#>  4     1 COL:3148… Chunga burmeiste… COL:3148732       accepted        species  
-#>  5     1 COL:3148… Eurypyga helias   COL:3148733       accepted        species  
-#>  6     1 COL:3148… Rhynochetos juba… COL:3148734       accepted        species  
-#>  7     1 COL:3148… Leptosomus disco… COL:3148735       accepted        species  
-#>  8     1 COL:3148… Neotis heuglinii  COL:3148736       accepted        species  
-#>  9     1 COL:3148… Neotis ludwigii   COL:3148737       accepted        species  
-#> 10     1 COL:3148… Neotis denhami    COL:3148738       accepted        species  
-#> # … with 36,326 more rows, and 15 more variables: kingdom <chr>, phylum <chr>,
-#> #   class <chr>, order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
-#> #   nameAccordingTo <chr>, namePublishedIn <chr>,
-#> #   scientificNameAuthorship <chr>, vernacularName <chr>, input <chr>
+#> # A tibble: 10,598 × 20
+#>     sort taxonID   accepted…¹ taxon…² taxon…³ scien…⁴ kingdom phylum class order
+#>    <int> <chr>     <chr>      <chr>   <chr>   <chr>   <chr>   <chr>  <chr> <chr>
+#>  1     1 COL:5VS54 COL:5VS54  accept… species Ardea … Animal… Chord… Aves  Pele…
+#>  2     1 COL:3W3W3 COL:3W3W3  accept… species Lophop… Animal… Chord… Aves  Gall…
+#>  3     1 COL:KZR7  COL:KZR7   accept… species Batrac… Animal… Chord… Aves  Capr…
+#>  4     1 COL:7CG6C COL:7CG6C  accept… species Todira… Animal… Chord… Aves  Cora…
+#>  5     1 COL:4Z2NY COL:4Z2NY  accept… species Sphyra… Animal… Chord… Aves  Pici…
+#>  6     1 COL:G6MZ  COL:G6MZ   accept… species Arboro… Animal… Chord… Aves  Gall…
+#>  7     1 COL:PVJX  COL:PVJX   accept… species Callon… Animal… Chord… Aves  Anse…
+#>  8     1 COL:65W6Z COL:65W6Z  accept… species Alcedo… Animal… Chord… Aves  Cora…
+#>  9     1 COL:G65J  COL:G65J   accept… species Aratin… Animal… Chord… Aves  Psit…
+#> 10     1 COL:4SMJ5 COL:4SMJ5  accept… species Rhopod… Animal… Chord… Aves  Cucu…
+#> # … with 10,588 more rows, 10 more variables: family <chr>, genus <chr>,
+#> #   specificEpithet <chr>, infraspecificEpithet <chr>, namePublishedIn <chr>,
+#> #   nameAccordingTo <chr>, taxonRemarks <chr>, language <chr>,
+#> #   vernacularName <chr>, input <chr>, and abbreviated variable names
+#> #   ¹​acceptedNameUsageID, ²​taxonomicStatus, ³​taxonRank, ⁴​scientificName
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -202,15 +214,15 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   group_by(family) %>%
   count(sort = TRUE) %>% 
   head()
-#> # A tibble: 6 x 2
+#> # A tibble: 6 × 2
 #> # Groups:   family [6]
 #>   family           n
 #>   <chr>        <int>
 #> 1 Tyrannidae     401
 #> 2 Thraupidae     374
 #> 3 Psittacidae    370
-#> 4 Columbidae     344
-#> 5 Trochilidae    338
+#> 4 Trochilidae    361
+#> 5 Columbidae     344
 #> 6 Muscicapidae   314
 ```
 
@@ -226,48 +238,48 @@ connection:
 
 ``` r
 taxa_tbl("col")
-#> # Source:   table<2020_dwc_col> [?? x 19]
-#> # Database: duckdb_connection
-#>    taxonID  scientificName    acceptedNameUsa… taxonomicStatus taxonRank kingdom
-#>    <chr>    <chr>             <chr>            <chr>           <chr>     <chr>  
-#>  1 COL:3738 Lobesia triacant… COL:3738         accepted        species   Animal…
-#>  2 COL:4116 Syncollesis tril… COL:4116         accepted        species   Animal…
-#>  3 COL:4118 Anisodes anablem… COL:4118         accepted        species   Animal…
-#>  4 COL:4122 Cyclophora carol… COL:4122         accepted        species   Animal…
-#>  5 COL:4127 Morchella magnis… COL:4127         accepted        species   Fungi  
-#>  6 COL:4128 Streptothrix eff… COL:4128         accepted        species   Fungi  
-#>  7 COL:4344 Aplosporella fau… COL:4344         accepted        species   Fungi  
-#>  8 COL:9466 Synalus angustus  COL:9466         accepted        species   Animal…
-#>  9 COL:9467 Synalus terrosus  COL:9467         accepted        species   Animal…
-#> 10 COL:9468 Synema spinosum   COL:9468         accepted        species   Animal…
-#> # … with more rows, and 13 more variables: phylum <chr>, class <chr>,
-#> #   order <chr>, family <chr>, genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, taxonConceptID <chr>, isExtinct <chr>,
-#> #   nameAccordingTo <chr>, namePublishedIn <chr>,
-#> #   scientificNameAuthorship <chr>, vernacularName <chr>
+#> # Source:   table<v22.12_dwc_col> [?? x 18]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 5.17.15-76051715-generic:R 4.2.2/:memory:]
+#>    taxonID   accepte…¹ taxon…² taxon…³ scien…⁴ kingdom phylum class order family
+#>    <chr>     <chr>     <chr>   <chr>   <chr>   <chr>   <chr>  <chr> <chr> <chr> 
+#>  1 COL:S4MG  COL:S4MG  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  2 COL:S4MF  COL:S4MF  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  3 COL:S4MN  COL:S4MN  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  4 COL:S4MK  COL:S4MK  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  5 COL:S4MQ  COL:S4MQ  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  6 COL:S4MV  COL:S4MV  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  7 COL:5XGKW COL:5XGKW accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  8 COL:5XGKY COL:5XGKY accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#>  9 COL:5XGLC COL:5XGLC accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#> 10 COL:S4V9  COL:S4V9  accept… species Celtis… Plantae Trach… Magn… Rosa… Canna…
+#> # … with more rows, 8 more variables: genus <chr>, specificEpithet <chr>,
+#> #   infraspecificEpithet <chr>, namePublishedIn <chr>, nameAccordingTo <chr>,
+#> #   taxonRemarks <chr>, language <chr>, vernacularName <chr>, and abbreviated
+#> #   variable names ¹​acceptedNameUsageID, ²​taxonomicStatus, ³​taxonRank,
+#> #   ⁴​scientificName
 ```
 
 We can still use most familiar `dplyr` verbs to perform common tasks.
 For instance: which species has the most known synonyms?
 
 ``` r
-taxa_tbl("col") %>% 
+taxa_tbl("itis") %>% 
   count(acceptedNameUsageID, sort=TRUE)
-#> # Source:     lazy query [?? x 2]
-#> # Database:   duckdb_connection
+#> # Source:     SQL [?? x 2]
+#> # Database:   DuckDB 0.6.2-dev1166 [unknown@Linux 5.17.15-76051715-generic:R 4.2.2/:memory:]
 #> # Ordered by: desc(n)
 #>    acceptedNameUsageID     n
 #>    <chr>               <dbl>
-#>  1 COL:274062            456
-#>  2 COL:353741            373
-#>  3 COL:3778950           329
-#>  4 COL:2535424           328
-#>  5 COL:2921616           322
-#>  6 COL:2532677           307
-#>  7 COL:3779182           302
-#>  8 COL:353740            296
-#>  9 COL:2531203           253
-#> 10 COL:1585420           252
+#>  1 ITIS:50               462
+#>  2 ITIS:983681           303
+#>  3 ITIS:983691           286
+#>  4 ITIS:983714           237
+#>  5 ITIS:983710           231
+#>  6 ITIS:798259           145
+#>  7 ITIS:24921            144
+#>  8 ITIS:527684           134
+#>  9 ITIS:505191           126
+#> 10 ITIS:504874           123
 #> # … with more rows
 ```
 
@@ -275,8 +287,8 @@ However, unlike the `filter_*` functions which return convenient
 in-memory tables, this is still a remote connection. This means that
 direct access using the `taxa_tbl()` function (or directly accessing the
 database connection using `td_connect()`) is more low-level and requires
-greater care. For instance, we cannot just add a `%>%
-mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
+greater care. For instance, we cannot just add a
+`%>% mutate(acceptedNameUsage = get_names(acceptedNameUsageID))` to the
 above, because `get_names` does not work on a remote collection.
 Instead, we would first need to use a `collect()` to pull the summary
 table into memory. Users familiar with remote databases in `dplyr` will
@@ -285,20 +297,20 @@ users may find the `filter_*` approach to be more intuitive.
 
 ## Learn more
 
-  - See richer examples the package
-    [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
+- See richer examples the package
+  [Tutorial](https://docs.ropensci.org/taxadb/articles/articles/intro.html).
 
-  - Learn about the underlying data sources and formats in [Data
-    Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
+- Learn about the underlying data sources and formats in [Data
+  Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
-  - Get better performance by selecting an alternative [database
-    backend](https://docs.ropensci.org/taxadb/articles/backends.html)
-    engines.
+- Get better performance by selecting an alternative [database
+  backend](https://docs.ropensci.org/taxadb/articles/backends.html)
+  engines.
 
------
+------------------------------------------------------------------------
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By participating in
 this project you agree to abide by its terms.
 
-[![ropensci\_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)
+[![ropensci_footer](https://ropensci.org/public_images/ropensci_footer.png)](https://ropensci.org)
