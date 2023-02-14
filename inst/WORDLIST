@@ -1,6 +1,8 @@
+Agrostis
 Animalia
 Anser
 Aves
+CMD
 Catalogue
 DCAT
 DOI
@@ -26,10 +28,13 @@ SeaLifeBase
 Trochalopteron
 WikiData
 Wikidata
+acceptedNameUsage
+acceptedNameUsageID
 bicolor
 blazingly
 bugfix
 bz
+caespitosa
 canagica
 canagicus
 cladistic
@@ -57,6 +62,7 @@ schemas
 scientificName
 scientificNames
 sha
+specificEpithet
 superorder
 taxize
 taxonIDs
