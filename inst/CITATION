@@ -1,6 +1,5 @@
-citHeader("To cite taxadb in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "taxadb: A high-performance local taxonomic database interface",
   author       = personList(as.person("Kari E. A Norman"),
                    as.person("Scott Chamberlain"),
@@ -10,6 +9,7 @@ citEntry(entry = "Article",
   volume       = "11",
   number       = "9",
   pages        = "1153--1159",
+  doi          = "doi:10.1111/2041-210X.13440",
   textVersion  =
   paste("Kari E. A. Norman, Scott Chamberlain, and Carl Boettiger (2020).",
         "taxadb: A high-performance local taxonomic database interface.",
