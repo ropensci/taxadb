@@ -43,7 +43,7 @@ get_names <- function(id,
 
   prefix_ids <- switch(format,
                        prefix = id,
-                       as_prefix(id, db)
+                       as_prefix(id, provider)
                        )
   df <-
     filter_id(prefix_ids,
@@ -51,7 +51,7 @@ get_names <- function(id,
           version = version,
           collect = FALSE,
           db = taxadb_db) %>%
-    left_join(tibble(taxonID = prefix_ids, sort=seq_along(prefix_ids)),
+    right_join(tibble(taxonID = prefix_ids, sort=seq_along(prefix_ids)),
               by = "taxonID", copy=TRUE) %>%
     dplyr::select("scientificName", "taxonID", "sort") %>%
     dplyr::distinct() %>%
