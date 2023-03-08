@@ -285,6 +285,39 @@
       "version": "22.12"
     },
     {
+      "id": "urn:uuid:8b73536c-bf00-44e0-87d6-75f211989840",
+      "type": "Dataset",
+      "description": "Common Names Catalogue Of Life Taxonomic Names, created by rOpenSci",
+      "distribution": [
+        {
+          "id": "hash://sha256/33f4f28e2336457ad2b5ce47909523c3ea9e47999426088b815bbb9f52302daa",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-0.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-0.parquet"
+        },
+        {
+          "id": "hash://sha256/3f879de1ad93b9b2c3039ff448ae7a7709c1fa80208e8e0763420fd43fd197ff",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-1.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-1.parquet"
+        },
+        {
+          "id": "hash://sha256/764c778719ab01c65521724c834f5ddebe56ed1fb61b39635408457800a7f3e9",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-2.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-2.parquet"
+        }
+      ],
+      "name": "v22.12_common_col",
+      "version": "22.12"
+    },
+    {
       "id": "urn:uuid:8e598ab5-67dd-403a-993f-2ff6a685b7fa",
       "type": "Dataset",
       "description": "Darwin Core formatted version of Open Tree of Life Taxonomic Names, created by rOpenSci",

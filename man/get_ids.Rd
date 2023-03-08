@@ -6,12 +6,13 @@
 \usage{
 get_ids(
   names,
-  db = getOption("taxadb_default_provider", "itis"),
+  provider = getOption("taxadb_default_provider", "itis"),
   format = c("prefix", "bare", "uri"),
   version = latest_version(),
   taxadb_db = td_connect(),
-  ignore_case = TRUE,
+  ignore_case = FALSE,
   warn = TRUE,
+  db = NULL,
   ...
 )
 }
@@ -19,7 +20,7 @@ get_ids(
 \item{names}{a list of scientific names (which may
 include higher-order ranks in most authorities).}
 
-\item{db}{abbreviation code for the provider.  See details.}
+\item{provider}{abbreviation code for the provider.  See details.}
 
 \item{format}{Format for the returned identifier, one of
 \itemize{
@@ -39,6 +40,8 @@ default is \code{TRUE}.}
 
 \item{warn}{should we display warnings on NAs resulting from multiply-resolved matches?
 (Unlike unmatched names, these NAs can usually be resolved manually via \code{\link[=filter_id]{filter_id()}})}
+
+\item{db}{previous name for \code{provider} argument, now deprecated}
 
 \item{...}{additional arguments (currently ignored)}
 }

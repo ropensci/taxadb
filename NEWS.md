@@ -1,3 +1,7 @@
+# taxadb 0.2.1
+
+* streamline legacy code in filter_* and get_* functions to better leverage duckdb speed increase
+
 # taxadb 0.2.0
 
 * taxadb is now backed by partitioned parquet files, cached locally by contentid

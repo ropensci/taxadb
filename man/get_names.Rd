@@ -6,16 +6,17 @@
 \usage{
 get_names(
   id,
-  db = getOption("taxadb_default_provider", "itis"),
+  provider = getOption("taxadb_default_provider", "itis"),
   version = latest_version(),
   format = c("guess", "prefix", "bare", "uri"),
-  taxadb_db = td_connect()
+  taxadb_db = td_connect(),
+  db = NULL
 )
 }
 \arguments{
 \item{id}{a list of taxonomic identifiers.}
 
-\item{db}{abbreviation code for the provider.  See details.}
+\item{provider}{abbreviation code for the provider.  See details.}
 
 \item{version}{Which version of the taxadb provider database should we use?
 defaults to latest.  see \verb{[avialable_releases()]} for details.}
@@ -29,6 +30,8 @@ defaults to latest.  see \verb{[avialable_releases()]} for details.}
 }}
 
 \item{taxadb_db}{Connection to from \verb{[td_connect()]}.}
+
+\item{db}{previous name for \code{provider} argument, now deprecated}
 }
 \value{
 a vector of names, of the same length as the input ids. Any

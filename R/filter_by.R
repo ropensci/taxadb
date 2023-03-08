@@ -58,22 +58,27 @@ filter_by <- function(x,
 
   db_tbl <-taxa_tbl(provider, schema, version, db)
   if(ignore_case){
-    if(length(x)>1){
-      warning("ignore_case is not vectorized; matching case instead", call.=FALSE)
-      out <- filter(db_tbl, .data[[by]] %in% x)
-    } else {
-      out <- filter(db_tbl, .data[[by]] %ilike% x)
-    }
+    out <- dplyr::filter(db_tbl,
+                         dplyr::sql(paste0(by, " ilike ",
+                                           paste0("'",x, "'"),
+                                                  collapse=' OR ')))
   }
   else {
-    out <- filter(db_tbl, .data[[by]] %in% x)
+    out <- dplyr::filter(db_tbl, .data[[by]] %in% x)
   }
 
   if (collect) return( dplyr::collect(out) )
   out
 }
 
-globalVariables("%ilike%", package="taxadb")
+
+
+
+# query
+
+
+
+globalVariables(c(".data", "%ilike%"), package="taxadb")
 ## A Filtering Join to filter external DB by a local table.
 ## We actually use right_join instead of semi_join,
 ##so unmatched names are kept, with NA
