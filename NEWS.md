@@ -1,5 +1,6 @@
 # taxadb 0.2.1
 
+* substantial speed improvements to all `filter_*` and `get_*` functions
 * streamline legacy code in filter_* and get_* functions to better leverage duckdb speed increase
 * `get_names` and `get_ids` now use the same argument name, `provider`, to specify the naming provider,
   rather than `db` (which was used in `taxize::get_ids`)
