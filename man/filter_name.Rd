@@ -9,7 +9,7 @@ filter_name(
   provider = getOption("taxadb_default_provider", "itis"),
   version = latest_version(),
   collect = TRUE,
-  ignore_case = TRUE,
+  ignore_case = FALSE,
   db = td_connect()
 )
 }
@@ -29,7 +29,7 @@ lazy-eval table on disk (useful for very large tables on which we may
 first perform subsequent filtering operations.)}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
-default is \code{TRUE}.}
+Can be significantly slower to run.}
 
 \item{db}{a connection to the taxadb database. See details.}
 }

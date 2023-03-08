@@ -26,14 +26,20 @@
 #' @export
 #' @importFrom dplyr pull select collect distinct
 get_names <- function(id,
-                      db = getOption("taxadb_default_provider", "itis"),
+                      provider = getOption("taxadb_default_provider", "itis"),
                       version = latest_version(),
                       format = c("guess", "prefix", "bare", "uri"),
-                      taxadb_db = td_connect()
+                      taxadb_db = td_connect(),
+                      db = NULL
                      ){
+
+  if(is.character(db)) {
+    warning("Using `db` to specify the provider is deprecated")
+    provider <- db
+  }
+
   format <- match.arg(format)
   n <- length(id)
-  ver <- version
 
   prefix_ids <- switch(format,
                        prefix = id,
@@ -41,10 +47,12 @@ get_names <- function(id,
                        )
   df <-
     filter_id(prefix_ids,
-          provider = db,
-          version = ver,
+          provider = provider,
+          version = version,
           collect = FALSE,
           db = taxadb_db) %>%
+    left_join(tibble(taxonID = prefix_ids, sort=seq_along(prefix_ids)),
+              by = "taxonID", copy=TRUE) %>%
     dplyr::select("scientificName", "taxonID", "sort") %>%
     dplyr::distinct() %>%
     take_first_duplicate() %>%

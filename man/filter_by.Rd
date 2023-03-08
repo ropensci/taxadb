@@ -15,7 +15,7 @@ filter_by(
   version = latest_version(),
   collect = TRUE,
   db = td_connect(),
-  ignore_case = TRUE
+  ignore_case = FALSE
 )
 }
 \arguments{
@@ -42,7 +42,7 @@ first perform subsequent filtering operations.)}
 \item{db}{a connection to the taxadb database. See details.}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
-default is \code{TRUE}.}
+Can be significantly slower to run.}
 }
 \value{
 a data.frame in the Darwin Core tabular format containing the

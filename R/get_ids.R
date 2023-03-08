@@ -8,7 +8,8 @@
 #' A drop-in replacement for `[taxize::get_ids()]`
 #' @param names a list of scientific names (which may
 #'   include higher-order ranks in most authorities).
-#' @param db abbreviation code for the provider.  See details.
+#' @param provider abbreviation code for the provider.  See details.
+#' @param db previous name for `provider` argument, now deprecated
 #' @param format Format for the returned identifier, one of
 #'   - `prefix` (e.g. `NCBI:9606`, the default), or
 #'   - `bare` (e.g. `9606`, used in `taxize::get_ids()`),
@@ -58,17 +59,20 @@
 #' @importFrom dplyr pull
 #' @importFrom tibble column_to_rownames
 get_ids <- function(names,
-                    db = getOption("taxadb_default_provider", "itis"),
+                    provider = getOption("taxadb_default_provider", "itis"),
                     format = c("prefix", "bare", "uri"),
                     version = latest_version(),
                     taxadb_db = td_connect(),
-                    ignore_case = TRUE,
+                    ignore_case = FALSE,
                     warn = TRUE,
+                    db = NULL,
                     ...){
+  if(is.character(db)) {
+    warning("Using `db` to specify the provider is deprecated")
+    provider <- db
+  }
   format <- match.arg(format)
   n <- length(names)
-  provider <- db
-
 
   # be compatible with common space delimiters
   names <- gsub("[_|-|\\.]", " ", names)
@@ -79,6 +83,7 @@ get_ids <- function(names,
                 collect = TRUE,
                 ignore_case = ignore_case,
                 db = taxadb_db) %>%
+    left_join(tibble(scientificName = names, sort=seq_along(names))) %>%
     arrange(sort)
 
   out <- vapply(names, function(x){

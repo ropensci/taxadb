@@ -20,7 +20,7 @@
 #' first perform subsequent filtering operations.)
 #' @param db a connection to the taxadb database. See details.
 #' @param ignore_case should we ignore case (capitalization) in matching names?
-#' default is `TRUE`.
+#' Can be significantly slower to run.
 #' @return a data.frame in the Darwin Core tabular format containing the
 #' matching taxonomic entities.
 #' @family filter_by
@@ -54,33 +54,26 @@ filter_by <- function(x,
                       version = latest_version(),
                       collect = TRUE,
                       db = td_connect(),
-                      ignore_case = TRUE){
+                      ignore_case = FALSE){
 
-  schema <- match.arg(schema)
-  db_tbl <- dplyr::mutate(taxa_tbl(provider, schema, version, db), input = !!sym(by))
-
+  db_tbl <-taxa_tbl(provider, schema, version, db)
   if(ignore_case){
-    original <- tibble::tibble(input = x, sort = seq_along(x))
-    x <- stringi::stri_trans_tolower(x)
-    db_tbl <- dplyr::mutate_at(db_tbl, .var = "input", .fun = tolower)
+    if(length(x)>1){
+      warning("ignore_case is not vectorized; matching case instead", call.=FALSE)
+      out <- filter(db_tbl, .data[[by]] %in% x)
+    } else {
+      out <- filter(db_tbl, .data[[by]] %ilike% x)
+    }
   }
-
-  input_tbl <- tibble::tibble(input = x, sort = seq_along(x))
-  out <- td_filter(db_tbl, input_tbl, "input")
-
-  if(ignore_case){  # restore original input case
-    input <- "input"
-    suppress_msg({
-      out <- out %>% select(-input) %>%
-        dplyr::inner_join(original, by = "sort", copy = TRUE)
-    })
+  else {
+    out <- filter(db_tbl, .data[[by]] %in% x)
   }
 
   if (collect) return( dplyr::collect(out) )
-
   out
 }
 
+globalVariables("%ilike%", package="taxadb")
 ## A Filtering Join to filter external DB by a local table.
 ## We actually use right_join instead of semi_join,
 ##so unmatched names are kept, with NA
@@ -90,11 +83,13 @@ filter_by <- function(x,
 td_filter <- function(x,y, by){
   sort <- "sort"   # avoid complaint about NSE.
                    #We could do sym("sort") but this is cleaner.
-  suppress_msg({   # bc MonetDBLite whines about upper-case characters
-    safe_right_join(x, y, by = by, copy = TRUE) #%>%
-      #dplyr::arrange(sort)
-  })
+  dplyr::right_join(x, y, by = by, copy = TRUE) #%>%
+    #dplyr::arrange(sort)
 }
+
+
+
+
 
 ## Manually copy query into DB, since RSQLite lacks right_join,
 ## and dplyr `copy` can only copy table "y"

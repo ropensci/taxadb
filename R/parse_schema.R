@@ -30,7 +30,8 @@ parse_schema <- function(provider = "col", version = "latest", schema = "dwc",
     return(data.frame(id=id, url=file, version="Alpha"))
 
   }
-
+  out <- NULL
+  tryCatch({
   elements <- prov[["@graph"]]
   datasets <- purrr::map_chr(elements, "type", .default=NA) == "Dataset"
   elements <- elements[datasets]
@@ -57,7 +58,16 @@ parse_schema <- function(provider = "col", version = "latest", schema = "dwc",
 
   id <- ids[grepl(".parquet", files)]
   url <- files[grepl(".parquet", files)]
-  data.frame(id=id, url=url, version= version)
+  out <- data.frame(id=id, url=url, version= version)
+  },
+  error = function(e) stop(paste("no match found for",
+                                 paste("schema:", schema,
+                                       "provider:", provider,
+                                       "version:", version)),
+                           call.=FALSE),
+  finally = NULL
+  )
+  out
 }
 
 

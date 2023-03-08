@@ -20,7 +20,7 @@ test_that("filter_by", {
 
    sp <- c("Sapajus apella",
            "Cebus niger")
-   sci <- filter_by(sp, "scientificName", ignore_case = TRUE)
+   sci <- filter_by(sp, "scientificName", ignore_case = FALSE)
    expect_gt(dim(sci)[1], 1)
    expect_is(sci, "data.frame")
 
@@ -42,10 +42,9 @@ test_that("filter_by", {
 
 test_that("filter_name", {
 
-  sp <- c("Sapajus apella",
-          "Cebus niger")
+  sp <- c("sapajus apella")
   sci <- filter_name(sp,  ignore_case = TRUE)
-  expect_gt(dim(sci)[1], 1)
+  expect_gt(dim(sci)[1], 0)
   expect_is(sci, "data.frame")
 })
 

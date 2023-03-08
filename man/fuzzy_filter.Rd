@@ -35,7 +35,7 @@ defaults to latest.  See \link{tl_import} for details.}
 \item{db}{a connection to the taxadb database. See details.}
 
 \item{ignore_case}{should we ignore case (capitalization) in matching names?
-default is \code{TRUE}.}
+Can be significantly slower to run.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to

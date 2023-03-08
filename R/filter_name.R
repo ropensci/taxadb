@@ -36,7 +36,7 @@ filter_name <- function(name,
                 provider = getOption("taxadb_default_provider", "itis"),
                 version = latest_version(),
                 collect = TRUE,
-                ignore_case = TRUE,
+                ignore_case = FALSE,
                 db = td_connect()){
 
   filter_by(x = name,
