@@ -7,8 +7,6 @@
 
 [![R-CMD-check](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
-[![Coverage
-status](https://codecov.io/gh/ropensci/taxadb/branch/master/graph/badge.svg)](https://codecov.io/github/ropensci/taxadb?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxadb)](https://cran.r-project.org/package=taxadb)
 [![DOI](https://zenodo.org/badge/130153207.svg)](https://zenodo.org/badge/latestdoi/130153207)
