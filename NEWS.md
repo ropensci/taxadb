@@ -1,3 +1,5 @@
+# taxadb 0.2.2
+
 # taxadb 0.2.1
 
 * substantial speed improvements to all `filter_*` and `get_*` functions

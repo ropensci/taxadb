@@ -84,240 +84,6 @@
       "version": "22.12"
     },
     {
-      "id": "urn:uuid:73a973a4-0207-44c7-a04b-675766168b4f",
-      "type": "Dataset",
-      "description": "Darwin Core formatted version of Catalogue Of Life Taxonomic Names, created by rOpenSci",
-      "distribution": [
-        {
-          "id": "hash://sha256/19bc3b8c4a480932a7b8662af99d223f744b274ea26ca229f1f0b86fc724b515",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-15.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-15.parquet"
-        },
-        {
-          "id": "hash://sha256/285fcefda5f5b04cf7749eec07c257814778294d679469a7cc9a0906e2e550c6",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-18.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-18.parquet"
-        },
-        {
-          "id": "hash://sha256/2dd02ad57be423fe9cc124e2e32a3f9c15d15b4643385ab860aabfdb9a40fb99",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-3.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-3.parquet"
-        },
-        {
-          "id": "hash://sha256/42b7305c31cb6997f2dbc9a50382e6e3419200a3bf9e3addda844511ff9fe54f",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-1.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-1.parquet"
-        },
-        {
-          "id": "hash://sha256/5830bba83ce215f72e8bcf10738ecdc755abc063a55d642045af2a21a661b6f0",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-7.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-7.parquet"
-        },
-        {
-          "id": "hash://sha256/58b86d39725e76d3678e43d7c0347d8147409224a2deaf10d974e19f1e9c1287",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-20.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-20.parquet"
-        },
-        {
-          "id": "hash://sha256/60459fc9bf91a6000f8906c53756905fb62fe7234b4f003e2f90482d11cb8f74",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-13.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-13.parquet"
-        },
-        {
-          "id": "hash://sha256/6f179ad057495a9eec5c348923af9d6f62666cfb284ed360cdc31d8c2d6e6f42",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-14.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-14.parquet"
-        },
-        {
-          "id": "hash://sha256/75ac5e62eb096597c4c0655bb2ac6d4ec219ea469b4d19f7c73008c386689939",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-4.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-4.parquet"
-        },
-        {
-          "id": "hash://sha256/794745b15207fb3d1905fc06d52325181df22d09f8085f081f7623651614f4bd",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-9.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-9.parquet"
-        },
-        {
-          "id": "hash://sha256/7e8694d432ef45baec34b7b990be97a7154d51730757f3624810b86f0a37042d",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-6.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-6.parquet"
-        },
-        {
-          "id": "hash://sha256/8e0c29ef511c92c300b283b51ae83e9bfd7bf3fbaaf37f64f11619fe8b9548c0",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-23.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-23.parquet"
-        },
-        {
-          "id": "hash://sha256/9a68d526b296967a1412e0dce2c50e47f6e643ef46f99676d879819b3aa8c278",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-10.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-10.parquet"
-        },
-        {
-          "id": "hash://sha256/9d8ef3f93bc495d68b7b6daff0659f68557e5c650d745944f4449fcd7b55eec0",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-16.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-16.parquet"
-        },
-        {
-          "id": "hash://sha256/a5a7d8d25727ac00196227e8a121f82efc27f60dec0e087ab7b3c6c30bcb619b",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-22.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-22.parquet"
-        },
-        {
-          "id": "hash://sha256/a6d6e4b1ca65775067e179faca20ae61846819b8d591007b50cf7e8f68f4d400",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-2.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-2.parquet"
-        },
-        {
-          "id": "hash://sha256/aaa79cfc06d2dec0b37562e277301407cff97b20f1bea1da87ab2e8112404927",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-0.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-0.parquet"
-        },
-        {
-          "id": "hash://sha256/c42440e6e1a4aecb30d85a15fd4c08cef63e2ed87e97ab7dc6c536485a8f991a",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-21.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-21.parquet"
-        },
-        {
-          "id": "hash://sha256/cb24d0c8cc732a2876d87ec592a17deed465a9c656664eb64041fc9ed9144525",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-19.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-19.parquet"
-        },
-        {
-          "id": "hash://sha256/d52a0e739015e245f32558d207fece76741b3f586688ea66c662488f1cdcfdfd",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-8.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-8.parquet"
-        },
-        {
-          "id": "hash://sha256/e0006b8f62dbedeb1f32dfc11c081832067c9c4db80b9e2a889177edc40d6261",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-5.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-5.parquet"
-        },
-        {
-          "id": "hash://sha256/e7d9951b8fd8a9befe33818a6ddc0b1733ac55a681e5b2f57f9fed890c45407d",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-17.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-17.parquet"
-        },
-        {
-          "id": "hash://sha256/ec39452da9eb142c85be608dbf5edd6dc02434abccd1bd2a4fac0d181e6decd4",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-11.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-11.parquet"
-        },
-        {
-          "id": "hash://sha256/f476fa145caae51c8a4ee22a16553f61b917cedef575285299d1f56bfc208d75",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-12.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-12.parquet"
-        }
-      ],
-      "name": "v22.12_dwc_col",
-      "version": "22.12"
-    },
-    {
-      "id": "urn:uuid:8b73536c-bf00-44e0-87d6-75f211989840",
-      "type": "Dataset",
-      "description": "Common Names Catalogue Of Life Taxonomic Names, created by rOpenSci",
-      "distribution": [
-        {
-          "id": "hash://sha256/33f4f28e2336457ad2b5ce47909523c3ea9e47999426088b815bbb9f52302daa",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-0.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-0.parquet"
-        },
-        {
-          "id": "hash://sha256/3f879de1ad93b9b2c3039ff448ae7a7709c1fa80208e8e0763420fd43fd197ff",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-1.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-1.parquet"
-        },
-        {
-          "id": "hash://sha256/764c778719ab01c65521724c834f5ddebe56ed1fb61b39635408457800a7f3e9",
-          "type": "DataDownload",
-          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-2.parquet",
-          "description": "output data",
-          "encodingFormat": "application/x-parquet",
-          "name": "part-2.parquet"
-        }
-      ],
-      "name": "v22.12_common_col",
-      "version": "22.12"
-    },
-    {
       "id": "urn:uuid:8e598ab5-67dd-403a-993f-2ff6a685b7fa",
       "type": "Dataset",
       "description": "Darwin Core formatted version of Open Tree of Life Taxonomic Names, created by rOpenSci",
@@ -624,6 +390,39 @@
       "version": "22.12"
     },
     {
+      "id": "urn:uuid:c5e4b426-d50c-4935-a257-9af187026ece",
+      "type": "Dataset",
+      "description": "Common Names Catalogue Of Life Taxonomic Names, created by rOpenSci",
+      "distribution": [
+        {
+          "id": "hash://sha256/4a28e8514d953352bbbb4a7d641bd63c901fa44e4d4212937f8965bb600829ea",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-1.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-1.parquet"
+        },
+        {
+          "id": "hash://sha256/78dfed33fdee3f5bcc3374fdabc5ddae2d86bd80561503120d0c49306ca2851f",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-0.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-0.parquet"
+        },
+        {
+          "id": "hash://sha256/f6cfb32e8d358d3d7c711c0f9425b0450a9862ab9a8d0ee3ba00c2e2b9a1539b",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/common_col/part-2.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-2.parquet"
+        }
+      ],
+      "name": "v22.12_common_col",
+      "version": "22.12"
+    },
+    {
       "id": "urn:uuid:d16dffa6-13e0-4ad2-8caf-698c75987738",
       "type": "Dataset",
       "description": "Common Names table derived from NCBI Taxonomic Names, created by rOpenSci",
@@ -718,6 +517,207 @@
         }
       ],
       "name": "v22.12_common_ncbi",
+      "version": "22.12"
+    },
+    {
+      "id": "urn:uuid:d21d6cc5-226f-4fe6-83e7-104523246689",
+      "type": "Dataset",
+      "description": "Darwin Core formatted version of Catalogue Of Life Taxonomic Names, created by rOpenSci",
+      "distribution": [
+        {
+          "id": "hash://sha256/1460ab7c31cbd403e53830e7142714c5321d954d879c015ea70658e2d523ab45",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-13.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-13.parquet"
+        },
+        {
+          "id": "hash://sha256/1c5b841c821e47d72da5ec38c1298852b40fa0167b2dc61450ca757072fcd6ed",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-12.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-12.parquet"
+        },
+        {
+          "id": "hash://sha256/4108740123c977257163e289a66bd0c16f8f828252215eda8325a39cada4843c",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-9.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-9.parquet"
+        },
+        {
+          "id": "hash://sha256/4b32fe18b391c9f78de789d656bf19fd79adf8030d5aba85ebfb96433a63639d",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-0.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-0.parquet"
+        },
+        {
+          "id": "hash://sha256/544e4a10fcfc3811b3cd54d9639a943f99de73bc55429199df15b7841e6d2ac8",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-16.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-16.parquet"
+        },
+        {
+          "id": "hash://sha256/57a4be5a6110f8cddb85d1128cf0fa00b01b47e5aab212492c6ebc3623f63269",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-5.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-5.parquet"
+        },
+        {
+          "id": "hash://sha256/5c3d3f8cace593400e35fdea678417028943feedb23274bc0d9b3f32166216d2",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-23.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-23.parquet"
+        },
+        {
+          "id": "hash://sha256/5df2a3b3288ab99b6b99f0322dca3d62818a682c12a3236fe78075eb522e7703",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-8.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-8.parquet"
+        },
+        {
+          "id": "hash://sha256/6abc4908774c83bd348b2071da08555f58994bdf9796b1206be6802507af1321",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-21.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-21.parquet"
+        },
+        {
+          "id": "hash://sha256/87f01742d716f0e9c9cf177078b8b56a152ce9090393d445e06868ae3e36128d",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-10.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-10.parquet"
+        },
+        {
+          "id": "hash://sha256/8d5abd44f8ad6e6086e834ad859e6f31c3b25c30558afbe7ea5074d8159d3f8f",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-18.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-18.parquet"
+        },
+        {
+          "id": "hash://sha256/9bbb7fab9030ccf7cb4cfc1fc1347125d56592ccb334e694ed8bccce0576588b",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-2.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-2.parquet"
+        },
+        {
+          "id": "hash://sha256/9f49af6e28107298fbebaa966dc538987617b012f2dab3739db1638fee27651b",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-4.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-4.parquet"
+        },
+        {
+          "id": "hash://sha256/9fa5158a5d7f5b4b4ba3bece187b1eb98dc6288f831c6560dca92c9318547ef2",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-3.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-3.parquet"
+        },
+        {
+          "id": "hash://sha256/abd91c43765cf1a4a2c86ac75d749af7d59eb674840dbfc55a5e1f1011758013",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-22.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-22.parquet"
+        },
+        {
+          "id": "hash://sha256/acceaf6c2afbb3d5c767c3bbaf7ac7718c9dfb94c68700f838a1130dcdf41266",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-6.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-6.parquet"
+        },
+        {
+          "id": "hash://sha256/b08cd8c9743a17a85081723e4f9d2c9454c6a891a0a098f40a7a536d922cc4d7",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-20.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-20.parquet"
+        },
+        {
+          "id": "hash://sha256/b32f6f90a81ca17e955afadc828a56f87a8ae579fd9e04628f5bb66c0b094f76",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-17.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-17.parquet"
+        },
+        {
+          "id": "hash://sha256/c35b5397e8f1c4353430a7741aba4750b4f804331036ac38c6448eb61ff83e31",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-11.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-11.parquet"
+        },
+        {
+          "id": "hash://sha256/cb6159f13d3d03d0d06f91c383e8becfb119f496dd1942d2c64be19e47757fb5",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-7.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-7.parquet"
+        },
+        {
+          "id": "hash://sha256/cbe7a031714b4ca31acebebbc8b9a355c2b5605045ba12e1edf30f15042688ea",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-1.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-1.parquet"
+        },
+        {
+          "id": "hash://sha256/cfb95ce2c255ca468bf7bcd2a7347aef94ff659ee5abf88ac47cc4a98900da9a",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-19.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-19.parquet"
+        },
+        {
+          "id": "hash://sha256/d7fcd8e508c8c0cf33734558cb18ba4365f6c396a2a9b802df76ea0668872955",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-14.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-14.parquet"
+        },
+        {
+          "id": "hash://sha256/fcd6cc327c0975306818d354c778cb1a3acd8f3e52e9629a34eb94ea12246fec",
+          "type": "DataDownload",
+          "contentUrl": "https://github.com/boettiger-lab/taxadb-cache/raw/master/data/2022/dwc_col/part-15.parquet",
+          "description": "output data",
+          "encodingFormat": "application/x-parquet",
+          "name": "part-15.parquet"
+        }
+      ],
+      "name": "v22.12_dwc_col",
       "version": "22.12"
     },
     {

@@ -1,5 +1,5 @@
 Package: taxadb
-Version: 0.2.1
+Version: 0.2.1.99
 Title: A High-Performance Local Taxonomic Database Interface
 Description: Creates a local database of many commonly used taxonomic authorities
              and provides functions that can quickly query this data.
