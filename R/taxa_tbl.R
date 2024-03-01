@@ -38,7 +38,7 @@ taxa_tbl <- function(
   if (!has_table(tbl_name, db)){
     td_create(provider = provider, schema = schema, version = version, db = db)
   }
-  dplyr::tbl(db, tbl_name)
+  dplyr::tbl(db, tbl_name, check_from = FALSE)
 }
 
 
