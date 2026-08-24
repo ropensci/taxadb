@@ -36,7 +36,7 @@ defaults to latest.  See \code{\link[=available_versions]{available_versions()}}
 the local paths of the downloaded files, invisibly.
 }
 \description{
-\link{Superseded} Use \code{\link[=td_download]{td_download()}} instead.
+Superseded by \code{\link[=td_download]{td_download()}}.
 }
 \details{
 \code{taxadb} no longer needs to import data before querying it:

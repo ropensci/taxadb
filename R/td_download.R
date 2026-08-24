@@ -68,7 +68,7 @@ td_download <- function(provider = getOption("taxadb_default_provider", "itis"),
 
 #' Create a local taxadb database
 #'
-#' @description `r lifecycle_superseded()`
+#' @description Superseded by [td_download()].
 #' @inheritParams td_download
 #' @param overwrite passed to [td_download()]
 #' @param lines deprecated, ignored.
@@ -94,6 +94,3 @@ td_create <- function(provider = getOption("taxadb_default_provider", "itis"),
   td_download(provider = provider, schema = schema, version = version,
               overwrite = overwrite, db = db)
 }
-
-lifecycle_superseded <- function()
-  "[Superseded] Use [td_download()] instead."

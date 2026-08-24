@@ -31,7 +31,7 @@ PROVIDER_META <- list(
     license = "CC BY 4.0",
     license_url = "https://creativecommons.org/licenses/by/4.0/",
     synthesis = TRUE,
-    citation = paste("Bánki O, et al. Catalogue of Life.",
+    citation = paste("B\u00e1nki O, et al. Catalogue of Life.",
                      "https://doi.org/10.48580/dfz8")),
   gbif = list(
     title = "GBIF Backbone Taxonomy",
