@@ -180,3 +180,27 @@ dwc_select <- function(extra = character(0)){
                  "specificEpithet", "infraspecificEpithet",
                  "vernacularName", extra), "\"", collapse = ", ")
 }
+
+## Split a binomial into its epithets, given the genus the taxon sits in.
+##
+## Providers that publish a Taxon table give `specificEpithet` directly, but
+## NCBI and OTT publish only whole name strings.  `n` picks which word after
+## the genus to take: 1 for the specific epithet, 2 for the infraspecific.
+##
+## Two guards keep this from inventing epithets.  The name must actually
+## begin with the genus, so "uncultured bacterium" yields nothing.  And the
+## word taken must look like a Latin epithet -- lowercase, possibly
+## hyphenated -- which rejects the open-nomenclature placeholders that
+## `clean_names()` also strips from user input (`sp.`, `spp.`, `cf.`), and
+## rejects specimen vouchers: NCBI carries thousands of names shaped like
+## "Megaselia sp. BIOUG32195-A06", where neither word is an epithet.
+epithet_sql <- function(name, genus, n = 1){
+  rest <- paste0("trim(substr(", name, ", length(", genus, ") + 2))")
+  word <- paste0("split_part(", rest, ", ' ', ", n, ")")
+  paste0(
+    "CASE WHEN ", genus, " IS NOT NULL AND ", name, " IS NOT NULL",
+    " AND starts_with(", name, ", concat(", genus, ", ' '))",
+    " AND regexp_full_match(", word, ", '[a-z][a-z-]+')",
+    " AND NOT regexp_full_match(", word, ", 'sp|spp|ssp|cf|aff|var|subsp|nr')",
+    " THEN ", word, " END")
+}

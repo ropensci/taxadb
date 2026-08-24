@@ -41,4 +41,8 @@ taxadb rules checked by \code{\link[=td_validate]{td_validate()}}.
 build_itis("2026")
 }
 }
+\seealso{
+Other build:
+\code{\link[=build_ncbi]{build_ncbi()}}
+}
 \concept{build}
