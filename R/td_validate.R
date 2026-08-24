@@ -80,8 +80,19 @@ td_validate <- function(provider = getOption("taxadb_default_provider", "itis"),
 
   schema <- match.arg(schema)
   tbl <- taxa_tbl(provider, schema, version, db)
-  name <- dbplyr::remote_name(tbl)
+  td_validate_table(dbplyr::remote_name(tbl), schema, provider, version, db)
+}
 
+## The rules themselves, against any table name.  Split out from
+## td_validate() so they can be exercised against a table built to break a
+## specific rule, rather than only against a real snapshot.
+td_validate_table <- function(name,
+                              schema = c("dwc", "common"),
+                              provider = "unknown",
+                              version = NA_character_,
+                              db = td_connect()){
+
+  schema <- match.arg(schema)
   cols <- DBI::dbGetQuery(db, paste0("DESCRIBE SELECT * FROM ", name))
   required <- switch(schema, dwc = DWC_REQUIRED, common = COMMON_REQUIRED)
 

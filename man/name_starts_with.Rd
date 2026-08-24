@@ -38,6 +38,6 @@ scientific name starts with
    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
-name_starts_with("Chera")
+name_starts_with("Trochalop")
 }
 }

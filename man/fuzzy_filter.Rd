@@ -70,7 +70,7 @@ name <- c("woodpecker", "monkey")
 fuzzy_filter(name, "vernacularName")
 
 ## match scientific name
-fuzzy_filter("Chera", "scientificName",
+fuzzy_filter("Trochalop", "scientificName",
              match = "starts_with")
 }
 

@@ -66,7 +66,7 @@ sp <- c("Trochalopteron henrici gucenense",
         "Trochalopteron elliotii")
 filter_by(sp, "scientificName")
 
-filter_by(c("ITIS:1077358", "ITIS:175089"), "taxonID")
+filter_by(c("ITIS:180092", "ITIS:916116"), "taxonID")
 
 filter_by("Aves", "class")
 
