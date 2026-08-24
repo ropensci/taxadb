@@ -47,6 +47,7 @@ build_col("2026")
 Other build:
 \code{\link[=build_gbif]{build_gbif()}},
 \code{\link[=build_itis]{build_itis()}},
-\code{\link[=build_ncbi]{build_ncbi()}}
+\code{\link[=build_ncbi]{build_ncbi()}},
+\code{\link[=build_ott]{build_ott()}}
 }
 \concept{build}
