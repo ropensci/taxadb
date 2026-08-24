@@ -204,3 +204,38 @@ epithet_sql <- function(name, genus, n = 1){
     " AND NOT regexp_full_match(", word, ", 'sp|spp|ssp|cf|aff|var|subsp|nr')",
     " THEN ", word, " END")
 }
+
+## The canonical name: the provider's scientificName with the authorship
+## suffix removed.
+##
+## taxadb matches on names without authorship, because authorship formatting
+## is wildly inconsistent between providers (and within them): parentheses,
+## initials, abbreviated genera, years present or absent.  Where a provider
+## gives authorship as its own field we can strip it exactly rather than
+## guessing with a regex, and fall back to the full name where the suffix
+## does not match.
+canonical_name_sql <- function(name, authorship){
+  auth <- paste0("nullif(", authorship, ", '')")
+  full <- paste0("nullif(trim(", name, "), '')")
+  stripped <- paste0(
+    "CASE WHEN ", auth, " IS NOT NULL AND ", full, " IS NOT NULL",
+    " AND ends_with(", full, ", ", auth, ")",
+    " THEN nullif(trim(substr(", full, ", 1,",
+    " length(", full, ") - length(", auth, "))), '')",
+    " ELSE ", full, " END")
+  drop_qualifier_sql(stripped)
+}
+
+## Cut a name off at a usage qualifier.
+##
+## Providers record misapplications and emendations in the name string
+## itself: "Desmacella peachi sensu Ferrer Hernandez, 1914", "Corvina nigra
+## non Cuvier, 1829", "Trochamminoides proteus (Karrer, 1866) emend. Rogl,
+## 1995".  The authorship field holds only the original author, so stripping
+## it leaves the qualifier behind.  What a user matching a name wants is the
+## name being qualified, so cut at the qualifier.  These words do not occur
+## as epithets, so this is safe to apply to every name.
+drop_qualifier_sql <- function(name){
+  paste0("nullif(trim(regexp_replace(", name,
+         ", ' (sensu|non|not|emend\\.|auct\\.) .*$', '')), '')")
+}
