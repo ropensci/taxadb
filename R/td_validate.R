@@ -21,6 +21,9 @@ DWC_HIERARCHY <- c("kingdom", "phylum", "class", "order", "family", "genus",
 COMMON_REQUIRED <- c("taxonID", "vernacularName", "acceptedNameUsageID",
                      "scientificName", "taxonRank", "taxonomicStatus")
 
+## `common` additionally records the language each vernacular name is in.
+COMMON_OPTIONAL <- "language"
+
 #' Check a taxadb table against the taxadb Darwin Core rules
 #'
 #' @inheritParams filter_by
@@ -84,10 +87,19 @@ td_validate <- function(provider = getOption("taxadb_default_provider", "itis"),
       rule_not_null(db, src, "taxonomicStatus"),
       rule_not_null(db, src, "acceptedNameUsageID"),
       rule_accepted_has_id(db, src),
-      rule_accepted_resolves(db, src),
       rule_self_is_accepted(db, src),
-      rule_accepted_unique(db, src),
       rule_id_prefix(db, src, provider)))
+
+    if(schema == "common")
+      rules <- c(rules, list(rule_not_null(db, src, "vernacularName")))
+
+    ## Two rules are meaningful only on `dwc`, which is the complete name
+    ## list.  `common` holds one row per vernacular name, so a taxonID
+    ## recurs by design, and it lists only taxa that have a vernacular
+    ## name, so an acceptedNameUsageID need not appear in it as a row.
+    if(schema == "dwc")
+      rules <- c(rules, list(rule_accepted_resolves(db, src),
+                             rule_accepted_unique(db, src)))
   }
 
   out <- do.call(rbind, rules)
