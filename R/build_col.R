@@ -149,6 +149,13 @@ build_col <- function(version = format(Sys.Date(), "%Y"),
        AND d.acceptedNameUsageID IN
          (SELECT taxonID FROM col_dwc WHERE taxonID = acceptedNameUsageID)")
 
+  ## COL's eml.xml carries the release date of the checklist.
+  eml <- tryCatch(readLines(archive_file(extracted, "^eml\\.xml$"),
+                            warn = FALSE), error = function(e) character(0))
+  pub <- regmatches(eml, regexpr("(?<=<pubDate>)[^<]+", eml, perl = TRUE))
+  record_source(db, "col", upstream_version = if(length(pub))
+    trimws(pub[[1]]) else NA_character_)
+
   extra <- c("scientificNameAuthorship", "cultivarEpithet",
              "nomenclaturalCode", "nomenclaturalStatus", "namePublishedIn",
              "nameAccordingTo", "taxonRemarks", "parentNameUsageID",

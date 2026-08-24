@@ -111,6 +111,13 @@ build_ott <- function(version = format(Sys.Date(), "%Y"),
      JOIN ott_taxonomy t ON s.uid = t.uid
      LEFT JOIN classification c ON s.uid = c.taxonID"))
 
+  ver <- tryCatch(trimws(readLines(archive_file(extracted, "^version\\.txt$"),
+                                   warn = FALSE)[[1]]),
+                  error = function(e) ott_version)
+  record_source(db, "ott", upstream_version = ver,
+                source = paste0("https://files.opentreeoflife.org/ott/ott",
+                                ott_version, "/"))
+
   dwc <- paste("SELECT", dwc_select(c("sourceinfo", "flags")),
                "FROM ott_dwc",
                "WHERE scientificName IS NOT NULL AND taxonRank IS NOT NULL")

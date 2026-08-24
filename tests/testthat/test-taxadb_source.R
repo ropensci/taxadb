@@ -38,9 +38,13 @@ test_that("the repository can be redirected for a mirror", {
 })
 
 test_that("taxadb_providers lists what we can rebuild", {
-  expect_true(all(c("itis", "ncbi", "col", "gbif", "ott", "fb", "slb") %in%
-                  taxadb_providers()))
-  ## iucn needs credentials, so it is not offered by default
-  expect_false("iucn" %in% taxadb_providers())
-  expect_true("iucn" %in% taxadb_providers(credentialed = TRUE))
+  expect_setequal(taxadb_providers(),
+                  c("itis", "ncbi", "col", "gbif", "ott", "fb", "slb"))
+})
+
+test_that("td_build refuses an unknown provider by name", {
+  expect_error(td_build("nosuchprovider"), "no builder for provider")
+  ## iucn was dropped; the message should say so plainly rather than
+  ## suggesting credentials that no longer help.
+  expect_error(td_build("iucn"), "no builder for provider")
 })

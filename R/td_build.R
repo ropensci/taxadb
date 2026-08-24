@@ -24,7 +24,6 @@
 #' 500MB and 1GB compressed respectively, and are cached in `dir` between
 #' builds.
 #'
-#' `iucn` cannot be built without credentials; see [build_iucn()].
 #' @export
 #' @examples \dontrun{
 #' ## rebuild one provider
@@ -75,9 +74,7 @@ td_build <- function(provider = "itis",
   out
 }
 
-## Providers we know how to rebuild.  `slb` shares FishBase's schema, and
-## `iucn` is here so that td_build("iucn") gives the credentials message
-## rather than "no builder".
+## Providers we know how to rebuild.  `fb` and `slb` share FishBase's schema.
 BUILDERS <- list(
   itis = function(...) build_itis(...),
   ncbi = function(...) build_ncbi(...),
@@ -85,14 +82,11 @@ BUILDERS <- list(
   gbif = function(...) build_gbif(...),
   ott  = function(...) build_ott(...),
   fb   = function(...) build_fishbase(provider = "fb", ...),
-  slb  = function(...) build_fishbase(provider = "slb", ...),
-  iucn = function(...) build_iucn(...)
+  slb  = function(...) build_fishbase(provider = "slb", ...)
 )
 
 #' Providers taxadb can rebuild
 #'
-#' @param credentialed include providers that need credentials to build?
-#'  Default `FALSE`.
 #' @return a character vector of provider abbreviations
 #' @details Unlike [available_providers()], which reports what is published,
 #' this reports what [td_build()] knows how to derive from the provider's own
@@ -100,8 +94,6 @@ BUILDERS <- list(
 #' @export
 #' @examples
 #' taxadb_providers()
-taxadb_providers <- function(credentialed = FALSE){
-  p <- names(BUILDERS)
-  if(!credentialed) p <- setdiff(p, "iucn")
-  p
+taxadb_providers <- function(){
+  names(BUILDERS)
 }

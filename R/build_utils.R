@@ -125,10 +125,17 @@ prefix_id <- function(column, prefix){
 
 ## Write a query out as a taxadb snapshot, in the published layout:
 ##   <dir>/<version>/<schema>_<provider>_part_<n>.parquet
-## Snapshots are written as a single part unless they exceed `part_rows`.
+##
+## Tables are written as a single part unless they exceed `part_rows`, which
+## is set high enough that every current provider is one file. That is
+## deliberate: a reader who was given the URL of `..._part_0.parquet` should
+## get the whole table from it, not a fraction of one, and splitting a table
+## that used to be single would silently truncate their results. duckdb
+## reads row groups within one file in parallel regardless, so multiple
+## parts buy nothing here beyond a cap on individual file size.
 write_snapshot <- function(db, query, provider, schema, version,
                            dir = file.path(build_dir(), "out"),
-                           part_rows = 5e6){
+                           part_rows = 20e6){
 
   out_dir <- file.path(dir, version)
   dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)

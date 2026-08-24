@@ -4,11 +4,7 @@
 \alias{taxadb_providers}
 \title{Providers taxadb can rebuild}
 \usage{
-taxadb_providers(credentialed = FALSE)
-}
-\arguments{
-\item{credentialed}{include providers that need credentials to build?
-Default \code{FALSE}.}
+taxadb_providers()
 }
 \value{
 a character vector of provider abbreviations

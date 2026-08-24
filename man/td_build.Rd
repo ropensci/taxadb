@@ -47,8 +47,6 @@ Builds are done entirely in \code{duckdb}, out of core, so they are bounded by
 disk rather than memory.  The archives are large: COL and GBIF are around
 500MB and 1GB compressed respectively, and are cached in \code{dir} between
 builds.
-
-\code{iucn} cannot be built without credentials; see \code{\link[=build_iucn]{build_iucn()}}.
 }
 \examples{
 \dontrun{

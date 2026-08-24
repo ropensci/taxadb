@@ -117,6 +117,12 @@ build_itis <- function(version = format(Sys.Date(), "%Y"),
        AND d.scientificName IS NOT NULL
        AND d.taxonRank IS NOT NULL")
 
+  ## The ITIS archive names its own directory itisSqlite<MMDDYY>.
+  stamp <- regmatches(basename(dirname(sqlite)),
+                      regexpr("[0-9]{6}$", basename(dirname(sqlite))))
+  record_source(db, "itis", upstream_version = if(length(stamp) == 1)
+    format(as.Date(stamp, "%m%d%y"), "%Y-%m-%d") else NA_character_)
+
   dwc <- paste("SELECT", dwc_select("update_date"), "FROM itis_dwc_clean")
 
   ## The common table keeps every vernacular name, one row each, with the

@@ -113,6 +113,11 @@ build_ncbi <- function(version = format(Sys.Date(), "%Y"),
      LEFT JOIN classification c ON nm.tax_id = c.taxonID
      LEFT JOIN ncbi_vern v ON nm.tax_id = v.tax_id"))
 
+  ## taxdump is regenerated daily and carries no version string, so the
+  ## date of the dump we read is the only version there is.
+  record_source(db, "ncbi", upstream_version = format(
+    as.Date(file.mtime(archive_file(extracted, "^nodes\\.dmp$"))), "%Y-%m-%d"))
+
   dwc <- paste("SELECT", dwc_select(), "FROM ncbi_dwc",
                "WHERE scientificName IS NOT NULL AND taxonRank IS NOT NULL")
 

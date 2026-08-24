@@ -173,6 +173,10 @@ build_fishbase <- function(version = format(Sys.Date(), "%Y"),
        AND d.acceptedNameUsageID IN
          (SELECT taxonID FROM fb_final WHERE taxonID = acceptedNameUsageID)")
 
+  record_source(db, provider, upstream_version = fb_version,
+                source = paste0("s3://cboettig/fishbase/", provider, "/",
+                                fb_version, "/parquet/"))
+
   dwc <- paste("SELECT",
                dwc_select(c("scientificNameAuthorship", "synonymID")),
                "FROM fb_clean")

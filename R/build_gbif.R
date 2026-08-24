@@ -116,6 +116,12 @@ build_gbif <- function(version = format(Sys.Date(), "%Y"),
        AND d.acceptedNameUsageID IN
          (SELECT taxonID FROM gbif_dwc WHERE taxonID = acceptedNameUsageID)")
 
+  ## The backbone is released as a dated snapshot; the archive's file date
+  ## is that release. Worth recording, because GBIF has published no new
+  ## backbone since 2023-08-28 while the taxadb snapshot is far newer.
+  record_source(db, "gbif", upstream_version = format(
+    as.Date(file.mtime(archive_file(extracted, "^Taxon\\.tsv$"))), "%Y-%m-%d"))
+
   extra <- c("scientificNameAuthorship", "nomenclaturalStatus",
              "namePublishedIn", "nameAccordingTo", "taxonRemarks",
              "parentNameUsageID", "originalNameUsageID")
