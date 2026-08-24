@@ -70,26 +70,27 @@ td_manifest <- function(version = format(Sys.Date(), "%Y"),
 
 `%||%` <- function(x, y) if(is.null(x)) y else x
 
-## Licences present in the taxadb snapshots, most permissive first.  A
-## repository label has to be the most restrictive licence it contains.
-LICENSE_ORDER <- c("public domain", "CC0 1.0", "CC BY 4.0", "CC BY-NC 4.0")
+## SPDX identifiers for the licences the providers publish under.
+##
+## A repository holds many datasets and they do not share a licence: ITIS and
+## NCBI taxonomy are public domain, OTT is CC0, COL and GBIF are CC BY, and
+## FishBase and SeaLifeBase are CC BY-NC. Each dataset is labelled with its
+## own terms rather than the repository being labelled with one, which would
+## either over-restrict the permissive tables or assert a grant nobody made
+## for the non-commercial ones.
+LICENSE_SPDX <- c(
+  "public domain" = "CC0-1.0",
+  "CC0 1.0"       = "CC0-1.0",
+  "CC BY 4.0"     = "CC-BY-4.0",
+  "CC BY-NC 4.0"  = "CC-BY-NC-4.0")
 
-LICENSE_LABEL <- c(
-  "public domain" = "cc0-1.0",   # source.coop has no "public domain" label
-  "CC0 1.0"       = "cc0-1.0",
-  "CC BY 4.0"     = "cc-by-4.0",
-  "CC BY-NC 4.0"  = "cc-by-nc-4.0")
-
-aggregate_license <- function(m){
-  present <- unique(m$license[!is.na(m$license)])
-  unknown <- setdiff(present, LICENSE_ORDER)
+license_spdx <- function(license){
+  unknown <- setdiff(unique(license[!is.na(license)]), names(LICENSE_SPDX))
   if(length(unknown))
-    stop("cannot label a snapshot containing unranked licence(s): ",
+    stop("no SPDX identifier known for licence(s): ",
          paste(unknown, collapse = ", "),
-         "\n  add them to LICENSE_ORDER in R/manifest.R, in order of",
-         " increasing restriction", call. = FALSE)
-  strictest <- present[which.max(match(present, LICENSE_ORDER))]
-  LICENSE_LABEL[[strictest]]
+         "\n  add them to LICENSE_SPDX in R/manifest.R", call. = FALSE)
+  unname(LICENSE_SPDX[license])
 }
 
 ## digest() would be another dependency; duckdb can hash a file it can read.
@@ -148,12 +149,17 @@ readme_lines <- function(m, version, repo){
 
   c(
 "---",
-## source.coop reads this front matter as the repository's licence label.
-## The tables carry different terms, so the aggregate has to be labelled
-## with the most restrictive of them: someone who takes the repository as a
-## whole is bound by the strictest table in it.  Labelling it with a
-## permissive licence would assert a grant nobody made for the NC tables.
-paste0("license: ", aggregate_license(m)),
+## A repository is not a licence. These datasets come from seven
+## independent authorities under four different sets of terms, so the front
+## matter carries one entry per dataset rather than a single label for the
+## repository -- any single label would be wrong for most of the tables in
+## it.
+"licenses:",
+unlist(lapply(seq_len(nrow(m)), function(i)
+  paste0("  - dataset: ", m$schema[i], "_", m$provider[i], "\n",
+         "    license: ", license_spdx(m$license[i]), "\n",
+         "    authority: ", info$title[match(m$provider[i], info$provider)],
+         "\n    url: ", info$url[match(m$provider[i], info$provider)]))),
 "---",
 "",
 paste0("# taxadb ", version),
@@ -245,18 +251,22 @@ tbl(c("provider", "authority", "upstream release", "licence"),
              "](", i$license_url, ") |")
     }, character(1L))),
 "",
-"Each table is redistributed under its provider's terms, listed above and",
-"in `manifest.csv`. **`fb` and `slb` are CC BY-NC**: those two may not be",
-"used commercially. The others permit commercial use with attribution.",
+"Each dataset carries its provider's terms. There is no repository-wide",
+"licence, and none of these datasets inherits terms from any other:",
 "",
-paste0("This repository is labelled `", aggregate_license(m), "`, which is the"),
-"most restrictive licence any table in it carries. That label governs the",
-"repository taken as a whole; it is not a claim that every table is so",
-"restricted. Per-table terms are the ones above, and a table under a more",
-"permissive licence stays under it -- ITIS and NCBI taxonomy are public",
-"domain whatever this repository is labelled. If you need only the",
-"permissively-licensed providers, take those files and the label that",
-"applies to them.",
+tbl(c("dataset", "licence", "commercial use"),
+    vapply(seq_len(nrow(m)), function(i){
+      lic <- license_spdx(m$license[i])
+      paste0("| `", m$schema[i], "_", m$provider[i], "` | [", lic, "](",
+             info$license_url[match(m$provider[i], info$provider)], ") | ",
+             if(grepl("NC", lic)) "**no**" else "yes", " |")
+    }, character(1L))),
+"",
+"`CC0-1.0` covers both the CC0 dedications and the works placed in the public",
+"domain by their producing agency (ITIS and NCBI), which impose no conditions",
+"either way. The two FishBase datasets are the only non-commercial ones here;",
+"the other eleven permit commercial use, `CC-BY-4.0` ones with attribution.",
+"Attribution means citing the provider -- see Citation below.",
 "",
 "## Tables in this release",
 "",
