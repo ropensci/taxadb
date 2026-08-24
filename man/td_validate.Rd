@@ -44,22 +44,28 @@ rank: \code{Animalia} is a scientificName just as \verb{Homo sapiens} is.
 \item \strong{taxonRank}, \strong{taxonomicStatus} -- never \code{NA}.
 \item \strong{acceptedNameUsageID} -- never \code{NA}, on synonyms \emph{and} on accepted
 names.  This is where taxadb is stricter than Darwin Core.
-\item \strong{accepted_has_id} -- a row that is its own accepted name has a
-\code{taxonID}.  (\code{taxonID} may be \code{NA} on a synonym, where the provider
-mints no identifier for it -- OTT and NCBI, for instance, do not.)
+\item \strong{accepted_has_id} -- a row labelled \code{accepted} is its own accepted
+name: \code{taxonID} is present and equals \code{acceptedNameUsageID}.
+(\code{taxonID} may be \code{NA} on a synonym, where the provider mints no
+identifier for it -- OTT and NCBI, for instance, do not.)
 \item \strong{accepted_resolves} -- every \code{acceptedNameUsageID} matches the
 \code{taxonID} of a self-referencing row.  No dangling references.
-\item \strong{self_is_accepted} -- a row whose \code{taxonID} equals its
-\code{acceptedNameUsageID} is labelled \code{accepted} in \code{taxonomicStatus}.
+\item \strong{synonym_not_self} -- a row labelled a synonym points somewhere
+else, never at itself.
 \item \strong{accepted_unique} -- no duplicate \code{taxonID} among accepted names.
 \item \strong{id_prefix} -- identifiers are the provider's identifier prefixed by
 the provider abbreviation in capitals, e.g. \code{ITIS:180092}.
 }
 
 \code{taxonomicStatus} is deliberately \emph{not} checked against a controlled
-vocabulary beyond requiring that accepted names say \code{accepted}: providers
-draw real distinctions (\verb{homotypic synonym}, \verb{provisionally accepted},
-\code{misapplied}) that are worth preserving.
+vocabulary: providers draw real distinctions (\verb{homotypic synonym},
+\verb{provisionally accepted}, \code{doubtful}, \code{misapplied}) that are worth
+preserving.  The rules are therefore phrased structurally.  A name the
+provider does not redirect to another name is its own accepted name
+whatever confidence it expresses about it, so \code{doubtful} and
+\verb{provisionally accepted} rows self-reference exactly as \code{accepted} ones
+do; only the two terms whose meaning taxadb actually relies on,
+\code{accepted} and \code{synonym}, are given a required shape.
 }
 \examples{
 \donttest{

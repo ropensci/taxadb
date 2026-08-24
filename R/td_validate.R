@@ -41,21 +41,27 @@ COMMON_OPTIONAL <- "language"
 #' * **taxonRank**, **taxonomicStatus** -- never `NA`.
 #' * **acceptedNameUsageID** -- never `NA`, on synonyms *and* on accepted
 #'   names.  This is where taxadb is stricter than Darwin Core.
-#' * **accepted_has_id** -- a row that is its own accepted name has a
-#'   `taxonID`.  (`taxonID` may be `NA` on a synonym, where the provider
-#'   mints no identifier for it -- OTT and NCBI, for instance, do not.)
+#' * **accepted_has_id** -- a row labelled `accepted` is its own accepted
+#'   name: `taxonID` is present and equals `acceptedNameUsageID`.
+#'   (`taxonID` may be `NA` on a synonym, where the provider mints no
+#'   identifier for it -- OTT and NCBI, for instance, do not.)
 #' * **accepted_resolves** -- every `acceptedNameUsageID` matches the
 #'   `taxonID` of a self-referencing row.  No dangling references.
-#' * **self_is_accepted** -- a row whose `taxonID` equals its
-#'   `acceptedNameUsageID` is labelled `accepted` in `taxonomicStatus`.
+#' * **synonym_not_self** -- a row labelled a synonym points somewhere
+#'   else, never at itself.
 #' * **accepted_unique** -- no duplicate `taxonID` among accepted names.
 #' * **id_prefix** -- identifiers are the provider's identifier prefixed by
 #'   the provider abbreviation in capitals, e.g. `ITIS:180092`.
 #'
 #' `taxonomicStatus` is deliberately *not* checked against a controlled
-#' vocabulary beyond requiring that accepted names say `accepted`: providers
-#' draw real distinctions (`homotypic synonym`, `provisionally accepted`,
-#' `misapplied`) that are worth preserving.
+#' vocabulary: providers draw real distinctions (`homotypic synonym`,
+#' `provisionally accepted`, `doubtful`, `misapplied`) that are worth
+#' preserving.  The rules are therefore phrased structurally.  A name the
+#' provider does not redirect to another name is its own accepted name
+#' whatever confidence it expresses about it, so `doubtful` and
+#' `provisionally accepted` rows self-reference exactly as `accepted` ones
+#' do; only the two terms whose meaning taxadb actually relies on,
+#' `accepted` and `synonym`, are given a required shape.
 #' @export
 #' @examples \donttest{
 #' td_validate("itis_test")
@@ -87,7 +93,7 @@ td_validate <- function(provider = getOption("taxadb_default_provider", "itis"),
       rule_not_null(db, src, "taxonomicStatus"),
       rule_not_null(db, src, "acceptedNameUsageID"),
       rule_accepted_has_id(db, src),
-      rule_self_is_accepted(db, src),
+      rule_synonym_not_self(db, src),
       rule_id_prefix(db, src, provider)))
 
     if(schema == "common")
@@ -158,16 +164,17 @@ rule_not_null <- function(db, src, column){
                    else paste(format(n, big.mark = ","), "NULL", column))
 }
 
-## A row that is its own accepted name must carry an identifier.  We cannot
-## key off taxonID = acceptedNameUsageID here (that is what we are testing),
-## so we key off the status term.
+## A row the provider calls `accepted` must be its own accepted name.  We
+## cannot key off taxonID = acceptedNameUsageID here -- that is what we are
+## testing -- so this is the one rule that reads the status term.
 rule_accepted_has_id <- function(db, src){
   n <- count_where(db, src,
-    "taxonomicStatus LIKE '%accepted%' AND taxonID IS NULL")
+    "taxonomicStatus = 'accepted' AND
+     (taxonID IS NULL OR taxonID <> acceptedNameUsageID)")
   check("accepted_has_id", n,
-        if(n == 0) "accepted names all carry a taxonID"
+        if(n == 0) "accepted names are their own accepted name"
         else paste(format(n, big.mark = ","),
-                   "accepted names with NULL taxonID"))
+                   "accepted names lacking a self-referencing taxonID"))
 }
 
 rule_accepted_resolves <- function(db, src){
@@ -182,13 +189,16 @@ rule_accepted_resolves <- function(db, src){
         else paste(format(n, big.mark = ","), "dangling acceptedNameUsageID"))
 }
 
-rule_self_is_accepted <- function(db, src){
+## The converse: a synonym must redirect somewhere other than itself, or
+## resolving it would be a no-op.  Statuses that are neither `accepted` nor
+## a synonym -- `doubtful`, `provisionally accepted` -- are left alone; a
+## name the provider does not redirect is its own accepted name.
+rule_synonym_not_self <- function(db, src){
   n <- count_where(db, src,
-    "taxonID = acceptedNameUsageID AND taxonomicStatus NOT LIKE '%accepted%'")
-  check("self_is_accepted", n,
-        if(n == 0) "self-referencing rows are labelled accepted"
-        else paste(format(n, big.mark = ","),
-                   "self-referencing rows not labelled accepted"))
+    "taxonomicStatus LIKE '%synonym%' AND taxonID = acceptedNameUsageID")
+  check("synonym_not_self", n,
+        if(n == 0) "synonyms point to another name"
+        else paste(format(n, big.mark = ","), "synonyms pointing at themselves"))
 }
 
 rule_accepted_unique <- function(db, src){
