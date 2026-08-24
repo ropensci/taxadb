@@ -9,13 +9,17 @@
 # Credentials come from the environment, so they are never written to disk
 # or into a command line:
 #
-#   export SOURCECOOP_KEY=...
-#   export SOURCECOOP_SECRET=...
 #   inst/scripts/publish-snapshot.sh 2026
+#
+# Credentials come from an rclone remote, not from this script: point
+# RCLONE_CONFIG at a config defining a source.coop remote (the cluster keeps
+# one in the `rclone-config` / `rclone-backup` secret, key `rclone.conf`).
+# Nothing here reads or echoes a key.
 #
 # Optional:
 #   TAXADB_BUILD_DIR   build directory (default: the R user cache dir)
 #   TAXADB_REPO        target repository (default: cboettig/taxadb)
+#   RCLONE_REMOTE      remote name for source.coop (default: source)
 #   DRY_RUN=1          list what would be uploaded and exit
 
 set -euo pipefail
@@ -27,10 +31,19 @@ if [ -z "$VERSION" ]; then
 fi
 
 REPO="${TAXADB_REPO:-cboettig/taxadb}"
+REMOTE="${RCLONE_REMOTE:-source}"
+
+# source.coop's write path is not its read path. Reads present each account as
+# its own bucket (data.source.coop/cboettig/taxadb/...), but writes go to one
+# SHARED bucket with the account as the first key segment:
+#
+#   read   https://data.source.coop/cboettig/taxadb/2026/...
+#   write  <remote>:us-west-2.opendata.source.coop/cboettig/taxadb/2026/...
+#
+# Writing to `:s3:cboettig/...` would not land where the data is served from.
+DEST_BUCKET="us-west-2.opendata.source.coop"
 BUILD_DIR="${TAXADB_BUILD_DIR:-$(Rscript -e 'cat(tools::R_user_dir("taxadb","cache"))')/build}"
 SRC="$BUILD_DIR/out/$VERSION"
-ENDPOINT="https://data.source.coop"
-
 [ -d "$SRC" ] || { echo "no build output at $SRC" >&2; exit 1; }
 
 # Publishing without the metadata would leave the data undocumented, which
@@ -55,7 +68,9 @@ if [ -n "$split" ]; then
   exit 1
 fi
 
-echo "publishing $VERSION -> s3://$REPO/$VERSION"
+DEST="$REMOTE:$DEST_BUCKET/$REPO/$VERSION"
+
+echo "publishing $VERSION -> $DEST"
 find "$SRC" -maxdepth 1 -type f \
   \( -name '*.parquet' -o -name '*.md' -o -name '*.csv' \) \
   -printf '  %-34f %10s bytes\n' | sort
