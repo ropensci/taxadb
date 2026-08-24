@@ -49,6 +49,13 @@ COMMON_OPTIONAL <- "language"
 #'   `taxonID` of a self-referencing row.  No dangling references.
 #' * **synonym_not_self** -- a row labelled a synonym points somewhere
 #'   else, never at itself.
+#' * **taxonID_one_name** -- a `taxonID` always names the same
+#'   `scientificName`.  An identifier may appear on more than one row: ITIS
+#'   records 255 synonyms that are ambiguous between two accepted taxa, and
+#'   a row for each is the honest representation.  What must not happen is
+#'   one identifier naming two *different* names, which is what results
+#'   from a provider numbering its accepted names and its synonyms in
+#'   separate sequences and both being given the same prefix.
 #' * **accepted_unique** -- no duplicate `taxonID` among accepted names.
 #' * **id_prefix** -- identifiers are the provider's identifier prefixed by
 #'   the provider abbreviation in capitals, e.g. `ITIS:180092`.
@@ -105,6 +112,7 @@ td_validate <- function(provider = getOption("taxadb_default_provider", "itis"),
     ## name, so an acceptedNameUsageID need not appear in it as a row.
     if(schema == "dwc")
       rules <- c(rules, list(rule_accepted_resolves(db, src),
+                             rule_taxonid_one_name(db, src),
                              rule_accepted_unique(db, src)))
   }
 
@@ -199,6 +207,20 @@ rule_synonym_not_self <- function(db, src){
   check("synonym_not_self", n,
         if(n == 0) "synonyms point to another name"
         else paste(format(n, big.mark = ","), "synonyms pointing at themselves"))
+}
+
+## An identifier may legitimately appear on several rows -- a synonym that
+## is ambiguous between two accepted taxa needs one row per reading -- but
+## it must mean the same name on each of them.
+rule_taxonid_one_name <- function(db, src){
+  n <- DBI::dbGetQuery(db, paste0(
+    "SELECT count(*) AS n FROM (SELECT taxonID FROM ", src,
+    " WHERE taxonID IS NOT NULL",
+    " GROUP BY taxonID HAVING count(DISTINCT scientificName) > 1)"))$n
+  check("taxonID_one_name", n,
+        if(n == 0) "each taxonID names one scientificName"
+        else paste(format(n, big.mark = ","),
+                   "taxonIDs naming more than one scientificName"))
 }
 
 rule_accepted_unique <- function(db, src){

@@ -52,6 +52,13 @@ identifier for it -- OTT and NCBI, for instance, do not.)
 \code{taxonID} of a self-referencing row.  No dangling references.
 \item \strong{synonym_not_self} -- a row labelled a synonym points somewhere
 else, never at itself.
+\item \strong{taxonID_one_name} -- a \code{taxonID} always names the same
+\code{scientificName}.  An identifier may appear on more than one row: ITIS
+records 255 synonyms that are ambiguous between two accepted taxa, and
+a row for each is the honest representation.  What must not happen is
+one identifier naming two \emph{different} names, which is what results
+from a provider numbering its accepted names and its synonyms in
+separate sequences and both being given the same prefix.
 \item \strong{accepted_unique} -- no duplicate \code{taxonID} among accepted names.
 \item \strong{id_prefix} -- identifiers are the provider's identifier prefixed by
 the provider abbreviation in capitals, e.g. \code{ITIS:180092}.
