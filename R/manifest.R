@@ -70,6 +70,28 @@ td_manifest <- function(version = format(Sys.Date(), "%Y"),
 
 `%||%` <- function(x, y) if(is.null(x)) y else x
 
+## Licences present in the taxadb snapshots, most permissive first.  A
+## repository label has to be the most restrictive licence it contains.
+LICENSE_ORDER <- c("public domain", "CC0 1.0", "CC BY 4.0", "CC BY-NC 4.0")
+
+LICENSE_LABEL <- c(
+  "public domain" = "cc0-1.0",   # source.coop has no "public domain" label
+  "CC0 1.0"       = "cc0-1.0",
+  "CC BY 4.0"     = "cc-by-4.0",
+  "CC BY-NC 4.0"  = "cc-by-nc-4.0")
+
+aggregate_license <- function(m){
+  present <- unique(m$license[!is.na(m$license)])
+  unknown <- setdiff(present, LICENSE_ORDER)
+  if(length(unknown))
+    stop("cannot label a snapshot containing unranked licence(s): ",
+         paste(unknown, collapse = ", "),
+         "\n  add them to LICENSE_ORDER in R/manifest.R, in order of",
+         " increasing restriction", call. = FALSE)
+  strictest <- present[which.max(match(present, LICENSE_ORDER))]
+  LICENSE_LABEL[[strictest]]
+}
+
 ## digest() would be another dependency; duckdb can hash a file it can read.
 file_sha256 <- function(path){
   db <- td_connect()
@@ -126,7 +148,12 @@ readme_lines <- function(m, version, repo){
 
   c(
 "---",
-"license: various-by-provider",
+## source.coop reads this front matter as the repository's licence label.
+## The tables carry different terms, so the aggregate has to be labelled
+## with the most restrictive of them: someone who takes the repository as a
+## whole is bound by the strictest table in it.  Labelling it with a
+## permissive licence would assert a grant nobody made for the NC tables.
+paste0("license: ", aggregate_license(m)),
 "---",
 "",
 paste0("# taxadb ", version),
@@ -221,6 +248,15 @@ tbl(c("provider", "authority", "upstream release", "licence"),
 "Each table is redistributed under its provider's terms, listed above and",
 "in `manifest.csv`. **`fb` and `slb` are CC BY-NC**: those two may not be",
 "used commercially. The others permit commercial use with attribution.",
+"",
+paste0("This repository is labelled `", aggregate_license(m), "`, which is the"),
+"most restrictive licence any table in it carries. That label governs the",
+"repository taken as a whole; it is not a claim that every table is so",
+"restricted. Per-table terms are the ones above, and a table under a more",
+"permissive licence stays under it -- ITIS and NCBI taxonomy are public",
+"domain whatever this repository is labelled. If you need only the",
+"permissively-licensed providers, take those files and the label that",
+"applies to them.",
 "",
 "## Tables in this release",
 "",

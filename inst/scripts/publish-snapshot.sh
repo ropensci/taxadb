@@ -65,6 +65,22 @@ if [ "${DRY_RUN:-0}" = "1" ]; then echo "(dry run, nothing uploaded)"; exit 0; f
 : "${SOURCECOOP_KEY:?set SOURCECOOP_KEY}"
 : "${SOURCECOOP_SECRET:?set SOURCECOOP_SECRET}"
 
+# Destination guard. The source.coop credential is account-wide write across
+# every repository under the account, and source.coop deletions have no
+# archive to restore from -- so the only thing keeping a typo in TAXADB_REPO
+# from writing into an unrelated repository is this check. Same guard the
+# geo-agent-ops source-sync CronJob carries, for the same reason.
+case "$REPO" in
+  */*/*|*" "*|""|/*|*/) echo "refusing: TAXADB_REPO must be <account>/<repo>, got '$REPO'" >&2; exit 1 ;;
+esac
+case "$VERSION" in
+  */*|*" "*|.*|"") echo "refusing: version must be a plain name, got '$VERSION'" >&2; exit 1 ;;
+esac
+
+# copy, never sync: sync would delete anything at the destination that is not
+# in the build output, and this uploads one version directory into a
+# repository that holds others.
+
 # --s3-no-check-bucket: the bucket exists, and the key may not be permitted
 # to probe it. --checksum: skip files whose content is already identical.
 rclone copy "$SRC" ":s3:$REPO/$VERSION" \
