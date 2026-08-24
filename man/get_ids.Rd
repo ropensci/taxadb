@@ -87,7 +87,7 @@ get_ids("Midas bicolor", format = "uri")
 \seealso{
 filter_name
 
-Other get: 
-\code{\link{get_names}()}
+Other get:
+\code{\link[=get_names]{get_names()}}
 }
 \concept{get}

@@ -9,6 +9,9 @@ td_disconnect(db = td_connect())
 \arguments{
 \item{db}{database connection}
 }
+\value{
+invisible \code{TRUE}
+}
 \description{
 Disconnect from the taxadb database.
 }
@@ -17,9 +20,6 @@ This function manually closes a connection to the \code{taxadb} database.
 }
 \examples{
 \donttest{
-
-## Disconnect from the database:
 td_disconnect()
-
 }
 }

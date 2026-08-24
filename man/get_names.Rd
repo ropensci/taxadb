@@ -60,7 +60,7 @@ get_names(c("ITIS:1025094", "ITIS:1025103"), format = "prefix")
 
 }
 \seealso{
-Other get: 
-\code{\link{get_ids}()}
+Other get:
+\code{\link[=get_ids]{get_ids()}}
 }
 \concept{get}

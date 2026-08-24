@@ -1,8 +1,10 @@
 Package: taxadb
-Version: 0.2.1.99
-Title: A High-Performance Local Taxonomic Database Interface
-Description: Creates a local database of many commonly used taxonomic authorities
-             and provides functions that can quickly query this data.
+Version: 0.3.0
+Title: A High-Performance Taxonomic Database Interface
+Description: Provides fast access to many commonly used taxonomic authorities
+             in a uniform Darwin Core format. Tables are read directly from
+             versioned Parquet snapshots, streamed from cloud storage or from a
+             local copy, and queried with familiar 'dplyr' verbs.
 Authors@R: c(
             person("Carl", "Boettiger", , "cboettig@gmail.com", c("aut", "cre"),
                    comment = c(ORCID = "0000-0002-1642-628X")),
@@ -29,21 +31,17 @@ Imports:
     dbplyr,
     rlang,
     magrittr,
-    stringi,
-    contentid,
-    memoise
+    stringi
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
 Suggests:
     spelling,
     testthat,
     covr,
     knitr,
     rmarkdown,
-    purrr,
-    crayon,
-    RSQLite
+    crayon
 Language: en-US
 VignetteBuilder: knitr
 URL: <https://docs.ropensci.org/taxadb/>, <https://github.com/ropensci/taxadb>
 BugReports: https://github.com/ropensci/taxadb/issues
+Config/roxygen2/version: 8.0.0

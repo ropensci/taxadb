@@ -20,28 +20,32 @@ See \verb{[td_create]} for a list of recognized providers.}
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{tl_import} for details.}
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
+}
+\value{
+a lazy \code{dplyr} table backed by the requested Parquet snapshot.
 }
 \description{
 Return a reference to a given table in the taxadb database
 }
+\details{
+The returned table is a \code{duckdb} view over Parquet, so it can be
+manipulated with any \code{dplyr} verb and is only ever read to the extent your
+query requires.  Unless a local copy has been installed with
+\code{\link[=td_download]{td_download()}}, the data is streamed from remote storage on demand.
+}
 \examples{
 \donttest{
-  \dontshow{
-   ## All examples use a temporary directory
-   Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
-   options("taxadb_default_provider"="itis_test")
-  }
+  \dontshow{options("taxadb_default_provider" = "itis_test")}
 
-  ## default schema is the dwc table
+  ## default schema is the Darwin Core table
   taxa_tbl()
 
   ## common names table
   taxa_tbl(schema = "common")
 
-
-
+  \dontshow{options("taxadb_default_provider" = NULL)}
 }
 }

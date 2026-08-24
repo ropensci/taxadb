@@ -1,30 +1,26 @@
 #' Connect to the taxadb database
 #'
-#' @param dbdir Path to the database. no longer needed
-#' @param driver deprecated, ignored.  driver will always be duckdb.
-#' @param read_only deprecated, driver is always read-only.
-#' @return Returns a DBI `connection` to the default duckdb database
-#' @details This function provides a default database connection for
-#' `taxadb`. Note that you can use `taxadb` with any DBI-compatible database
-#' connection  by passing the connection object directly to `taxadb`
-#' functions using the `db` argument. `td_connect()` exists only to provide
-#' reasonable automatic defaults based on what is available on your system.
+#' @param dbdir Deprecated, ignored.
+#' @param driver Deprecated, ignored. The driver is always `duckdb`.
+#' @param read_only Deprecated, ignored.
+#' @return a DBI `connection` to an in-process duckdb database, configured
+#'  for anonymous streaming reads from the `taxadb` data repository.
+#' @details `taxadb` reads Parquet snapshots directly from object storage
+#' (<https://source.coop>) using `duckdb`'s `httpfs` extension, so no data
+#' import step is required.  This function returns a connection with
+#' `httpfs` loaded and the S3 endpoint configured for anonymous access.
 #'
-#' For performance reasons, this function will also cache and restore the
-#' existing database connection, making repeated calls to `td_connect()` much
-#' faster and more failsafe than repeated calls to [DBI::dbConnect]
+#' For performance reasons the connection is cached and reused, making
+#' repeated calls to `td_connect()` much faster and more failsafe than
+#' repeated calls to [DBI::dbConnect].
 #'
+#' Set `options(taxadb_threads=)` or `options(taxadb_memory_limit=)` to
+#' constrain `duckdb`'s resource use.
 #'
-#' @importFrom DBI dbConnect dbIsValid
+#' @importFrom DBI dbConnect dbIsValid dbExecute
 #' @export
 #' @examples \donttest{
-#' ## OPTIONAL: you can first set an alternative home location,
-#' ## such as a temporary directory:
-#' Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
-#'
-#' ## Connect to the database:
 #' db <- td_connect()
-#'
 #' }
 td_connect <- function(dbdir = NULL,
                        driver = NULL,
@@ -35,44 +31,74 @@ td_connect <- function(dbdir = NULL,
   db_name <- "taxadb_conn"
   db <- mget(db_name, envir = taxadb_cache, ifnotfound = NA)[[1]]
 
-  if(!inherits(db, "duckdb_connection")){
-    db <- DBI::dbConnect(duckdb::duckdb())
-    assign(db_name, db, envir = taxadb_cache)
-  }
+  if(inherits(db, "duckdb_connection") && DBI::dbIsValid(db)) return(db)
+
+  db <- DBI::dbConnect(duckdb::duckdb())
+  configure_duckdb(db)
+  assign(db_name, db, envir = taxadb_cache)
   db
+}
+
+## Load httpfs and point it at the taxadb object store for anonymous reads.
+## Anonymous access needs only the endpoint settings -- no credentials, and
+## no `CREATE SECRET`, which would fail on duckdb < 0.10.
+configure_duckdb <- function(db){
+
+  threads <- getOption("taxadb_threads", NULL)
+  if(!is.null(threads))
+    DBI::dbExecute(db, paste0("SET threads=", as.integer(threads), ";"))
+
+  mem <- getOption("taxadb_memory_limit", NULL)
+  if(!is.null(mem))
+    DBI::dbExecute(db, paste0("SET memory_limit='", mem, "';"))
+
+  ok <- tryCatch({
+    DBI::dbExecute(db, "INSTALL httpfs;")
+    DBI::dbExecute(db, "LOAD httpfs;")
+    TRUE
+  }, error = function(e) FALSE)
+
+  if(!ok){
+    warning(paste("Could not load the duckdb `httpfs` extension.",
+                  "Streaming from remote storage will not be available;",
+                  "only local snapshots can be read.\n",
+                  "See `?td_download` to install a local copy."),
+            call. = FALSE)
+    return(invisible(db))
+  }
+
+  DBI::dbExecute(db, paste0("SET s3_endpoint='", taxadb_endpoint(), "';"))
+  DBI::dbExecute(db, "SET s3_url_style='path';")
+  DBI::dbExecute(db, "SET s3_use_ssl=true;")
+
+  invisible(db)
 }
 
 #' Disconnect from the taxadb database.
 #'
 #' @param db database connection
 #' @details This function manually closes a connection to the `taxadb` database.
-#'
-#' @importFrom DBI dbConnect dbIsValid
-# @importFrom duckdb duckdb
+#' @return invisible `TRUE`
+#' @importFrom DBI dbDisconnect
 #' @export
 #' @examples \donttest{
-#'
-#' ## Disconnect from the database:
 #' td_disconnect()
-#'
 #' }
 td_disconnect <- function(db = td_connect()){
   if(inherits(db, "duckdb_connection")) {
-    DBI::dbDisconnect(db, shutdown=TRUE)
+    DBI::dbDisconnect(db, shutdown = TRUE)
   }
-  db_name <- ls(envir = taxadb_cache)
-  for(cached in db_name) {
-    db <- mget(cached, envir = taxadb_cache, ifnotfound = NA)[[1]]
+  for(cached in ls(envir = taxadb_cache)) {
     remove(list = cached, envir = taxadb_cache)
   }
+  invisible(TRUE)
 }
-
-
 
 taxadb_cache <- new.env()
 
 assert_deprecated <- function(...) {
   if(!all(vapply(list(...), is.null, FALSE)))
     warning(paste("deprecated arguments will be removed",
-                  " from future releases, see function docs"))
+                  "from future releases, see function docs"),
+            call. = FALSE)
 }
