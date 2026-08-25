@@ -28,7 +28,7 @@
 #' sixty phyla across several kingdoms and asserts no kingdom itself, so
 #' `kingdom` is left empty there rather than inferred.
 #'
-#' FishBase data is CC-BY-NC; see <https://fishbase.org>.
+#' FishBase data is CC-BY-NC (fishbase.org).
 #' @family build
 #' @export
 #' @examples \dontrun{

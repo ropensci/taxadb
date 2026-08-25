@@ -18,7 +18,7 @@ a data.frame of \code{provider} and the \code{schema}s published for it
 Name providers available for a given version
 }
 \examples{
-\donttest{
+\dontrun{
 available_providers()
 }
 }

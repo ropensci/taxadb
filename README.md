@@ -45,7 +45,7 @@ it, and the naming provider whose data you used
 > Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A
 > high-performance local taxonomic database interface. *Methods in
 > Ecology and Evolution* **11**(9), 1153-1159.
-> <https://doi.org/10.1111/2041-210X.13440>
+> <doi:10.1111/2041-210X.13440>
 
 `citation("taxadb")` gives both in R.
 

@@ -96,6 +96,7 @@ taxadb_uri <- function(provider = getOption("taxadb_default_provider", "itis"),
 list_snapshots_uncached <- function(db = td_connect()){
 
   glob <- paste0("s3://", taxadb_repo(), "/*/*.parquet")
+  if(!isTRUE(ensure_httpfs(db))) return(no_snapshots())
   files <- tryCatch(
     DBI::dbGetQuery(db, paste0("SELECT file FROM glob('", glob, "')"))$file,
     error = function(e) character(0))
@@ -131,7 +132,7 @@ no_snapshots <- function()
 #' `version`, `schema`, `provider` and `uri`.
 #' @details Requires network access.  Results are cached for the session.
 #' @export
-#' @examples \donttest{
+#' @examples \dontrun{
 #' list_snapshots()
 #' }
 list_snapshots <- function(db = td_connect()){
@@ -147,7 +148,7 @@ list_snapshots <- function(db = td_connect()){
 #' @inheritParams list_snapshots
 #' @return a character vector of available snapshot versions
 #' @export
-#' @examples \donttest{
+#' @examples \dontrun{
 #' available_versions()
 #' }
 available_versions <- function(db = td_connect()){
@@ -162,7 +163,7 @@ available_versions <- function(db = td_connect()){
 #' @inheritParams list_snapshots
 #' @return a data.frame of `provider` and the `schema`s published for it
 #' @export
-#' @examples \donttest{
+#' @examples \dontrun{
 #' available_providers()
 #' }
 available_providers <- function(version = latest_version(),
@@ -182,7 +183,7 @@ available_providers <- function(version = latest_version(),
 #' would make an archival release from 2022 the default for every query once
 #' it was published.
 #' @export
-#' @examples \donttest{
+#' @examples \dontrun{
 #' latest_version()
 #' }
 latest_version <- function(db = td_connect()){

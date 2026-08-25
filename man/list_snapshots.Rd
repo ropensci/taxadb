@@ -20,7 +20,7 @@ List the taxonomic snapshots available from the taxadb repository
 Requires network access.  Results are cached for the session.
 }
 \examples{
-\donttest{
+\dontrun{
 list_snapshots()
 }
 }

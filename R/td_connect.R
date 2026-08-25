@@ -14,6 +14,10 @@
 #' repeated calls to `td_connect()` much faster and more failsafe than
 #' repeated calls to [DBI::dbConnect].
 #'
+#' The `httpfs` extension needed for remote reads is loaded on first use
+#' rather than at connect time, so a session that only reads local snapshots
+#' or the bundled test data never touches the network.
+#'
 #' `duckdb` would otherwise scan with one thread per core and let its buffer
 #' pool grow to most of system RAM. For the selective scans `taxadb` makes
 #' that is the wrong trade: each scanning thread holds a decompressed Parquet
@@ -49,9 +53,10 @@ td_connect <- function(dbdir = NULL,
   db
 }
 
-## Load httpfs and point it at the taxadb object store for anonymous reads.
-## Anonymous access needs only the endpoint settings -- no credentials, and
-## no `CREATE SECRET`, which would fail on duckdb < 0.10.
+## Resource limits only. httpfs is NOT loaded here: installing it reaches
+## duckdb's extension repository, which took over five seconds and made every
+## session -- including one that only ever reads a local file -- depend on the
+## network. It is loaded on first remote read instead, by ensure_httpfs().
 configure_duckdb <- function(db){
 
   ## Cap threads rather than leaving duckdb's one-per-core default: see the
@@ -67,6 +72,20 @@ configure_duckdb <- function(db){
   if(!is.null(mem))
     DBI::dbExecute(db, paste0("SET memory_limit='", mem, "';"))
 
+  invisible(db)
+}
+
+## Load httpfs and point it at the taxadb object store for anonymous reads.
+##
+## Called before the first remote read on a connection, and at most once per
+## connection. Anonymous access needs only the endpoint settings -- no
+## credentials, and no `CREATE SECRET`, which would fail on duckdb < 0.10.
+ensure_httpfs <- function(db){
+
+  key <- "httpfs_loaded"
+  if(isTRUE(mget(key, envir = taxadb_cache, ifnotfound = FALSE)[[1]]))
+    return(invisible(TRUE))
+
   ok <- tryCatch({
     DBI::dbExecute(db, "INSTALL httpfs;")
     DBI::dbExecute(db, "LOAD httpfs;")
@@ -74,19 +93,17 @@ configure_duckdb <- function(db){
   }, error = function(e) FALSE)
 
   if(!ok){
-    warning(paste("Could not load the duckdb `httpfs` extension.",
-                  "Streaming from remote storage will not be available;",
-                  "only local snapshots can be read.\n",
-                  "See `?td_download` to install a local copy."),
-            call. = FALSE)
-    return(invisible(db))
+    warning(paste("Could not load the duckdb `httpfs` extension, so remote",
+                  "snapshots cannot be read.\n  Install a local copy with",
+                  "td_download(), or see ?td_connect."), call. = FALSE)
+    return(invisible(FALSE))
   }
 
   DBI::dbExecute(db, paste0("SET s3_endpoint='", taxadb_endpoint(), "';"))
   DBI::dbExecute(db, "SET s3_url_style='path';")
   DBI::dbExecute(db, "SET s3_use_ssl=true;")
-
-  invisible(db)
+  assign(key, TRUE, envir = taxadb_cache)
+  invisible(TRUE)
 }
 
 #' Disconnect from the taxadb database.

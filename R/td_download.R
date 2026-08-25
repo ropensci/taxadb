@@ -30,6 +30,7 @@ td_download <- function(provider = getOption("taxadb_default_provider", "itis"),
                         overwrite = FALSE,
                         db = td_connect()){
 
+  ensure_httpfs(db)
   snapshots <- list_snapshots(db)
   if(nrow(snapshots) == 0)
     stop(paste("Could not reach the taxadb data repository at",

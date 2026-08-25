@@ -22,7 +22,7 @@ would make an archival release from 2022 the default for every query once
 it was published.
 }
 \examples{
-\donttest{
+\dontrun{
 latest_version()
 }
 }

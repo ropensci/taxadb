@@ -30,6 +30,10 @@ For performance reasons the connection is cached and reused, making
 repeated calls to \code{td_connect()} much faster and more failsafe than
 repeated calls to \link[DBI:dbConnect]{DBI::dbConnect}.
 
+The \code{httpfs} extension needed for remote reads is loaded on first use
+rather than at connect time, so a session that only reads local snapshots
+or the bundled test data never touches the network.
+
 \code{duckdb} would otherwise scan with one thread per core and let its buffer
 pool grow to most of system RAM. For the selective scans \code{taxadb} makes
 that is the wrong trade: each scanning thread holds a decompressed Parquet

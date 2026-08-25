@@ -54,7 +54,7 @@ fishes, so its phylum and kingdom are constant.  SeaLifeBase spans some
 sixty phyla across several kingdoms and asserts no kingdom itself, so
 \code{kingdom} is left empty there rather than inferred.
 
-FishBase data is CC-BY-NC; see \url{https://fishbase.org}.
+FishBase data is CC-BY-NC (fishbase.org).
 }
 \examples{
 \dontrun{

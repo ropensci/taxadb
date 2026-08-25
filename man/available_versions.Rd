@@ -16,7 +16,7 @@ a character vector of available snapshot versions
 Versions of the taxadb data available
 }
 \examples{
-\donttest{
+\dontrun{
 available_versions()
 }
 }
