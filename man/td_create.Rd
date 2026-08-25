@@ -45,7 +45,7 @@ from a local copy.  \code{td_create()} is retained as an alias for
 \code{\link[=td_download]{td_download()}}, which installs a local copy.
 }
 \examples{
-\donttest{
+\dontrun{
 td_create("itis")
 }
 }

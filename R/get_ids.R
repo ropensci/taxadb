@@ -108,7 +108,10 @@ get_ids <- function(names,
       warning(paste0("  Found ", bb(length(ids)), " possible identifiers for ",
                      ibr(x),
                      ".\n  Returning ", bb('NA'), ". Try ",
-                     bb(paste0("filter_name('", x, "', '", db,"')")),
+                     ## `provider`, not the deprecated `db`, which is NULL
+                     ## unless the caller used the old argument -- the
+                     ## suggested command came out as filter_name('X', '').
+                     bb(paste0("filter_name('", x, "', '", provider, "')")),
                      " to resolve manually.\n"),
               call. = FALSE)
       }

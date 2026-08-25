@@ -19,8 +19,9 @@
 #' several hundred MB.  Use `available_providers()` to see what is published,
 #' and delete a local copy with `unlink(taxadb_dir(), recursive = TRUE)`.
 #' @export
-#' @examples \donttest{
-#' ## Install a local copy of ITIS
+#' @examples \dontrun{
+#' ## Install a local copy of ITIS. Writes to taxadb_dir() and downloads
+#' #  tens of MB, so this is never run unattended.
 #' td_download("itis")
 #' }
 td_download <- function(provider = getOption("taxadb_default_provider", "itis"),
@@ -79,7 +80,7 @@ td_download <- function(provider = getOption("taxadb_default_provider", "itis"),
 #' from a local copy.  `td_create()` is retained as an alias for
 #' [td_download()], which installs a local copy.
 #' @export
-#' @examples \donttest{
+#' @examples \dontrun{
 #' td_create("itis")
 #' }
 td_create <- function(provider = getOption("taxadb_default_provider", "itis"),

@@ -46,8 +46,9 @@ several hundred MB.  Use \code{available_providers()} to see what is published,
 and delete a local copy with \code{unlink(taxadb_dir(), recursive = TRUE)}.
 }
 \examples{
-\donttest{
-## Install a local copy of ITIS
+\dontrun{
+## Install a local copy of ITIS. Writes to taxadb_dir() and downloads
+#  tens of MB, so this is never run unattended.
 td_download("itis")
 }
 }
