@@ -7,7 +7,8 @@
 #' (every name), in a format that claims to be tab-separated but delimits
 #' fields with `\\t|\\t`.
 #'
-#' Every row of `names.dmp` carries the *accepted* taxon's `tax_id`, whatever
+#' Every row of `names.dmp` carries the `tax_id` of the *accepted* taxon,
+#' whatever
 #' the name's class: NCBI mints no separate identifier for a synonym.  So the
 #' `scientific name` rows become the accepted names, carrying a `taxonID` and
 #' pointing `acceptedNameUsageID` at themselves, and every other name class
@@ -33,7 +34,7 @@ build_ncbi <- function(version = format(Sys.Date(), "%Y"),
 
   ## The .dmp files use '\t|\t' between fields and '\t|' at end of line.
   ## Read on '|' and trim the tabs; supply column names explicitly, since
-  ## duckdb's generated names depend on the column count.
+  ## the duckdb generated names depend on the column count.
   dmp <- function(file, names){
     paste0("read_csv('", archive_file(extracted, paste0("^", file, "$")),
            "', delim='|', header=false, quote='', all_varchar=true, ",

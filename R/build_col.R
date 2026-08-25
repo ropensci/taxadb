@@ -11,7 +11,8 @@
 #'
 #' COL marks accepted names by leaving `acceptedNameUsageID` empty, and
 #' distinguishes `accepted` from `provisionally accepted`; both are accepted
-#' in the sense that matters here, that they are nobody else's synonym, so
+#' in the sense that matters here, that they are not a synonym of anything
+#' else, so
 #' both get `acceptedNameUsageID` set to their own `taxonID`.
 #' @family build
 #' @export

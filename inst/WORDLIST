@@ -57,6 +57,7 @@ harddisk
 henrici
 http
 https
+hunspell
 indica
 invariants
 itis
@@ -72,6 +73,7 @@ lifecycle
 Mammalia
 metagenome
 misapplied
+NCBI
 NCBIs,duckdbs
 nomenclatural
 OpenTree
@@ -105,6 +107,7 @@ SynCode
 synonymID
 taxdump
 taxize
+taxon
 taxonID
 taxonIDs
 taxonomicStatus

@@ -23,7 +23,7 @@
 #' that is the wrong trade: each scanning thread holds a decompressed Parquet
 #' row group, so memory grows with core count while the query gets no faster.
 #' On a 128-core machine, looking up one name in the GBIF table peaked at
-#' 1324 MB with duckdb's defaults and 322 MB capped at eight threads -- and
+#' 1324 MB with the duckdb defaults and 322 MB capped at eight threads -- and
 #' the capped run was faster (0.7s against 1.0s).
 #'
 #' So the connection caps threads at `TAXADB_THREADS` (8) or the core count,
@@ -54,12 +54,12 @@ td_connect <- function(dbdir = NULL,
 }
 
 ## Resource limits only. httpfs is NOT loaded here: installing it reaches
-## duckdb's extension repository, which took over five seconds and made every
+## the duckdb extension repository, which took over five seconds and made
 ## session -- including one that only ever reads a local file -- depend on the
 ## network. It is loaded on first remote read instead, by ensure_httpfs().
 configure_duckdb <- function(db){
 
-  ## Cap threads rather than leaving duckdb's one-per-core default: see the
+  ## Cap threads rather than leaving the duckdb one-per-core default: see the
   ## note in ?td_connect. Not a performance tweak -- it is what keeps memory
   ## use predictable on a many-core machine (ropensci/taxadb#95).
   threads <- getOption("taxadb_threads",

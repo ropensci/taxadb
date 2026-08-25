@@ -117,7 +117,8 @@ provide that interface.
 - Rank names are always lower case, as the provider gives them.  They are
   deliberately not mapped onto a single controlled list: providers recognize
   different ranks, and disagree about which names belong to which, so
-  rewriting one provider's ranks into another's vocabulary would assert
+  rewriting the ranks of one provider into the vocabulary of another would
+  assert
   something the provider does not.
 - `scientificName` never contains the authorship.  Where a provider supplies
   authorship as its own field it is stripped exactly and kept in

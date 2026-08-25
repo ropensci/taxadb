@@ -35,7 +35,8 @@ separately, so the canonical name is the one with that suffix removed.
 
 COL marks accepted names by leaving \code{acceptedNameUsageID} empty, and
 distinguishes \code{accepted} from \verb{provisionally accepted}; both are accepted
-in the sense that matters here, that they are nobody else's synonym, so
+in the sense that matters here, that they are not a synonym of anything
+else, so
 both get \code{acceptedNameUsageID} set to their own \code{taxonID}.
 }
 \examples{

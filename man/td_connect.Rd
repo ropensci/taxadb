@@ -39,7 +39,7 @@ pool grow to most of system RAM. For the selective scans \code{taxadb} makes
 that is the wrong trade: each scanning thread holds a decompressed Parquet
 row group, so memory grows with core count while the query gets no faster.
 On a 128-core machine, looking up one name in the GBIF table peaked at
-1324 MB with duckdb's defaults and 322 MB capped at eight threads -- and
+1324 MB with the duckdb defaults and 322 MB capped at eight threads -- and
 the capped run was faster (0.7s against 1.0s).
 
 So the connection caps threads at \code{TAXADB_THREADS} (8) or the core count,

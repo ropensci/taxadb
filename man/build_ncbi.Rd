@@ -31,7 +31,8 @@ NCBI distributes \code{nodes.dmp} (the hierarchy) and \code{names.dmp}
 (every name), in a format that claims to be tab-separated but delimits
 fields with \verb{\\\\t|\\\\t}.
 
-Every row of \code{names.dmp} carries the \emph{accepted} taxon's \code{tax_id}, whatever
+Every row of \code{names.dmp} carries the \code{tax_id} of the \emph{accepted} taxon,
+whatever
 the name's class: NCBI mints no separate identifier for a synonym.  So the
 \verb{scientific name} rows become the accepted names, carrying a \code{taxonID} and
 pointing \code{acceptedNameUsageID} at themselves, and every other name class
