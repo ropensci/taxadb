@@ -2,17 +2,17 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "taxadb",
-  "description": "Creates a local database of many commonly used taxonomic authorities and provides functions that can quickly query this data.",
-  "name": "taxadb: A High-Performance Local Taxonomic Database Interface",
+  "description": "Provides fast access to many commonly used taxonomic authorities in a uniform Darwin Core format. Tables are read directly from versioned Parquet snapshots, streamed from cloud storage or from a local copy, and queried with familiar 'dplyr' verbs.",
+  "name": "taxadb: A High-Performance Taxonomic Database Interface",
   "issueTracker": "https://github.com/ropensci/taxadb/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.2.2 (2022-10-31)",
+  "runtimePlatform": "R version 4.6.1 (2026-06-24)",
   "provider": {
     "@id": "https://cran.r-project.org",
     "@type": "Organization",
@@ -53,6 +53,12 @@
       "familyName": "Ross",
       "email": "ross@ecohealthalliance.org",
       "@id": "https://orcid.org/0000-0002-2136-0000"
+    },
+    {
+      "@type": "Person",
+      "givenName": "Mattia",
+      "familyName": "Ghilardi",
+      "@id": "https://orcid.org/0000-0001-9592-7252"
     }
   ],
   "maintainer": [
@@ -91,15 +97,15 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "covr",
-      "name": "covr",
+      "identifier": "curl",
+      "name": "curl",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=covr"
+      "sameAs": "https://CRAN.R-project.org/package=curl"
     },
     {
       "@type": "SoftwareApplication",
@@ -127,18 +133,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "purrr",
-      "name": "purrr",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=purrr"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "crayon",
       "name": "crayon",
       "provider": {
@@ -151,15 +145,15 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "RSQLite",
-      "name": "RSQLite",
+      "identifier": "withr",
+      "name": "withr",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=RSQLite"
+      "sameAs": "https://CRAN.R-project.org/package=withr"
     }
   ],
   "softwareRequirements": {
@@ -265,33 +259,9 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=stringi"
     },
-    "10": {
-      "@type": "SoftwareApplication",
-      "identifier": "contentid",
-      "name": "contentid",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=contentid"
-    },
-    "11": {
-      "@type": "SoftwareApplication",
-      "identifier": "memoise",
-      "name": "memoise",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=memoise"
-    },
     "SystemRequirements": null
   },
-  "fileSize": "572.65KB",
+  "fileSize": "562.089KB",
   "citation": [
     {
       "@type": "ScholarlyArticle",
@@ -314,8 +284,10 @@
         }
       ],
       "name": "taxadb: A high-performance local taxonomic database interface",
-      "identifier": "doi:10.1111/2041-210X.13440",
+      "identifier": "10.1111/2041-210X.13440",
       "pagination": "1153--1159",
+      "@id": "https://doi.org/10.1111/2041-210X.13440",
+      "sameAs": "https://doi.org/10.1111/2041-210X.13440",
       "isPartOf": {
         "@type": "PublicationIssue",
         "issueNumber": "9",
@@ -327,5 +299,11 @@
         }
       }
     }
-  ]
+  ],
+  "codeRepository": "https://github.com/ropensci/taxadb",
+  "releaseNotes": "https://github.com/ropensci/taxadb/blob/main/NEWS.md",
+  "readme": "https://github.com/ropensci/taxadb/blob/master/README.md",
+  "contIntegration": "https://github.com/ropensci/taxadb/actions/workflows/R-CMD-check.yaml",
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html",
+  "relatedLink": "https://CRAN.R-project.org/package=taxadb"
 }

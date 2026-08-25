@@ -283,7 +283,7 @@ Builds run entirely in `duckdb` and out of core, so they are bounded by disk rat
 ```{r include=FALSE}
 taxadb:::td_disconnect()
 
-if(require(codemeta)) codemeta::write_codemeta()
+if (requireNamespace("codemetar", quietly = TRUE)) codemetar::write_codemeta()
 ```
 
 ----
