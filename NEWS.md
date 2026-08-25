@@ -138,11 +138,11 @@ redistribution of the data and its derivatives.
   the deprecated `db` argument rather than `provider`. The suggested command
   now works.
 * `get_names()` returns `NA` for an unmatched identifier, as documented,
-  rather than erroring.
+  rather than raising an error.
 * `get_names()` works for every identifier format. The `uri` format never
   round-tripped for any provider, because the URI prefix was applied as a
   regular expression and ITIS's contains `?` and `&`; and all formats but
-  `prefix` errored for the `itis_test` provider.
+  `prefix` failed for the `itis_test` provider.
 * The bundled `itis_test` fixture is regenerated from a real build, and the
   examples that had been querying names absent from it now work.
 

@@ -193,15 +193,26 @@ latest_version <- function(db = td_connect()){
 ## Order version labels numerically where we can, falling back to string
 ## order for anything numeric_version cannot parse. `"2026"` must come out
 ## above `"22.12"`, which string comparison gets backwards.
+##
+## The comparison is a plain loop rather than which.max() over a combined
+## vector: c() on numeric_version objects returns a list on R < 4.6, so
+## which.max() failed there ("'list' object cannot be coerced to type
+## 'double'"). Comparing two numeric_versions at a time is portable.
 version_max <- function(versions){
   if(length(versions) == 0) return(TAXADB_FALLBACK_VERSION)
   if(length(versions) == 1) return(versions)
-  numeric <- suppressWarnings(lapply(versions, function(v)
-    tryCatch(numeric_version(v, strict = TRUE), error = function(e) NULL,
-             warning = function(w) NULL)))
-  ok <- !vapply(numeric, is.null, logical(1L))
+
+  parsed <- lapply(versions, function(v)
+    tryCatch(numeric_version(v, strict = TRUE),
+             error = function(e) NULL, warning = function(w) NULL))
+  ok <- !vapply(parsed, is.null, logical(1L))
+
   ## Prefer a parseable version over an unparseable one; among parseable
   ## ones take the numerically greatest.
-  if(any(ok)) versions[ok][[which.max(do.call(c, numeric[ok]))]]
-  else max(versions)
+  if(!any(ok)) return(max(versions))
+  candidates <- versions[ok]
+  best <- 1L
+  for(i in seq_along(candidates))
+    if(parsed[ok][[i]] > parsed[ok][[best]]) best <- i
+  candidates[[best]]
 }
