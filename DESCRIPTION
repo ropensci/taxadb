@@ -36,7 +36,6 @@ Roxygen: list(markdown = TRUE)
 Suggests:
     spelling,
     testthat,
-    covr,
     knitr,
     rmarkdown,
     crayon,
