@@ -15,8 +15,14 @@ the latest available version, as a character string
 \description{
 The most recent taxadb snapshot version
 }
+\details{
+Versions are ordered as version numbers, not as strings. This
+matters: as strings \code{"22.12"} sorts after \code{"2026"}, so a plain \code{max()}
+would make an archival release from 2022 the default for every query once
+it was published.
+}
 \examples{
-\donttest{
+\dontrun{
 latest_version()
 }
 }

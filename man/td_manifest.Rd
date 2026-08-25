@@ -7,6 +7,7 @@
 td_manifest(
   version = format(Sys.Date(), "\%Y"),
   dir = build_dir(),
+  validate = TRUE,
   db = td_connect()
 )
 }
@@ -14,6 +15,10 @@ td_manifest(
 \item{version}{the snapshot version to describe}
 
 \item{dir}{the build output directory, see \code{\link[=build_dir]{build_dir()}}}
+
+\item{validate}{should each table be checked with \code{\link[=td_validate]{td_validate()}} and the
+result recorded? Default \code{TRUE}. Archival snapshots predate the schema
+rules and will report violations; recording them is the point.}
 
 \item{db}{a duckdb connection}
 }

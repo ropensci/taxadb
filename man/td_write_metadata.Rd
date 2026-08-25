@@ -8,6 +8,7 @@ td_write_metadata(
   version = format(Sys.Date(), "\%Y"),
   dir = build_dir(),
   repo = taxadb_repo(),
+  archival = FALSE,
   db = td_connect()
 )
 }
@@ -17,6 +18,11 @@ td_write_metadata(
 \item{dir}{the build output directory, see \code{\link[=build_dir]{build_dir()}}}
 
 \item{repo}{the data repository the snapshot will be published to}
+
+\item{archival}{is this a republication of a historical release rather
+than a fresh build? Archival snapshots are byte-identical to what that
+version originally contained, so they predate the current schema rules
+and the README says so.}
 
 \item{db}{a duckdb connection}
 }

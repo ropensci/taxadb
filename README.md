@@ -38,6 +38,17 @@ a seven-million-row table over the network is quick. If you would rather
 work offline or are making many queries against one table,
 `td_download()` installs a local copy and everything else is unchanged.
 
+If you use `taxadb` in published work, please cite the paper describing
+it, and the naming provider whose data you used
+(`taxadb_provider_info()` gives each provider’s preferred citation):
+
+> Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A
+> high-performance local taxonomic database interface. *Methods in
+> Ecology and Evolution* **11**(9), 1153-1159.
+> <doi:10.1111/2041-210X.13440>
+
+`citation("taxadb")` gives both in R.
+
 ## Install and initial setup
 
 To get started, install from CRAN
@@ -62,7 +73,7 @@ published,
 
 ``` r
 available_versions()
-#> [1] "2026"
+#> [1] "2026"  "22.12"
 available_providers()
 #>    provider schema
 #> 1       col common
@@ -166,7 +177,7 @@ ITIS:
 get_ids("Agrostis caespitosa", "itis") 
 #> [1m[22mJoining with `by = join_by(scientificName)`
 #> Warning:   Found [1m[34m5[39m[22m possible identifiers for [3m[1m[31mAgrostis caespitosa[39m[22m[23m.
-#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Agrostis caespitosa', '')[39m[22m to resolve manually.
+#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Agrostis caespitosa', 'itis')[39m[22m to resolve manually.
 #> [1] NA
 ```
 
@@ -176,7 +187,7 @@ indicated by the accepted name usage id)
 
 ``` r
 filter_name('Agrostis caespitosa', 'itis')
-#> [90m# A tibble: 6 × 15[39m
+#> [90m# A tibble: 6 × 16[39m
 #>   taxonID   scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
 #>   [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
 #> [90m1[39m ITIS:785… Agrostis caes… species   ITIS:502001         synonym         Plantae
@@ -185,9 +196,9 @@ filter_name('Agrostis caespitosa', 'itis')
 #> [90m4[39m ITIS:785… Agrostis caes… species   ITIS:782718         synonym         Plantae
 #> [90m5[39m ITIS:785… Agrostis caes… species   ITIS:503886         synonym         Plantae
 #> [90m6[39m ITIS:785… Agrostis caes… species   ITIS:783883         synonym         Plantae
-#> [90m# ℹ 9 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
+#> [90m# ℹ 10 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
 #> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
-#> [90m#   vernacularName <chr>, update_date <chr>[39m
+#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>, update_date <chr>[39m
 ```
 
 We can resolve the scientific name to the acceptedNameUsage using
@@ -258,6 +269,111 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
 #> [90m5[39m Furnariidae    321
 #> [90m6[39m Muscicapidae   318
 ```
+
+## When a name matches more than one taxon
+
+`get_ids()` returns one identifier per input name, so it has to return
+`NA` when a name resolves more than one way, with a warning telling you
+which name was ambiguous:
+
+``` r
+get_ids(c("Morus", "Homo sapiens"), "gbif")
+#> [1m[22mJoining with `by = join_by(scientificName)`
+#> Warning:   Found [1m[34m2[39m[22m possible identifiers for [3m[1m[31mMorus[39m[22m[23m.
+#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Morus', 'gbif')[39m[22m to resolve manually.
+#> [1] NA             "GBIF:2436436"
+```
+
+This is not a data defect, and it is common: **207,438 of GBIF’s 7.2
+million names (2.9%) resolve to more than one accepted identifier.**
+Three different things cause it, and they call for different responses.
+
+**Homonyms.** The same name published independently under different
+codes of nomenclature, most often once for an animal and once for a
+plant. `Morus` is both the gannets and the mulberries:
+
+``` r
+filter_name("Morus", "gbif") |>
+  filter(taxonomicStatus == "accepted") |>
+  select(taxonID, scientificName, kingdom, family)
+#> [90m# A tibble: 2 × 4[39m
+#>   taxonID      scientificName kingdom  family  
+#>   [3m[90m<chr>[39m[23m        [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m   
+#> [90m1[39m GBIF:2480962 Morus          Animalia Sulidae 
+#> [90m2[39m GBIF:2984545 Morus          Plantae  Moraceae
+```
+
+`Erica` (a jumping spider and the heaths), `Oenanthe` (the wheatears and
+the water-dropworts) and `Prunella` (the accentors and selfheal) are the
+same story. No lookup can resolve these from the name alone, because the
+name genuinely denotes two taxa.
+
+**Ambiguous synonyms.** A name that has been applied to two different
+accepted taxa, and so is a synonym of both. These have no accepted row
+of their own:
+
+``` r
+filter_name("Sphex coronatus", "gbif") |>
+  select(taxonID, taxonomicStatus, acceptedNameUsageID, family)
+#> [90m# A tibble: 2 × 4[39m
+#>   taxonID       taxonomicStatus     acceptedNameUsageID family     
+#>   [3m[90m<chr>[39m[23m         [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m      
+#> [90m1[39m GBIF:7752074  heterotypic synonym GBIF:7438612        Crabronidae
+#> [90m2[39m GBIF:10994029 heterotypic synonym GBIF:5041068        Sphecidae
+```
+
+**Duplicate name usages**, where the same name appears at several ranks
+or in several rank-level combinations.
+
+### What to do
+
+Most of it resolves on its own. Of the 207,438 ambiguous GBIF names:
+
+|                                                   | names   | share |
+|---------------------------------------------------|---------|-------|
+| resolve to one once you keep only accepted names  | 106,700 | 51%   |
+| are ambiguous synonyms, with no accepted row      | 90,321  | 44%   |
+| are true homonyms, ambiguous among accepted names | 10,417  | 5%    |
+
+So the first move is to use `filter_name()` rather than `get_ids()` and
+keep the accepted rows, which recovers half the cases and shows you the
+rest instead of collapsing them to `NA`:
+
+``` r
+matched <- filter_name(c("Morus", "Oenanthe", "Homo sapiens"), "gbif") |>
+  filter(taxonomicStatus == "accepted")
+count(matched, scientificName)
+#> [90m# A tibble: 3 × 2[39m
+#>   scientificName     n
+#>   [3m[90m<chr>[39m[23m          [3m[90m<int>[39m[23m
+#> [90m1[39m Homo sapiens       1
+#> [90m2[39m Morus              2
+#> [90m3[39m Oenanthe           2
+```
+
+For the 10,417 genuine homonyms, add whatever you already know about the
+group. `kingdom` separates 3,160 of them and `family` another 88:
+
+``` r
+filter_name("Morus", "gbif") |>
+  filter(taxonomicStatus == "accepted", kingdom == "Plantae") |>
+  select(taxonID, scientificName, family)
+#> [90m# A tibble: 1 × 3[39m
+#>   taxonID      scientificName family  
+#>   [3m[90m<chr>[39m[23m        [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m   
+#> [90m1[39m GBIF:2984545 Morus          Moraceae
+```
+
+The remaining 7,169 are homonyms within a single family. Nothing in the
+data distinguishes them, so they need a decision from you rather than a
+better query – which is the honest answer, and the reason `get_ids()`
+returns `NA` rather than guessing.
+
+Because providers disagree about which names are ambiguous, a name that
+is ambiguous in GBIF may be unambiguous in ITIS or COL. Resolving
+against a second provider is a reasonable tiebreak, but do not mix the
+resulting identifiers: see `vignette("data-sources")` on why providers
+are not interchangeable.
 
 ## Using the database connection directly
 

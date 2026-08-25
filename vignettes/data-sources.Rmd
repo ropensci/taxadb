@@ -25,10 +25,10 @@ knitr::opts_chunk$set(
 `itis` | [Integrated Taxonomic Information System](https://www.itis.gov/)
 `col`  | [Catalogue of Life](https://www.catalogueoflife.org/)
 `ncbi` | [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy)
-`gbif` | [GBIF Backbone Taxonomy](https://www.gbif.org/)
+`gbif` | GBIF Backbone Taxonomy (gbif.org)
 `ott`  | [Open Tree Taxonomy](https://tree.opentreeoflife.org/about/taxonomy-version/)
-`fb`   | [FishBase](https://fishbase.org)
-`slb`  | [SeaLifeBase](https://www.sealifebase.org/)
+`fb`   | FishBase (fishbase.org)
+`slb`  | SeaLifeBase (sealifebase.org)
 
 `taxadb_provider_info()` gives each provider's authority, licence and
 preferred citation from within R. Note that `fb` and `slb` are CC BY-NC and
@@ -36,16 +36,15 @@ so may not be used commercially; the rest permit commercial use with
 attribution.
 
 Three providers named in earlier versions are no longer included. `tpl` (The
-Plant List) was retired by its maintainers in 2013 and superseded by [World
-Flora Online](https://www.worldfloraonline.org/); use `col` for plants in the
-meantime. `wd` (Wikidata) was never published. `iucn` was dropped because the
+Plant List) was retired by its maintainers in 2013 and superseded by World
+Flora Online (worldfloraonline.org); use `col` for plants in the meantime. `wd` (Wikidata) was never published. `iucn` was dropped because the
 Red List cannot be redistributed under its terms and its API now requires a
-personal token: use [rredlist](https://docs.ropensci.org/rredlist/) directly,
+personal token: use the rredlist package directly,
 and note that the Red List is a conservation-status source rather than a
 taxonomy.
 
 
-***Please Note***: `taxadb` advises against uncritically combining data from multiple providers.  The same name is frequently used by different providers to mean different things -- some providers consider two names synonyms that other providers consider distinct species.  *It is crucial to recognize that taxonomic name providers represent independent taxonomic theories*, and not merely additional observations of the same immutable reality ([Franz & Sterner (2018)](https://doi.org/10.1093/database/bax100 "Nico M Franz, Beckett W Sterner, To increase trust, change the social design behind aggregated biodiversity data, Database, Volume 2018, 2018, bax100")). You cannot just merge two databases of taxonomic names like you can two databases of, say, plant traits to get a bigger and more complete sample, because the former can contain meaningful contradictions.  
+***Please Note***: `taxadb` advises against uncritically combining data from multiple providers.  The same name is frequently used by different providers to mean different things -- some providers consider two names synonyms that other providers consider distinct species.  *It is crucial to recognize that taxonomic name providers represent independent taxonomic theories*, and not merely additional observations of the same immutable reality (Franz & Sterner 2018, *Database* 2018: bax100, doi:10.1093/database/bax100). You cannot just merge two databases of taxonomic names like you can two databases of, say, plant traits to get a bigger and more complete sample, because the former can contain meaningful contradictions.  
 
 
 At the same time, it is also important to note that `col`, `gbif`, `ott`, are explicitly synthesis projects integrating the databases of names from a range of (many) other providers, while `itis`, `ncbi`, `fb`, and `slb` are independent name providers.  The synthetic or integrated name lists are not simple merges, but the product of considerably expert opinion, and occasional nonsense automation. As such, they too represent novel (justified or otherwise) assertions of taxonomy, and are in no way a complete substitute for the databases they integrate, owing to both differences in how up-to-date the relative records are as well as to either expert disagreements or algorithmic miss-matches.  `taxadb` makes no attempt to provide an opinion or reconciliation mechanism to any of these issues, but only to provide convenient access to data and functions for manipulating these records in a fast and consistent manner.  (In fact, it is easy to use `taxadb` to verify that many of the names recognized in, say, ITIS, are not in fact included at all in Catalogue of Life or other databases that claim to derive from ITIS).
@@ -127,6 +126,18 @@ provide that interface.
 
 - Encoding is UTF-8
 
+# Citation
+
+Cite the paper describing the package, and the naming provider whose data you
+used --- `taxadb_provider_info()` gives each provider's preferred citation, and
+each published snapshot repeats them in its README:
+
+> Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A high-performance
+> local taxonomic database interface. *Methods in Ecology and Evolution*
+> **11**(9), 1153-1159. doi:10.1111/2041-210X.13440
+
+`citation("taxadb")` gives both in R.
+
 # Data Processing
 
 Pre-processing is part of the package rather than a separate pipeline.
@@ -165,4 +176,22 @@ the data repository, so a new release requires no package update to become
 visible.  `latest_version()` is the default.
 
 `taxadb_repo()` can be redirected with `options(taxadb_repo=)` to read from a
-mirror, or from your own snapshots built with `td_build()`. 
+mirror, or from your own snapshots built with `td_build()`.
+
+### Archival versions
+
+Older releases are republished alongside the current ones so that an analysis
+which pinned a version keeps resolving. They are **byte-identical to the
+original release and are deliberately not corrected**: a silently repaired
+snapshot would return different results to a script written against the real
+one, which is worse than leaving it as it was.
+
+They therefore predate the schema rules described above and generally violate
+some of them. Each archival release records which, per table, in the
+`rules_violated` column of its `manifest.csv`, and its README lists the known
+issues. `taxadb 22.12`, for example, has no `taxonID` on accepted NCBI names
+and empty `scientificName` for many higher taxa in `col` and `gbif`; seven of
+its nine tables break at least one rule.
+
+Use an archival version to reproduce an existing result, and the latest
+version for new work. `available_versions()` lists both. 

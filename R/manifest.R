@@ -6,6 +6,9 @@
 #'
 #' @param version the snapshot version to describe
 #' @param dir the build output directory, see [build_dir()]
+#' @param validate should each table be checked with [td_validate()] and the
+#'  result recorded? Default `TRUE`. Archival snapshots predate the schema
+#'  rules and will report violations; recording them is the point.
 #' @param db a duckdb connection
 #' @return a data.frame with one row per published table, giving its
 #'  provider, schema, row count, columns, file sizes and checksum, and the
@@ -19,6 +22,7 @@
 #' }
 td_manifest <- function(version = format(Sys.Date(), "%Y"),
                         dir = build_dir(),
+                        validate = TRUE,
                         db = td_connect()){
 
   out_dir <- file.path(dir, "out", version)
@@ -61,6 +65,8 @@ td_manifest <- function(version = format(Sys.Date(), "%Y"),
       license = meta$license %||% NA_character_,
       sha256 = paste(vapply(these, file_sha256, character(1L)),
                      collapse = ","),
+      rules_violated = if(validate) validated_note(p, s, version, glob, db)
+                       else NA_character_,
       stringsAsFactors = FALSE)
   })
 
@@ -68,7 +74,56 @@ td_manifest <- function(version = format(Sys.Date(), "%Y"),
   out[order(out$provider, out$schema), ]
 }
 
+## The header for a republished historical release.
+##
+## An archival snapshot exists so that an analysis which pinned a version
+## keeps resolving. That only works if the data is what it was, so these
+## files are byte-identical to the original release and are NOT corrected --
+## a "fixed" 22.12 would silently return different results to a script
+## written against the real one, which is worse than either leaving it
+## broken or removing it.
+archival_notice <- function(m, version){
+  broken <- m[!is.na(m$rules_violated) & !m$rules_violated %in% c("none", ""), ]
+  c(
+paste0("**This is an archival release.** It republishes taxadb ", version,
+       " exactly as it was, so that analyses which pinned this version keep"),
+"resolving. The files are byte-identical to the original release; they have",
+"deliberately **not** been corrected. A silently repaired snapshot would",
+"return different results to a script written against the real one, which is",
+"worse than leaving it as it was.",
+"",
+"For current work use the newest version -- see",
+"`taxadb::available_versions()`. Tables in this release violate schema rules",
+"that postdate it, listed per table in `manifest.csv` under",
+paste0("`rules_violated` (", nrow(broken), " of ", nrow(m),
+       " tables here violate at least one)."),
+"",
+"Known issues in this release, since fixed in later ones: `ncbi` carries no",
+"`taxonID` on accepted names; `col` and `gbif` leave `scientificName` empty",
+"for many higher taxa; `ott` synonyms have no `taxonomicStatus`. See the",
+"[taxadb NEWS](https://github.com/ropensci/taxadb/blob/master/NEWS.md).")
+}
+
 `%||%` <- function(x, y) if(is.null(x)) y else x
+
+## Which taxadb rules a table breaks, as a comma-separated list, or "none".
+## Recorded in the manifest so that a snapshot published for reproducibility
+## states its own defects instead of leaving them to be rediscovered.
+validated_note <- function(provider, schema, version, glob, db){
+  tbl <- paste0("archival_check_", schema, "_", provider)
+  ok <- tryCatch({
+    DBI::dbExecute(db, paste0("CREATE OR REPLACE VIEW \"", tbl,
+      "\" AS SELECT * FROM read_parquet('", glob, "');"))
+    TRUE
+  }, error = function(e) FALSE)
+  if(!ok) return("could not be read")
+  out <- tryCatch(td_validate_table(paste0("\"", tbl, "\""), schema,
+                                    provider, version, db),
+                  error = function(e) NULL)
+  if(is.null(out)) return("could not be checked")
+  bad <- out$rule[!out$pass]
+  if(length(bad) == 0) "none" else paste(bad, collapse = ", ")
+}
 
 ## SPDX identifiers for the licences the providers publish under.
 ##
@@ -109,6 +164,10 @@ file_sha256 <- function(path){
 #'
 #' @inheritParams td_manifest
 #' @param repo the data repository the snapshot will be published to
+#' @param archival is this a republication of a historical release rather
+#'  than a fresh build? Archival snapshots are byte-identical to what that
+#'  version originally contained, so they predate the current schema rules
+#'  and the README says so.
 #' @return the paths written, invisibly
 #' @details The README states what the tables are, what the schema means,
 #' where each provider's data came from and under what licence, so that
@@ -120,22 +179,23 @@ file_sha256 <- function(path){
 td_write_metadata <- function(version = format(Sys.Date(), "%Y"),
                               dir = build_dir(),
                               repo = taxadb_repo(),
+                              archival = FALSE,
                               db = td_connect()){
 
-  m <- td_manifest(version, dir, db)
+  m <- td_manifest(version, dir, validate = TRUE, db = db)
   out_dir <- file.path(dir, "out", version)
 
   manifest_path <- file.path(out_dir, "manifest.csv")
   utils::write.csv(m, manifest_path, row.names = FALSE)
 
   readme_path <- file.path(out_dir, "README.md")
-  writeLines(readme_lines(m, version, repo), readme_path)
+  writeLines(readme_lines(m, version, repo, archival), readme_path)
 
   message("wrote ", basename(manifest_path), " and ", basename(readme_path))
   invisible(c(manifest_path, readme_path))
 }
 
-readme_lines <- function(m, version, repo){
+readme_lines <- function(m, version, repo, archival = FALSE){
 
   providers <- unique(m$provider)
   info <- taxadb_provider_info(providers)
@@ -167,6 +227,7 @@ paste0("# taxadb ", version),
 paste("Taxonomic name tables for", length(providers),
       "naming authorities, normalized to a common Darwin Core schema."),
 "",
+if(archival) archival_notice(m, version) else
 paste0("Built by the [taxadb](https://github.com/ropensci/taxadb) R package.",
        " Generated ", format(Sys.Date()), "."),
 "",
@@ -290,6 +351,7 @@ tbl(c("table", "rows", "size", "parts"),
 "published, which is dated 2023-08-28, and is therefore older than this",
 "snapshot's version suggests.",
 "",
+if(archival) character(0) else c(
 "## How this was built",
 "",
 "Every table is derived from the provider's own distribution by",
@@ -301,7 +363,7 @@ tbl(c("table", "rows", "size", "parts"),
 paste0('td_build("itis", version = "', version, '")'),
 'td_validate("itis")',
 "```",
-"",
+""),
 "## Citation",
 "",
 "Cite the underlying provider, not this redistribution:",

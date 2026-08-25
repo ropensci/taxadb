@@ -43,6 +43,21 @@ never published.
 Note that the `gbif` table is built from the most recent backbone GBIF has
 published, which is dated 2023-08-28.
 
+## Versions
+
+Older releases are republished on the same object store as the current ones,
+so an analysis that pinned a version keeps resolving. Archival snapshots are
+byte-identical to the original release and are deliberately **not** corrected:
+a silently repaired snapshot would return different results to a script
+written against the real one. They therefore predate the schema rules and
+generally violate some, which each release records per table in the
+`rules_violated` column of its `manifest.csv`.
+
+`22.12` -- the version `taxadb` 0.2.x resolved by default, and the one pinned
+by `bdc` and `BeeBDC` -- is published, covering the nine datasets that release
+declared. Its IUCN table is excluded: the Red List terms prohibit
+redistribution of the data and its derivatives.
+
 ## Reading the data
 
 * Tables are read directly from versioned Parquet on
@@ -88,8 +103,40 @@ published, which is dated 2023-08-28.
   `slb` synonyms have a `NULL` `taxonID`, with the FishBase `SynCode` in a
   new `synonymID` column.
 
+## Documentation
+
+* README gains a section on names that match more than one taxon, which
+  affects 207,438 of GBIF's 7.2 million names (2.9%). It separates the three
+  causes -- homonyms across nomenclatural codes, ambiguous synonyms, and
+  duplicate name usages -- and recommends `filter_name()` over `get_ids()`
+  for bulk matching, since keeping only accepted rows resolves 51% of cases
+  and the classification columns resolve most of the rest.
+
 ## Bug fixes
 
+* `filter_name()` and the other `filter_*` functions no longer let `duckdb`
+  scale memory with core count. `duckdb` defaults to one scanning thread per
+  core and a buffer pool of most of system RAM; each scanning thread holds a
+  decompressed Parquet row group, so on a 128-core machine looking up a single
+  name in the GBIF table peaked at 1.3 GB while getting no faster.
+  `td_connect()` now caps threads at 8, which measured *faster* than the
+  default (0.7s against 1.0s) at a quarter of the memory. Raise it with
+  `options(taxadb_threads=)`; `td_build()` lifts it automatically, since a
+  bulk build is the opposite workload (#95).
+* `latest_version()` ordered versions as strings, so `"22.12"` sorted above
+  `"2026"` and publishing an archival release would have made 2022 data the
+  default for every query. Versions are now compared as version numbers.
+* `itis` and `ncbi` gain `scientificNameAuthorship`, which every other
+  provider already carried (#100). ITIS supplies it for 97% of names; NCBI
+  records authorship as a separate `authority` name, which is now also lifted
+  onto the taxon's other rows, covering 52%. Authorship is what distinguishes
+  same-name-different-author synonyms, which is the case the requester raised.
+* The paper describing the package is cited in the README and the
+  `data-sources` vignette, not only in `inst/CITATION` (#92).
+* The warning `get_ids()` emits for an ambiguous name suggested
+  `filter_name('X', '')` with an empty provider, because it was built from
+  the deprecated `db` argument rather than `provider`. The suggested command
+  now works.
 * `get_names()` returns `NA` for an unmatched identifier, as documented,
   rather than erroring.
 * `get_names()` works for every identifier format. The `uri` format never

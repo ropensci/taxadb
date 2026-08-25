@@ -57,6 +57,8 @@ duckdb_view <- function(uri, tbl_name, db = td_connect()){
 
   if(all(tbl_name %in% DBI::dbListTables(db))) return(invisible(db))
 
+  if(any(grepl("^s3://", uri))) ensure_httpfs(db)
+
   files <- paste0("[", paste0("'", uri, "'", collapse = ", "), "]")
   query <- paste0("CREATE OR REPLACE VIEW \"", tbl_name, "\" AS ",
                   "SELECT * FROM read_parquet(", files, ");")

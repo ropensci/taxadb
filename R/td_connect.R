@@ -14,8 +14,22 @@
 #' repeated calls to `td_connect()` much faster and more failsafe than
 #' repeated calls to [DBI::dbConnect].
 #'
-#' Set `options(taxadb_threads=)` or `options(taxadb_memory_limit=)` to
-#' constrain `duckdb`'s resource use.
+#' The `httpfs` extension needed for remote reads is loaded on first use
+#' rather than at connect time, so a session that only reads local snapshots
+#' or the bundled test data never touches the network.
+#'
+#' `duckdb` would otherwise scan with one thread per core and let its buffer
+#' pool grow to most of system RAM. For the selective scans `taxadb` makes
+#' that is the wrong trade: each scanning thread holds a decompressed Parquet
+#' row group, so memory grows with core count while the query gets no faster.
+#' On a 128-core machine, looking up one name in the GBIF table peaked at
+#' 1324 MB with duckdb's defaults and 322 MB capped at eight threads -- and
+#' the capped run was faster (0.7s against 1.0s).
+#'
+#' So the connection caps threads at `TAXADB_THREADS` (8) or the core count,
+#' whichever is lower. Raise it with `options(taxadb_threads=)` for bulk work
+#' -- [td_build()] does this itself -- and set
+#' `options(taxadb_memory_limit=)` to bound the buffer pool.
 #'
 #' @importFrom DBI dbConnect dbIsValid dbExecute
 #' @export
@@ -39,18 +53,38 @@ td_connect <- function(dbdir = NULL,
   db
 }
 
-## Load httpfs and point it at the taxadb object store for anonymous reads.
-## Anonymous access needs only the endpoint settings -- no credentials, and
-## no `CREATE SECRET`, which would fail on duckdb < 0.10.
+## Resource limits only. httpfs is NOT loaded here: installing it reaches
+## duckdb's extension repository, which took over five seconds and made every
+## session -- including one that only ever reads a local file -- depend on the
+## network. It is loaded on first remote read instead, by ensure_httpfs().
 configure_duckdb <- function(db){
 
-  threads <- getOption("taxadb_threads", NULL)
-  if(!is.null(threads))
-    DBI::dbExecute(db, paste0("SET threads=", as.integer(threads), ";"))
+  ## Cap threads rather than leaving duckdb's one-per-core default: see the
+  ## note in ?td_connect. Not a performance tweak -- it is what keeps memory
+  ## use predictable on a many-core machine (ropensci/taxadb#95).
+  threads <- getOption("taxadb_threads",
+                       min(TAXADB_THREADS, parallel::detectCores(logical = FALSE),
+                           na.rm = TRUE))
+  DBI::dbExecute(db, paste0("SET threads=",
+                            max(1L, as.integer(threads)), ";"))
 
   mem <- getOption("taxadb_memory_limit", NULL)
   if(!is.null(mem))
     DBI::dbExecute(db, paste0("SET memory_limit='", mem, "';"))
+
+  invisible(db)
+}
+
+## Load httpfs and point it at the taxadb object store for anonymous reads.
+##
+## Called before the first remote read on a connection, and at most once per
+## connection. Anonymous access needs only the endpoint settings -- no
+## credentials, and no `CREATE SECRET`, which would fail on duckdb < 0.10.
+ensure_httpfs <- function(db){
+
+  key <- "httpfs_loaded"
+  if(isTRUE(mget(key, envir = taxadb_cache, ifnotfound = FALSE)[[1]]))
+    return(invisible(TRUE))
 
   ok <- tryCatch({
     DBI::dbExecute(db, "INSTALL httpfs;")
@@ -59,19 +93,17 @@ configure_duckdb <- function(db){
   }, error = function(e) FALSE)
 
   if(!ok){
-    warning(paste("Could not load the duckdb `httpfs` extension.",
-                  "Streaming from remote storage will not be available;",
-                  "only local snapshots can be read.\n",
-                  "See `?td_download` to install a local copy."),
-            call. = FALSE)
-    return(invisible(db))
+    warning(paste("Could not load the duckdb `httpfs` extension, so remote",
+                  "snapshots cannot be read.\n  Install a local copy with",
+                  "td_download(), or see ?td_connect."), call. = FALSE)
+    return(invisible(FALSE))
   }
 
   DBI::dbExecute(db, paste0("SET s3_endpoint='", taxadb_endpoint(), "';"))
   DBI::dbExecute(db, "SET s3_url_style='path';")
   DBI::dbExecute(db, "SET s3_use_ssl=true;")
-
-  invisible(db)
+  assign(key, TRUE, envir = taxadb_cache)
+  invisible(TRUE)
 }
 
 #' Disconnect from the taxadb database.
@@ -93,6 +125,11 @@ td_disconnect <- function(db = td_connect()){
   }
   invisible(TRUE)
 }
+
+## Query-time thread cap. Eight is where the memory/latency trade turned over
+## in testing; more threads cost memory without buying speed on a selective
+## scan.
+TAXADB_THREADS <- 8L
 
 taxadb_cache <- new.env()
 

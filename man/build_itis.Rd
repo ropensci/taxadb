@@ -35,6 +35,10 @@ both map onto \code{accepted} and \code{synonym}.
 ITIS assigns a TSN to synonyms as well as accepted names, so every row
 here carries its own \code{taxonID} -- which makes ITIS the reference for the
 taxadb rules checked by \code{\link[=td_validate]{td_validate()}}.
+
+\code{scientificNameAuthorship} is taken from ITIS's own author table, keyed on
+the author id together with the kingdom, since the id is only unique within
+one.
 }
 \examples{
 \dontrun{

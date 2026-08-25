@@ -48,3 +48,17 @@ test_that("td_build refuses an unknown provider by name", {
   ## suggesting credentials that no longer help.
   expect_error(td_build("iucn"), "no builder for provider")
 })
+
+test_that("versions are ordered as versions, not as strings", {
+  ## "22.12" sorts after "2026" as a string, so publishing the 2022 archival
+  ## release once made it the default for every query.
+  expect_identical(taxadb:::version_max(c("2026", "22.12")), "2026")
+  expect_identical(taxadb:::version_max(c("22.12", "2026", "22.01")), "2026")
+  expect_identical(taxadb:::version_max(c("2026", "2027")), "2027")
+  expect_identical(taxadb:::version_max("22.12"), "22.12")
+  ## an unparseable label must not win over a real version
+  expect_identical(taxadb:::version_max(c("2026", "draft")), "2026")
+  ## and with nothing to go on we still return something usable
+  expect_identical(taxadb:::version_max(character(0)),
+                   taxadb:::TAXADB_FALLBACK_VERSION)
+})
