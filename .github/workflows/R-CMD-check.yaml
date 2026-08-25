@@ -56,4 +56,4 @@ jobs:
           upload-snapshots: true
           args: >-
             ${{ (matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release')
-                && '"--as-cran"' || '"--no-manual", "--as-cran"' }}
+                && '"--as-cran"' || 'c("--no-manual", "--as-cran")' }}
