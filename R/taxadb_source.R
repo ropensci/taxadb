@@ -177,10 +177,30 @@ available_providers <- function(version = latest_version(),
 #'
 #' @inheritParams list_snapshots
 #' @return the latest available version, as a character string
+#' @details Versions are ordered as version numbers, not as strings. This
+#' matters: as strings `"22.12"` sorts after `"2026"`, so a plain `max()`
+#' would make an archival release from 2022 the default for every query once
+#' it was published.
 #' @export
 #' @examples \donttest{
 #' latest_version()
 #' }
 latest_version <- function(db = td_connect()){
-  max(available_versions(db))
+  version_max(available_versions(db))
+}
+
+## Order version labels numerically where we can, falling back to string
+## order for anything numeric_version cannot parse. `"2026"` must come out
+## above `"22.12"`, which string comparison gets backwards.
+version_max <- function(versions){
+  if(length(versions) == 0) return(TAXADB_FALLBACK_VERSION)
+  if(length(versions) == 1) return(versions)
+  numeric <- suppressWarnings(lapply(versions, function(v)
+    tryCatch(numeric_version(v, strict = TRUE), error = function(e) NULL,
+             warning = function(w) NULL)))
+  ok <- !vapply(numeric, is.null, logical(1L))
+  ## Prefer a parseable version over an unparseable one; among parseable
+  ## ones take the numerically greatest.
+  if(any(ok)) versions[ok][[which.max(do.call(c, numeric[ok]))]]
+  else max(versions)
 }

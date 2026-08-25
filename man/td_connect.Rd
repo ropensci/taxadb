@@ -30,8 +30,18 @@ For performance reasons the connection is cached and reused, making
 repeated calls to \code{td_connect()} much faster and more failsafe than
 repeated calls to \link[DBI:dbConnect]{DBI::dbConnect}.
 
-Set \code{options(taxadb_threads=)} or \code{options(taxadb_memory_limit=)} to
-constrain \code{duckdb}'s resource use.
+\code{duckdb} would otherwise scan with one thread per core and let its buffer
+pool grow to most of system RAM. For the selective scans \code{taxadb} makes
+that is the wrong trade: each scanning thread holds a decompressed Parquet
+row group, so memory grows with core count while the query gets no faster.
+On a 128-core machine, looking up one name in the GBIF table peaked at
+1324 MB with duckdb's defaults and 322 MB capped at eight threads -- and
+the capped run was faster (0.7s against 1.0s).
+
+So the connection caps threads at \code{TAXADB_THREADS} (8) or the core count,
+whichever is lower. Raise it with \code{options(taxadb_threads=)} for bulk work
+-- \code{\link[=td_build]{td_build()}} does this itself -- and set
+\code{options(taxadb_memory_limit=)} to bound the buffer pool.
 }
 \examples{
 \donttest{

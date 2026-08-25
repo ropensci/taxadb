@@ -13,6 +13,10 @@
 #' ITIS assigns a TSN to synonyms as well as accepted names, so every row
 #' here carries its own `taxonID` -- which makes ITIS the reference for the
 #' taxadb rules checked by [td_validate()].
+#'
+#' `scientificNameAuthorship` is taken from ITIS's own author table, keyed on
+#' the author id together with the kingdom, since the id is only unique within
+#' one.
 #' @family build
 #' @export
 #' @examples \dontrun{
@@ -42,6 +46,15 @@ build_itis <- function(version = format(Sys.Date(), "%Y"),
      SELECT kingdom_id, rank_id, lower(rank_name) AS taxonRank
      FROM ", scan("taxon_unit_types")))
 
+  ## Authorship, requested in ropensci/taxadb#100. Like rank_id, the author
+  ## id is only unique within a kingdom, so the join is keyed on both. 97% of
+  ## ITIS names carry one.
+  DBI::dbExecute(db, paste0(
+    "CREATE OR REPLACE TABLE itis_authors AS
+     SELECT taxon_author_id, kingdom_id,
+            nullif(trim(taxon_author), '') AS scientificNameAuthorship
+     FROM ", scan("taxon_authors_lkp")))
+
   ## `nodes` is every name ITIS knows, accepted or not.
   DBI::dbExecute(db, paste0(
     "CREATE OR REPLACE TABLE itis_nodes AS
@@ -54,11 +67,15 @@ build_itis <- function(version = format(Sys.Date(), "%Y"),
        nullif(trim(concat_ws(' ', u.unit_name3, u.unit_name4)), '')
                                      AS infraspecificEpithet,
        CAST(u.update_date AS VARCHAR) AS update_date,
+       a.scientificNameAuthorship,
        CASE WHEN u.n_usage IN ('valid', 'accepted') THEN 'accepted'
             ELSE 'synonym' END       AS taxonomicStatus
      FROM ", scan("taxonomic_units"), " u
      LEFT JOIN itis_ranks r
-       ON u.rank_id = r.rank_id AND u.kingdom_id = r.kingdom_id"))
+       ON u.rank_id = r.rank_id AND u.kingdom_id = r.kingdom_id
+     LEFT JOIN itis_authors a
+       ON u.taxon_author_id = a.taxon_author_id
+      AND u.kingdom_id = a.kingdom_id"))
 
   ## The hierarchy is defined over accepted names only; a synonym inherits
   ## the classification of the name it points to.  parent_tsn is 0, not
@@ -98,7 +115,8 @@ build_itis <- function(version = format(Sys.Date(), "%Y"),
        c.kingdom, c.phylum, c.class, c.order, c.family, c.genus,
        n.specificEpithet,
        n.infraspecificEpithet,
-       v.vernacularName
+       v.vernacularName,
+       n.scientificNameAuthorship
      FROM itis_nodes n
      LEFT JOIN (SELECT CAST(tsn AS VARCHAR) AS tsn,
                        CAST(tsn_accepted AS VARCHAR) AS tsn_accepted_chr
@@ -123,7 +141,9 @@ build_itis <- function(version = format(Sys.Date(), "%Y"),
   record_source(db, "itis", upstream_version = if(length(stamp) == 1)
     format(as.Date(stamp, "%m%d%y"), "%Y-%m-%d") else NA_character_)
 
-  dwc <- paste("SELECT", dwc_select("update_date"), "FROM itis_dwc_clean")
+  dwc <- paste("SELECT",
+               dwc_select(c("scientificNameAuthorship", "update_date")),
+               "FROM itis_dwc_clean")
 
   ## The common table keeps every vernacular name, one row each, with the
   ## language it is given in -- where `dwc` carries only the single

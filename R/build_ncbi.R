@@ -79,6 +79,22 @@ build_ncbi <- function(version = format(Sys.Date(), "%Y"),
      FROM ncbi_nodes n JOIN ncbi_accepted a USING (tax_id)")
   build_classification(db)
 
+  ## Authorship, requested in ropensci/taxadb#100. NCBI has no authorship
+  ## field; it records the authority as another name for the taxon, e.g.
+  ## "Homo sapiens Linnaeus, 1758" with name_class 'authority'. Those rows are
+  ## kept as they are, and the authorship is additionally lifted onto every
+  ## row for the taxon, so it can be read without a self-join.
+  DBI::dbExecute(db,
+    "CREATE OR REPLACE TABLE ncbi_auth AS
+     SELECT a.tax_id,
+            first(nullif(trim(substr(a.name_txt, length(s.scientificName) + 2)), '')
+                  ORDER BY a.name_txt) AS scientificNameAuthorship
+     FROM ncbi_names a
+     JOIN ncbi_accepted s USING (tax_id)
+     WHERE a.name_class = 'authority'
+       AND starts_with(a.name_txt, concat(s.scientificName, ' '))
+     GROUP BY a.tax_id")
+
   ## NCBI gives no language for its vernacular names.  Prefer the GenBank
   ## common name, which is the curated one, then any common name.
   DBI::dbExecute(db,
@@ -107,18 +123,21 @@ build_ncbi <- function(version = format(Sys.Date(), "%Y"),
        c.kingdom, c.phylum, c.class, c.order, c.family, c.genus,
        ", epithet_sql("nm.name_txt", "c.genus", 1), " AS specificEpithet,
        ", epithet_sql("nm.name_txt", "c.genus", 2), " AS infraspecificEpithet,
-       v.vernacularName
+       v.vernacularName,
+       au.scientificNameAuthorship
      FROM ncbi_names nm
      JOIN ncbi_nodes nd USING (tax_id)
      LEFT JOIN classification c ON nm.tax_id = c.taxonID
-     LEFT JOIN ncbi_vern v ON nm.tax_id = v.tax_id"))
+     LEFT JOIN ncbi_vern v ON nm.tax_id = v.tax_id
+     LEFT JOIN ncbi_auth au ON nm.tax_id = au.tax_id"))
 
   ## taxdump is regenerated daily and carries no version string, so the
   ## date of the dump we read is the only version there is.
   record_source(db, "ncbi", upstream_version = format(
     as.Date(file.mtime(archive_file(extracted, "^nodes\\.dmp$"))), "%Y-%m-%d"))
 
-  dwc <- paste("SELECT", dwc_select(), "FROM ncbi_dwc",
+  dwc <- paste("SELECT", dwc_select("scientificNameAuthorship"),
+               "FROM ncbi_dwc",
                "WHERE scientificName IS NOT NULL AND taxonRank IS NOT NULL")
 
   common <- paste0(

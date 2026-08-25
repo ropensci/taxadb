@@ -30,6 +30,17 @@ Existing approaches to these problems typically rely on web APIs, which can make
 The data are published as versioned [Parquet](https://parquet.apache.org/) snapshots on [source.coop](https://source.coop/cboettig/taxadb) and read directly from there by `duckdb`, so there is no import step and no server to set up. Queries only read the columns and row groups they need, so filtering a seven-million-row table over the network is quick. If you would rather work offline or are making many queries against one table, `td_download()` installs a local copy and everything else is unchanged.
 
 
+If you use `taxadb` in published work, please cite the paper describing it,
+and the naming provider whose data you used (`taxadb_provider_info()` gives
+each provider's preferred citation):
+
+> Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A high-performance
+> local taxonomic database interface. *Methods in Ecology and Evolution*
+> **11**(9), 1153-1159. <https://doi.org/10.1111/2041-210X.13440>
+
+`citation("taxadb")` gives both in R.
+
+
 ## Install and initial setup
 
 To get started, install from CRAN

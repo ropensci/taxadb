@@ -127,6 +127,18 @@ provide that interface.
 
 - Encoding is UTF-8
 
+# Citation
+
+Cite the paper describing the package, and the naming provider whose data you
+used --- `taxadb_provider_info()` gives each provider's preferred citation, and
+each published snapshot repeats them in its README:
+
+> Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A high-performance
+> local taxonomic database interface. *Methods in Ecology and Evolution*
+> **11**(9), 1153-1159. <https://doi.org/10.1111/2041-210X.13440>
+
+`citation("taxadb")` gives both in R.
+
 # Data Processing
 
 Pre-processing is part of the package rather than a separate pipeline.

@@ -114,6 +114,25 @@ redistribution of the data and its derivatives.
 
 ## Bug fixes
 
+* `filter_name()` and the other `filter_*` functions no longer let `duckdb`
+  scale memory with core count. `duckdb` defaults to one scanning thread per
+  core and a buffer pool of most of system RAM; each scanning thread holds a
+  decompressed Parquet row group, so on a 128-core machine looking up a single
+  name in the GBIF table peaked at 1.3 GB while getting no faster.
+  `td_connect()` now caps threads at 8, which measured *faster* than the
+  default (0.7s against 1.0s) at a quarter of the memory. Raise it with
+  `options(taxadb_threads=)`; `td_build()` lifts it automatically, since a
+  bulk build is the opposite workload (#95).
+* `latest_version()` ordered versions as strings, so `"22.12"` sorted above
+  `"2026"` and publishing an archival release would have made 2022 data the
+  default for every query. Versions are now compared as version numbers.
+* `itis` and `ncbi` gain `scientificNameAuthorship`, which every other
+  provider already carried (#100). ITIS supplies it for 97% of names; NCBI
+  records authorship as a separate `authority` name, which is now also lifted
+  onto the taxon's other rows, covering 52%. Authorship is what distinguishes
+  same-name-different-author synonyms, which is the case the requester raised.
+* The paper describing the package is cited in the README and the
+  `data-sources` vignette, not only in `inst/CITATION` (#92).
 * The warning `get_ids()` emits for an ambiguous name suggested
   `filter_name('X', '')` with an empty provider, because it was built from
   the deprecated `db` argument rather than `provider`. The suggested command

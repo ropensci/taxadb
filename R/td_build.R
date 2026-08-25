@@ -45,6 +45,15 @@ td_build <- function(provider = "itis",
          "\n  known: ", paste(names(BUILDERS), collapse = ", "),
          call. = FALSE)
 
+  ## A build is the opposite workload to a query: it streams whole tables and
+  ## the recursive hierarchy walk parallelizes well, so lift the query-time
+  ## thread cap for the duration.
+  prior <- getOption("taxadb_threads")
+  options(taxadb_threads = parallel::detectCores(logical = FALSE))
+  on.exit(options(taxadb_threads = prior), add = TRUE)
+  DBI::dbExecute(db, paste0("SET threads=",
+    max(1L, as.integer(parallel::detectCores(logical = FALSE))), ";"))
+
   paths <- list()
   for(p in provider){
     paths[[p]] <- BUILDERS[[p]](version = version, dir = dir, db = db, ...)
