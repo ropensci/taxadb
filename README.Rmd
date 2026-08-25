@@ -10,6 +10,10 @@ knitr::opts_chunk$set(
   warning = TRUE,
   comment = "#>"
 )
+## Render output without ANSI colour. Otherwise tibble and cli emit escape
+## sequences that GitHub does not interpret, so they appear in README.md as
+## literal "[90m" noise around every printed column.
+options(cli.num_colors = 1, crayon.enabled = FALSE)
 taxadb:::td_disconnect()
 ```
 

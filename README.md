@@ -117,7 +117,7 @@ Catalogue of Life:
 birds <- bbs %>% 
   select(species) %>% 
   mutate(id = get_ids(species, "col"))
-#> [1m[22mJoining with `by = join_by(scientificName)`
+#> Joining with `by = join_by(scientificName)`
 
 head(birds, 10)
 #>                          species        id
@@ -175,9 +175,9 @@ ITIS:
 
 ``` r
 get_ids("Agrostis caespitosa", "itis") 
-#> [1m[22mJoining with `by = join_by(scientificName)`
-#> Warning:   Found [1m[34m5[39m[22m possible identifiers for [3m[1m[31mAgrostis caespitosa[39m[22m[23m.
-#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Agrostis caespitosa', 'itis')[39m[22m to resolve manually.
+#> Joining with `by = join_by(scientificName)`
+#> Warning:   Found 5 possible identifiers for Agrostis caespitosa.
+#>   Returning NA. Try filter_name('Agrostis caespitosa', 'itis') to resolve manually.
 #> [1] NA
 ```
 
@@ -187,18 +187,18 @@ indicated by the accepted name usage id)
 
 ``` r
 filter_name('Agrostis caespitosa', 'itis')
-#> [90m# A tibble: 6 × 16[39m
+#> # A tibble: 6 × 16
 #>   taxonID   scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
-#>   [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
-#> [90m1[39m ITIS:785… Agrostis caes… species   ITIS:502001         synonym         Plantae
-#> [90m2[39m ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
-#> [90m3[39m ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
-#> [90m4[39m ITIS:785… Agrostis caes… species   ITIS:782718         synonym         Plantae
-#> [90m5[39m ITIS:785… Agrostis caes… species   ITIS:503886         synonym         Plantae
-#> [90m6[39m ITIS:785… Agrostis caes… species   ITIS:783883         synonym         Plantae
-#> [90m# ℹ 10 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
-#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
-#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>, update_date <chr>[39m
+#>   <chr>     <chr>          <chr>     <chr>               <chr>           <chr>  
+#> 1 ITIS:785… Agrostis caes… species   ITIS:502001         synonym         Plantae
+#> 2 ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
+#> 3 ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
+#> 4 ITIS:785… Agrostis caes… species   ITIS:782718         synonym         Plantae
+#> 5 ITIS:785… Agrostis caes… species   ITIS:503886         synonym         Plantae
+#> 6 ITIS:785… Agrostis caes… species   ITIS:783883         synonym         Plantae
+#> # ℹ 10 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,
+#> #   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,
+#> #   vernacularName <chr>, scientificNameAuthorship <chr>, update_date <chr>
 ```
 
 We can resolve the scientific name to the acceptedNameUsage using
@@ -210,15 +210,15 @@ based on acceptedNameUsageID).
 filter_name("Agrostis caespitosa")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
-#> [90m# A tibble: 6 × 4[39m
+#> # A tibble: 6 × 4
 #>   scientificName      taxonomicStatus acceptedNameUsage      acceptedNameUsageID
-#>   [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m                  [3m[90m<chr>[39m[23m              
-#> [90m1[39m Agrostis caespitosa synonym         Deschampsia cespitosa  ITIS:502001        
-#> [90m2[39m Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
-#> [90m3[39m Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
-#> [90m4[39m Agrostis caespitosa synonym         Calamagrostis preslii  ITIS:782718        
-#> [90m5[39m Agrostis caespitosa synonym         Muhlenbergia torreyi   ITIS:503886        
-#> [90m6[39m Agrostis caespitosa synonym         Muhlenbergia quadride… ITIS:783883
+#>   <chr>               <chr>           <chr>                  <chr>              
+#> 1 Agrostis caespitosa synonym         Deschampsia cespitosa  ITIS:502001        
+#> 2 Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
+#> 3 Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
+#> 4 Agrostis caespitosa synonym         Calamagrostis preslii  ITIS:782718        
+#> 5 Agrostis caespitosa synonym         Muhlenbergia torreyi   ITIS:503886        
+#> 6 Agrostis caespitosa synonym         Muhlenbergia quadride… ITIS:783883
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -227,26 +227,26 @@ taxonomic data on all bird names in the Catalogue of Life:
 
 ``` r
 filter_rank(name = "Aves", rank = "class", provider = "col")
-#> [90m# A tibble: 56,739 × 25[39m
+#> # A tibble: 56,739 × 25
 #>    taxonID  scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
-#>    [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
-#> [90m 1[39m COL:ZMF  Arachnothera   genus     COL:ZMF             accepted        Animal…
-#> [90m 2[39m COL:ZQC  Aramides       genus     COL:ZQC             accepted        Animal…
-#> [90m 3[39m COL:ZQH  Aramus         genus     COL:ZQH             accepted        Animal…
-#> [90m 4[39m COL:ZRKV Crotophaga ani species   COL:ZRKV            accepted        Animal…
-#> [90m 5[39m COL:ZRKW Crotophaga ma… species   COL:ZRKW            accepted        Animal…
-#> [90m 6[39m COL:ZRKX Crotophaga su… species   COL:ZRKX            accepted        Animal…
-#> [90m 7[39m COL:ZRV  Aratinga       genus     COL:ZRV             accepted        Animal…
-#> [90m 8[39m COL:ZQD  Aramidopsis    genus     COL:ZQD             accepted        Animal…
-#> [90m 9[39m COL:ZT9X Crypsirina cu… species   COL:ZT9X            accepted        Animal…
-#> [90m10[39m COL:ZT9Y Crypsirina te… species   COL:ZT9Y            accepted        Animal…
-#> [90m# ℹ 56,729 more rows[39m
-#> [90m# ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
-#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
-#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>,[39m
-#> [90m#   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,[39m
-#> [90m#   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,[39m
-#> [90m#   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …[39m
+#>    <chr>    <chr>          <chr>     <chr>               <chr>           <chr>  
+#>  1 COL:ZMF  Arachnothera   genus     COL:ZMF             accepted        Animal…
+#>  2 COL:ZQC  Aramides       genus     COL:ZQC             accepted        Animal…
+#>  3 COL:ZQH  Aramus         genus     COL:ZQH             accepted        Animal…
+#>  4 COL:ZRKV Crotophaga ani species   COL:ZRKV            accepted        Animal…
+#>  5 COL:ZRKW Crotophaga ma… species   COL:ZRKW            accepted        Animal…
+#>  6 COL:ZRKX Crotophaga su… species   COL:ZRKX            accepted        Animal…
+#>  7 COL:ZRV  Aratinga       genus     COL:ZRV             accepted        Animal…
+#>  8 COL:ZQD  Aramidopsis    genus     COL:ZQD             accepted        Animal…
+#>  9 COL:ZT9X Crypsirina cu… species   COL:ZT9X            accepted        Animal…
+#> 10 COL:ZT9Y Crypsirina te… species   COL:ZT9Y            accepted        Animal…
+#> # ℹ 56,729 more rows
+#> # ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,
+#> #   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,
+#> #   vernacularName <chr>, scientificNameAuthorship <chr>,
+#> #   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,
+#> #   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,
+#> #   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -258,16 +258,16 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   group_by(family) %>%
   count(sort = TRUE) %>% 
   head()
-#> [90m# A tibble: 6 × 2[39m
-#> [90m# Groups:   family [6][39m
+#> # A tibble: 6 × 2
+#> # Groups:   family [6]
 #>   family           n
-#>   [3m[90m<chr>[39m[23m        [3m[90m<int>[39m[23m
-#> [90m1[39m Tyrannidae     446
-#> [90m2[39m Thraupidae     387
-#> [90m3[39m Trochilidae    361
-#> [90m4[39m Columbidae     352
-#> [90m5[39m Furnariidae    321
-#> [90m6[39m Muscicapidae   318
+#>   <chr>        <int>
+#> 1 Tyrannidae     446
+#> 2 Thraupidae     387
+#> 3 Trochilidae    361
+#> 4 Columbidae     352
+#> 5 Furnariidae    321
+#> 6 Muscicapidae   318
 ```
 
 ## When a name matches more than one taxon
@@ -278,9 +278,9 @@ which name was ambiguous:
 
 ``` r
 get_ids(c("Morus", "Homo sapiens"), "gbif")
-#> [1m[22mJoining with `by = join_by(scientificName)`
-#> Warning:   Found [1m[34m2[39m[22m possible identifiers for [3m[1m[31mMorus[39m[22m[23m.
-#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Morus', 'gbif')[39m[22m to resolve manually.
+#> Joining with `by = join_by(scientificName)`
+#> Warning:   Found 2 possible identifiers for Morus.
+#>   Returning NA. Try filter_name('Morus', 'gbif') to resolve manually.
 #> [1] NA             "GBIF:2436436"
 ```
 
@@ -296,11 +296,11 @@ plant. `Morus` is both the gannets and the mulberries:
 filter_name("Morus", "gbif") |>
   filter(taxonomicStatus == "accepted") |>
   select(taxonID, scientificName, kingdom, family)
-#> [90m# A tibble: 2 × 4[39m
+#> # A tibble: 2 × 4
 #>   taxonID      scientificName kingdom  family  
-#>   [3m[90m<chr>[39m[23m        [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m   
-#> [90m1[39m GBIF:2480962 Morus          Animalia Sulidae 
-#> [90m2[39m GBIF:2984545 Morus          Plantae  Moraceae
+#>   <chr>        <chr>          <chr>    <chr>   
+#> 1 GBIF:2480962 Morus          Animalia Sulidae 
+#> 2 GBIF:2984545 Morus          Plantae  Moraceae
 ```
 
 `Erica` (a jumping spider and the heaths), `Oenanthe` (the wheatears and
@@ -315,11 +315,11 @@ of their own:
 ``` r
 filter_name("Sphex coronatus", "gbif") |>
   select(taxonID, taxonomicStatus, acceptedNameUsageID, family)
-#> [90m# A tibble: 2 × 4[39m
+#> # A tibble: 2 × 4
 #>   taxonID       taxonomicStatus     acceptedNameUsageID family     
-#>   [3m[90m<chr>[39m[23m         [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m      
-#> [90m1[39m GBIF:7752074  heterotypic synonym GBIF:7438612        Crabronidae
-#> [90m2[39m GBIF:10994029 heterotypic synonym GBIF:5041068        Sphecidae
+#>   <chr>         <chr>               <chr>               <chr>      
+#> 1 GBIF:7752074  heterotypic synonym GBIF:7438612        Crabronidae
+#> 2 GBIF:10994029 heterotypic synonym GBIF:5041068        Sphecidae
 ```
 
 **Duplicate name usages**, where the same name appears at several ranks
@@ -343,12 +343,12 @@ rest instead of collapsing them to `NA`:
 matched <- filter_name(c("Morus", "Oenanthe", "Homo sapiens"), "gbif") |>
   filter(taxonomicStatus == "accepted")
 count(matched, scientificName)
-#> [90m# A tibble: 3 × 2[39m
+#> # A tibble: 3 × 2
 #>   scientificName     n
-#>   [3m[90m<chr>[39m[23m          [3m[90m<int>[39m[23m
-#> [90m1[39m Homo sapiens       1
-#> [90m2[39m Morus              2
-#> [90m3[39m Oenanthe           2
+#>   <chr>          <int>
+#> 1 Homo sapiens       1
+#> 2 Morus              2
+#> 3 Oenanthe           2
 ```
 
 For the 10,417 genuine homonyms, add whatever you already know about the
@@ -358,10 +358,10 @@ group. `kingdom` separates 3,160 of them and `family` another 88:
 filter_name("Morus", "gbif") |>
   filter(taxonomicStatus == "accepted", kingdom == "Plantae") |>
   select(taxonID, scientificName, family)
-#> [90m# A tibble: 1 × 3[39m
+#> # A tibble: 1 × 3
 #>   taxonID      scientificName family  
-#>   [3m[90m<chr>[39m[23m        [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m   
-#> [90m1[39m GBIF:2984545 Morus          Moraceae
+#>   <chr>        <chr>          <chr>   
+#> 1 GBIF:2984545 Morus          Moraceae
 ```
 
 The remaining 7,169 are homonyms within a single family. Nothing in the
@@ -386,27 +386,27 @@ data. The `taxa_tbl()` function provides this connection:
 
 ``` r
 taxa_tbl("col")
-#> [90m# A query:  ?? x 25[39m
-#> [90m# Database: DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:][39m
+#> # A query:  ?? x 25
+#> # Database: DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:]
 #>    taxonID  scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
-#>    [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
-#> [90m 1[39m COL:ZLWR Crossocerus a… species   COL:ZLWR            accepted        Animal…
-#> [90m 2[39m COL:ZLWS Crossocerus a… species   COL:ZLWS            accepted        Animal…
-#> [90m 3[39m COL:ZLWT Crossocerus a… species   COL:ZLWT            accepted        Animal…
-#> [90m 4[39m COL:ZLWV Crossocerus a… species   COL:ZLWV            accepted        Animal…
-#> [90m 5[39m COL:ZLWW Crossocerus a… species   COL:ZM5T            synonym         Animal…
-#> [90m 6[39m COL:ZLWX Crossocerus a… species   COL:ZLWX            accepted        Animal…
-#> [90m 7[39m COL:ZLW… Marefusivirus… species   COL:ZLWXDDuEcdAV0x… accepted        [31mNA[39m     
-#> [90m 8[39m COL:ZLWY Crossocerus a… species   COL:ZLWY            accepted        Animal…
-#> [90m 9[39m COL:ZLWZ Crossocerus a… species   COL:ZLWZ            accepted        Animal…
-#> [90m10[39m COL:ZLX  Arachnophyllum genus     COL:ZLX             accepted        Plantae
-#> [90m# ℹ more rows[39m
-#> [90m# ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
-#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
-#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>,[39m
-#> [90m#   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,[39m
-#> [90m#   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,[39m
-#> [90m#   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …[39m
+#>    <chr>    <chr>          <chr>     <chr>               <chr>           <chr>  
+#>  1 COL:ZLWR Crossocerus a… species   COL:ZLWR            accepted        Animal…
+#>  2 COL:ZLWS Crossocerus a… species   COL:ZLWS            accepted        Animal…
+#>  3 COL:ZLWT Crossocerus a… species   COL:ZLWT            accepted        Animal…
+#>  4 COL:ZLWV Crossocerus a… species   COL:ZLWV            accepted        Animal…
+#>  5 COL:ZLWW Crossocerus a… species   COL:ZM5T            synonym         Animal…
+#>  6 COL:ZLWX Crossocerus a… species   COL:ZLWX            accepted        Animal…
+#>  7 COL:ZLW… Marefusivirus… species   COL:ZLWXDDuEcdAV0x… accepted        <NA>   
+#>  8 COL:ZLWY Crossocerus a… species   COL:ZLWY            accepted        Animal…
+#>  9 COL:ZLWZ Crossocerus a… species   COL:ZLWZ            accepted        Animal…
+#> 10 COL:ZLX  Arachnophyllum genus     COL:ZLX             accepted        Plantae
+#> # ℹ more rows
+#> # ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,
+#> #   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,
+#> #   vernacularName <chr>, scientificNameAuthorship <chr>,
+#> #   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,
+#> #   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,
+#> #   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …
 ```
 
 We can still use most familiar `dplyr` verbs to perform common tasks.
@@ -415,22 +415,22 @@ For instance: which species has the most known synonyms?
 ``` r
 taxa_tbl("itis") %>% 
   count(acceptedNameUsageID, sort=TRUE)
-#> [90m# A query:    ?? x 2[39m
-#> [90m# Database:   DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:][39m
-#> [90m# Ordered by: desc(n)[39m
+#> # A query:    ?? x 2
+#> # Database:   DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:]
+#> # Ordered by: desc(n)
 #>    acceptedNameUsageID     n
-#>    [3m[90m<chr>[39m[23m               [3m[90m<dbl>[39m[23m
-#> [90m 1[39m ITIS:50               463
-#> [90m 2[39m ITIS:983681           324
-#> [90m 3[39m ITIS:983691           278
-#> [90m 4[39m ITIS:983714           197
-#> [90m 5[39m ITIS:798259           145
-#> [90m 6[39m ITIS:24921            144
-#> [90m 7[39m ITIS:983710           141
-#> [90m 8[39m ITIS:527684           134
-#> [90m 9[39m ITIS:505191           127
-#> [90m10[39m ITIS:504874           123
-#> [90m# ℹ more rows[39m
+#>    <chr>               <dbl>
+#>  1 ITIS:50               463
+#>  2 ITIS:983681           324
+#>  3 ITIS:983691           278
+#>  4 ITIS:983714           197
+#>  5 ITIS:798259           145
+#>  6 ITIS:24921            144
+#>  7 ITIS:983710           141
+#>  8 ITIS:527684           134
+#>  9 ITIS:505191           127
+#> 10 ITIS:504874           123
+#> # ℹ more rows
 ```
 
 However, unlike the `filter_*` functions which return convenient

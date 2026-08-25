@@ -26,6 +26,7 @@ checksums
 cladistic
 CMD
 coerulea
+COLs,GBIFs
 contentid
 cryptographic
 CTE
@@ -41,10 +42,12 @@ dropworts
 duckdb
 dwc
 DWC
+elses,ITISs
 eval
 failsafe
 fishbase
 FishBase
+FishBases,authoritys
 Formicidae
 gbif
 GBIF
@@ -69,12 +72,14 @@ lifecycle
 Mammalia
 metagenome
 misapplied
+NCBIs,duckdbs
 nomenclatural
 OpenTree
 OTT
 Parquet
 pluggable
 pre
+providers,OTTs
 RDF
 README
 reproducibility
@@ -104,6 +109,7 @@ taxonID
 taxonIDs
 taxonomicStatus
 taxonRank
+taxons,anothers
 tbl
 tdwg
 Trochalopteron
