@@ -38,6 +38,17 @@ a seven-million-row table over the network is quick. If you would rather
 work offline or are making many queries against one table,
 `td_download()` installs a local copy and everything else is unchanged.
 
+If you use `taxadb` in published work, please cite the paper describing
+it, and the naming provider whose data you used
+(`taxadb_provider_info()` gives each provider’s preferred citation):
+
+> Norman KEA, Chamberlain S, Boettiger C (2020). taxadb: A
+> high-performance local taxonomic database interface. *Methods in
+> Ecology and Evolution* **11**(9), 1153-1159.
+> <https://doi.org/10.1111/2041-210X.13440>
+
+`citation("taxadb")` gives both in R.
+
 ## Install and initial setup
 
 To get started, install from CRAN
@@ -62,7 +73,7 @@ published,
 
 ``` r
 available_versions()
-#> [1] "2026"
+#> [1] "2026"  "22.12"
 available_providers()
 #>    provider schema
 #> 1       col common
@@ -176,7 +187,7 @@ indicated by the accepted name usage id)
 
 ``` r
 filter_name('Agrostis caespitosa', 'itis')
-#> [90m# A tibble: 6 × 15[39m
+#> [90m# A tibble: 6 × 16[39m
 #>   taxonID   scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
 #>   [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
 #> [90m1[39m ITIS:785… Agrostis caes… species   ITIS:502001         synonym         Plantae
@@ -185,9 +196,9 @@ filter_name('Agrostis caespitosa', 'itis')
 #> [90m4[39m ITIS:785… Agrostis caes… species   ITIS:782718         synonym         Plantae
 #> [90m5[39m ITIS:785… Agrostis caes… species   ITIS:503886         synonym         Plantae
 #> [90m6[39m ITIS:785… Agrostis caes… species   ITIS:783883         synonym         Plantae
-#> [90m# ℹ 9 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
+#> [90m# ℹ 10 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
 #> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
-#> [90m#   vernacularName <chr>, update_date <chr>[39m
+#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>, update_date <chr>[39m
 ```
 
 We can resolve the scientific name to the acceptedNameUsage using
