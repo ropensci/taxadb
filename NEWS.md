@@ -1,3 +1,104 @@
+# taxadb 0.3.0
+
+## Data
+
+All provider snapshots are rebuilt (#123). Six defects in the previously
+published tables are fixed:
+
+* `ncbi`: accepted names had no `taxonID` -- 2,210,230 of them -- which broke
+  `filter_id()`, `get_names()` and the `get_ids()` round trip for the
+  provider. The table also held only 3.8M of NCBI's 5.1M names, missing most
+  names above species rank, and put the whole binomial in `specificEpithet`
+  where every other provider puts the epithet alone.
+* `col`: 402,570 names were empty, nearly all at genus rank and above, so
+  higher taxa could not be found by name.
+* `gbif`: 1,272,809 names were empty -- BOLD BINs, UNITE species hypotheses,
+  metagenome-assembled genomes and hybrid formulas, which GBIF cannot
+  canonicalize but which are still the names. 40,895 synonyms of `doubtful`
+  names could not be resolved.
+* `ott`: 2,226,375 synonyms had no `taxonomicStatus`, because OTT stopped
+  populating the column this was read from.
+* `itis`: 208,544 names gained a `family` and 212,029 a `class`; rank
+  information had been missing for plants and fungi.
+* `fb`, `slb`: accepted names and synonyms were numbered in separate
+  sequences but given the same prefix, so 28,989 identifiers in `slb` named
+  more than one taxon.
+
+`scientificName` now preserves the authority's own name string. Previously
+`clean_names()` was applied when building the tables, which stripped
+punctuation out of the reference data itself: the phylum `Deinococcus-Thermus`
+was published as `Deinococcus Thermus`, and `Acalypha gracilens var.
+monococca` as `var  monococca`. `clean_names()` is for normalizing your own
+input at query time; it is unchanged and still exported.
+
+`fb` (FishBase) and `slb` (SeaLifeBase) are published again.
+
+`iucn`, `tpl` and `wd` are dropped. The IUCN Red List cannot be redistributed
+under its terms and its API now requires a personal token -- use
+[rredlist](https://docs.ropensci.org/rredlist/), noting that the Red List is a
+conservation-status source rather than a taxonomy. The Plant List was retired
+by its maintainers in 2013; use `col`, or World Flora Online. Wikidata was
+never published.
+
+Note that the `gbif` table is built from the most recent backbone GBIF has
+published, which is dated 2023-08-28.
+
+## Reading the data
+
+* Tables are read directly from versioned Parquet on
+  [source.coop](https://source.coop/cboettig/taxadb) by `duckdb`. There is no
+  import step: `filter_name("Homo sapiens", "itis")` works on a fresh install.
+* `td_download()` installs a local copy for offline use or repeated queries.
+  `td_create()` is retained as an alias for it.
+* `available_versions()`, `available_providers()` and `list_snapshots()`
+  report what is published, discovered from the data repository, so a new
+  release needs no package update to become visible.
+* `taxadb_uri()` gives the location backing any table, and
+  `options(taxadb_repo=)` redirects reads to a mirror or to your own builds.
+* `taxadb_provider_info()` gives each provider's authority, licence and
+  preferred citation. **`fb` and `slb` are CC BY-NC** and may not be used
+  commercially; the other providers permit commercial use with attribution.
+
+## Building and checking the data
+
+* `td_build()` rebuilds a provider from its own distribution, and
+  `build_itis()`, `build_ncbi()`, `build_col()`, `build_gbif()`, `build_ott()`
+  and `build_fishbase()` are exported individually. This supersedes the
+  separate `taxadb-cache` repository, so a fresher snapshot than the published
+  one no longer requires anyone else's involvement. Builds run in `duckdb`,
+  out of core.
+* `td_validate()` checks a table against the taxadb schema rules, stated as
+  structural invariants rather than a column whitelist. It is what gates the
+  published snapshots.
+* `td_manifest()` and `td_write_metadata()` describe a built snapshot: row
+  counts, column lists, per-file SHA-256, and the upstream release each table
+  was derived from.
+
+## Breaking changes
+
+* `duckdb` is the only backend. The `RSQLite`, `MonetDBLite` and in-memory
+  options are gone, along with the `backends` vignette and the `TAXADB_DRIVER`
+  environment variable. `dbdir`, `driver` and `read_only` arguments to
+  `td_connect()` are ignored.
+* The content-hash and provenance layer is removed: `tl_import()`, the
+  bundled `schema.json`, and the `contentid` and `memoise` dependencies. The
+  data are addressed by version and provider instead.
+* `iucn`, `tpl` and `wd` are no longer recognized providers.
+* `ncbi`'s `specificEpithet` holds the epithet, not the binomial. `fb` and
+  `slb` synonyms have a `NULL` `taxonID`, with the FishBase `SynCode` in a
+  new `synonymID` column.
+
+## Bug fixes
+
+* `get_names()` returns `NA` for an unmatched identifier, as documented,
+  rather than erroring.
+* `get_names()` works for every identifier format. The `uri` format never
+  round-tripped for any provider, because the URI prefix was applied as a
+  regular expression and ITIS's contains `?` and `&`; and all formats but
+  `prefix` errored for the `itis_test` provider.
+* The bundled `itis_test` fixture is regenerated from a real build, and the
+  examples that had been querying names absent from it now work.
+
 # taxadb 0.2.2
 
 * `clean_names` now also removes the "spp." epithet

@@ -30,7 +30,7 @@
 #' fuzzy_filter(name, "vernacularName")
 #'
 #' ## match scientific name
-#' fuzzy_filter("Chera", "scientificName",
+#' fuzzy_filter("Trochalop", "scientificName",
 #'              match = "starts_with")
 #' }
 #'
@@ -108,7 +108,7 @@ filter_like <- function(db_tbl, input, pattern){
 #'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
-#' name_contains("Chera")
+#' name_contains("Trochalop")
 #' }
 #' @inheritParams fuzzy_filter
 name_contains <- function(name,
@@ -136,7 +136,7 @@ name_contains <- function(name,
 #'    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
-#' name_starts_with("Chera")
+#' name_starts_with("Trochalop")
 #' }
 #' @inheritParams fuzzy_filter
 #' @export

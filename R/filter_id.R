@@ -32,8 +32,8 @@
 #'    options("taxadb_default_provider"="itis_test")
 #'   }
 #'
-#' filter_id(c("ITIS:1077358", "ITIS:175089"))
-#' filter_id("ITIS:1077358", type="acceptedNameUsageID")
+#' filter_id(c("ITIS:180092", "ITIS:916116"))
+#' filter_id("ITIS:916116", type="acceptedNameUsageID")
 #'
 #' }
 filter_id <- function(id,

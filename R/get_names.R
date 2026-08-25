@@ -74,17 +74,27 @@ as_prefix <- function(x, provider){
 id_to_prefix <- function(x, provider){
   ## NAs
   if(is.na(x)) return(as.character(NA))
-  ## Already prefix format
-  if(grepl(paste0("^", toupper(provider), ":"),  x)) return(x)
+  ## Already prefix format.  `itis_test` carries real ITIS identifiers, so
+  ## the prefix to expect is the provider's own, without the _test suffix.
+  pre <- id_prefix(provider)
+  if(grepl(paste0("^", pre), x)) return(x)
   ## bare ids
-  if(!grepl(":", x))
-    return( paste(toupper(provider), x, sep=":") )
+  if(!grepl(":", x)) return(paste0(pre, x))
   ## URI format
   uri_to_prefix(x, provider)
 }
 
+id_prefix <- function(provider)
+  paste0(toupper(sub("_test$", "", provider)), ":")
+
 uri_to_prefix <- function(x, provider){
-  pre <- paste0(toupper(provider), ":")
+  pre <- id_prefix(provider)
   uri_bit <- prefixes$url_prefix[prefixes$id_prefix == pre]
-  stringi::stri_replace_first_regex(x, uri_bit, pre)
+  ## A provider with no registered URI form leaves the id as we found it.
+  ## stri_replace with a zero-length pattern returns nothing at all, which
+  ## failed vapply's type check rather than reporting anything useful.
+  if(length(uri_bit) != 1 || is.na(uri_bit)) return(x)
+  ## Matched literally, not as a regex: these URI prefixes contain '?' and
+  ## '&', which as a pattern made ITIS's never match its own identifiers.
+  stringi::stri_replace_first_fixed(x, uri_bit, pre)
 }

@@ -24,10 +24,19 @@ Existing approaches to these problems typically rely on web APIs, which
 can make them impractical for work with large numbers of species or in
 more complex pipelines. Queries and returned formats also differ across
 the different taxonomic authorities, making tasks that query multiple
-authorities particularly complex. `taxadb` creates a *local* database of
-most readily available taxonomic authorities, each of which is
-transformed into consistent, standard, and researcher-friendly tabular
-formats.
+authorities particularly complex. `taxadb` provides each of the readily
+available taxonomic authorities in one consistent, standard,
+researcher-friendly tabular format, and queries it with ordinary `dplyr`
+verbs.
+
+The data are published as versioned
+[Parquet](https://parquet.apache.org/) snapshots on
+[source.coop](https://source.coop/cboettig/taxadb) and read directly
+from there by `duckdb`, so there is no import step and no server to set
+up. Queries only read the columns and row groups they need, so filtering
+a seven-million-row table over the network is quick. If you would rather
+work offline or are making many queries against one table,
+`td_download()` installs a local copy and everything else is unchanged.
 
 ## Install and initial setup
 
@@ -48,10 +57,34 @@ library(taxadb)
 library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
-Create a local copy of the (current) Catalogue of Life database:
+No setup step is needed: tables are read on demand. To see what is
+published,
 
 ``` r
-td_create("col")
+available_versions()
+#> [1] "2026"
+available_providers()
+#>    provider schema
+#> 1       col common
+#> 7       col    dwc
+#> 2        fb common
+#> 8        fb    dwc
+#> 3      gbif common
+#> 9      gbif    dwc
+#> 4      itis common
+#> 10     itis    dwc
+#> 5      ncbi common
+#> 11     ncbi    dwc
+#> 12      ott    dwc
+#> 6       slb common
+#> 13      slb    dwc
+```
+
+Optionally, install a local copy of a provider you plan to query
+heavily:
+
+``` r
+td_download("col")
 ```
 
 Read in the species list used by the Breeding Bird Survey:
@@ -73,19 +106,19 @@ Catalogue of Life:
 birds <- bbs %>% 
   select(species) %>% 
   mutate(id = get_ids(species, "col"))
-#> Joining with `by = join_by(scientificName)`
+#> [1m[22mJoining with `by = join_by(scientificName)`
 
 head(birds, 10)
 #>                          species        id
 #> 1         Dendrocygna autumnalis COL:34Q2Z
 #> 2            Dendrocygna bicolor COL:34Q32
-#> 3                Anser canagicus      <NA>
-#> 4             Anser caerulescens      <NA>
+#> 3                Anser canagicus COL:66XX4
+#> 4             Anser caerulescens COL:66XWS
 #> 5  Chen caerulescens (blue form)      <NA>
-#> 6                   Anser rossii      <NA>
+#> 6                   Anser rossii COL:66XWT
 #> 7                Anser albifrons COL:679WV
 #> 8                Branta bernicla  COL:N749
-#> 9      Branta bernicla nigricans      <NA>
+#> 9      Branta bernicla nigricans COL:7JGH7
 #> 10             Branta hutchinsii  COL:N74B
 ```
 
@@ -106,10 +139,10 @@ birds %>%
 #>                         species        id          accepted_name
 #> 1        Dendrocygna autumnalis COL:34Q2Z Dendrocygna autumnalis
 #> 2           Dendrocygna bicolor COL:34Q32    Dendrocygna bicolor
-#> 3               Anser canagicus      <NA>                   <NA>
-#> 4            Anser caerulescens      <NA>                   <NA>
+#> 3               Anser canagicus COL:66XX4        Anser canagicus
+#> 4            Anser caerulescens COL:66XWS     Anser caerulescens
 #> 5 Chen caerulescens (blue form)      <NA>                   <NA>
-#> 6                  Anser rossii      <NA>                   <NA>
+#> 6                  Anser rossii COL:66XWT           Anser rossii
 ```
 
 This illustrates that some of our names, e.g. *Dendrocygna bicolor* are
@@ -131,9 +164,9 @@ ITIS:
 
 ``` r
 get_ids("Agrostis caespitosa", "itis") 
-#> Joining with `by = join_by(scientificName)`
-#> Warning:   Found 5 possible identifiers for Agrostis caespitosa.
-#>   Returning NA. Try filter_name('Agrostis caespitosa', '') to resolve manually.
+#> [1m[22mJoining with `by = join_by(scientificName)`
+#> Warning:   Found [1m[34m5[39m[22m possible identifiers for [3m[1m[31mAgrostis caespitosa[39m[22m[23m.
+#>   Returning [1m[34mNA[39m[22m. Try [1m[34mfilter_name('Agrostis caespitosa', '')[39m[22m to resolve manually.
 #> [1] NA
 ```
 
@@ -143,19 +176,18 @@ indicated by the accepted name usage id)
 
 ``` r
 filter_name('Agrostis caespitosa', 'itis')
-#> # A tibble: 6 × 15
-#>   taxonID     scien…¹ taxon…² accep…³ taxon…⁴ updat…⁵ kingdom phylum class order
-#>   <chr>       <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  <chr> <chr>
-#> 1 ITIS:785430 Agrost… species ITIS:5… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> 2 ITIS:785431 Agrost… species ITIS:4… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> 3 ITIS:785432 Agrost… species ITIS:4… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> 4 ITIS:785433 Agrost… species ITIS:7… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> 5 ITIS:785434 Agrost… species ITIS:5… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> 6 ITIS:785435 Agrost… species ITIS:7… synonym 2010-1… Plantae <NA>   Magn… Poal…
-#> # … with 5 more variables: family <chr>, genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, vernacularName <chr>, and abbreviated variable
-#> #   names ¹​scientificName, ²​taxonRank, ³​acceptedNameUsageID, ⁴​taxonomicStatus,
-#> #   ⁵​update_date
+#> [90m# A tibble: 6 × 15[39m
+#>   taxonID   scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
+#>   [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
+#> [90m1[39m ITIS:785… Agrostis caes… species   ITIS:502001         synonym         Plantae
+#> [90m2[39m ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
+#> [90m3[39m ITIS:785… Agrostis caes… species   ITIS:40400          synonym         Plantae
+#> [90m4[39m ITIS:785… Agrostis caes… species   ITIS:782718         synonym         Plantae
+#> [90m5[39m ITIS:785… Agrostis caes… species   ITIS:503886         synonym         Plantae
+#> [90m6[39m ITIS:785… Agrostis caes… species   ITIS:783883         synonym         Plantae
+#> [90m# ℹ 9 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
+#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
+#> [90m#   vernacularName <chr>, update_date <chr>[39m
 ```
 
 We can resolve the scientific name to the acceptedNameUsage using
@@ -167,16 +199,15 @@ based on acceptedNameUsageID).
 filter_name("Agrostis caespitosa")  %>%
   mutate(acceptedNameUsage = get_names(acceptedNameUsageID)) %>% 
   select(scientificName, taxonomicStatus, acceptedNameUsage, acceptedNameUsageID)
-#> # A tibble: 6 × 4
-#>   scientificName      taxonomicStatus acceptedNameUsage          acceptedNameU…¹
-#>   <chr>               <chr>           <chr>                      <chr>          
-#> 1 Agrostis caespitosa synonym         Deschampsia cespitosa      ITIS:502001    
-#> 2 Agrostis caespitosa synonym         Agrostis stolonifera       ITIS:40400     
-#> 3 Agrostis caespitosa synonym         Agrostis stolonifera       ITIS:40400     
-#> 4 Agrostis caespitosa synonym         Calamagrostis preslii      ITIS:782718    
-#> 5 Agrostis caespitosa synonym         Muhlenbergia torreyi       ITIS:503886    
-#> 6 Agrostis caespitosa synonym         Muhlenbergia quadridentata ITIS:783883    
-#> # … with abbreviated variable name ¹​acceptedNameUsageID
+#> [90m# A tibble: 6 × 4[39m
+#>   scientificName      taxonomicStatus acceptedNameUsage      acceptedNameUsageID
+#>   [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m                  [3m[90m<chr>[39m[23m              
+#> [90m1[39m Agrostis caespitosa synonym         Deschampsia cespitosa  ITIS:502001        
+#> [90m2[39m Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
+#> [90m3[39m Agrostis caespitosa synonym         Agrostis stolonifera   ITIS:40400         
+#> [90m4[39m Agrostis caespitosa synonym         Calamagrostis preslii  ITIS:782718        
+#> [90m5[39m Agrostis caespitosa synonym         Muhlenbergia torreyi   ITIS:503886        
+#> [90m6[39m Agrostis caespitosa synonym         Muhlenbergia quadride… ITIS:783883
 ```
 
 Similar functions `filter_id`, `filter_rank`, and `filter_common` take
@@ -185,26 +216,26 @@ taxonomic data on all bird names in the Catalogue of Life:
 
 ``` r
 filter_rank(name = "Aves", rank = "class", provider = "col")
-#> # A tibble: 10,598 × 25
-#>    taxonID   accepte…¹ scien…² taxon…³ taxon…⁴ kingdom phylum class order family
-#>    <chr>     <chr>     <chr>   <chr>   <chr>   <chr>   <chr>  <chr> <chr> <chr> 
-#>  1 COL:59ZVZ COL:59ZVZ Tyto l… accept… species Animal… Chord… Aves  Stri… Tyton…
-#>  2 COL:64X3G COL:64X3G Aegoli… accept… species Animal… Chord… Aves  Stri… Strig…
-#>  3 COL:5XGW7 COL:5XGW7 Celeus… accept… species Animal… Chord… Aves  Pici… Picid…
-#>  4 COL:4NGTM COL:4NGTM Psepho… accept… species Animal… Chord… Aves  Psit… Psitt…
-#>  5 COL:3C9TF COL:3C9TF Eulamp… accept… species Animal… Chord… Aves  Apod… Troch…
-#>  6 COL:6CZN3 COL:6CZN3 Discos… accept… species Animal… Chord… Aves  Apod… Troch…
-#>  7 COL:4S4FP COL:4S4FP Rhaphi… accept… species Animal… Chord… Aves  Apod… Apodi…
-#>  8 COL:7TCSL COL:7TCSL Dryoba… accept… species Animal… Chord… Aves  Pici… Picid…
-#>  9 COL:3HT3X COL:3HT3X Gymnop… accept… species Animal… Chord… Aves  Colu… Colum…
-#> 10 COL:3Z72J COL:3Z72J Melane… accept… species Animal… Chord… Aves  Pici… Picid…
-#> # … with 10,588 more rows, 15 more variables: genus <chr>,
-#> #   specificEpithet <chr>, infraspecificEpithet <chr>, cultivarEpithet <chr>,
-#> #   datasetID <chr>, namePublishedIn <chr>, nameAccordingTo <chr>,
-#> #   taxonRemarks <chr>, nomenclaturalStatus <chr>, nomenclaturalCode <chr>,
-#> #   parentNameUsageID <chr>, originalNameUsageID <chr>,
-#> #   `dcterms:references` <chr>, language <chr>, vernacularName <chr>, and
-#> #   abbreviated variable names ¹​acceptedNameUsageID, ²​scientificName, …
+#> [90m# A tibble: 56,739 × 25[39m
+#>    taxonID  scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
+#>    [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
+#> [90m 1[39m COL:ZMF  Arachnothera   genus     COL:ZMF             accepted        Animal…
+#> [90m 2[39m COL:ZQC  Aramides       genus     COL:ZQC             accepted        Animal…
+#> [90m 3[39m COL:ZQH  Aramus         genus     COL:ZQH             accepted        Animal…
+#> [90m 4[39m COL:ZRKV Crotophaga ani species   COL:ZRKV            accepted        Animal…
+#> [90m 5[39m COL:ZRKW Crotophaga ma… species   COL:ZRKW            accepted        Animal…
+#> [90m 6[39m COL:ZRKX Crotophaga su… species   COL:ZRKX            accepted        Animal…
+#> [90m 7[39m COL:ZRV  Aratinga       genus     COL:ZRV             accepted        Animal…
+#> [90m 8[39m COL:ZQD  Aramidopsis    genus     COL:ZQD             accepted        Animal…
+#> [90m 9[39m COL:ZT9X Crypsirina cu… species   COL:ZT9X            accepted        Animal…
+#> [90m10[39m COL:ZT9Y Crypsirina te… species   COL:ZT9Y            accepted        Animal…
+#> [90m# ℹ 56,729 more rows[39m
+#> [90m# ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
+#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
+#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>,[39m
+#> [90m#   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,[39m
+#> [90m#   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,[39m
+#> [90m#   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …[39m
 ```
 
 Combining these with `dplyr` functions can make it easy to explore this
@@ -216,16 +247,16 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
   group_by(family) %>%
   count(sort = TRUE) %>% 
   head()
-#> # A tibble: 6 × 2
-#> # Groups:   family [6]
+#> [90m# A tibble: 6 × 2[39m
+#> [90m# Groups:   family [6][39m
 #>   family           n
-#>   <chr>        <int>
-#> 1 Tyrannidae     401
-#> 2 Thraupidae     374
-#> 3 Psittacidae    370
-#> 4 Trochilidae    361
-#> 5 Columbidae     344
-#> 6 Muscicapidae   314
+#>   [3m[90m<chr>[39m[23m        [3m[90m<int>[39m[23m
+#> [90m1[39m Tyrannidae     446
+#> [90m2[39m Thraupidae     387
+#> [90m3[39m Trochilidae    361
+#> [90m4[39m Columbidae     352
+#> [90m5[39m Furnariidae    321
+#> [90m6[39m Muscicapidae   318
 ```
 
 ## Using the database connection directly
@@ -234,33 +265,32 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
 they are filtering functions, they return a subset of the full data
 which matches a given query (names, ids, ranks, etc), so the returned
 data.frames are smaller than the full record of a naming provider.
-Working directly with the SQL connection to the MonetDBLite database
-gives us access to all the data. The `taxa_tbl()` function provides this
-connection:
+Working directly with the database connection gives us access to all the
+data. The `taxa_tbl()` function provides this connection:
 
 ``` r
 taxa_tbl("col")
-#> # Source:   table<v22.12_dwc_col> [?? x 25]
-#> # Database: DuckDB 0.7.0 [unknown@Linux 5.17.15-76051715-generic:R 4.2.2/:memory:]
-#>    taxonID   accepte…¹ scien…² taxon…³ taxon…⁴ kingdom phylum class order family
-#>    <chr>     <chr>     <chr>   <chr>   <chr>   <chr>   <chr>  <chr> <chr> <chr> 
-#>  1 COL:3L3RS COL:3L3RS Hersil… accept… species Animal… Arthr… <NA>  Aran… Hersi…
-#>  2 COL:6MTNS COL:6MTNS Idiotr… accept… species Animal… Arthr… Inse… Hemi… Helot…
-#>  3 COL:39VC7 COL:39VC7 Enitha… accept… species Animal… Arthr… Inse… Hemi… Noton…
-#>  4 COL:6LHWM COL:6LHWM Heleoc… accept… species Animal… Arthr… Inse… Hemi… Nauco…
-#>  5 COL:38PQV COL:38PQV Ectemn… accept… species Animal… Arthr… Inse… Hemi… Corix…
-#>  6 COL:73VN6 COL:73VN6 Neomac… accept… species Animal… Arthr… Inse… Hemi… Nauco…
-#>  7 COL:6MKPW COL:6MKPW Hydrot… accept… species Animal… Arthr… Inse… Hemi… Helot…
-#>  8 COL:5FMGW COL:5FMGW rotumai accept… subspe… <NA>    <NA>   <NA>  <NA>  <NA>  
-#>  9 COL:3L5C7 COL:3L5C7 Hesper… accept… species Animal… Arthr… Inse… Hemi… Corix…
-#> 10 COL:SVTT  COL:SVTT  Cercot… accept… species Animal… Arthr… Inse… Hemi… Nepid…
-#> # … with more rows, 15 more variables: genus <chr>, specificEpithet <chr>,
-#> #   infraspecificEpithet <chr>, cultivarEpithet <chr>, datasetID <chr>,
-#> #   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,
-#> #   nomenclaturalStatus <chr>, nomenclaturalCode <chr>,
-#> #   parentNameUsageID <chr>, originalNameUsageID <chr>,
-#> #   `dcterms:references` <chr>, language <chr>, vernacularName <chr>, and
-#> #   abbreviated variable names ¹​acceptedNameUsageID, ²​scientificName, …
+#> [90m# A query:  ?? x 25[39m
+#> [90m# Database: DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:][39m
+#>    taxonID  scientificName taxonRank acceptedNameUsageID taxonomicStatus kingdom
+#>    [3m[90m<chr>[39m[23m    [3m[90m<chr>[39m[23m          [3m[90m<chr>[39m[23m     [3m[90m<chr>[39m[23m               [3m[90m<chr>[39m[23m           [3m[90m<chr>[39m[23m  
+#> [90m 1[39m COL:ZLWR Crossocerus a… species   COL:ZLWR            accepted        Animal…
+#> [90m 2[39m COL:ZLWS Crossocerus a… species   COL:ZLWS            accepted        Animal…
+#> [90m 3[39m COL:ZLWT Crossocerus a… species   COL:ZLWT            accepted        Animal…
+#> [90m 4[39m COL:ZLWV Crossocerus a… species   COL:ZLWV            accepted        Animal…
+#> [90m 5[39m COL:ZLWW Crossocerus a… species   COL:ZM5T            synonym         Animal…
+#> [90m 6[39m COL:ZLWX Crossocerus a… species   COL:ZLWX            accepted        Animal…
+#> [90m 7[39m COL:ZLW… Marefusivirus… species   COL:ZLWXDDuEcdAV0x… accepted        [31mNA[39m     
+#> [90m 8[39m COL:ZLWY Crossocerus a… species   COL:ZLWY            accepted        Animal…
+#> [90m 9[39m COL:ZLWZ Crossocerus a… species   COL:ZLWZ            accepted        Animal…
+#> [90m10[39m COL:ZLX  Arachnophyllum genus     COL:ZLX             accepted        Plantae
+#> [90m# ℹ more rows[39m
+#> [90m# ℹ 19 more variables: phylum <chr>, class <chr>, order <chr>, family <chr>,[39m
+#> [90m#   genus <chr>, specificEpithet <chr>, infraspecificEpithet <chr>,[39m
+#> [90m#   vernacularName <chr>, scientificNameAuthorship <chr>,[39m
+#> [90m#   cultivarEpithet <chr>, nomenclaturalCode <chr>, nomenclaturalStatus <chr>,[39m
+#> [90m#   namePublishedIn <chr>, nameAccordingTo <chr>, taxonRemarks <chr>,[39m
+#> [90m#   parentNameUsageID <chr>, originalNameUsageID <chr>, datasetID <chr>, …[39m
 ```
 
 We can still use most familiar `dplyr` verbs to perform common tasks.
@@ -269,22 +299,22 @@ For instance: which species has the most known synonyms?
 ``` r
 taxa_tbl("itis") %>% 
   count(acceptedNameUsageID, sort=TRUE)
-#> # Source:     SQL [?? x 2]
-#> # Database:   DuckDB 0.7.0 [unknown@Linux 5.17.15-76051715-generic:R 4.2.2/:memory:]
-#> # Ordered by: desc(n)
+#> [90m# A query:    ?? x 2[39m
+#> [90m# Database:   DuckDB 1.5.4 [unknown@Linux 6.17.9-76061709-generic:R 4.6.1/:memory:][39m
+#> [90m# Ordered by: desc(n)[39m
 #>    acceptedNameUsageID     n
-#>    <chr>               <dbl>
-#>  1 ITIS:50               462
-#>  2 ITIS:983681           303
-#>  3 ITIS:983691           286
-#>  4 ITIS:983714           237
-#>  5 ITIS:983710           231
-#>  6 ITIS:798259           145
-#>  7 ITIS:24921            144
-#>  8 ITIS:527684           134
-#>  9 ITIS:505191           126
-#> 10 ITIS:504874           123
-#> # … with more rows
+#>    [3m[90m<chr>[39m[23m               [3m[90m<dbl>[39m[23m
+#> [90m 1[39m ITIS:50               463
+#> [90m 2[39m ITIS:983681           324
+#> [90m 3[39m ITIS:983691           278
+#> [90m 4[39m ITIS:983714           197
+#> [90m 5[39m ITIS:798259           145
+#> [90m 6[39m ITIS:24921            144
+#> [90m 7[39m ITIS:983710           141
+#> [90m 8[39m ITIS:527684           134
+#> [90m 9[39m ITIS:505191           127
+#> [90m10[39m ITIS:504874           123
+#> [90m# ℹ more rows[39m
 ```
 
 However, unlike the `filter_*` functions which return convenient
@@ -307,9 +337,31 @@ users may find the `filter_*` approach to be more intuitive.
 - Learn about the underlying data sources and formats in [Data
   Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
-- Get better performance by selecting an alternative [database
-  backend](https://docs.ropensci.org/taxadb/articles/backends.html)
-  engines.
+- `taxadb_provider_info()` gives each provider’s authority, licence and
+  preferred citation. Note that `fb` and `slb` are CC BY-NC.
+
+## Building the data yourself
+
+The published snapshots are built by this package, using exported
+functions rather than a separate pipeline, so you can rebuild any
+provider yourself – to get a fresher snapshot than the published one, or
+to check how a table was derived:
+
+``` r
+td_build("itis")          # fetch, normalize and write the snapshot
+td_validate("itis")       # check it against the schema rules
+```
+
+`td_validate()` checks the rules the tables are supposed to satisfy:
+`scientificName` non-empty at every rank, `acceptedNameUsageID`
+populated on accepted names as well as synonyms, every
+`acceptedNameUsageID` resolving to an accepted name, identifiers
+carrying the provider prefix and never naming two different names. It is
+worth running on your own builds, and it is what gates the published
+ones.
+
+Builds run entirely in `duckdb` and out of core, so they are bounded by
+disk rather than memory. See `?td_build`.
 
 ------------------------------------------------------------------------
 

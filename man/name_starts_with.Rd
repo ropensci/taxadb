@@ -21,7 +21,7 @@ Default is 'itis', which can also be configured using \verb{options(default_taxa
 See \verb{[td_create]} for a list of recognized providers.}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{tl_import} for details.}
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{db}{a connection to the taxadb database. See details.}
 
@@ -38,6 +38,6 @@ scientific name starts with
    Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
    options("taxadb_default_provider"="itis_test")
   }
-name_starts_with("Chera")
+name_starts_with("Trochalop")
 }
 }

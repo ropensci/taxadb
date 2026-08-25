@@ -25,7 +25,9 @@ taxadb:::td_disconnect()
 
 The goal of `taxadb` is to provide *fast*, *consistent* access to taxonomic data, supporting common tasks such as resolving taxonomic names to identifiers, looking up higher classification ranks of given species, or returning a list of all species below a given rank. These tasks are particularly common when synthesizing data across large species assemblies, such as combining occurrence records with trait records. 
 
-Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` creates a *local* database of most readily available taxonomic authorities, each of which is transformed into consistent, standard, and researcher-friendly tabular formats.  
+Existing approaches to these problems typically rely on web APIs, which can make them impractical for work with large numbers of species or in more complex pipelines.  Queries and returned formats also differ across the different taxonomic authorities, making tasks that query multiple authorities particularly complex. `taxadb` provides each of the readily available taxonomic authorities in one consistent, standard, researcher-friendly tabular format, and queries it with ordinary `dplyr` verbs.
+
+The data are published as versioned [Parquet](https://parquet.apache.org/) snapshots on [source.coop](https://source.coop/cboettig/taxadb) and read directly from there by `duckdb`, so there is no import step and no server to set up. Queries only read the columns and row groups they need, so filtering a seven-million-row table over the network is quick. If you would rather work offline or are making many queries against one table, `td_download()` installs a local copy and everything else is unchanged.
 
 
 ## Install and initial setup
@@ -48,10 +50,17 @@ library(taxadb)
 library(dplyr) # Used to illustrate how a typical workflow combines nicely with `dplyr`
 ```
 
-Create a local copy of the (current) Catalogue of Life database: 
+No setup step is needed: tables are read on demand. To see what is published,
 
-```{r }
-td_create("col")
+```{r}
+available_versions()
+available_providers()
+```
+
+Optionally, install a local copy of a provider you plan to query heavily:
+
+``` r
+td_download("col")
 ```
 
 
@@ -135,7 +144,7 @@ filter_rank(name = "Aves", rank = "class", provider = "col") %>%
 
 ## Using the database connection directly
 
-`filter_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the SQL connection to the MonetDBLite database gives us access to all the data. The `taxa_tbl()` function provides this connection:
+`filter_*` functions by default return in-memory data frames.  Because they are filtering functions, they return a subset of the full data which matches a given query (names, ids, ranks, etc), so the returned data.frames are smaller than the full record of a naming provider.  Working directly with the database connection gives us access to all the data. The `taxa_tbl()` function provides this connection:
 
 ```{r}
 taxa_tbl("col")
@@ -158,7 +167,21 @@ However, unlike the `filter_*` functions which return convenient in-memory table
 
 - Learn about the underlying data sources and formats in [Data Sources](https://docs.ropensci.org/taxadb/articles/data-sources.html)
 
-- Get better performance by selecting an alternative [database backend](https://docs.ropensci.org/taxadb/articles/backends.html) engines.
+- `taxadb_provider_info()` gives each provider's authority, licence and preferred citation. Note that `fb` and `slb` are CC BY-NC.
+
+
+## Building the data yourself
+
+The published snapshots are built by this package, using exported functions rather than a separate pipeline, so you can rebuild any provider yourself -- to get a fresher snapshot than the published one, or to check how a table was derived:
+
+``` r
+td_build("itis")          # fetch, normalize and write the snapshot
+td_validate("itis")       # check it against the schema rules
+```
+
+`td_validate()` checks the rules the tables are supposed to satisfy: `scientificName` non-empty at every rank, `acceptedNameUsageID` populated on accepted names as well as synonyms, every `acceptedNameUsageID` resolving to an accepted name, identifiers carrying the provider prefix and never naming two different names. It is worth running on your own builds, and it is what gates the published ones.
+
+Builds run entirely in `duckdb` and out of core, so they are bounded by disk rather than memory. See `?td_build`.
 
 
 

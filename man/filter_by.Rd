@@ -32,7 +32,7 @@ See \verb{[td_create]} for a list of recognized providers.}
 (for the Common names table.)}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{tl_import} for details.}
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -66,7 +66,7 @@ sp <- c("Trochalopteron henrici gucenense",
         "Trochalopteron elliotii")
 filter_by(sp, "scientificName")
 
-filter_by(c("ITIS:1077358", "ITIS:175089"), "taxonID")
+filter_by(c("ITIS:180092", "ITIS:916116"), "taxonID")
 
 filter_by("Aves", "class")
 
@@ -74,10 +74,10 @@ filter_by("Aves", "class")
 
 }
 \seealso{
-Other filter_by: 
-\code{\link{filter_common}()},
-\code{\link{filter_id}()},
-\code{\link{filter_name}()},
-\code{\link{filter_rank}()}
+Other filter_by:
+\code{\link[=filter_common]{filter_common()}},
+\code{\link[=filter_id]{filter_id()}},
+\code{\link[=filter_name]{filter_name()}},
+\code{\link[=filter_rank]{filter_rank()}}
 }
 \concept{filter_by}

@@ -13,7 +13,7 @@
 #' @param schema One of "dwc" (for Darwin Core data) or "common"
 #' (for the Common names table.)
 #' @param version Which version of the taxadb provider database should we use?
-#'  defaults to latest.  See [tl_import] for details.
+#'  defaults to latest.  See [available_versions()] for details.
 #' @param collect logical, default `TRUE`. Should we return an in-memory
 #' data.frame (default, usually the most convenient), or a reference to
 #' lazy-eval table on disk (useful for very large tables on which we may
@@ -41,7 +41,7 @@
 #'         "Trochalopteron elliotii")
 #' filter_by(sp, "scientificName")
 #'
-#' filter_by(c("ITIS:1077358", "ITIS:175089"), "taxonID")
+#' filter_by(c("ITIS:180092", "ITIS:916116"), "taxonID")
 #'
 #' filter_by("Aves", "class")
 #'
@@ -96,25 +96,14 @@ td_filter <- function(x,y, by){
 
 
 
-## Manually copy query into DB, since RSQLite lacks right_join,
-## and dplyr `copy` can only copy table "y"
-#' @importFrom dbplyr remote_con
-#' @importFrom DBI dbWriteTable
-#' @importFrom dplyr left_join tbl
+## A filtering join where unmatched names are kept as NA rows, so that the
+## result lines up with the input.  duckdb can copy the local table `y` into
+## the query directly, so this is just a left join with the arguments flipped.
+#' @importFrom dplyr left_join
 safe_right_join <- function(x, y, by = NULL, copy = FALSE, ...){
-
-  if(copy){
-    con <- dbplyr::remote_con(x)
-    if(inherits(con, "duckdb_connection")){
-      dplyr::right_join(x, y, by = by, copy = copy, ...)
-    } else if(inherits(con, "SQLiteConnection")){ ## only attempt on remote tables!
-      tmpname <-  paste0(sample(letters, 10, replace = TRUE), collapse = "")
-      DBI::dbWriteTable(con, tmpname, y, temporary = TRUE, overwrite = TRUE)
-      y <- dplyr::tbl(con, tmpname)
-    }
-  }
   dplyr::left_join(y, x, by = by, copy = copy, ...)
 }
+
 
 # Thanks https://stackoverflow.com/questions/55083084
 # @importFrom rlang sym !! :=

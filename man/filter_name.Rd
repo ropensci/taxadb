@@ -21,7 +21,7 @@ Default is 'itis', which can also be configured using \verb{options(default_taxa
 See \verb{[td_create]} for a list of recognized providers.}
 
 \item{version}{Which version of the taxadb provider database should we use?
-defaults to latest.  See \link{tl_import} for details.}
+defaults to latest.  See \code{\link[=available_versions]{available_versions()}} for details.}
 
 \item{collect}{logical, default \code{TRUE}. Should we return an in-memory
 data.frame (default, usually the most convenient), or a reference to
@@ -67,10 +67,10 @@ filter_name(sp)
 
 }
 \seealso{
-Other filter_by: 
-\code{\link{filter_by}()},
-\code{\link{filter_common}()},
-\code{\link{filter_id}()},
-\code{\link{filter_rank}()}
+Other filter_by:
+\code{\link[=filter_by]{filter_by()}},
+\code{\link[=filter_common]{filter_common()}},
+\code{\link[=filter_id]{filter_id()}},
+\code{\link[=filter_rank]{filter_rank()}}
 }
 \concept{filter_by}

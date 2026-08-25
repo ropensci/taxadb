@@ -7,37 +7,34 @@
 td_connect(dbdir = NULL, driver = NULL, read_only = NULL)
 }
 \arguments{
-\item{dbdir}{Path to the database. no longer needed}
+\item{dbdir}{Deprecated, ignored.}
 
-\item{driver}{deprecated, ignored.  driver will always be duckdb.}
+\item{driver}{Deprecated, ignored. The driver is always \code{duckdb}.}
 
-\item{read_only}{deprecated, driver is always read-only.}
+\item{read_only}{Deprecated, ignored.}
 }
 \value{
-Returns a DBI \code{connection} to the default duckdb database
+a DBI \code{connection} to an in-process duckdb database, configured
+for anonymous streaming reads from the \code{taxadb} data repository.
 }
 \description{
 Connect to the taxadb database
 }
 \details{
-This function provides a default database connection for
-\code{taxadb}. Note that you can use \code{taxadb} with any DBI-compatible database
-connection  by passing the connection object directly to \code{taxadb}
-functions using the \code{db} argument. \code{td_connect()} exists only to provide
-reasonable automatic defaults based on what is available on your system.
+\code{taxadb} reads Parquet snapshots directly from object storage
+(\url{https://source.coop}) using \code{duckdb}'s \code{httpfs} extension, so no data
+import step is required.  This function returns a connection with
+\code{httpfs} loaded and the S3 endpoint configured for anonymous access.
 
-For performance reasons, this function will also cache and restore the
-existing database connection, making repeated calls to \code{td_connect()} much
-faster and more failsafe than repeated calls to \link[DBI:dbConnect]{DBI::dbConnect}
+For performance reasons the connection is cached and reused, making
+repeated calls to \code{td_connect()} much faster and more failsafe than
+repeated calls to \link[DBI:dbConnect]{DBI::dbConnect}.
+
+Set \code{options(taxadb_threads=)} or \code{options(taxadb_memory_limit=)} to
+constrain \code{duckdb}'s resource use.
 }
 \examples{
 \donttest{
-## OPTIONAL: you can first set an alternative home location,
-## such as a temporary directory:
-Sys.setenv(TAXADB_HOME=file.path(tempdir(), "taxadb"))
-
-## Connect to the database:
 db <- td_connect()
-
 }
 }
