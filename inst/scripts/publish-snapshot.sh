@@ -18,6 +18,7 @@
 #   TAXADB_REPO        target repository (default: cboettig/taxadb)
 #   RCLONE_REMOTE      remote name for source.coop (default: source)
 #   DRY_RUN=1          run every check, then list and exit without uploading
+#   ARCHIVAL=1         publishing a historical release: allow multi-part tables
 
 set -euo pipefail
 
@@ -57,14 +58,20 @@ for required in README.md manifest.csv; do
     exit 1; }
 done
 
-# Every table must be a single part, because the published URLs name part_0
-# directly: a reader given .../dwc_col_part_0.parquet must get all of COL from
-# it. If a table ever grows enough to need splitting, the advertised URLs have
-# to change at the same time -- so refuse rather than silently truncate what
-# those readers get.
+# Every table in a CURRENT release must be a single part, because the URLs we
+# advertise name part_0 directly: a reader given .../dwc_col_part_0.parquet
+# must get all of COL from it. If a table grows enough to need splitting, the
+# advertised URLs have to change at the same time -- so refuse rather than
+# silently truncate what those readers get.
+#
+# Archival releases are exempt, and must be: they are republished byte-for-byte
+# as they were, and 22.12 was genuinely multi-part (dwc_gbif was 34 files).
+# Re-packing them into one file each would change the bytes, which is the one
+# thing an archival snapshot may not do. Nobody was ever handed a part_0 URL
+# for those releases either -- the 0.2.x package resolved the whole set.
 split=$(find "$SRC" -name '*_part_1.parquet' -printf '%f\n' 2>/dev/null \
         | sed 's/_part_1\.parquet//' || true)
-if [ -n "$split" ]; then
+if [ -n "$split" ] && [ "${ARCHIVAL:-0}" != "1" ]; then
   echo "refusing: these tables are split across parts, so a reader of" >&2
   echo "part_0 alone would get an incomplete table:" >&2
   echo "$split" | sed 's/^/  /' >&2

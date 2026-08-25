@@ -43,6 +43,21 @@ never published.
 Note that the `gbif` table is built from the most recent backbone GBIF has
 published, which is dated 2023-08-28.
 
+## Versions
+
+Older releases are republished on the same object store as the current ones,
+so an analysis that pinned a version keeps resolving. Archival snapshots are
+byte-identical to the original release and are deliberately **not** corrected:
+a silently repaired snapshot would return different results to a script
+written against the real one. They therefore predate the schema rules and
+generally violate some, which each release records per table in the
+`rules_violated` column of its `manifest.csv`.
+
+`22.12` -- the version `taxadb` 0.2.x resolved by default, and the one pinned
+by `bdc` and `BeeBDC` -- is published, covering the nine datasets that release
+declared. Its IUCN table is excluded: the Red List terms prohibit
+redistribution of the data and its derivatives.
+
 ## Reading the data
 
 * Tables are read directly from versioned Parquet on

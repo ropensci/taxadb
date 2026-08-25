@@ -165,4 +165,22 @@ the data repository, so a new release requires no package update to become
 visible.  `latest_version()` is the default.
 
 `taxadb_repo()` can be redirected with `options(taxadb_repo=)` to read from a
-mirror, or from your own snapshots built with `td_build()`. 
+mirror, or from your own snapshots built with `td_build()`.
+
+### Archival versions
+
+Older releases are republished alongside the current ones so that an analysis
+which pinned a version keeps resolving. They are **byte-identical to the
+original release and are deliberately not corrected**: a silently repaired
+snapshot would return different results to a script written against the real
+one, which is worse than leaving it as it was.
+
+They therefore predate the schema rules described above and generally violate
+some of them. Each archival release records which, per table, in the
+`rules_violated` column of its `manifest.csv`, and its README lists the known
+issues. `taxadb 22.12`, for example, has no `taxonID` on accepted NCBI names
+and empty `scientificName` for many higher taxa in `col` and `gbif`; seven of
+its nine tables break at least one rule.
+
+Use an archival version to reproduce an existing result, and the latest
+version for new work. `available_versions()` lists both. 
