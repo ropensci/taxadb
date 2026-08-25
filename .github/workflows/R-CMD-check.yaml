@@ -44,6 +44,16 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      # check-r-package passes --no-manual by default, so the PDF manual was
+      # verified nowhere -- not in CI and not locally -- while CRAN does build
+      # it. TinyTeX on one runner is enough to catch an Rd problem that only
+      # surfaces through LaTeX.
+      - uses: r-lib/actions/setup-tinytex@v2
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          args: >-
+            ${{ (matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release')
+                && '"--as-cran"' || '"--no-manual", "--as-cran"' }}

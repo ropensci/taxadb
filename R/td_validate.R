@@ -80,7 +80,12 @@ td_validate <- function(provider = getOption("taxadb_default_provider", "itis"),
 
   schema <- match.arg(schema)
   tbl <- taxa_tbl(provider, schema, version, db)
-  td_validate_table(dbplyr::remote_name(tbl), schema, provider, version, db)
+  ## The bundled fixture is not versioned, and taxa_tbl() ignores `version`
+  ## for it. Forcing the default here purely to label the result would make
+  ## an otherwise offline check reach the object store for a label it cannot
+  ## use.
+  label <- if(is_test_provider(provider)) NA_character_ else version
+  td_validate_table(dbplyr::remote_name(tbl), schema, provider, label, db)
 }
 
 ## The rules themselves, against any table name.  Split out from

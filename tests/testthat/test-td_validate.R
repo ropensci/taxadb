@@ -90,3 +90,12 @@ test_that("statuses other than accepted and synonym may self-reference", {
   expect_true(all(out$pass),
               info = paste(out$rule[!out$pass], collapse = "; "))
 })
+
+test_that("validating the fixture needs no network", {
+  ## td_validate() used to force latest_version() just to label its output,
+  ## which reached the object store even for the bundled fixture.
+  withr::local_envvar(TAXADB_ENDPOINT = "127.0.0.1:1")
+  out <- td_validate("itis_test")
+  expect_true(all(out$pass))
+  expect_true(is.na(out$version[[1]]))
+})

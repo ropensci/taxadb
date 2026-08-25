@@ -1,13 +1,15 @@
 ## Test environments
 
-* local Ubuntu 24.04, R 4.6.1
+* local Ubuntu 24.04, R 4.6.1 (full check: PDF manual and HTML validation
+  both built, nothing skipped)
 * GitHub Actions: ubuntu-latest, macOS-latest, windows-latest (release, devel, oldrel)
 
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes
 
-`urlchecker::url_check()` reports no problems. DOIs are given in `doi:` form
+`urlchecker::url_check()` reports no problems. The PDF manual builds and the
+HTML manual validates. DOIs are given in `doi:` form
 and provider homepages are named rather than linked, since several sit behind
 web application firewalls that return 403 to automated clients and one serves
 an incomplete TLS certificate chain.
