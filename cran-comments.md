@@ -8,11 +8,23 @@
 
 0 errors | 0 warnings | 0 notes
 
-`urlchecker::url_check()` reports no problems. The PDF manual builds and the
-HTML manual validates. DOIs are given in `doi:` form
-and provider homepages are named rather than linked, since several sit behind
-web application firewalls that return 403 to automated clients and one serves
-an incomplete TLS certificate chain.
+The incoming check on the previous submission reported
+`https://www.itis.gov/` as a 404 from `inst/doc/data-sources.html`. ITIS is
+intermittent for automated clients, so this release does not give a URL for it
+at all: the vignette names each provider, and the home page, licence and
+preferred citation are returned by `taxadb_provider_info()` from within R,
+where the CRAN check does not resolve them. The ITIS citation is given
+bibliographically rather than as its DOI, since `doi:10.5066/F7KH0KBK`
+redirects to the same host and would inherit the same flakiness -- a plain
+`doi:` in a vignette is resolved by the check.
+
+Nothing under `inst/doc` now points at a provider. `urlchecker::url_check()`
+reports no problems on the built package, and a scheduled workflow runs it
+monthly, against both the built vignettes and the provider URLs held in R
+code, so a dead link surfaces between releases rather than at submission.
+
+The PDF manual builds and the HTML manual validates. Remaining DOIs are given
+in `doi:` form.
 
 Examples do not access the network. Every runnable example uses a small
 subset of ITIS bundled in `inst/extdata`; examples that would download data

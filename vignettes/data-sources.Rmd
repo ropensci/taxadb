@@ -22,18 +22,19 @@ knitr::opts_chunk$set(
 
 `taxadb` abbreviation | name
 ----------------------|-------------------
-`itis` | [Integrated Taxonomic Information System](https://www.itis.gov/)
-`col`  | [Catalogue of Life](https://www.catalogueoflife.org/)
-`ncbi` | [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy)
-`gbif` | GBIF Backbone Taxonomy (gbif.org)
-`ott`  | [Open Tree Taxonomy](https://tree.opentreeoflife.org/about/taxonomy-version/)
-`fb`   | FishBase (fishbase.org)
-`slb`  | SeaLifeBase (sealifebase.org)
+`itis` | Integrated Taxonomic Information System (ITIS)
+`col`  | Catalogue of Life
+`ncbi` | NCBI Taxonomy
+`gbif` | GBIF Backbone Taxonomy
+`ott`  | Open Tree Taxonomy
+`fb`   | FishBase
+`slb`  | SeaLifeBase
 
-`taxadb_provider_info()` gives each provider's authority, licence and
-preferred citation from within R. Note that `fb` and `slb` are CC BY-NC and
-so may not be used commercially; the rest permit commercial use with
-attribution.
+`taxadb_provider_info()` gives each provider's authority, home page, licence
+and preferred citation from within R; they are kept there rather than written
+out here so that a provider moving a page does not leave a dead link in a
+vignette. Note that `fb` and `slb` are CC BY-NC and so may not be used
+commercially; the rest permit commercial use with attribution.
 
 Three providers named in earlier versions are no longer included. `tpl` (The
 Plant List) was retired by its maintainers in 2013 and superseded by World
