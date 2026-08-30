@@ -64,7 +64,6 @@ else's
 eval
 failsafe
 fishbase
-gbif
 gucenense
 henrici
 indica
@@ -83,7 +82,6 @@ rredlist
 schemas
 scientificName
 scientificNames
-sealifebase
 selfheal
 specificEpithet
 spp

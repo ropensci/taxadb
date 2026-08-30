@@ -10,10 +10,10 @@ PROVIDER_META <- list(
     url = "https://www.itis.gov",
     source = "https://www.itis.gov/downloads/itisSqlite.zip",
     license = "public domain",
-    license_url = "https://www.itis.gov/what_itis.html",
+    license_url = "https://www.itis.gov/citation.html",
     synthesis = FALSE,
-    citation = paste("Retrieved from the Integrated Taxonomic Information",
-                     "System on-line database, https://www.itis.gov")),
+    citation = paste("Integrated Taxonomic Information System (ITIS).",
+                     "doi:10.5066/F7KH0KBK")),
   ncbi = list(
     title = "NCBI Taxonomy",
     url = "https://www.ncbi.nlm.nih.gov/taxonomy",
@@ -32,7 +32,7 @@ PROVIDER_META <- list(
     license_url = "https://creativecommons.org/licenses/by/4.0/",
     synthesis = TRUE,
     citation = paste("B\u00e1nki O, et al. Catalogue of Life.",
-                     "https://doi.org/10.48580/dfz8")),
+                     "https://www.catalogueoflife.org")),
   gbif = list(
     title = "GBIF Backbone Taxonomy",
     url = "https://www.gbif.org",

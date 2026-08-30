@@ -1,0 +1,58 @@
+# The CRAN incoming check resolves every URL in DESCRIPTION, the Rd files and
+# the *built* vignettes, and a 404 there is a NOTE on submission -- which
+# means a round trip with the maintainers, whatever the URL actually serves.
+# Building the package is the only way to see what CRAN sees, so this does
+# that on a schedule rather than at submission time. It also checks the
+# provider URLs in R/providers.R, which live in R strings and so are invisible
+# to the CRAN check while still being links the package hands to users.
+#
+# Deliberately off the critical path: provider sites go down, and a red mark
+# on every pull request for someone else's outage teaches people to ignore it.
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+name: url-check
+
+jobs:
+  url-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::urlchecker
+          needs: check
+
+      - name: Build and install, so the vignette HTML exists to check
+        run: |
+          R CMD build --no-manual .
+          tar xzf taxadb_*.tar.gz
+          R CMD INSTALL taxadb_*.tar.gz
+
+      - name: URLs CRAN checks
+        run: |
+          Rscript -e '
+            source("tools/url-check.R")
+            report(urlchecker::url_check("taxadb"), "package")'
+
+      - name: URLs in the provider metadata
+        run: |
+          Rscript -e '
+            source("tools/url-check.R")
+            info <- taxadb::taxadb_provider_info()
+            urls <- unique(c(info$url, info$source, info$license_url))
+            urls <- grep("^https?://", urls, value = TRUE)  # object stores are not links
+            db <- data.frame(URL = urls, Parent = "R/providers.R")
+            report(urlchecker::url_check(db = db), "provider metadata")'
